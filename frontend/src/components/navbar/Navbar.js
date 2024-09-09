@@ -11,7 +11,8 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
+import { Img } from 'react-image';
+import logoImage from '../../assets/images/logo.png';
 import styles from './Navbar.css';
 
 const pages = ['Home', 'Performance', 'Tournament', 'Calendar'];
@@ -44,7 +45,6 @@ function Navbar() {
             }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
           <Typography
             variant="h6"
             noWrap
@@ -60,7 +60,6 @@ function Navbar() {
               textDecoration: 'none',
             }}
           >
-            LOGO
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -97,7 +96,12 @@ function Navbar() {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+          <Img 
+              src={logoImage}
+              alt="Logo"
+              width={150}
+              height={50}
+          />
           <Typography
             variant="h5"
             noWrap
@@ -114,14 +118,13 @@ function Navbar() {
               textDecoration: 'none',
             }}
           >
-            LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', gap: '20px', marginRight: '20px' }}>
             {pages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight:'500', fontSize:'18px'}}
+                sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight:'500', fontSize:'18px', textTransform: 'none'}}
               >
                 {page}
               </Button>
