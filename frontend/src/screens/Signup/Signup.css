@@ -46,6 +46,7 @@ body {
 
 .googleButton svg {
     margin-right: 10px;
+    transform: translateY(-3px);
 }
 
 
@@ -56,6 +57,21 @@ body {
 .googleButton:hover {
     background-color: #f1f1f1 !important;
 } 
+
+/* Add new styling for the Facebook button */
+.facebookButton {
+  background-color: #3b5998; /* Facebook's brand color */
+  color: white; /* Text color */
+}
+
+.facebookButton svg {
+  margin-right: 10px;
+  transform: translateY(-3px); /* Align the icon vertically */
+}
+
+.facebookButton:hover {
+  background-color: #2d4373 !important; /* Darker hover color for Facebook */
+}
 
 .divider-container {
     display: flex;

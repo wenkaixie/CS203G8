@@ -4,6 +4,7 @@ import {
 	signInWithEmailAndPassword,
 	signOut,
 	GoogleAuthProvider,
+	FacebookAuthProvider,
 	signInWithPopup,
 } from "firebase/auth";
 
@@ -27,20 +28,33 @@ class FirebaseAuthentication {
     }
 
 	// handle user login with google
-	googleLogin = async function (auth) {
+	async googleLogin(auth) {
 		let errorCode = null;
 		const provider = new GoogleAuthProvider();
-		await signInWithPopup(auth, provider)
-			.then(async (result) => {
-				console.log("google login success", result);
-			})
-			.catch((error) => {
-				console.error("google login error", error);
-				errorCode = error.code;
-			});
+		try {
+			const result = await signInWithPopup(auth, provider);
+			console.log("google login success", result);
+		} catch (error) {
+			console.error("google login error", error);
+			errorCode = error.code;
+		}
 		return errorCode;
-	};
+	}
 
+	//handle user login with facebook
+	async facebookLogin(auth) {
+		let errorCode = null;
+		const provider = new FacebookAuthProvider();
+		try {
+			const result = await signInWithPopup(auth, provider);
+			console.log("facebook login success", result);
+		} catch (error) {
+			console.error("facebook login error", error);
+			errorCode = error.code;
+		}
+		return errorCode;
+	}
+	
 	// handle logout
 	logout = function (auth) {
 		signOut(auth)
