@@ -62,17 +62,16 @@ const Login = () => {
     // Handle Google login
     const handleGoogleLogin = async () => {
         try {
-            const userCredential = await FBInstanceAuth.googleLogin(auth);
-            const user = userCredential.user;
+            const {data, errorCode} = await FBInstanceAuth.googleLogin(auth);
 
-            if (user) {
+            if (data) {
                 console.log("Google login successful");
 
-                const token = await getIdToken(user);
+                const token = await getIdToken(data);
                 localStorage.setItem('token', token);
                 navigate('/home');  // Redirect to the home page upon successful Google login
             } else {
-                setError("Invalid credentials");
+                setError(`Google login failed: ${errorCode}`);
             }
         } catch (error) {
             console.error("Google login error:", error.message);
@@ -83,8 +82,7 @@ const Login = () => {
     // Handle Facebook login
     const handleFacebookLogin = async () => {
         try {
-            const userCredential = await FBInstanceAuth.facebookLogin(auth);
-            const user = userCredential.user;
+            const {user, errorCode} = await FBInstanceAuth.facebookLogin(auth);
 
             if (user) {
                 console.log("Facebook login successful");
@@ -93,7 +91,7 @@ const Login = () => {
                 localStorage.setItem('token', token);
                 navigate('/home');  // Redirect to the home page upon successful Facebook login
             } else {
-                setError("Invalid credentials");
+                setError(`Facebook login failed: ${errorCode}`);
             }
         } catch (error) {
             console.error("Facebook login error:", error.message);

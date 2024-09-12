@@ -30,29 +30,33 @@ class FirebaseAuthentication {
 	// handle user login with google
 	async googleLogin(auth) {
 		let errorCode = null;
+		let data = null;
 		const provider = new GoogleAuthProvider();
 		try {
 			const result = await signInWithPopup(auth, provider);
+			data = result.user;
 			console.log("google login success", result);
 		} catch (error) {
 			console.error("google login error", error);
 			errorCode = error.code;
 		}
-		return errorCode;
+		return {data, errorCode};
 	}
 
 	//handle user login with facebook
 	async facebookLogin(auth) {
 		let errorCode = null;
+		let data = null;
 		const provider = new FacebookAuthProvider();
 		try {
 			const result = await signInWithPopup(auth, provider);
+			data = result.user;
 			console.log("facebook login success", result);
 		} catch (error) {
 			console.error("facebook login error", error);
 			errorCode = error.code;
 		}
-		return errorCode;
+		return {data, errorCode};
 	}
 	
 	// handle logout
