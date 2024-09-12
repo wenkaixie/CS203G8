@@ -6,9 +6,17 @@ import { Img } from 'react-image';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { FaGoogle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 
 const Login = () => {
+    const navigate = useNavigate();  // Initialize the hook
+
+    const handleSignUpClick = () => {
+        navigate('/signup');  // Redirect to the signup page when clicked
+    };
+
     return (
         <Container fluid className="login">
             <Container fluid className="login-slide-left">
@@ -47,8 +55,17 @@ const Login = () => {
                                 <FaGoogle />
                                 Login with Google
                             </Button>
+                            {/* <GoogleLogin></GoogleLogin> */}
                             <div className="divider-container">
-                                <span className="divider-text">Don't have an account? Sign up</span>
+                                <span className="divider-text">
+                                    Don't have an account?{' '}
+                                    <span 
+                                    className="sign-up-link"
+                                    onClick={handleSignUpClick}
+                                    >
+                                    Sign up
+                                    </span>
+                                </span>
                             </div>
                         </Form>
                     </Container>

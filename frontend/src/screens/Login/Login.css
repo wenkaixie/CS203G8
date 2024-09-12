@@ -45,17 +45,17 @@ body {
 }
 
 .googleButton svg {
-    margin-right: 10px; /* Space between the icon and text */
+    margin-right: 10px;
 }
 
-/* 
+
 .login-button:hover {
-    background-color: #8f8e8e !important;
+    background-color: #b42020 !important;
 }
 
 .googleButton:hover {
-    background-color: #98bbf4 !important;
-} */
+    background-color: #f1f1f1 !important;
+} 
 
 .divider-container {
     display: flex;
@@ -75,4 +75,14 @@ body {
   .divider-text {
     padding: 0 10px;
     font-size: 14px;
+  }
+  
+  .sign-up-link {
+    color: black;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  
+  .sign-up-link:hover {
+    color: darkblue;
   }
