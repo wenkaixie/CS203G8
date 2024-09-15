@@ -13,7 +13,9 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { Img } from 'react-image';
 import logoImage from '../../assets/images/logo.png';
-import styles from './Navbar.css';
+import { signOut } from 'firebase/auth';
+import FBInstanceAuth from '../../firebase/firebase_auth'; // Assuming this is where Firebase auth is managed
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const pages = ['Home', 'Performance', 'Tournament', 'Calendar'];
 const settings = ['Profile', 'Logout'];
@@ -21,10 +23,14 @@ const settings = ['Profile', 'Logout'];
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [error, setError] = React.useState(null); // State for handling errors
+  const navigate = useNavigate(); // useNavigate hook to handle navigation
+  const auth = FBInstanceAuth.getAuth(); // Getting auth instance from Firebase
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -37,31 +43,28 @@ function Navbar() {
     setAnchorElUser(null);
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Signing out the user from Firebase
+      console.log('User signed out from Firebase');
+
+      // Clear local storage
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userDocID');
+      console.log('userToken and userDocID removed from localStorage');
+
+      // Navigate to login page
+      navigate('/login');
+    } catch (error) {
+      setError(`Unexpected error: ${error.message}`);
+      console.error('Error during logout:', error);
+    }
+  };
+
   return (
-    <AppBar position="static"
-            sx={{
-                backgroundColor: 'transparent',
-                boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)'
-            }}>
+    <AppBar position="static" sx={{ backgroundColor: 'transparent', boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'black',
-              textDecoration: 'none',
-            }}
-          >
-          </Typography>
-
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
@@ -96,35 +99,13 @@ function Navbar() {
               ))}
             </Menu>
           </Box>
-          <Img 
-              src={logoImage}
-              alt="Logo"
-              width={150}
-              height={50}
-          />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'black',
-              textDecoration: 'none',
-            }}
-          >
-          </Typography>
+          <Img src={logoImage} alt="Logo" width={150} height={50} />
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', gap: '20px', marginRight: '20px' }}>
             {pages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight:'500', fontSize:'18px', textTransform: 'none'}}
+                sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
               >
                 {page}
               </Button>
@@ -133,7 +114,7 @@ function Navbar() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="User Avatar" src="/static/images/avatar/2.jpg" />
               </IconButton>
             </Tooltip>
             <Menu
@@ -152,11 +133,17 @@ function Navbar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                </MenuItem>
-              ))}
+              {settings.map((setting) =>
+                setting === 'Logout' ? (
+                  <MenuItem key={setting} onClick={handleLogout}>
+                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  </MenuItem>
+                ) : (
+                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  </MenuItem>
+                )
+              )}
             </Menu>
           </Box>
         </Toolbar>
@@ -164,4 +151,5 @@ function Navbar() {
     </AppBar>
   );
 }
+
 export default Navbar;
