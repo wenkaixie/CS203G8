@@ -100,9 +100,11 @@ const TournamentJumbotron = () => {
 function Home() {
   return (
     <div>
-        <Navbar />
-        <TournamentJumbotron />
-        <Dashboard />
+        <div className='background'>
+          <Navbar />
+          <TournamentJumbotron />
+          <Dashboard />
+        </div>
     </div>
   );
 }

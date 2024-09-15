@@ -1,0 +1,61 @@
+@import url('https://fonts.cdnfonts.com/css/josefin-sans');
+
+body {
+    font-family: 'Josefin Sans' !important;
+}
+
+.icon-bar {
+    padding: 50px 50px !important;
+}
+
+.create-profile-wrapper {
+    display: flex;
+    padding: 0px 100px;
+    justify-content: center;
+}
+
+.create-profile-container {
+    width: 100%;
+    max-width: 768px;
+}
+
+.create-profile-heading {
+    text-align: left;
+    padding: 20px 0px;
+}
+
+.create-profile-icon-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.create-profile-picture {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 2px solid #F5F5EF;
+    background-color: #F5F5EF;
+}
+
+.create-profile-details-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 0px;
+}
+
+.create-profile-button-wrapper {
+    padding: 20px 0px;
+}
+
+.continue-button {
+    height: 50px;
+    width: 100%;
+    border-radius: 10px;
+    margin: 5px 0px !important;
+    background-color: #8F3013 !important;
+    border: 0 !important;
+}
+
+.continue-button:hover {
+    background-color: #b42020 !important;
+}
