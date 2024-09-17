@@ -1,0 +1,651 @@
+@import url('https://fonts.cdnfonts.com/css/josefin-sans');
+
+body {
+    font-family: 'Josefin Sans' !important;
+  }
+
+.tournament-upcoming {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .tournament-upcoming .div {
+    background-color: #ffffff;
+    height: 832px;
+    position: relative;
+    width: 1280px;
+  }
+  
+  .tournament-upcoming .text-wrapper {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 18px;
+    font-weight: 500;
+    left: 0;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: -1px;
+    white-space: nowrap;
+    width: 53px;
+  }
+  
+  .tournament-upcoming .text-wrapper-2 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 18px;
+    font-weight: 500;
+    left: 88px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: -1px;
+    white-space: nowrap;
+    width: 105px;
+  }
+  
+  .tournament-upcoming .text-wrapper-3 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 18px;
+    font-weight: 500;
+    left: 228px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-decoration: underline;
+    top: -1px;
+    white-space: nowrap;
+    width: 98px;
+  }
+  
+  .tournament-upcoming .text-wrapper-4 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 18px;
+    font-weight: 500;
+    left: 361px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: -1px;
+    white-space: nowrap;
+    width: 81px;
+  }
+  
+  .tournament-upcoming .male-user {
+    height: 50px;
+    left: 1156px;
+    position: absolute;
+    top: 44px;
+    width: 50px;
+  }
+  
+  .tournament-upcoming .text-wrapper-5 {
+    color: #000000;
+    font-family: "Josefin Sans-SemiBold", Helvetica;
+    font-size: 30px;
+    font-weight: 600;
+    left: 124px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 148px;
+    white-space: nowrap;
+    width: 190px;
+  }
+  
+  .tournament-upcoming .filters {
+    height: 40px;
+    left: 1001px;
+    position: absolute;
+    top: 201px;
+    width: 155px;
+  }
+  
+  .tournament-upcoming .order-by-filter {
+    height: 40px;
+    left: 48px;
+    position: absolute;
+    top: 0;
+    width: 109px;
+  }
+  
+  .tournament-upcoming .overlap-group {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    height: 40px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 107px;
+  }
+  
+  .tournament-upcoming .text-wrapper-6 {
+    color: #656262;
+    font-family: "Josefin Sans-Light", Helvetica;
+    font-size: 15px;
+    font-weight: 300;
+    left: 18px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 15px;
+    white-space: nowrap;
+    width: 62px;
+  }
+  
+  .tournament-upcoming .overlap {
+    background-position: 50% 50%;
+    background-size: cover;
+    height: 1px;
+    left: -18489px;
+    position: absolute;
+    top: 812px;
+    width: 1px;
+  }
+  
+  .tournament-upcoming .arrow {
+    height: 1px;
+    left: 0;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    width: 1px;
+  }
+  
+  .tournament-upcoming .adjust {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    height: 40px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 37px;
+  }
+  
+  .tournament-upcoming .img {
+    height: 24px;
+    left: 7px;
+    position: absolute;
+    top: 8px;
+    width: 25px;
+  }
+  
+  .tournament-upcoming .search {
+    height: 40px;
+    left: 124px;
+    position: absolute;
+    top: 201px;
+    width: 869px;
+  }
+  
+  .tournament-upcoming .overlap-2 {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    height: 40px;
+    position: relative;
+    width: 867px;
+  }
+  
+  .tournament-upcoming .search-2 {
+    height: 25px;
+    left: 20px;
+    position: absolute;
+    top: 8px;
+    width: 35px;
+  }
+  
+  .tournament-upcoming .search-for-a {
+    background: transparent;
+    border: none;
+    color: #656262;
+    font-family: "Josefin Sans-Light", Helvetica;
+    font-size: 15px;
+    font-weight: 300;
+    left: 65px;
+    letter-spacing: 0;
+    line-height: normal;
+    padding: 0;
+    position: absolute;
+    top: 15px;
+    white-space: nowrap;
+    width: 200px;
+  }
+  
+  .tournament-upcoming .navbar {
+    height: 11px;
+    left: 124px;
+    position: absolute;
+    top: 269px;
+    width: 1049px;
+  }
+  
+  .tournament-upcoming .text-wrapper-7 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 15px;
+    font-weight: 500;
+    left: 841px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 47px;
+  }
+  
+  .tournament-upcoming .text-wrapper-8 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 15px;
+    font-weight: 500;
+    left: 643px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 35px;
+  }
+  
+  .tournament-upcoming .text-wrapper-9 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 15px;
+    font-weight: 500;
+    left: 536px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 62px;
+  }
+  
+  .tournament-upcoming .text-wrapper-10 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 15px;
+    font-weight: 500;
+    left: 332px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 35px;
+  }
+  
+  .tournament-upcoming .text-wrapper-11 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 15px;
+    font-weight: 500;
+    left: 66px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 45px;
+  }
+  
+  .tournament-upcoming .text-wrapper-12 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 15px;
+    font-weight: 500;
+    left: 999px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 34px;
+  }
+  
+  .tournament-upcoming .text-wrapper-13 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 15px;
+    font-weight: 500;
+    left: 0;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 21px;
+  }
+  
+  .tournament-upcoming .text-wrapper-14 {
+    color: #000000;
+    font-family: "Josefin Sans-Medium", Helvetica;
+    font-size: 15px;
+    font-weight: 500;
+    left: 733px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 35px;
+  }
+  
+  .tournament-upcoming .records {
+    height: 152px;
+    left: 123px;
+    position: absolute;
+    top: 296px;
+    width: 1033px;
+  }
+  
+  .tournament-upcoming .navbar-2 {
+    height: 20px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 1047px;
+  }
+  
+  .tournament-upcoming .text-wrapper-15 {
+    color: #000000;
+    font-family: "Josefin Sans-Bold", Helvetica;
+    font-size: 15px;
+    font-weight: 700;
+    left: 842px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 6px;
+    white-space: nowrap;
+    width: 118px;
+  }
+  
+  .tournament-upcoming .text-wrapper-16 {
+    color: #000000;
+    font-family: "Josefin Sans-Bold", Helvetica;
+    font-size: 15px;
+    font-weight: 700;
+    left: 644px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 6px;
+    white-space: nowrap;
+    width: 19px;
+  }
+  
+  .tournament-upcoming .text-wrapper-17 {
+    color: #000000;
+    font-family: "Josefin Sans-Bold", Helvetica;
+    font-size: 15px;
+    font-weight: 700;
+    left: 537px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 6px;
+    white-space: nowrap;
+    width: 68px;
+  }
+  
+  .tournament-upcoming .bookmark {
+    height: 20px;
+    left: 1013px;
+    position: absolute;
+    top: 0;
+    width: 20px;
+  }
+  
+  .tournament-upcoming .p {
+    color: #000000;
+    font-family: "Josefin Sans-Bold", Helvetica;
+    font-size: 15px;
+    font-weight: 700;
+    left: 333px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 6px;
+    white-space: nowrap;
+    width: 169px;
+  }
+  
+  .tournament-upcoming .text-wrapper-18 {
+    color: #000000;
+    font-family: "Josefin Sans-Bold", Helvetica;
+    font-size: 15px;
+    font-weight: 700;
+    left: 67px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 6px;
+    white-space: nowrap;
+    width: 223px;
+  }
+  
+  .tournament-upcoming .text-wrapper-19 {
+    color: #000000;
+    font-family: "Josefin Sans-Bold", Helvetica;
+    font-size: 15px;
+    font-weight: 700;
+    left: 0;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    text-align: right;
+    top: 6px;
+    white-space: nowrap;
+    width: 21px;
+  }
+  
+  .tournament-upcoming .text-wrapper-20 {
+    color: #000000;
+    font-family: "Josefin Sans-Bold", Helvetica;
+    font-size: 15px;
+    font-weight: 700;
+    left: 734px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 6px;
+    white-space: nowrap;
+    width: 67px;
+  }
+  
+  .tournament-upcoming .navbar-3 {
+    height: 20px;
+    left: 0;
+    position: absolute;
+    top: 132px;
+    width: 1047px;
+  }
+  
+  .tournament-upcoming .navbar-4 {
+    height: 20px;
+    left: 0;
+    position: absolute;
+    top: 99px;
+    width: 1047px;
+  }
+  
+  .tournament-upcoming .navbar-5 {
+    height: 20px;
+    left: 0;
+    position: absolute;
+    top: 66px;
+    width: 1047px;
+  }
+  
+  .tournament-upcoming .navbar-6 {
+    height: 20px;
+    left: 0;
+    position: absolute;
+    top: 33px;
+    width: 1047px;
+  }
+  
+  .tournament-upcoming .text-wrapper-21 {
+    color: #8f3013;
+    font-family: "Josefin Sans-Regular", Helvetica;
+    font-size: 15px;
+    font-weight: 400;
+    left: 1081px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 779px;
+    white-space: nowrap;
+    width: 79px;
+  }
+  
+  .tournament-upcoming .pages {
+    height: 11px;
+    left: 126px;
+    position: absolute;
+    top: 784px;
+    width: 127px;
+  }
+  
+  .tournament-upcoming .proceed {
+    height: 11px;
+    left: -1px;
+    position: absolute;
+    top: 0;
+    width: 6px;
+  }
+  
+  .tournament-upcoming .proceed-2 {
+    height: 11px;
+    left: 119px;
+    position: absolute;
+    top: 0;
+    width: 6px;
+  }
+  
+  .tournament-upcoming .element {
+    color: #000000;
+    font-family: "Josefin Sans-Bold", Helvetica;
+    font-size: 15px;
+    font-weight: 400;
+    left: 27px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+    width: 72px;
+  }
+  
+  .tournament-upcoming .span {
+    font-weight: 700;
+  }
+  
+  .tournament-upcoming .text-wrapper-22 {
+    font-family: "Josefin Sans-Regular", Helvetica;
+  }
+  
+  .tournament-upcoming .options {
+    height: 40px;
+    left: 396px;
+    position: absolute;
+    top: 140px;
+    width: 495px;
+  }
+  
+  .tournament-upcoming .overlap-3 {
+    background-color: #f5f5ef;
+    border-radius: 10px;
+    height: 40px;
+    position: relative;
+    width: 489px;
+  }
+  
+  .tournament-upcoming .text-wrapper-23 {
+    color: #000000;
+    font-family: "Josefin Sans-Regular", Helvetica;
+    font-size: 15px;
+    font-weight: 400;
+    left: 215px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 14px;
+    white-space: nowrap;
+    width: 60px;
+  }
+  
+  .tournament-upcoming .div-wrapper {
+    background-color: #8f3013;
+    border-radius: 10px;
+    height: 40px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 163px;
+  }
+  
+  .tournament-upcoming .text-wrapper-24 {
+    color: #ffffff;
+    font-family: "Josefin Sans-Regular", Helvetica;
+    font-size: 15px;
+    font-weight: 400;
+    left: 47px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 14px;
+    white-space: nowrap;
+    width: 69px;
+  }
+  
+  .tournament-upcoming .text-wrapper-25 {
+    color: #000000;
+    font-family: "Josefin Sans-Regular", Helvetica;
+    font-size: 15px;
+    font-weight: 400;
+    left: 392px;
+    letter-spacing: 0;
+    line-height: normal;
+    position: absolute;
+    top: 14px;
+    white-space: nowrap;
+    width: 31px;
+  }
+  
+  .tournament-upcoming .logo {
+    height: 59px;
+    left: 44px;
+    position: absolute;
+    top: 38px;
+    width: 212px;
+  }
+  
+  .tournament-upcoming .overlap-4 {
+    height: 72px;
+    position: relative;
+    top: -7px;
+    width: 207px;
+  }
+  
+  .tournament-upcoming .logo-2 {
+    height: 59px;
+    left: 0;
+    position: absolute;
+    top: 7px;
+    width: 59px;
+  }
+  
+  .tournament-upcoming .untitled-design {
+    height: 72px;
+    left: 39px;
+    position: absolute;
+    top: 0;
+    width: 168px;
+  }
