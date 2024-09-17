@@ -25,7 +25,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/routeProtection/ProtectedRoute';
 
 // Import your pages/components
-import Home from './screens/UserHome/UserHome';
+import UserHome from './screens/UserHome/UserHome';
 import Login from './screens/Login/Login';
 import CreateProfile from './screens/CreateProfile/CreateProfile';
 import Signup from './screens/Signup/Signup';
@@ -35,7 +35,7 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/user/home" element={<Home />} />
+        <Route path="/user/home" element={<UserHome />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/create_profile" element={<CreateProfile />} />
