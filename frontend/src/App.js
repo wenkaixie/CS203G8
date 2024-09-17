@@ -4,7 +4,7 @@ import Home from './screens/Home/Home';
 import Login from './screens/Login/Login';
 import CreateProfile from './screens/CreateProfile/CreateProfile';
 import Signup from './screens/Signup/Signup';
-import Tournament from './screens/Tournament/Tournament';
+import TournamentUpcoming from './screens/TournamentUpcoming/TournamentUpcoming';
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<Home />} />
         <Route path="/create_profile" element={<CreateProfile />} />
-        <Route path="/tournament" element={<Tournament />} />
+        <Route path="/tournament_upcoming" element={<TournamentUpcoming />} />
       </Routes>
     </Router>
   );
