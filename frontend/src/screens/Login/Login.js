@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Login.css';
+import './Popup.css';
 import Container from 'react-bootstrap/Container';
 import Icon from '../../assets/images/icon.jpg';
 import { Img } from 'react-image';
@@ -32,6 +33,10 @@ const Login = () => {
     // Toggle password visibility
     const toggleShowPassword = () => {
         setShowPassword(!showPassword);
+    };
+
+    const handleClosePopup = () => {
+        setError(null);
     };
 
     // Helper function to convert ArrayBuffer to hex string
@@ -203,6 +208,15 @@ const Login = () => {
                     </Container>
                 </Container>
             </Container>
+            {error && (
+                <div className="popup">
+                    <div className="popup-content">
+                        <h2>Error</h2>
+                        <p>{error}</p>
+                        <Button variant="secondary" onClick={handleClosePopup}>Close</Button>
+                    </div>
+                </div>
+            )}
         </Container>
     );
 };

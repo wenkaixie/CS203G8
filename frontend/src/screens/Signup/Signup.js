@@ -83,7 +83,7 @@ const Signup = () => {
             console.log('Token and document ID stored in local storage');
 
             // Step 4: Navigate to the home page or dashboard after successful signup
-            navigate('/home');
+            navigate('/user/home');
         } catch (error) {
             console.error('Error creating user:', error.message);
             setError(`Sign-up failed: ${error.message}`);
@@ -110,7 +110,7 @@ const Signup = () => {
             localStorage.setItem('userToken', token);
             localStorage.setItem('userRole', role);
 
-            navigate('/home');
+            navigate('/user/home');
         } catch (error) {
             console.error('Google sign up error:', error.message);
             setError(`Google sign-up failed: ${error.message}`);
@@ -137,7 +137,7 @@ const Signup = () => {
             localStorage.setItem('userToken', token);
             localStorage.setItem('userRole', role);
 
-            navigate('/home');
+            navigate('/user/home');
         } catch (error) {
             console.error('Facebook sign up error:', error.message);
             setError(`Facebook sign-up failed: ${error.message}`);
@@ -188,7 +188,6 @@ const Signup = () => {
                                     onChange={togglePasswordVisibility}
                                 />
                             </Form.Group>
-                            {error && <p className="error-message">{error}</p>}
                             <Button variant="primary" className='signup-button' type="submit" style={{ backgroundColor:"#8F3013", border:"0" }}>
                                 Sign Up
                             </Button>
@@ -216,7 +215,15 @@ const Signup = () => {
                     width={'321px'}
                 />
             </Container>
-            {error && <Popup message={error} onClose={handleClosePopup} />}
+            {error && (
+                <div className="popup">
+                    <div className="popup-content">
+                        <h2>Error</h2>
+                        <p>{error}</p>
+                        <Button variant="secondary" onClick={handleClosePopup}>Close</Button>
+                    </div>
+                </div>
+            )}
         </Container>
     );
 }
