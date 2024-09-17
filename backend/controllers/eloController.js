@@ -59,7 +59,7 @@ const getElo = async (req,res) => {
 
 module.exports = {
     updateElo,
-    getElo
+    getElo,
 };
 
 
