@@ -1,6 +1,10 @@
-import React from "react";
-import Tabs from "@mui/material/Tabs";
-import "./style.css";
+import React  from "react";
+import './Tournament.css';
+import logoImage from '../../assets/images/logo.png';
+import profileImage from '../../assets/images/chess-profile-pic.jpg';
+import { Img } from "react-image";
+import Image from 'react-bootstrap/Image';
+import Button from 'react-bootstrap/Button';
 
 export const TournamentUpcoming = () => {
   return (
