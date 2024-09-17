@@ -1,5 +1,5 @@
 import React from 'react';
-import './Home.css';
+import './UserHome.css';
 import Navbar from '../../components/navbar/Navbar';
 import Carousel from 'react-bootstrap/Carousel';
 import Container from 'react-bootstrap/Container';

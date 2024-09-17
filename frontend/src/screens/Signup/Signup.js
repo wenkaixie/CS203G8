@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Signup.css';
+import './Popup.css';
 import Container from 'react-bootstrap/Container';
 import Icon from '../../assets/images/icon.jpg';
 import { Img } from 'react-image';
@@ -38,6 +39,25 @@ const Signup = () => {
         setShowPassword(!showPassword);
     };
 
+    const handleClosePopup = () => {
+        setError(null);
+    };
+
+    // Helper function to convert ArrayBuffer to hex string
+    function bufferToHex(buffer) {
+        return [...new Uint8Array(buffer)]
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+    }
+
+    // Hashing function using SHA-256
+    async function hashToken(token) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(token);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        return bufferToHex(hashBuffer);
+    }
+
     // Handle sign up with email and password
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -55,7 +75,7 @@ const Signup = () => {
             console.log('User created:', user.uid);
         
             // Step 2: Get the ID token for the signed-up user
-            const token = await getIdToken(user);
+            const token = await hashToken(getIdToken(user));
         
             // Step 3: Store the token in local storage
             localStorage.setItem('userDocID', user.uid);
@@ -78,7 +98,7 @@ const Signup = () => {
             const user = result.user;
             console.log('Google sign up success:', user);
 
-            const token = await getIdToken(user);
+            const token = await hashToken(getIdToken(user));
 
             // Store user info in Firestore
             await setDoc(doc(FirestoreDB, 'users', user.uid), {
@@ -105,7 +125,7 @@ const Signup = () => {
             const user = result.user;
             console.log('Facebook sign up success:', user);
 
-            const token = await getIdToken(user);
+            const token = await hashToken(getIdToken(user));
 
             // Store user info in Firestore
             await setDoc(doc(FirestoreDB, 'users', user.uid), {
@@ -181,13 +201,10 @@ const Signup = () => {
                                 <FaGoogle />
                                 Sign Up with Google
                             </Button>
-
-                            {/* Add Facebook Button */}
                             <Button variant="primary" className="signup-button facebookButton" type="button" style={{ backgroundColor:"#3b5998", color:"white", borderColor:"#3b5998" }} onClick={handleFacebookSignup}>
                                 <FaFacebook />
                                 Sign Up with Facebook
                             </Button>
-
                         </Form>
                     </Container>
                 </Container>
@@ -199,6 +216,7 @@ const Signup = () => {
                     width={'321px'}
                 />
             </Container>
+            {error && <Popup message={error} onClose={handleClosePopup} />}
         </Container>
     );
 }

@@ -34,6 +34,21 @@ const Login = () => {
         setShowPassword(!showPassword);
     };
 
+    // Helper function to convert ArrayBuffer to hex string
+    function bufferToHex(buffer) {
+        return [...new Uint8Array(buffer)]
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+    }
+
+    // Hashing function using SHA-256
+    async function hashToken(token) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(token);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        return bufferToHex(hashBuffer);
+    }
+
     // Handle login with email and password
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -47,8 +62,9 @@ const Login = () => {
                 console.log("Login successful");
 
                 // Retrieve the user ID token and store it
-                const token = await getIdToken(user);
-                localStorage.setItem('token', token);
+                const token = await user.getIdToken();
+                const hashedToken = await hashToken(token);
+                localStorage.setItem('hashedUserToken', hashedToken);
                 navigate('/home');  // Redirect to the home page upon successful login
             } else {
                 setError("Invalid credentials");
@@ -67,8 +83,9 @@ const Login = () => {
             if (data) {
                 console.log("Google login successful");
 
-                const token = await getIdToken(data);
-                localStorage.setItem('token', token);
+                const token = await data.getIdToken();
+                const hashedToken = await hashToken(token);
+                localStorage.setItem('hashedUserToken', hashedToken);
                 navigate('/home');  // Redirect to the home page upon successful Google login
             } else {
                 setError(`Google login failed: ${errorCode}`);
@@ -82,13 +99,14 @@ const Login = () => {
     // Handle Facebook login
     const handleFacebookLogin = async () => {
         try {
-            const {user, errorCode} = await FBInstanceAuth.facebookLogin(auth);
+            const {data, errorCode} = await FBInstanceAuth.facebookLogin(auth);
 
-            if (user) {
+            if (data) {
                 console.log("Facebook login successful");
 
-                const token = await getIdToken(user);
-                localStorage.setItem('token', token);
+                const token = await data.getIdToken();
+                const hashedToken = await hashToken(token);
+                localStorage.setItem('hashedUserToken', hashedToken);
                 navigate('/home');  // Redirect to the home page upon successful Facebook login
             } else {
                 setError(`Facebook login failed: ${errorCode}`);

@@ -6,11 +6,13 @@ body {
 
 .background {
   background-image: url('../../assets/images/home-background.png');
-  background-size: cover;
+  background-size: contain;
   background-position: center;
+  background-attachment: fixed;
   height: 100vh;
   width: 100%;
 }
+
 
 .carousel-item {
   height: 20vh;
