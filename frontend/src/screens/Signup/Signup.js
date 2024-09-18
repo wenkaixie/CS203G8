@@ -6,9 +6,9 @@ import Icon from '../../assets/images/icon.jpg';
 import { Img } from 'react-image';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { FaGoogle, FaFacebook } from 'react-icons/fa'; // Import Facebook Icon
+import { FaGoogle, FaFacebook } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, getIdToken } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { FirestoreDB } from '../../firebase/firebase_config';
 
@@ -43,21 +43,6 @@ const Signup = () => {
         setError(null);
     };
 
-    // Helper function to convert ArrayBuffer to hex string
-    function bufferToHex(buffer) {
-        return [...new Uint8Array(buffer)]
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
-    }
-
-    // Hashing function using SHA-256
-    async function hashToken(token) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(token);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        return bufferToHex(hashBuffer);
-    }
-
     // Handle sign up with email and password
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -74,16 +59,22 @@ const Signup = () => {
             const user = userSignup.user;
             console.log('User created:', user.uid);
         
-            // Step 2: Get the ID token for the signed-up user
-            const token = await hashToken(getIdToken(user));
-        
-            // Step 3: Store the token in local storage
-            localStorage.setItem('userDocID', user.uid);
-            localStorage.setItem('userToken', token);
-            console.log('Token and document ID stored in local storage');
+            // Step 2: Store user info in Firestore
+            await setDoc(doc(FirestoreDB, 'users', user.uid), {
+                email: user.email,
+                role: role
+            });
 
-            // Step 4: Navigate to the home page or dashboard after successful signup
-            navigate('/user/home');
+            // Step 3: Store the user role in local storage
+            localStorage.setItem('userRole', role);
+
+            // Step 4: Navigate to the appropriate home page based on role
+            if (role === 'User') {
+                navigate('/user/home');
+            } else if (role === 'Admin') {
+                navigate('/admin/home');
+            }
+
         } catch (error) {
             console.error('Error creating user:', error.message);
             setError(`Sign-up failed: ${error.message}`);
@@ -98,19 +89,22 @@ const Signup = () => {
             const user = result.user;
             console.log('Google sign up success:', user);
 
-            const token = await hashToken(getIdToken(user));
-
             // Store user info in Firestore
             await setDoc(doc(FirestoreDB, 'users', user.uid), {
                 email: user.email,
                 role: role
             });
 
-            localStorage.setItem('userDocID', user.uid);
-            localStorage.setItem('userToken', token);
+            // Store the user role in local storage
             localStorage.setItem('userRole', role);
 
-            navigate('/user/home');
+            // Navigate to the appropriate home page based on role
+            if (role === 'User') {
+                navigate('/user/home');
+            } else if (role === 'Admin') {
+                navigate('/admin/home');
+            }
+
         } catch (error) {
             console.error('Google sign up error:', error.message);
             setError(`Google sign-up failed: ${error.message}`);
@@ -119,13 +113,11 @@ const Signup = () => {
 
     // Handle Facebook Sign-Up
     const handleFacebookSignup = async () => {
-        const provider = new FacebookAuthProvider(); // Use FacebookAuthProvider for Facebook login
+        const provider = new FacebookAuthProvider();
         try {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
             console.log('Facebook sign up success:', user);
-
-            const token = await hashToken(getIdToken(user));
 
             // Store user info in Firestore
             await setDoc(doc(FirestoreDB, 'users', user.uid), {
@@ -133,11 +125,16 @@ const Signup = () => {
                 role: role
             });
 
-            localStorage.setItem('userDocID', user.uid);
-            localStorage.setItem('userToken', token);
+            // Store the user role in local storage
             localStorage.setItem('userRole', role);
 
-            navigate('/user/home');
+            // Navigate to the appropriate home page based on role
+            if (role === 'User') {
+                navigate('/user/home');
+            } else if (role === 'Admin') {
+                navigate('/admin/home');
+            }
+
         } catch (error) {
             console.error('Facebook sign up error:', error.message);
             setError(`Facebook sign-up failed: ${error.message}`);

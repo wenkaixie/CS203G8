@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Login.css';
 import './Popup.css';
 import Container from 'react-bootstrap/Container';
@@ -9,16 +9,70 @@ import Form from 'react-bootstrap/Form';
 import { FaGoogle, FaFacebook } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import FBInstanceAuth from "../../firebase/firebase_auth";  // Firebase auth class instance
-import { signInWithEmailAndPassword, getIdToken } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { FirestoreDB } from '../../firebase/firebase_config';
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);  // State for handling errors
     const [showPassword, setShowPassword] = useState(false);  // Show/hide password
+    const [loading, setLoading] = useState(true); // Loading state for auth check
 
     const auth = FBInstanceAuth.getAuth();  // Get Firebase auth instance
     const navigate = useNavigate();  // React router's navigation hook
+
+    useEffect(() => {
+        // Listen for authentication state changes
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const role = getUserRole(user.email);
+                // Redirect user to the appropriate home page based on role
+                if (role == 'User') {
+                    navigate('/user/home');
+                } else if (role == 'Admin') {
+                    navigate('/admin/home');
+                }
+            } else {
+                // User is not authenticated, show login form
+                setLoading(false);
+            }
+        });
+
+        // Clean up the listener on component unmount
+        return () => unsubscribe();
+    }, [auth, navigate]);
+
+    // Handler for finding user role in firebase
+    const getUserRole = async (email) => {
+        console.log('Checking user role');
+    
+        try {
+          const roles = ['User', 'Admin', 'Staff'];
+    
+          for (const role of roles) {
+            const roleQuery = query(collection(FirestoreDB, role), where('Email', '==', email));
+            const roleSnapshot = await getDocs(roleQuery);
+    
+            if (!roleSnapshot.empty) {
+              console.log(`User is a ${role}`);
+              const roleDoc = roleSnapshot.docs[0];
+    
+              // Store the uid and role in local storage
+              localStorage.setItem('userDocID', roleDoc.id);
+              localStorage.setItem('userRole', role);
+              return role;
+            }
+          }
+    
+          console.log('User not found in any role');
+          return null;
+        } catch (error) {
+          console.error('Error checking user role:', error);
+          return null;
+        }
+    };
 
     // Handler for email input change
     const handleEmailChange = (event) => {
@@ -39,41 +93,13 @@ const Login = () => {
         setError(null);
     };
 
-    // Helper function to convert ArrayBuffer to hex string
-    function bufferToHex(buffer) {
-        return [...new Uint8Array(buffer)]
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
-    }
-
-    // Hashing function using SHA-256
-    async function hashToken(token) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(token);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        return bufferToHex(hashBuffer);
-    }
-
     // Handle login with email and password
     const handleLogin = async (event) => {
         event.preventDefault();
         setError(null);  // Clear any previous error
 
         try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            if (user) {
-                console.log("Login successful");
-
-                // Retrieve the user ID token and store it
-                const token = await user.getIdToken();
-                const hashedToken = await hashToken(token);
-                localStorage.setItem('hashedUserToken', hashedToken);
-                navigate('/home');  // Redirect to the home page upon successful login
-            } else {
-                setError("Invalid credentials");
-            }
+            await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
             console.error("Login error:", error.message);
             setError(`Login failed: ${error.message}`);
@@ -83,15 +109,11 @@ const Login = () => {
     // Handle Google login
     const handleGoogleLogin = async () => {
         try {
-            const {data, errorCode} = await FBInstanceAuth.googleLogin(auth);
+            const { user, errorCode } = await FBInstanceAuth.googleLogin(auth);
 
-            if (data) {
+            if (user) {
                 console.log("Google login successful");
-
-                const token = await data.getIdToken();
-                const hashedToken = await hashToken(token);
-                localStorage.setItem('hashedUserToken', hashedToken);
-                navigate('/home');  // Redirect to the home page upon successful Google login
+                // onAuthStateChanged will handle the redirection to '/home'
             } else {
                 setError(`Google login failed: ${errorCode}`);
             }
@@ -104,15 +126,11 @@ const Login = () => {
     // Handle Facebook login
     const handleFacebookLogin = async () => {
         try {
-            const {data, errorCode} = await FBInstanceAuth.facebookLogin(auth);
+            const { user, errorCode } = await FBInstanceAuth.facebookLogin(auth);
 
-            if (data) {
+            if (user) {
                 console.log("Facebook login successful");
-
-                const token = await data.getIdToken();
-                const hashedToken = await hashToken(token);
-                localStorage.setItem('hashedUserToken', hashedToken);
-                navigate('/home');  // Redirect to the home page upon successful Facebook login
+                // onAuthStateChanged will handle the redirection to '/home'
             } else {
                 setError(`Facebook login failed: ${errorCode}`);
             }
@@ -181,16 +199,6 @@ const Login = () => {
                                 onClick={handleGoogleLogin}>
                                 <FaGoogle />
                                 Login with Google
-                            </Button>
-
-                            <Button 
-                                variant="primary" 
-                                className="login-button facebookButton"  
-                                type="button" 
-                                style={{ backgroundColor: "#3b5998", color: "white", borderColor: "#3b5998" }}  
-                                onClick={handleFacebookLogin}>
-                                <FaFacebook />
-                                Login with Facebook
                             </Button>
                             
                             <div className="divider-container">
