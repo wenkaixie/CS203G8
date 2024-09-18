@@ -36,7 +36,7 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/user/home" element={<UserHome />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/create_profile" element={<CreateProfile />} />
         {/* User Protected Routes */}

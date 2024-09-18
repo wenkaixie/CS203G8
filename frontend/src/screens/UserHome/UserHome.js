@@ -3,67 +3,72 @@ import './UserHome.css';
 import Navbar from '../../components/navbar/Navbar';
 import Carousel from 'react-bootstrap/Carousel';
 import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import TrophyIcon from '../../assets/images/trophy.png';
 import StarIcon from '../../assets/images/star.png';
 import { Img } from 'react-image';
+import MatchCard from './MatchCard';
+import TournamentsTable from './TournamentsTable';
+import { useNavigate } from 'react-router-dom';
+import CountdownTimer from './CountdownTimer';
+
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+  const handleViewGamesHistory = (event) => {
+    navigate ('/user/home'); // replace with round details
+  }
+
   return (
-    <Container fluid className="dashboard">
-      <Row className='dashboard-row'>
-        <Col xs={4} className='dashboard-col'>
-          <Row className='dashboard-inner-row'>
-            <Container fluid className='dashboard-container'>
-              <h2 style={{fontWeight: '600px'}}>Welcome Back, John!</h2>
-              <Container fluid className='dashboard-container-coloured'>
-                <Container fluid className='dashboard-container-coloured-inner'>
-                  <h4>Rating</h4>
-                  <Container fluid className='dashboard-container-coloured-inner-second'>
-                    <Img 
-                      src={StarIcon}
-                      height={'50px'}
-                      width={'50px'}
-                    />
-                    <h2 style={{margin:'0px'}}>1000</h2>
-                  </Container>
-                </Container>
-                <div className="divider" />
-                <Container fluid className='dashboard-container-coloured-inner'>
-                  <h4>World Rank</h4>
-                  <Container fluid className='dashboard-container-coloured-inner-second'>
-                    <Img 
-                      src={TrophyIcon}
-                      height={'50px'}
-                      width={'50px'}
-                    />
-                    <h2 style={{margin:'0px'}}>#35</h2>
-                  </Container>
-                </Container>
-              </Container>
-            </Container>
-          </Row>
-          <Row className='dashboard-inner-row'>
-            <Container fluid className='dashboard-container'>
-              <h3>Recent Games</h3>
-              <h5>14 May</h5>
-              <Container fluid style={{alignItems:'baseline', padding:'5%', display:'inline'}} className='dashboard-container-coloured'>
-                <h4>Summer Cup (Round 1)</h4>
-                <Container fluid className='dashboard-container-coloured-inner'>
-                  5 - 2
-                </Container>
-              </Container>
-            </Container>
-          </Row>
-        </Col>
-        <Col xs={8}>
-          <Container fluid className='dashboard-container'>
-            hello
-          </Container>
-        </Col>
-      </Row>
-    </Container>
+    <div className='dashboard'>
+      <div className='dashboard-col'>
+        <div className='dashboard-col-inner'>
+          <div className='welcome-back'>
+            <h2>Welcome Back, John!</h2>
+          </div>
+          <div className='rating-and-rank'> 
+            <div className='rating-and-rank-section'>
+              <h4>Rating</h4>
+              <div fluid className='rating-and-rank-section-details'>
+                <Img 
+                  src={StarIcon}
+                  height={'30%'}
+                  width={'30%'}
+                />
+                <h2 style={{margin:'0px'}}>1000</h2>
+              </div>
+            </div>
+            <div className='divider'></div>
+            <div className='rating-and-rank-section'>
+              <h4>Rank</h4>
+              <div fluid className='rating-and-rank-section-details'>
+                <Img 
+                  src={TrophyIcon}
+                  height={'30%'}
+                  width={'30%'}
+                />
+                <h2 style={{margin:'0px'}}>#45</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className='dashboard-col-inner'>
+          <div>
+            <h2>Recent games</h2>
+            <h5>14 May</h5>
+          </div>
+          <MatchCard />
+          <div onClick={ handleViewGamesHistory } className='games-history'>
+            <h8>View games history</h8>
+          </div>
+        </div>
+      </div>
+      <div className='dashboard-col'>
+        <div className='dashboard-col-inner'>
+          <TournamentsTable />
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -76,6 +81,7 @@ const TournamentJumbotron = () => {
             <p>Upcoming Tournaments</p>
             <h2>Tournament 1</h2>
             <h3>Round 1</h3>
+            <CountdownTimer targetDate={'2024-09-22T10:00:00'}/>
           </Carousel.Caption>
         </Carousel.Item>
         <Carousel.Item>
@@ -83,6 +89,7 @@ const TournamentJumbotron = () => {
             <p>Upcoming Tournaments</p>
             <h2>Tournament 2</h2>
             <h3>Round 1</h3>
+            <CountdownTimer targetDate={'2024-09-24T10:00:00'}/>
           </Carousel.Caption>
         </Carousel.Item>
         <Carousel.Item>
@@ -90,6 +97,7 @@ const TournamentJumbotron = () => {
             <p>Upcoming Tournaments</p>
             <h2>Tournament 3</h2>
             <h3>Round 1</h3>
+            <CountdownTimer targetDate={'2024-09-27T10:00:00'}/>
           </Carousel.Caption>
         </Carousel.Item>
       </Carousel>
@@ -97,13 +105,15 @@ const TournamentJumbotron = () => {
   );
 };
 
-function Home() {
+const Home = () => {
   return (
     <div>
         <div className='background'>
-          <Navbar />
-          <TournamentJumbotron />
-          <Dashboard />
+          <div className='background-content'>
+            <Navbar />
+            <TournamentJumbotron />
+            <Dashboard />
+          </div>
         </div>
     </div>
   );
