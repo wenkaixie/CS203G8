@@ -9,6 +9,18 @@ body {
     display: flex;
 }
 
+@media (max-width: 768px){
+  .signup {
+    flex-direction: column-reverse;
+  }
+  .signup-slide-right {
+    height: 30vh!important;
+  }
+  .signup-slide-left {
+    height: 70vh !important;
+  }
+}
+
 .signup-slide-right {
     padding: 0px !important;
     background-color: #F5F5EE;
@@ -25,6 +37,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1;
 }
 
 .signup-content {

@@ -14,7 +14,7 @@ const CreateProfile = () => {
                 <Img 
                     src={logoImage}
                     width={212}
-                    height={70}
+                    height={72}
                 />
             </div>
             <div className="create-profile-wrapper">

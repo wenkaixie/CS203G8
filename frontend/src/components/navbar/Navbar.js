@@ -45,21 +45,16 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth); // Signing out the user from Firebase
-      console.log('User signed out from Firebase');
+        await signOut(auth); // Signing out the user from Firebase
+        console.log('User signed out from Firebase');
 
-      // Clear local storage
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('userDocID');
-      console.log('userToken and userDocID removed from localStorage');
-
-      // Navigate to login page
-      navigate('/login');
+        // Navigate to login page
+        navigate('/');
     } catch (error) {
-      setError(`Unexpected error: ${error.message}`);
-      console.error('Error during logout:', error);
+        setError(`Unexpected error: ${error.message}`);
+        console.error('Error during logout:', error);
     }
-  };
+};
 
   return (
     <AppBar position="static" sx={{ backgroundColor: 'transparent', boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)' }}>

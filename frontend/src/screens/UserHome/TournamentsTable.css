@@ -1,0 +1,120 @@
+/* Main container */
+.tournament-container {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Title */
+  .tournament-title {
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  /* Filter tabs */
+  .filter-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Tab buttons */
+  .tab {
+    background-color: #ecebeb;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+  }
+  
+  .tab.active {
+    background-color: #8F3013;
+    color: white;
+    transition: 0.2s;
+  }
+
+  /* Filter icons and buttons */
+  .filter-buttons {
+    display: flex;
+    align-items: center;
+  }
+  
+  .filter-icon {
+    font-size: 20px;
+    border: none;
+    background-color: #f3f3f3;
+    border-radius: 50%;
+    padding: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  .order-by {
+    border: none;
+    background-color: #ecebeb;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  /* Table styling */
+  .tournament-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .tournament-table th,
+  .tournament-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ecebeb;
+  }
+  
+  .tournament-table th {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .tournament-table td {
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .clickable-row:hover {
+    background-color: #f0f0f0;
+  }  
+  
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .page-number {
+    padding: 10px;
+    cursor: pointer;
+    margin: 0 5px;
+  }
+  
+  .page-number:hover {
+    background-color: #f3f3f3;
+    border-radius: 50%;
+  }
+  
+  /* Show more link */
+  .show-more {
+    text-align: right;
+    font-size: 14px;
+    color: #a35d32;
+    cursor: pointer;
+    padding-right: 20px;
+  }
+  
+  .show-more:hover {
+    text-decoration: underline;
+  }
