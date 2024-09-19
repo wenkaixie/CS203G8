@@ -4,7 +4,7 @@ import Home from './screens/Home/Home';
 import Login from './screens/Login/Login';
 import CreateProfile from './screens/CreateProfile/CreateProfile';
 import Signup from './screens/Signup/Signup';
-import TournamentUpcoming from './screens/TournamentUpcoming/TournamentUpcoming';
+import {TournamentUpcoming} from './screens/TournamentUpcoming/TournamentUpcoming';
 
 function App() {
   return (

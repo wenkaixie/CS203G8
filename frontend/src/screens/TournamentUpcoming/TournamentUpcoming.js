@@ -1,129 +1,144 @@
 import React  from "react";
-import './Tournament.css';
+import './TournamentUpcoming.css';
 import logoImage from '../../assets/images/logo.png';
 import profileImage from '../../assets/images/chess-profile-pic.jpg';
 import { Img } from "react-image";
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 
-export const TournamentUpcoming = () => {
-  return (
-    <div className="tournament-upcoming">
-      <div className="div">
-        <Tabs>
-          <div className="text-wrapper">Home</div>
-          <div className="text-wrapper-2">Performance</div>
-          <div className="text-wrapper-3">Tournament</div>
-          <div className="text-wrapper-4">Calendar</div>
-        </Tabs>
-        <img className="male-user" alt="Male user" src="male-user.png" />
-        <div className="text-wrapper-5">Tournament</div>
-        <div className="filters">
-          <div className="order-by-filter">
-            <div className="overlap-group">
-              <div className="text-wrapper-6">Order By</div>
-            </div>
-            <div className="overlap">
-              <img className="arrow" alt="Arrow" />
-            </div>
-          </div>
-          <div className="adjust">
-            <img className="img" alt="Adjust" src="adjust.png" />
-          </div>
+
+import { useState, useEffect } from 'react';
+
+// Example API URL where tournaments are fetched
+export const API_URL = 'http://your-api-url/tournaments';
+
+const TournamentUpcoming = () => {
+    const [tournaments, setTournaments] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+    const [filteredTournaments, setFilteredTournaments] = useState([]);
+
+    // Fetch tournaments from API
+    useEffect(() => {
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(data => setTournaments(data))
+            .catch(err => console.error(err));
+    }, []);
+
+    // Handle search input
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    // Handle sorting option
+    const handleSortChange = (e) => {
+        setSortBy(e.target.value);
+    };
+
+    // Handle filter option
+    const handleFilterChange = (e) => {
+        setFilterStatus(e.target.value);
+    };
+
+    // Filter and sort the tournament list based on user inputs
+    useEffect(() => {
+        let updatedList = tournaments;
+
+        // Filter by status
+        if (filterStatus) {
+            updatedList = updatedList.filter(tournament => tournament.status === filterStatus);
+        }
+
+        // Filter by search term (tournament name)
+        if (searchTerm) {
+            updatedList = updatedList.filter(tournament => 
+                tournament.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Sort the list
+        if (sortBy) {
+            updatedList = updatedList.sort((a, b) => {
+                if (sortBy === 'date') {
+                    return new Date(a.date) - new Date(b.date);
+                } else if (sortBy === 'prize') {
+                    return b.prize - a.prize;
+                }
+                return 0;
+            });
+        }
+
+        setFilteredTournaments(updatedList);
+    }, [searchTerm, sortBy, filterStatus, tournaments]);
+
+    // Handle save option
+    const handleSave = (tournamentId) => {
+        // Logic to save a tournament (could be a POST request to an API)
+        console.log(`Tournament ${tournamentId} saved!`);
+    };
+
+    return (
+        <div>
+            <h1>Tournament List</h1>
+
+            {/* Search Bar */}
+            <input
+                type="text"
+                placeholder="Search by name..."
+                value={searchTerm}
+                onChange={handleSearch}
+            />
+
+            {/* Sort Dropdown */}
+            <select onChange={handleSortChange}>
+                <option value="">Sort by</option>
+                <option value="date">Date</option>
+                <option value="prize">Prize</option>
+            </select>
+
+            {/* Filter Dropdown */}
+            <select onChange={handleFilterChange}>
+                <option value="">Filter by status</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+
+            {/* Tournament List Table */}
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Slots</th>
+                        <th>Prize</th>
+                        <th>Status</th>
+                        <th>Save</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredTournaments.map((tournament, index) => (
+                        <tr key={tournament.id}>
+                            <td>{index + 1}</td>
+                            <td>{tournament.name}</td>
+                            <td>{tournament.date}</td>
+                            <td>{tournament.location}</td>
+                            <td>{tournament.slots}</td>
+                            <td>{tournament.prize}</td>
+                            <td>{tournament.status}</td>
+                            <td>
+                                <button onClick={() => handleSave(tournament.id)}>Save</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
-        <div className="search">
-          <div className="overlap-2">
-            <img className="search-2" alt="Search" src="search.png" />
-            <input className="search-for-a" placeholder="Search for a tournament" type="text" />
-          </div>
-        </div>
-        <div className="navbar">
-          <div className="text-wrapper-7">Status</div>
-          <div className="text-wrapper-8">Slots</div>
-          <div className="text-wrapper-9">Location</div>
-          <div className="text-wrapper-10">Date</div>
-          <div className="text-wrapper-11">Name</div>
-          <div className="text-wrapper-12">Save</div>
-          <div className="text-wrapper-13">No</div>
-          <div className="text-wrapper-14">Prize</div>
-        </div>
-        <div className="records">
-          <div className="navbar-2">
-            <div className="text-wrapper-15">Registered</div>
-            <div className="text-wrapper-16">30</div>
-            <div className="text-wrapper-17">Singapore</div>
-            <img className="bookmark" alt="Bookmark" src="bookmark.png" />
-            <p className="p">Jul 27, 2024 - 29 Jul, 2024</p>
-            <div className="text-wrapper-18">Youth Chess Championships 2024</div>
-            <div className="text-wrapper-19">1</div>
-            <div className="text-wrapper-20">$50,000</div>
-          </div>
-          <div className="navbar-3">
-            <div className="text-wrapper-15">Open registration</div>
-            <div className="text-wrapper-16">30</div>
-            <div className="text-wrapper-17">Singapore</div>
-            <img className="bookmark" alt="Bookmark" src="bookmark.png" />
-            <div className="text-wrapper-18">Youth Chess Championships 2024</div>
-            <div className="text-wrapper-19">5</div>
-            <div className="text-wrapper-20">$50,000</div>
-            <p className="p">Jul 27, 2024 - 29 Jul, 2024</p>
-          </div>
-          <div className="navbar-4">
-            <div className="text-wrapper-15">Published</div>
-            <div className="text-wrapper-16">30</div>
-            <div className="text-wrapper-17">Singapore</div>
-            <img className="bookmark" alt="Bookmark" src="bookmark.png" />
-            <div className="text-wrapper-18">Youth Chess Championships 2024</div>
-            <div className="text-wrapper-19">4</div>
-            <div className="text-wrapper-20">$50,000</div>
-            <p className="p">Jul 27, 2024 - 29 Jul, 2024</p>
-          </div>
-          <div className="navbar-5">
-            <div className="text-wrapper-15">Published</div>
-            <div className="text-wrapper-16">30</div>
-            <div className="text-wrapper-17">Singapore</div>
-            <img className="bookmark" alt="Bookmark" src="bookmark.png" />
-            <div className="text-wrapper-18">Youth Chess Championships 2024</div>
-            <div className="text-wrapper-19">3</div>
-            <div className="text-wrapper-20">$50,000</div>
-            <p className="p">Jul 27, 2024 - 29 Jul, 2024</p>
-          </div>
-          <div className="navbar-6">
-            <div className="text-wrapper-15">Open registration</div>
-            <div className="text-wrapper-16">30</div>
-            <div className="text-wrapper-17">Singapore</div>
-            <img className="bookmark" alt="Bookmark" src="bookmark.png" />
-            <div className="text-wrapper-18">Youth Chess Championships 2024</div>
-            <div className="text-wrapper-19">2</div>
-            <div className="text-wrapper-20">$50,000</div>
-            <p className="p">Jul 27, 2024 - 29 Jul, 2024</p>
-          </div>
-        </div>
-        <div className="text-wrapper-21">Show more</div>
-        <div className="pages">
-          <img className="proceed" alt="Proceed" src="image.svg" />
-          <img className="proceed-2" alt="Proceed" src="proceed.svg" />
-          <p className="element">
-            <span className="span">1</span>
-            <span className="text-wrapper-22">&nbsp;&nbsp;&nbsp;&nbsp; 2&nbsp;&nbsp;&nbsp;&nbsp; 3</span>
-          </p>
-        </div>
-        <div className="options">
-          <div className="overlap-3">
-            <div className="text-wrapper-23">Ongoing</div>
-            <div className="div-wrapper">
-              <div className="text-wrapper-24">Upcoming</div>
-            </div>
-            <div className="text-wrapper-25">Past</div>
-          </div>
-        </div>
-        <div className="logo">
-          <div className="overlap-4">
-            <img className="logo-2" alt="Logo" src="logo.png" />
-            <img className="untitled-design" alt="Untitled design" src="untitled-design-2.png" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
+
+export default TournamentUpcoming;
