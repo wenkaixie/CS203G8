@@ -1,11 +1,8 @@
-import React  from "react";
+import React from "react";
 import './TournamentUpcoming.css';
-import logoImage from '../../assets/images/logo.png';
-import profileImage from '../../assets/images/chess-profile-pic.jpg';
-import { Img } from "react-image";
-import Image from 'react-bootstrap/Image';
-import Button from 'react-bootstrap/Button';
-
+import filterIcon from '../../assets/images/Adjust.png';
+import searchIcon from '../../assets/images/Search.png';
+import Navbar from '../../components/navbar/Navbar';
 
 import { useState, useEffect } from 'react';
 
@@ -13,6 +10,7 @@ import { useState, useEffect } from 'react';
 export const API_URL = 'http://your-api-url/tournaments';
 
 const TournamentUpcoming = () => {
+    const [activeTab, setActiveTab] = useState('upcoming');
     const [tournaments, setTournaments] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
@@ -26,6 +24,15 @@ const TournamentUpcoming = () => {
             .then(data => setTournaments(data))
             .catch(err => console.error(err));
     }, []);
+
+    // Filter tournaments based on active tab
+    useEffect(() => {
+        let filteredList = tournaments;
+        if (activeTab !== '') {
+            filteredList = tournaments.filter(tournament => tournament.status === activeTab);
+        }
+        setFilteredTournaments(filteredList);
+    }, [activeTab, tournaments]);
 
     // Handle search input
     const handleSearch = (e) => {
@@ -53,7 +60,7 @@ const TournamentUpcoming = () => {
 
         // Filter by search term (tournament name)
         if (searchTerm) {
-            updatedList = updatedList.filter(tournament => 
+            updatedList = updatedList.filter(tournament =>
                 tournament.name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
@@ -81,62 +88,103 @@ const TournamentUpcoming = () => {
 
     return (
         <div>
-            <h1>Tournament List</h1>
+            {/* Navbar at the top */}
+            <Navbar />
 
-            {/* Search Bar */}
-            <input
-                type="text"
-                placeholder="Search by name..."
-                value={searchTerm}
-                onChange={handleSearch}
-            />
+            {/* Tournament Content */}
+            <div className="tournament-upcoming">
 
-            {/* Sort Dropdown */}
-            <select onChange={handleSortChange}>
-                <option value="">Sort by</option>
-                <option value="date">Date</option>
-                <option value="prize">Prize</option>
-            </select>
+                {/* Container for Header and Subtask Bar */}
+                <div className="header-subtask-container">
+                    {/* Page Header */}
+                    <h1>Tournament</h1>
 
-            {/* Filter Dropdown */}
-            <select onChange={handleFilterChange}>
-                <option value="">Filter by status</option>
-                <option value="upcoming">Upcoming</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-            </select>
+                    {/* Subtask Bar */}
+                    <div className="subtask-bar">
+                        <button
+                            className={`subtask-button ${activeTab === 'upcoming' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('upcoming')}
+                        >
+                            Upcoming
+                        </button>
+                        <button
+                            className={`subtask-button ${activeTab === 'ongoing' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('ongoing')}
+                        >
+                            Ongoing
+                        </button>
+                        <button
+                            className={`subtask-button ${activeTab === 'past' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('past')}
+                        >
+                            Past
+                        </button>
+                    </div>
+                </div>
 
-            {/* Tournament List Table */}
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Name</th>
-                        <th>Date</th>
-                        <th>Location</th>
-                        <th>Slots</th>
-                        <th>Prize</th>
-                        <th>Status</th>
-                        <th>Save</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredTournaments.map((tournament, index) => (
-                        <tr key={tournament.id}>
-                            <td>{index + 1}</td>
-                            <td>{tournament.name}</td>
-                            <td>{tournament.date}</td>
-                            <td>{tournament.location}</td>
-                            <td>{tournament.slots}</td>
-                            <td>{tournament.prize}</td>
-                            <td>{tournament.status}</td>
-                            <td>
-                                <button onClick={() => handleSave(tournament.id)}>Save</button>
-                            </td>
+
+                {/* Search and Filter Controls */}
+                <div className="controls-container">
+                    {/* Search Bar */}
+                    <div className="search-bar">
+                        <input
+                            type="text"
+                            placeholder="Search for a tournament"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <img src={searchIcon} alt="Search Icon" className="search-icon" />
+                    </div>
+
+                    {/* Buttons Container */}
+                    <div className="buttons-container">
+                        {/* Filter Button */}
+                        <button className="filter-button">
+                            <img src={filterIcon} alt="Filter Icon" className="filter-icon" />
+                            Filter
+                        </button>
+
+                        {/* Order By Button */}
+                        <button className="order-button">
+                            Order By
+                        </button>
+                    </div>
+                </div>
+
+                <div className="tournament-list-container">
+                <table className="tournament-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Slots</th>
+                            <th>Status</th>
+                            <th>Save</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {filteredTournaments.map((tournament, index) => (
+                            <tr key={tournament.id}>
+                                <td>{index + 1}</td>
+                                <td>{tournament.name}</td>
+                                <td>{tournament.date}</td>
+                                <td>{tournament.location}</td>
+                                <td>{tournament.slots}</td>
+                                <td className={`status-${tournament.status.replace(/\s+/g, '-').toLowerCase()}`}>
+                                    {tournament.status}
+                                </td>
+                                <td className="save-icon">
+                                    <button onClick={() => handleSave(tournament.id)}>Save</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            </div>
         </div>
     );
 };

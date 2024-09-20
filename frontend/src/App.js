@@ -17,6 +17,8 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/createprofile" element={<CreateProfile />} />
+        <Route path="tournamentupcoming" element={<TournamentUpcoming />} />
+        <Route path="home" element={<UserHome />} />   //delete later
         
         {/* User Protected Routes */}
         <Route
@@ -26,7 +28,7 @@ function App() {
               <Routes>
                 <Route path="home" element={<UserHome />} />
                 <Route path="profile" element={<UserHome />} />
-                <Route path="tournamentupcoming" element={<TournamentUpcoming />} />
+                
               </Routes>
             </ProtectedRoute>
           }

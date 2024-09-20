@@ -1,176 +1,277 @@
 @import url('https://fonts.cdnfonts.com/css/josefin-sans');
 
 body {
-  font-family: 'Josefin Sans', sans-serif !important;
+  font-family: 'Josefin Sans' !important;
 }
 
 .tournament-upcoming {
-  background-color: #ffffff;
+  padding: 40px 10%; 
+}
+
+.navbar {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  width: 100%;
+  padding: 20px;
 }
 
-.tournament-upcoming .div {
-  background-color: #ffffff;
-  height: 100vh;
-  position: relative;
-  width: 80%;
+/* Container for search, filter, and order by buttons */
+.controls-container {
+  display: flex;
+  justify-content: space-between; /* Space out the search bar and buttons container */
+  align-items: center; /* Center items vertically */
+  margin-top: 20px;
+  margin: 25px auto;
+  margin-bottom: 30px; /* Space below the controls */
+  padding: 0 20px; /* Add padding to container */
 }
 
-.tournament-upcoming .text-wrapper-3,
-.tournament-upcoming .text-wrapper-4 {
-  color: #000000;
-  font-size: 1.125rem; /* 18px */
+/* Search Bar Styles */
+.search-bar {
+  position: relative; /* For positioning icon */
+  flex-grow: 1; 
+  margin-right: 10px; /* Gap between search bar and filter button */
+}
+
+.search-bar input {
+  width: 100%; 
+  padding: 10px 50px 10px 20px; /* Padding inside the input with space for icon */
+  border: 1px solid #d1d1d1;
+  border-radius: 10px; 
+  font-size: 1rem; 
+  outline: none; 
+  height: 45px; 
+}
+
+.search-bar input::placeholder {
+  color: #a1a1a1; 
+}
+
+/* Search Icon inside the input */
+.search-icon {
+  position: absolute; /* Position relative to the search bar */
+  right: 15px; /* Distance from the right */
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%); /* Adjust vertical alignment */
+  width: 30px; /* Adjust size */
+  height: 20px; /* Adjust size */
+}
+
+/* Container for filter and order buttons */
+.buttons-container {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  gap: 10px; /* Gap between filter and order by buttons */
+}
+
+/* Filter Button Styles */
+.filter-button {
+  height: 45px; 
+  width: 120px; 
+  background-color: #f5f5f5; 
+  border: 1px solid #f5f5f5; 
+  border-radius: 10px; 
+  font-size: 1rem; 
+  color: #333333; 
+  cursor: pointer; /* Pointer cursor */
+  display: flex; /* Flex for icon and text alignment */
+  align-items: center; /* Center icon and text vertically */
+  justify-content: center; /* Center text horizontally */
+  gap: 10px; /* Space between icon and text */
+}
+
+.filter-button img {
+  width: 20px; 
+  height: 20px; 
+}
+
+.filter-button:hover {
+  background-color: #e0e0e0; 
+}
+
+.order-button {
+  height: 45px; 
+  width: 140px; 
+  background-color: #f5f5f5; 
+  border: 1px solid #f5f5f5; 
+  border-radius: 10px; 
+  font-size: 1rem; 
+  color: #333333; 
+  cursor: pointer; /* Pointer cursor */
+  display: flex; /* Flex for text alignment */
+  align-items: center; /* Center text vertically */
+  justify-content: center; /* Center text horizontally */
+  position: relative; /* Relative positioning for pseudo-element */
+}
+
+.order-button::after {
+  content: ""; /* arrow */
+  position: absolute; /* Position relative to the button */
+  right: 10px; /* 5px gap from the text plus 5px for the arrow width */
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%); /* Adjust to be perfectly centered */
+  border-left: 6px solid transparent; /* Create downward arrow */
+  border-right: 6px solid transparent;
+  border-top: 6px solid #333333; /* Arrow color */
+}
+
+.order-button:hover {
+  background-color: #e0e0e0; 
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .controls-container {
+      flex-direction: column; /* Stack elements vertically on smaller screens */
+      gap: 15px; /* Space between stacked items */
+  }
+  .search-bar {
+      width: 100%; /* Full width for smaller screens */
+      margin-right: 0; /* No margin in stacked layout */
+  }
+  .buttons-container {
+      width: 100%; /* Full width for buttons container in stacked layout */
+      justify-content: space-between; /* Distribute buttons evenly */
+  }
+  .filter-button, .order-button {
+      width: 48%; /* Adjust width of buttons in stacked layout */
+  }
+}
+
+/* Container for Header and Subtask Bar */
+.header-subtask-container {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center everything horizontally */
+  margin-bottom: 20px; /* Space below the subtask bar */
+  position: relative; /* Relative positioning for layout adjustments */
+  width: 100%; /* Full width */
+  max-width: 1200px; /* Max width of the entire section */
+  margin: 0 auto; /* Center the container */
+}
+
+/* Tournament Header */
+.header-subtask-container h1 {
+  flex: 0 0 auto; /* Prevent the header from growing/shrinking */
+  margin: 0; /* Remove default margin */
+  font-size: 2rem; 
+  width: auto; /* Adjust width to fit content */
+  margin-right: 20px; /* Space between header and subtask bar */
+}
+
+/* Subtask Bar */
+.subtask-bar {
+  display: flex;
+  justify-content: center; /* Centers the subtask bar horizontally */
+  align-items: center; /* Centers items vertically */
+  background-color: #f5f5f5; 
+  border-radius: 10px; 
+  width: 60%; /* Adjust width for centering */
+  height: 45px; 
+  margin: 0 auto; /* Center the subtask bar within the container */
+}
+
+/* Each subtask button */
+.subtask-button {
+  flex: 1; /* Each button takes up equal space */
+  padding: 0 20px; /* Remove vertical padding, keep horizontal padding */
+  background: transparent; 
+  border: none; 
+  font-size: 1rem; 
+  font-weight: 500; 
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+  height: 100%; /* Ensure button height matches the subtask bar height */
+  display: flex; /* Use flex to align text */
+  align-items: center; /* Vertically center text */
+  justify-content: center; /* Center text horizontally */
+}
+
+/* Hover state for buttons */
+.subtask-button:hover {
+  background-color: #f5f5ef; 
+  color: #333333; 
+}
+
+/* Active button style */
+.subtask-button.active {
+  background-color: #8f3013; 
+  color: #ffffff; 
+  border-radius: 10px; 
+}
+
+/* Tournament Table Container */
+.tournament-list {
+    width: 100%; /* Full width of the container */
+    max-width: 1000px; /* Constrain the width to match the search bar container */
+    margin: 0 auto; /* Center the table within the container */
+    padding: 0 20px; /* Optional padding inside the container */
+}
+
+/* Tournament Table Styles */
+.tournament-table {
+    width: 100%; /* Full width of the container */
+    border-collapse: separate; /* Use separate borders */
+    border-spacing: 0; /* Remove spacing between cells */
+    margin-top: 20px; /* Space above the table */
+}
+
+/* Table Header Styles */
+.tournament-table th {
+    font-weight: 600; 
+    color: #333333; 
+    padding: 10px 20px; /* Padding inside header cells */
+    border-bottom: 2px solid #e0e0e0; 
+    text-align: left; /* Align text to the left */
+    background-color: #f5f5f5; /* Slightly different background for header */
+}
+
+/* Table Row Styles */
+.tournament-table tr {
+    border-bottom: 1px solid #f5f5f5; 
+}
+
+/* Table Cell Styles */
+.tournament-table td {
+    font-weight: 400; 
+    color: #555555; 
+    padding: 15px 20px; /* Padding inside cells */
+    text-align: left; /* Align text to the left */
+}
+
+
+/* Different status colors for table rows */
+.tournament-table td.status-registered {
+  color: #28a745; /* Green for registered */
   font-weight: 500;
-  position: absolute;
-  top: 0;
-  white-space: nowrap;
 }
 
-.tournament-upcoming .text-wrapper-3 {
-  left: 18%;
+.tournament-table td.status-open-registration {
+  color: #007bff; /* Blue for open registration */
+  font-weight: 500;
 }
 
-.tournament-upcoming .text-wrapper-4 {
-  left: 28%;
+.tournament-table td.status-published {
+  color: #6c757d; /* Grey for published */
+  font-weight: 500;
 }
 
-.tournament-upcoming .male-user {
-  height: 50px;
-  position: absolute;
-  right: 2%;
-  top: 44px;
+/* Save button styles */
+.save-icon {
+  text-align: center;
 }
 
-.tournament-upcoming .text-wrapper-5 {
-  color: #000000;
-  font-size: 1.875rem; /* 30px */
-  font-weight: 600;
-  position: absolute;
-  top: 148px;
-  left: 10%;
-}
-
-.tournament-upcoming .filters,
-.tournament-upcoming .search {
-  position: absolute;
-  top: 201px;
-  height: 40px;
-}
-
-.tournament-upcoming .filters {
-  right: 2%;
-  width: 12%;
-}
-
-.tournament-upcoming .search {
-  left: 10%;
-  width: 70%;
-}
-
-.tournament-upcoming .overlap-group,
-.tournament-upcoming .overlap-2 {
-  background-color: #f5f5f5;
-  border-radius: 10px;
-  height: 40px;
-}
-
-.tournament-upcoming .overlap-group {
-  width: 80%;
-}
-
-.tournament-upcoming .search-for-a {
-  background: transparent;
+.save-icon button {
+  background-color: #8f3013;
+  color: #ffffff; 
   border: none;
-  color: #656262;
-  font-size: 1rem;
-  font-weight: 300;
-  position: absolute;
-  left: 5%;
-  top: 50%;
-  transform: translateY(-50%);
+  padding: 8px 12px; /* Padding inside the button */
+  border-radius: 5px; 
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition */
 }
 
-.tournament-upcoming .navbar {
-  display: flex;
-  justify-content: space-between;
-  position: absolute;
-  top: 269px;
-  left: 10%;
-  width: 80%;
-}
-
-.tournament-upcoming .navbar div {
-  color: #000000;
-  font-size: 1rem; /* 15px */
-  font-weight: 500;
-}
-
-.tournament-upcoming .records {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 296px;
-  left: 10%;
-  width: 80%;
-}
-
-.tournament-upcoming .records .navbar-2 {
-  display: flex;
-  justify-content: space-between;
-}
-
-.tournament-upcoming .show-more {
-  color: #8f3013;
-  font-size: 1rem;
-  font-weight: 400;
-  position: absolute;
-  right: 2%;
-  bottom: 20px;
-}
-
-.tournament-upcoming .pages {
-  position: absolute;
-  bottom: 20px;
-  left: 10%;
-}
-
-.tournament-upcoming .options {
-  position: absolute;
-  top: 140px;
-  left: 30%;
-  width: 40%;
-}
-
-.tournament-upcoming .overlap-3 {
-  background-color: #f5f5ef;
-  border-radius: 10px;
-  width: 100%;
-  height: 40px;
-}
-
-.subheader-ongoing,
-.subheader-upcoming,
-.subheader-past {
-  color: #000000;
-  font-size: 1rem; /* 15px */
-  font-weight: 400;
-  position: absolute;
-  top: 14px;
-  white-space: nowrap;
-}
-
-.subheader-upcoming {
-  color: #ffffff;
-  left: 25%;
-}
-
-.subheader-ongoing {
-  left: 50%;
-}
-
-.subheader-past {
-  right: 10%;
+.save-icon button:hover {
+  background-color: #a5421d; 
 }
