@@ -29,6 +29,7 @@ import UserHome from './screens/UserHome/UserHome';
 import Login from './screens/Login/Login';
 import CreateProfile from './screens/CreateProfile/CreateProfile';
 import Signup from './screens/Signup/Signup';
+import UserCalendar from './screens/UserCalendar/UserCalendar';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/user/home" element={<UserHome />} />
+        <Route path="/user/calendar" element={<UserCalendar />} />
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/create_profile" element={<CreateProfile />} />

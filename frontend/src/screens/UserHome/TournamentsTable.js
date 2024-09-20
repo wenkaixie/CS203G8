@@ -1,6 +1,9 @@
 import React, { useState }  from 'react';
 import './TournamentsTable.css';
 import { useNavigate } from 'react-router-dom';
+import TimerIcon from '@mui/icons-material/Timer';
+import TuneIcon from '@mui/icons-material/Tune';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 
 const TournamentsTable = () => {
     const [eligibleButton, setEligibleButton] = useState(true);
@@ -33,54 +36,62 @@ const TournamentsTable = () => {
             <h2 className="tournament-title">Tournaments</h2>
             <div className="filter-tabs">
                 <div className='eligible-all-buttons'>
-                    <button onClick={ handleEligibleAllButtonChange } className={`tab ${eligibleButton === true ? 'active' : ''}`}>Eligible</button>
-                    <button onClick={ handleEligibleAllButtonChange } className={`tab ${allButton === true ? 'active' : ''}`}>All</button>
+                    <button onClick={ handleEligibleAllButtonChange } className={`eligible-all-button tab ${eligibleButton === true ? 'active' : ''}`}>Eligible</button>
+                    <button onClick={ handleEligibleAllButtonChange } className={`eligible-all-button tab ${allButton === true ? 'active' : ''}`}>All</button>
                 </div>
                 <div className="filter-buttons">
-                <button className="filter-icon">🔧</button>
-                <button className="filter-icon">🕒</button>
-                <button className="order-by">Order By</button>
+                    <button className="filter-icon">
+                        <TuneIcon />
+                    </button>
+                    <button className="filter-icon">
+                        <TimerIcon />
+                    </button>
+                    <button className="order-by">Order By</button>
                 </div>
             </div>
             <table className="tournament-table">
                 <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Location</th>
-                    <th>Slots</th>
-                    <th>Status</th>
-                    <th>Save</th>
-                </tr>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Slots</th>
+                        <th>Status</th>
+                        <th>Save</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {tournaments.map((tournament) => (
-                    <tr key={tournament.no} 
-                        onClick={() => handleRowClick(tournament.no)} 
-                        className='clickable-row'
-                    >
-                        <td>{tournament.no}</td>
-                        <td>{tournament.name}</td>
-                        <td>{tournament.date}</td>
-                        <td>{tournament.location}</td>
-                        <td>{tournament.slots}</td>
-                        <td>{tournament.status}</td>
-                        <td>🔖</td>
-                    </tr>
-                ))}
+                    {tournaments.map((tournament) => (
+                        <tr key={tournament.no} 
+                            onClick={() => handleRowClick(tournament.no)} 
+                            className='clickable-row'
+                        >
+                            <td>{tournament.no}</td>
+                            <td>{tournament.name}</td>
+                            <td>{tournament.date}</td>
+                            <td>{tournament.location}</td>
+                            <td>{tournament.slots}</td>
+                            <td>{tournament.status}</td>
+                            <td>
+                                <BookmarkBorderIcon />
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
-            <div className="pagination">
-                <span>&lt;</span>
-                <span className="page-number">1</span>
-                <span className="page-number">2</span>
-                <span className="page-number">3</span>
-                <span>…</span>
-                <span className="page-number">8</span>
-                <span>&gt;</span>
+            <div>
+                <div className="pagination">
+                    <span>&lt;</span>
+                    <span className="page-number">1</span>
+                    <span className="page-number">2</span>
+                    <span className="page-number">3</span>
+                    <span>…</span>
+                    <span className="page-number">8</span>
+                    <span>&gt;</span>
+                </div>
+                <div className="show-more">Show more</div>
             </div>
-            <div className="show-more">Show more</div>
         </div>
     );
 };

@@ -43,6 +43,14 @@ function Navbar() {
     setAnchorElUser(null);
   };
 
+  const handleGoToHome = () => {
+    navigate('/user/home');
+  }
+
+  const handleGoToCalendar = () => {
+    navigate('/user/calendar');
+  }
+
   const handleLogout = async () => {
     try {
       await signOut(auth); // Signing out the user from Firebase
@@ -93,22 +101,52 @@ function Navbar() {
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
-                </MenuItem>
+                page === 'Home' ? (
+                  <MenuItem key={page} onClick={handleGoToHome}>
+                    <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                  </MenuItem>
+                ) : page === 'Calendar' ? (
+                  <MenuItem key={page} onClick={handleGoToCalendar}>
+                    <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                  </MenuItem>
+                ) : (
+                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                    <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                  </MenuItem>)
               ))}
             </Menu>
           </Box>
-          <Img src={logoImage} alt="Logo" width={150} height={50} />
+          <Img src={logoImage} alt="Logo" width={150} height={50} onClick={handleGoToHome} style={{ cursor: 'pointer' }} />
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', gap: '20px', marginRight: '20px' }}>
             {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
-              >
-                {page}
-              </Button>
+              page === 'Home' ? (
+                <Button
+                  key={page}
+                  onClick={handleGoToHome}
+                  style={{ cursor: 'pointer' }}
+                  sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
+                >
+                  {page}
+                </Button>
+                ) : page === 'Calendar' ? (
+                  <Button
+                    key={page}
+                    onClick={handleGoToCalendar}
+                    style={{ cursor: 'pointer' }}
+                    sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
+                  >
+                    {page}
+                  </Button>
+                  ) : (
+                  <Button
+                    key={page}
+                    onClick={handleCloseNavMenu}
+                    style={{ cursor: 'pointer' }}
+                    sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
+                  >
+                    {page}
+                  </Button>
+                )
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
