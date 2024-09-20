@@ -7,7 +7,7 @@ import UserHome from './screens/UserHome/UserHome';
 import Login from './screens/Login/Login';
 import CreateProfile from './screens/CreateProfile/CreateProfile';
 import Signup from './screens/Signup/Signup';
-import TournamentUpcoming from './screens/TournamentUpcoming/TournamentUpcoming';
+import UserUpcomingTournament from './screens/UserUpcomingTournament/UserUpcomingTournament';
 
 function App() {
   return (
@@ -17,8 +17,6 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/createprofile" element={<CreateProfile />} />
-        <Route path="tournamentupcoming" element={<TournamentUpcoming />} />
-        <Route path="home" element={<UserHome />} />   //delete later
         
         {/* User Protected Routes */}
         <Route
@@ -28,6 +26,7 @@ function App() {
               <Routes>
                 <Route path="home" element={<UserHome />} />
                 <Route path="profile" element={<UserHome />} />
+                <Route path="userupcomingtournament" element={<UserUpcomingTournament />} />
                 
               </Routes>
             </ProtectedRoute>
