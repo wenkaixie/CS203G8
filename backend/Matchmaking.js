@@ -33,7 +33,24 @@ async function getPlayerEloMap(tournamentID) {
 //Matching follows seeding system where top player matched against bottom player,
 //and tournament rules follows knockout (single elimination) system.
 
-function matchUp(sortedPlayerEloMap) {
+function matchUpSeed(sortedPlayerEloMap) {
+    const matchups = [];
+    const playerArray = Array.from(sortedPlayerEloMap);
+    let i = 0; 
+    let j = playerArray.length - 1;  
+    while (i < j) {
+        const highEloPlayer = playerArray[i][0];  
+        const lowEloPlayer = playerArray[j][0];
+        matchups.push([highEloPlayer, lowEloPlayer]);
+        i++;
+        j--;
+    }
+    return matchups;
+}
+
+//Matching follows round robin system where every player matches with each other once
+
+function matchUpRobin(sortedPlayerEloMap) {
     const matchups = [];
     const playerArray = Array.from(sortedPlayerEloMap);
     let i = 0; 
@@ -68,6 +85,7 @@ async function saveMatchUp(tournamentID, matchups) {
 // Export the function to be used in other files
 module.exports = {
     getPlayerEloMap,
-    matchUp,
+    matchUpSeed,
+    matchUpRobin,
     saveMatchUp,
 };
