@@ -30,6 +30,7 @@ import Login from './screens/Login/Login';
 import CreateProfile from './screens/CreateProfile/CreateProfile';
 import Signup from './screens/Signup/Signup';
 import UserCalendar from './screens/UserCalendar/UserCalendar';
+import TournamentUpcoming from './screens/TournamentUpcoming/TournamentUpcoming';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/create_profile" element={<CreateProfile />} />
+        <Route path="/tournamentupcoming" element={<TournamentUpcoming />} />
         {/* User Protected Routes */}
         <Route
           path="/user"
