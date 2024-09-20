@@ -1,59 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // React Router's useNavigate hook
+import { useNavigate } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-    const navigate = useNavigate(); // Replaces Next.js's useRouter
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [accessDenied, setAccessDenied] = useState(false);
 
-    // Helper function to convert ArrayBuffer to hex string
-    function bufferToHex(buffer) {
-        return [...new Uint8Array(buffer)]
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
-    }
-
-    // Hashing function using SHA-256
-    async function hashToken(token) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(token);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        return bufferToHex(hashBuffer);
-    }
-
     useEffect(() => {
-        const checkAuth = async () => {
-            setLoading(true); // Start loading when the auth check begins
+        const auth = getAuth();
 
-            const token = localStorage.getItem('userToken');
-            const hashedStoredToken = localStorage.getItem('hashedUserToken');
-            
-            if (!token || !hashedStoredToken) {
-                // Redirect to login if token is missing
-                navigate('/login');
-                return;
-            }
+        const checkAuth = () => {
+            setLoading(true);
 
-            // Hash the current token for comparison
-            const hashedToken = await hashToken(token);
+            const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    // User is authenticated
+                    const userRole = localStorage.getItem('userRole');
 
-            if (hashedToken !== hashedStoredToken) {
-                // Token does not match
-                navigate('/login');
-                return;
-            }
+                    if (!allowedRoles.includes(userRole)) {
+                        // User is authenticated but doesn't have the required role
+                        setAccessDenied(true);
+                    } else {
+                        // User is authenticated and has the required role
+                        setAccessDenied(false);
+                    }
+                } else {
+                    // User is not authenticated, redirect to login
+                    navigate('/login');
+                }
 
-            // If token matches, proceed with role check
-            const userRole = localStorage.getItem('userRole');
+                setLoading(false);
+            });
 
-            if (!allowedRoles.includes(userRole)) {
-                // Show access denied popup if role is not allowed
-                setAccessDenied(true);
-                setLoading(false); // Stop loading after setting access denied
-            } else {
-                setAccessDenied(false);
-                setLoading(false); // Stop loading when auth check is complete
-            }
+            // Clean up the listener on component unmount
+            return () => unsubscribe();
         };
 
         checkAuth();
@@ -66,7 +47,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
     // Early return to prevent rendering children until loading is complete or access is granted
     if (loading) {
-        return null; // Optionally, return a loading spinner or similar
+        return <div>Loading...</div>; // Optionally, return a loading spinner or similar
     }
 
     return (
