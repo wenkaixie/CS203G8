@@ -52,18 +52,16 @@ function matchUpSeed(sortedPlayerEloMap) {
 
 function matchUpRobin(sortedPlayerEloMap) {
     const matchups = [];
-    const playerArray = Array.from(sortedPlayerEloMap);
-    let i = 0; 
-    let j = playerArray.length - 1;  
-    while (i < j) {
-        const highEloPlayer = playerArray[i][0];  
-        const lowEloPlayer = playerArray[j][0];
-        matchups.push([highEloPlayer, lowEloPlayer]);
-        i++;
-        j--;
+    const playerArray = Array.from(sortedPlayerEloMap.keys());
+
+    for (let i = 0; i < playerArray.length; i++) {
+        for (let j = i + 1; j < playerArray.length; j++) {
+            matchups.push([playerArray[i], playerArray[j]]);
+        }
     }
     return matchups;
 }
+
 
 async function saveMatchUp(tournamentID, matchups) {
     try {

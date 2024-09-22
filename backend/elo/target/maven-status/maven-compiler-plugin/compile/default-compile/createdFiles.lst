@@ -1,0 +1,4 @@
+elo\EloApplication.class
+elo\model\EloUpdateRequest.class
+elo\service\EloService.class
+elo\controller\EloController.class
