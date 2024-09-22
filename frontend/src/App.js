@@ -37,19 +37,19 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/user/home" element={<UserHome />} />
-        <Route path="/user/calendar" element={<UserCalendar />} />
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/create_profile" element={<CreateProfile />} />
-        <Route path="/tournamentupcoming" element={<TournamentUpcoming />} />
         {/* User Protected Routes */}
         <Route
-          path="/user"
+          path="/user/*"
           element={
-            <ProtectedRoute allowedRoles={['user']}>
+            <ProtectedRoute allowedRoles={['User']}>
               <Routes>
                 {/* <Route path="/home" element={<UserHome />} /> */}
+                <Route path="upcomingtournament" element={<TournamentUpcoming />} />
+                <Route path="home" element={<UserHome />} />
+                <Route path="calendar" element={<UserCalendar />} />
               </Routes>
             </ProtectedRoute>
           }
@@ -57,9 +57,9 @@ function App() {
 
         {/* Admin Protected Routes */}
         <Route
-          path="/admin"
+          path="/admin/*"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['Admin']}>
               <Routes>
                 {/* <Route path="/home" element={<AdminHome />} /> */}
               </Routes>

@@ -9,38 +9,30 @@ import Form from 'react-bootstrap/Form';
 import { FaGoogle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
-import { setDoc, doc, collection, query, where, getDocs } from 'firebase/firestore';
+import { setDoc, doc } from 'firebase/firestore';
 import { FirestoreDB } from '../../firebase/firebase_config';
 
 const Signup = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [role, setRole] = useState(""); // Default role is empty, user must choose
     const [error, setError] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false); // Loading state for auth check
+    const [loading, setLoading] = useState(false);
 
     const auth = getAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         // Listen for authentication state changes
+        // Only user accounts created through signup
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
                     setLoading(true);
-                    const userRole = await getUserRole(user.email); // Await role checking
-                    console.log('User email:', user.email);    
-
-                    // Redirect user to the appropriate profile page based on role
-                    if (userRole === 'User') {
-                        navigate('/user/profile');
-                    } else if (userRole === 'Admin') {
-                        navigate('/admin/profile');
-                    }
+                    navigate('/user/profile');
                 } catch (error) {
-                    setError('Error retrieving user role.');
+                    setError('Error redirecting after sign up.');
                 } finally {
                     setLoading(false);
                 }
@@ -50,31 +42,6 @@ const Signup = () => {
         // Clean up the listener on component unmount
         return () => unsubscribe();
     }, [auth, navigate]);
-
-    // Handler for finding user role in firebase
-    const getUserRole = async (email) => {
-        console.log('Checking user role');
-    
-        try {
-          const roles = ['User', 'Admin'];
-    
-          for (const role of roles) {
-            const roleQuery = query(collection(FirestoreDB, role), where('email', '==', email));
-            const roleSnapshot = await getDocs(roleQuery);
-    
-            if (!roleSnapshot.empty) {
-              console.log(`User is a ${role}`);
-              return role;
-            }
-          }
-    
-          console.log('User not found in any role');
-          return null;
-        } catch (error) {
-          console.error('Error checking user role:', error);
-          return null;
-        }
-    };
 
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
@@ -96,10 +63,6 @@ const Signup = () => {
         setError(null);
     };
 
-    const handleRoleChange = (event) => {
-        setRole(event.target.value);
-    };
-
     // Handle sign up with email and password
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -110,11 +73,6 @@ const Signup = () => {
             return;
         }
 
-        if (role === "") {
-            setError("Please select a role.");
-            return;
-        }
-
         try {
             setLoading(true);
             // Step 1: Create user in Firebase Authentication
@@ -122,10 +80,10 @@ const Signup = () => {
             const user = userSignup.user;
             console.log('User created:', user.uid);
         
-            // Step 2: Store user info in Firestore
-            await setDoc(doc(FirestoreDB, role, user.uid), {
-                email: user.email,
-                role: role
+            // Step 2: Store user info in Firestore under the 'User' collection
+            await setDoc(doc(FirestoreDB, 'User', user.uid), {
+                UID: user.uid,  // Storing UID
+                Email: user.email // Storing email
             });
 
             // onAuthStateChanged will handle the redirection
@@ -146,15 +104,10 @@ const Signup = () => {
             const user = result.user;
             console.log('Google sign up success:', user);
 
-            if (role === "") {
-                setError("Please select a role.");
-                return;
-            }
-
-            // Store user info in Firestore
-            await setDoc(doc(FirestoreDB, role, user.uid), {
-                email: user.email,
-                role: role
+            // Store user info in Firestore under the 'User' collection
+            await setDoc(doc(FirestoreDB, 'User', user.uid), {
+                UID: user.uid,  // Storing UID
+                Email: user.email // Storing email
             });
 
             // onAuthStateChanged will handle the redirection
@@ -209,31 +162,6 @@ const Signup = () => {
                                     label="Show Password"
                                     onChange={togglePasswordVisibility}
                                 />
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                            <Form.Label>Select Role</Form.Label>
-                            <div style={{ display: 'flex', gap: '100px', justifyContent: 'center' }}>
-                                <div style={{ textAlign: 'center' }}>
-                                    <Form.Check 
-                                        type="radio" 
-                                        label="User" 
-                                        value="User"
-                                        name="role" 
-                                        onChange={handleRoleChange} 
-                                        checked={role === "User"}
-                                    />
-                                </div>
-                                <div style={{ textAlign: 'center' }}>
-                                    <Form.Check 
-                                        type="radio" 
-                                        label="Admin" 
-                                        value="Admin"
-                                        name="role" 
-                                        onChange={handleRoleChange} 
-                                        checked={role === "Admin"}
-                                    />
-                                </div>
-                            </div>
                             </Form.Group>
                             <Button variant="primary" className='signup-button' type="submit" style={{ backgroundColor:"#8F3013", border:"0" }}>
                                 Sign Up
