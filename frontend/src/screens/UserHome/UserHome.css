@@ -5,22 +5,29 @@ body {
 }
 
 .background {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-image: url('../../assets/images/home-background.png');
   background-size: cover;
   background-attachment: fixed;
-  height: 100vh;
+  overflow-y: auto;
 }
 
 .background::before {
   content: '';
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background-color: rgba(255, 255, 255, 0.4);
+  background-size: cover;
+  background-attachment: fixed;
   z-index: 1;
+  overflow-y: auto;
 }
 
 .background-content {
@@ -40,15 +47,18 @@ body {
 
 .dashboard {
   padding: 0px 100px;
+  margin-bottom: 50px;
   display: flex;
   gap: 20px;
   overflow-x: auto;
+  overflow-y: auto;
   white-space: nowrap;
 }
 
 @media (max-width: 768px){
   .dashboard {
     flex-direction: column;
+    padding: 0px 50px;
   }
 }
 
