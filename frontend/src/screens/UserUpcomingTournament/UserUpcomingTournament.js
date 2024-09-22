@@ -11,8 +11,9 @@ export const API_URL = 'http://your-api-url/tournaments';
 
 const UserUpcomingTournament = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
-    
+
     const [tournaments, setTournaments] = useState([
         {
             id: 1,
@@ -50,7 +51,7 @@ const UserUpcomingTournament = () => {
             prize: '$50,000',
             status: 'Registration closed',
         },
-        
+
     ]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
@@ -71,14 +72,20 @@ const UserUpcomingTournament = () => {
         setSearchTerm(e.target.value);
     };
 
-    // Handle sorting option
-    const handleSortChange = (e) => {
-        setSortBy(e.target.value);
-    };
-
     // Handle filter option
     const handleFilterChange = (e) => {
         setFilterStatus(e.target.value);
+    };
+
+    // Toggle dropdown visibility
+    const toggleDropdown = () => {
+        setIsDropdownVisible(!isDropdownVisible);
+    };
+
+    // Handle selection from dropdown
+    const handleSortChange = (criteria) => {
+        setSortBy(criteria);
+        setIsDropdownVisible(false); // Hide dropdown after selection
     };
 
     // Filter and sort the tournament list based on user inputs
@@ -100,9 +107,16 @@ const UserUpcomingTournament = () => {
         // Sort the list
         if (sortBy) {
             updatedList = updatedList.sort((a, b) => {
-                if (sortBy === 'date') {
+                if (sortBy === 'name') {
+                    return a.name.localeCompare(b.name);
+                }
+                else if (sortBy === 'date') {
                     return new Date(a.date) - new Date(b.date);
-                } else if (sortBy === 'prize') {
+                } 
+                else if (sortBy === 'slots') {
+                    return b.slots - a.slots;
+                }
+                else if (sortBy === 'prize') {
                     return b.prize - a.prize;
                 }
                 return 0;
@@ -157,7 +171,7 @@ const UserUpcomingTournament = () => {
                             type="text"
                             placeholder="Search for a tournament"
                             value={searchTerm}
-                            onChange={handleSearch} 
+                            onChange={handleSearch}
                         />
                         <img src={searchIcon} alt="Search Icon" className="search-icon" />
                     </div>
@@ -170,43 +184,61 @@ const UserUpcomingTournament = () => {
                             Filter
                         </button>
 
-                        {/* Order By Button */}
-                        <button className="order-button">
-                            Order By
-                        </button>
+                        {/* Order By Dropdown Button */}
+                        <div className="dropdown">
+                            <button className="order-button" onClick={toggleDropdown}>
+                                Order By
+                            </button>
+                            {isDropdownVisible && (
+                                <div className="dropdown-content">
+                                    <div className="dropdown-item" onClick={() => handleSortChange('name')}>
+                                        Name
+                                    </div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('date')}>
+                                        Date
+                                    </div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('slots')}>
+                                        Slots
+                                    </div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('prize')}>
+                                        Prize
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 <div className="tournament-list-container">
-                <table className="tournament-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Name</th>
-                            <th>Date</th>
-                            <th>Location</th>
-                            <th>Slots</th>
-                            <th>Prize</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredTournaments.map((tournament, index) => (
-                            <tr key={tournament.id}>
-                                <td>{index + 1}</td>
-                                <td>{tournament.name}</td>
-                                <td>{tournament.date}</td>
-                                <td>{tournament.location}</td>
-                                <td>{tournament.slots}</td>
-                                <td>{tournament.prize}</td>
-                                <td className={`status-${tournament.status.replace(/\s+/g, '-').toLowerCase()}`}>
-                                    {tournament.status}
-                                </td>
+                    <table className="tournament-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Slots</th>
+                                <th>Prize</th>
+                                <th>Status</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {filteredTournaments.map((tournament, index) => (
+                                <tr key={tournament.id}>
+                                    <td>{index + 1}</td>
+                                    <td>{tournament.name}</td>
+                                    <td>{tournament.date}</td>
+                                    <td>{tournament.location}</td>
+                                    <td>{tournament.slots}</td>
+                                    <td>{tournament.prize}</td>
+                                    <td className={`status-${tournament.status.replace(/\s+/g, '-').toLowerCase()}`}>
+                                        {tournament.status}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
             </div>
         </div>
