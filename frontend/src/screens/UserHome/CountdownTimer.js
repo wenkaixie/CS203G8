@@ -36,7 +36,7 @@ const CountdownTimer = ({ targetDate }) => {
       setTimeLeft(calculateTimeLeft());
     }, 1);
 
-    return () => clearInterval(timer); // Cleanup interval on component unmount
+    return () => clearInterval(timer);
   }, [targetDate]);
 
   return (
