@@ -10,11 +10,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>csd</groupId>
+    <groupId>elo</groupId>
     <artifactId>elo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>elo</name>
-    <description>csdproject</description>
+    <description>manage Elo ratings</description>
     <url/>
 
     <properties>
