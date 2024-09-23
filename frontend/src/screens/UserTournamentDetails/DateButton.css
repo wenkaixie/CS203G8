@@ -1,0 +1,24 @@
+/* General Styles for DateButton */
+.date-button {
+    border: 1px solid #D3B3A6; 
+    background-color: #fff; 
+    color: #333;
+    border-radius: 40px; 
+    padding: 8px 25px; /* Padding for button */
+    font-size: 0.9rem; 
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease, color 0.3s ease; 
+}
+
+/* Selected State */
+.date-button.selected {
+    background-color: #F9E4D6; 
+    color: #333; 
+    border: 1px solid #D3B3A6;
+}
+
+/* Hover Effect */
+.date-button:hover {
+    background-color: #F9E4D6; 
+    color: #333; 
+}

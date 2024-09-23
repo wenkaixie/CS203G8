@@ -71,9 +71,19 @@ body {
 }
 
 /* Register Button */
-.register-button,
-.registered-button {
+.register-button {
     background-color: #F9E4D6;
+    border: none;
+    padding: 8px 30px; /* Adjusted padding */
+    color: #333;
+    cursor: pointer;
+    font-size: 0.9rem; /* Adjusted font size */
+    margin-top: 20px; 
+    border-radius: 30px; /* Adjusted border-radius */
+}
+
+.registered-button {
+    background-color: #F5F5EF;
     border: none;
     padding: 8px 30px; /* Adjusted padding */
     color: #333;
@@ -136,51 +146,51 @@ body {
 /* Sub-text Styles */
 .info-box .sub-text {
     display: block;
-    font-size: 0.8rem; /* Adjusted font size */
+    font-size: 0.8rem; 
     color: #777777;
-    margin-top: 3px; /* Adjusted margin */
+    margin-top: 3px; 
 }
 
 /* Banner with Subtabs */
 .banner {
     width: 100vw; /* Full width of the viewport */
-    background-color: #8F3013; /* Brownish color for the banner */
+    background-color: #8F3013; 
     margin-left: calc(-50vw + 50%); /* Center the banner */
-    padding: 0px 0; /* Padding around the subtabs */
+    padding: 5px 0; /* Padding around the subtabs */
     margin-top: 20px;
 }
 
 .subtabs {
     display: flex; /* Flex container for subtabs */
     justify-content: center; /* Center the subtabs */
-    list-style-type: none; /* Remove default list style */
+    list-style-type: none; 
     padding: 0;
     margin: 0;
 }
 
 .subtab-item {
-    padding: 10px 15px; /* Adjusted padding */
+    padding: 10px 15px; 
     cursor: pointer;
-    font-size: 0.9rem; /* Adjusted font size */
+    font-size: 0.9rem; 
     font-weight: 500;
     color: #fff;
     transition: background-color 0.3s ease; /* Smooth transition for hover effect */
-    margin: 0 30px; /* Adjusted space between subtabs */
+    margin: 0 30px; /* Space between subtabs */
 }
 
 .subtab-item:hover {
-    background-color: #6f3218; /* Darker background on hover */
+    background-color: #6f3218;
     border-radius: 10px;
 }
 
 .subtab-item.active {
-    background-color: #f8c1c1; /* Highlight active subtab */
-    color: #333; /* Text color for active subtab */
+    background-color: #f8c1c1; 
+    color: #333; 
 }
 
 /* Adjust the main content to make room for the fixed header */
 .user-tournament {
-    padding-top: 300px; /* Adjust padding to prevent overlap with the fixed header */
+    padding-top: 305px; /* Adjust padding to prevent overlap with the fixed header */
     background-color: #F5F5EF; /* Ensure the background of the content remains */
     box-sizing: border-box;
 }
@@ -200,18 +210,18 @@ body {
     }
 
     .tournament-title {
-        font-size: 1.2rem; /* Reduced font size */
+        font-size: 1.2rem; 
     }
 
     .registration-container {
         position: static; /* Default positioning */
         transform: none; /* Remove translation */
-        margin-top: 20px; /* Adjusted margin */
+        margin-top: 20px; 
         align-items: center; /* Center the registration container */
     }
 
     .tournament-info {
-        margin-left: 0; /* Remove left margin */
+        margin-left: 0; 
         justify-content: center; /* Center info boxes */
     }
 
@@ -222,12 +232,12 @@ body {
 
     .banner {
         padding: 10px 0; /* Add padding to the banner */
-        margin-top: 10px; /* Adjust margin */
+        margin-top: 10px; 
     }
 
     .subtab-item {
-        font-size: 0.8rem; /* Reduced font size */
-        margin: 0 10px; /* Adjusted margin */
+        font-size: 0.8rem; 
+        margin: 0 10px; 
     }
 
     .user-tournament {

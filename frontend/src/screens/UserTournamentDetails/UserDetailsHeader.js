@@ -1,8 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
+import RegistrationForm from './RegistrationForm'; 
 
-const UserDetailsHeader = ({ tournamentTitle, isRegistered, handleRegister, playerCount }) => {
+const UserDetailsHeader = ({ tournamentTitle, playerCount }) => {
+    const [isRegistered, setIsRegistered] = useState(false); // Local state to track registration status
+    const [showRegistrationForm, setShowRegistrationForm] = useState(false); // State to manage registration form visibility
+
+    const handleRegisterClick = () => {
+        if (!isRegistered) {
+            setShowRegistrationForm(true); 
+        }
+    };
+
+    const closeForm = () => {
+        setShowRegistrationForm(false); 
+    };
+
+    const handleFormSubmit = (data) => {
+        console.log('Form Submitted:', data); // Handle form submission data
+        setIsRegistered(true); // Mark as registered after form submission
+        setShowRegistrationForm(false); // Close the registration form
+    };
+
     return (
         <div className="header-wrapper">
             {/* Navbar at the top */}
@@ -18,7 +38,9 @@ const UserDetailsHeader = ({ tournamentTitle, isRegistered, handleRegister, play
                     {/* Register button */}
                     <button 
                         className={isRegistered ? 'registered-button' : 'register-button'} 
-                        onClick={handleRegister}>
+                        onClick={handleRegisterClick}
+                        disabled={isRegistered} // Disable the button if already registered
+                    >
                         {isRegistered ? 'Registered' : 'Register'}
                     </button>
                     {/* Players count below the button */}
@@ -63,6 +85,14 @@ const UserDetailsHeader = ({ tournamentTitle, isRegistered, handleRegister, play
                     <li className="subtab-item">Discussion</li>
                 </ul>
             </div>
+
+            {/* Registration Form Modal */}
+            {showRegistrationForm && (
+                <RegistrationForm 
+                    closeForm={closeForm} 
+                    onSubmit={handleFormSubmit} 
+                />
+            )}
         </div>
     );
 };

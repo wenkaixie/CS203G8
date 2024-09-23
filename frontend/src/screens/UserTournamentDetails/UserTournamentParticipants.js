@@ -7,7 +7,6 @@ const UserTournamentParticipants = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filteredParticipants, setFilteredParticipants] = useState([]);
-    const [isRegistered, setIsRegistered] = useState(false);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
     // Fetch tournament details and participants from API
@@ -29,11 +28,6 @@ const UserTournamentParticipants = () => {
     // Handle search input
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
-    };
-
-    // Handle register button click
-    const handleRegister = () => {
-        setIsRegistered(true);
     };
 
     // Toggle dropdown visibility
@@ -79,11 +73,9 @@ const UserTournamentParticipants = () => {
 
     return (
         <div>
-            {/* Use the Header component */}
             <Header 
                 tournamentTitle="Tournament 1" 
-                isRegistered={isRegistered} 
-                handleRegister={handleRegister} 
+                isRegistered={false}  // Pass default registration state or adjust as needed
                 playerCount={filteredParticipants.length}
             />
 
@@ -124,10 +116,10 @@ const UserTournamentParticipants = () => {
                                 </button>
                                 {isDropdownVisible && (
                                     <div className="dropdown-content">
-                                        <div className="dropdown-item" onClick={() => handleSortChange('rating')}>
+                                        <div className="dropdown-item" onClick={() => handleSortChange('name')}>
                                             Name
                                         </div>
-                                        <div className="dropdown-item" onClick={() => handleSortChange('rating')}>
+                                        <div className="dropdown-item" onClick={() => handleSortChange('age')}>
                                             Age
                                         </div>
                                         <div className="dropdown-item" onClick={() => handleSortChange('worldRank')}>
@@ -175,5 +167,3 @@ const UserTournamentParticipants = () => {
 };
 
 export default UserTournamentParticipants;
-
-
