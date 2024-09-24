@@ -171,7 +171,7 @@ body {
 .subtab-item {
     padding: 10px 15px; 
     cursor: pointer;
-    font-size: 0.9rem; 
+    font-size: 1.0rem; 
     font-weight: 500;
     color: #fff;
     transition: background-color 0.3s ease; /* Smooth transition for hover effect */
