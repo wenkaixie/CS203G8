@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './UserTournamentOverview.css';
 import UserDetailsHeader from './UserDetailsHeader';
 
 const UserTournamentOverview = () => {
-    // Dummy data for now, should be replaced with database values
-    const tournamentData = {
+    // State for total participants and current number of registered players
+    const [numberOfPlayers, setNumberOfPlayers] = useState(0);  // State to hold the current number of registered players
+    const [tournamentData, setTournamentData] = useState({
         title: "Tournament 1",
         dateRange: "June 21, 2024 to July 01, 2024",
         type: "Swiss",
-        totalParticipants: 30,
+        totalParticipants: 30,  
         location: "Budapest, Hungary. Activities will take place at the Hungarian National Gallery and the Intercontinental Budapest.",
         format: [
             "Teams compete in an 11-round Swiss",
@@ -29,15 +30,34 @@ const UserTournamentOverview = () => {
         },
         organizer: "World Chess Organization",
         partners: "Vestibulum vulputate, justo a pellentesque feugiat"
-    };
+    });
+
+    // Fetch the current number of players from the database
+    useEffect(() => {
+        const fetchNumberOfPlayers = async () => {
+            try {
+                // Replace with your API call
+                // Example: const response = await fetch('/api/tournament/1/playersCount');
+                // const data = await response.json();
+                // setNumberOfPlayers(data.numberOfPlayers);
+
+                // Simulating an API response
+                const simulatedPlayersCount = 5;  // Replace this with the actual API response
+                setNumberOfPlayers(simulatedPlayersCount);
+            } catch (error) {
+                console.error("Failed to fetch number of players:", error);
+            }
+        };
+
+        fetchNumberOfPlayers();
+    }, []);
 
     return (
         <div>
             {/* Header with registration details */}
             <UserDetailsHeader
                 tournamentTitle={tournamentData.title}
-                isRegistered={true} // Assuming user is registered
-                playerCount={tournamentData.totalParticipants}
+                playerCount={numberOfPlayers} 
             />
 
             {/* Tournament Overview Content */}
@@ -59,7 +79,10 @@ const UserTournamentOverview = () => {
                         <strong>Tournament type:</strong> {tournamentData.type}
                     </div>
                     <div className="detail-row">
-                        <strong>Total participants:</strong> {tournamentData.totalParticipants}
+                        <strong>Total Participants:</strong> {tournamentData.totalParticipants} {/* Total slots available */}
+                    </div>
+                    <div className="detail-row">
+                        <strong>Current Number of Players:</strong> {numberOfPlayers} {/* Dynamic number of players */}
                     </div>
                     <div className="detail-row">
                         <strong>Location:</strong> {tournamentData.location}
@@ -109,4 +132,3 @@ const UserTournamentOverview = () => {
 };
 
 export default UserTournamentOverview;
-

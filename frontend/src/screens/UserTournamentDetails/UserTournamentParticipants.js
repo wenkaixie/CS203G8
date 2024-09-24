@@ -8,11 +8,12 @@ const UserTournamentParticipants = () => {
     const [sortBy, setSortBy] = useState('');
     const [filteredParticipants, setFilteredParticipants] = useState([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const [playerCount, setPlayerCount] = useState(0); // Add player count state
 
     // Fetch tournament details and participants from API
     useEffect(() => {
         const fetchParticipants = async () => {
-            // Replace with your API call
+            // Replace with your API call to fetch participants and player count
             const data = [
                 { id: 1, name: 'Hikaru Nakamura', nationality: 'Japan', age: 30, worldRank: 3252, rating: 2860, gamesPlayed: 7 },
                 { id: 2, name: 'Vincent Keymer', nationality: 'Germany', age: 24, worldRank: 3254, rating: 2850, gamesPlayed: 2 },
@@ -21,6 +22,7 @@ const UserTournamentParticipants = () => {
                 { id: 5, name: 'Player 5', nationality: 'United Kingdom', age: 17, worldRank: 1897, rating: 4860, gamesPlayed: 11 },
             ];
             setParticipants(data);
+            setPlayerCount(data.length); // Set player count based on participants length
         };
         fetchParticipants();
     }, []);
@@ -75,8 +77,7 @@ const UserTournamentParticipants = () => {
         <div>
             <Header 
                 tournamentTitle="Tournament 1" 
-                isRegistered={false}  // Pass default registration state or adjust as needed
-                playerCount={filteredParticipants.length}
+                playerCount={playerCount} // Use the centralized player count state
             />
 
             <div className="user-tournament">
