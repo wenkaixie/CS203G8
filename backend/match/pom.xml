@@ -45,6 +45,7 @@
             <artifactId>google-cloud-firestore</artifactId>
             <version>3.12.0</version> <!-- Updated version -->
         </dependency>
+    
     </dependencies>
 
     <build>

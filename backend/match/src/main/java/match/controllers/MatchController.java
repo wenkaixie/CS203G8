@@ -3,6 +3,7 @@ package match.controllers;
 import match.model.MatchModel;
 import match.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,9 +31,23 @@ public class MatchController {
         return matchService.generateRoundRobinMatchups(tournamentID);
     }
 
-    @PostMapping("/save/{tournamentID}")
-    public String saveMatchups(@PathVariable String tournamentID, @RequestBody List<MatchModel> matchups) {
+    // @PostMapping("/save/{tournamentID}")
+    // public String saveMatchups(@PathVariable String tournamentID, @RequestBody List<MatchModel> matchups) {
+    //     matchService.saveMatchups(tournamentID, matchups);
+    //     return "Matchups saved successfully";
+    // }
+
+    @PostMapping("/seedsave/{tournamentID}")
+    public ResponseEntity<List<MatchModel>> generateAndSaveSeededMatchups(@PathVariable String tournamentID) {
+        List<MatchModel> matchups = matchService.generateSeededMatchups(tournamentID);
         matchService.saveMatchups(tournamentID, matchups);
-        return "Matchups saved successfully";
+        return ResponseEntity.ok(matchups);
+    }
+
+    @PostMapping("/roundrobinsave/{tournamentID}")
+    public ResponseEntity<List<MatchModel>> generateAndSaveRoundRobinMatchups(@PathVariable String tournamentID) {
+        List<MatchModel> matchups = matchService.generateRoundRobinMatchups(tournamentID);
+        matchService.saveMatchups(tournamentID, matchups);
+        return ResponseEntity.ok(matchups);
     }
 }
