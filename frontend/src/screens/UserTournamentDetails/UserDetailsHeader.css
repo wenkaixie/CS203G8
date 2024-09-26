@@ -109,7 +109,7 @@ body {
     display: flex;
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
     align-items: center;
-    gap: 8px; /* Adjust gap between info boxes */
+    gap: 0px; /* Adjust gap between info boxes */
     justify-content: flex-start; /* Align info boxes to the left */
     margin-top: -20px; /* Space between header and info boxes */
     margin-left: 150px; /* Adjusted left margin */
