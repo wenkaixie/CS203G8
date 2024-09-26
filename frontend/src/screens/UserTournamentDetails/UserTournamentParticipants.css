@@ -8,8 +8,8 @@ body {
 }
 
 /* User Tournament Container */
-.user-tournament {
-    padding: 100px 40px; /* Adjust padding to accommodate fixed header */
+.user-tournament-participants {
+    padding: 300px 40px; /* Adjust padding to accommodate fixed header */
     width: 100%; /* Full width */
     margin: 0 auto;
     background-color: #F5F5EF; 

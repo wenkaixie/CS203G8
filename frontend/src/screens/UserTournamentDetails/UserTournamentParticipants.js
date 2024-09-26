@@ -65,7 +65,7 @@ const UserTournamentParticipants = () => {
                 }
                 else if (sortBy === 'worldRank') {
                     return a.worldRank - b.worldRank;
-                } 
+                }
                 return 0;
             });
         }
@@ -75,95 +75,93 @@ const UserTournamentParticipants = () => {
 
     return (
         <div>
-            <Header 
-                tournamentTitle="Tournament 1" 
+            <Header
+                tournamentTitle="Tournament 1"
                 playerCount={playerCount} // Use the centralized player count state
             />
 
-            <div className="user-tournament">
-                {/* Participants List */}
-                <div className="participants-container">
-                    {/* Search and Sort Controls */}
-                    <div className="controls-container">
-                        <div className="search-bar">
-                            <input
-                                type="text"
-                                placeholder="Search for a participant"
-                                value={searchTerm}
-                                onChange={handleSearch}
-                            />
-                            {/* Search Icon */}
-                            <img 
-                                src={require('../../assets/images/Search.png')} 
-                                alt="Search Icon" 
-                                className="search-icon" 
-                            />
-                        </div>
-                        <div className="buttons-container">
-                            {/* Filter Button */}
-                            <button className="filter-button">
-                                <img 
-                                    src={require('../../assets/images/Adjust.png')} 
-                                    alt="Filter Icon" 
-                                    className="filter-icon"
-                                />
-                                <span>Filter</span>
-                            </button>
-
-                            {/* Order By Dropdown Button */}
-                            <div className="dropdown">
-                                <button className="order-button" onClick={toggleDropdown}>
-                                    Order By 
-                                </button>
-                                {isDropdownVisible && (
-                                    <div className="dropdown-content">
-                                        <div className="dropdown-item" onClick={() => handleSortChange('name')}>
-                                            Name
-                                        </div>
-                                        <div className="dropdown-item" onClick={() => handleSortChange('age')}>
-                                            Age
-                                        </div>
-                                        <div className="dropdown-item" onClick={() => handleSortChange('worldRank')}>
-                                            World Rank
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+            <div className="user-tournament-participants">
+                {/* Search and Sort Controls */}
+                <div className="controls-container">
+                    <div className="search-bar">
+                        <input
+                            type="text"
+                            placeholder="Search for a participant"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                        />
+                        {/* Search Icon */}
+                        <img
+                            src={require('../../assets/images/Search.png')}
+                            alt="Search Icon"
+                            className="search-icon"
+                        />
                     </div>
+                    <div className="buttons-container">
+                        {/* Filter Button */}
+                        <button className="filter-button">
+                            <img
+                                src={require('../../assets/images/Adjust.png')}
+                                alt="Filter Icon"
+                                className="filter-icon"
+                            />
+                            <span>Filter</span>
+                        </button>
 
-                    {/* Participants Table */}
-                    <div className="participants-list">
-                        <table className="participants-table">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Name</th>
-                                    <th>Nationality</th>
-                                    <th>Age</th>
-                                    <th>World rank</th>
-                                    <th>Rating</th>
-                                    <th>Games played this season</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredParticipants.map((participant, index) => (
-                                    <tr key={participant.id}>
-                                        <td>{index + 1}</td>
-                                        <td>{participant.name}</td>
-                                        <td>{participant.nationality}</td>
-                                        <td>{participant.age}</td>
-                                        <td>{participant.worldRank}</td>
-                                        <td>{participant.rating}</td>
-                                        <td>{participant.gamesPlayed}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        {/* Order By Dropdown Button */}
+                        <div className="dropdown">
+                            <button className="order-button" onClick={toggleDropdown}>
+                                Order By
+                            </button>
+                            {isDropdownVisible && (
+                                <div className="dropdown-content">
+                                    <div className="dropdown-item" onClick={() => handleSortChange('name')}>
+                                        Name
+                                    </div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('age')}>
+                                        Age
+                                    </div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('worldRank')}>
+                                        World Rank
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
+
+                {/* Participants Table */}
+                <div className="participants-list">
+                    <table className="participants-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Name</th>
+                                <th>Nationality</th>
+                                <th>Age</th>
+                                <th>World rank</th>
+                                <th>Rating</th>
+                                <th>Games played this season</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredParticipants.map((participant, index) => (
+                                <tr key={participant.id}>
+                                    <td>{index + 1}</td>
+                                    <td>{participant.name}</td>
+                                    <td>{participant.nationality}</td>
+                                    <td>{participant.age}</td>
+                                    <td>{participant.worldRank}</td>
+                                    <td>{participant.rating}</td>
+                                    <td>{participant.gamesPlayed}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
-        </div>
+        </div >
     );
 };
 

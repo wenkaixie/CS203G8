@@ -10,6 +10,7 @@ import Signup from './screens/Signup/Signup';
 import UserUpcomingTournament from './screens/UserUpcomingTournament/UserUpcomingTournament';
 import UserTournamentParticipants from './screens/UserTournamentDetails/UserTournamentParticipants';
 import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
+import UserTournamentMatch from './screens/UserTournamentDetails/UserTournamentMatch';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path="userupcomingtournament" element={<UserUpcomingTournament />} />
                 <Route path="usertournamentparticipants" element={<UserTournamentParticipants />} />
                 <Route path="usertournamentoverview" element={<UserTournamentOverview />} />
+                <Route path="usertournamentmatch" element={<UserTournamentMatch />} />
                 
               </Routes>
             </ProtectedRoute>
