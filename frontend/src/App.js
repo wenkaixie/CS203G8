@@ -56,8 +56,7 @@ function App() {
                 <Route path="usertournamentparticipants" element={<UserTournamentParticipants />} />
                 <Route path="usertournamentoverview" element={<UserTournamentOverview />} />
                 <Route path="usertournamentmatch" element={<UserTournamentMatch />} />
-                
-                {/* <Route path="/home" element={<UserHome />} /> */}
+
                 <Route path="upcomingtournament" element={<TournamentUpcoming />} />
                 <Route path="home" element={<UserHome />} />
                 <Route path="calendar" element={<UserCalendar />} />
