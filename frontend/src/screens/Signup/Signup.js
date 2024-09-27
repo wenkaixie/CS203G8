@@ -82,7 +82,7 @@ const Signup = () => {
         
             // Step 2: Store user info in Firestore under the 'User' collection
             await setDoc(doc(FirestoreDB, 'User', user.uid), {
-                UID: user.uid,  // Storing UID
+                uid: user.uid,  // Storing UID
                 Email: user.email // Storing email
             });
 
@@ -106,7 +106,7 @@ const Signup = () => {
 
             // Store user info in Firestore under the 'User' collection
             await setDoc(doc(FirestoreDB, 'User', user.uid), {
-                UID: user.uid,  // Storing UID
+                uid: user.uid,  // Storing UID
                 Email: user.email // Storing email
             });
 
