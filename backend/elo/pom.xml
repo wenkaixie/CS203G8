@@ -47,11 +47,20 @@
         </dependency>
     </dependencies>
 
-    <build>
+<build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <environmentVariables>
+                        <FIREBASE_CREDENTIALS>C:\Users\ASUS\Documents\GitHub\CS203G8\backend\src\main\resources\firebase-service-account.json</FIREBASE_CREDENTIALS>
+                    </environmentVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>

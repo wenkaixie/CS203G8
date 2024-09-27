@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EloUpdateRequest {
 
-    @JsonProperty("Elo1")
-    private Double Elo1;
+    // @JsonProperty("Elo1")
+    // private Double Elo1;
 
-    @JsonProperty("Elo2")
-    private Double Elo2;
+    // @JsonProperty("Elo2")
+    // private Double Elo2;
 
     @JsonProperty("AS1")
     private Double AS1;
@@ -18,33 +18,33 @@ public class EloUpdateRequest {
 
     // Getters and setters with manual validation
 
-    public Double getElo1() {
-        return Elo1;
-    }
+    // public Double getElo1() {
+    //     return Elo1;
+    // }
 
-    public void setElo1(Double Elo1) throws IllegalArgumentException {
-        if (Elo1 == null) {
-            throw new IllegalArgumentException("Elo1 is required.");
-        }
-        if (Elo1 <= 0) {  // Fixed condition for Elo1
-            throw new IllegalArgumentException("Elo1 must be greater than 0.");
-        }
-        this.Elo1 = Elo1;
-    }
+    // public void setElo1(Double Elo1) throws IllegalArgumentException {
+    //     if (Elo1 == null) {
+    //         throw new IllegalArgumentException("Elo1 is required.");
+    //     }
+    //     if (Elo1 <= 0) {  // Fixed condition for Elo1
+    //         throw new IllegalArgumentException("Elo1 must be greater than 0.");
+    //     }
+    //     this.Elo1 = Elo1;
+    // }
 
-    public Double getElo2() {
-        return Elo2;
-    }
+    // public Double getElo2() {
+    //     return Elo2;
+    // }
 
-    public void setElo2(Double Elo2) throws IllegalArgumentException {
-        if (Elo2 == null) {
-            throw new IllegalArgumentException("Elo2 is required.");
-        }
-        if (Elo2 <= 0) {  // Fixed condition for Elo2
-            throw new IllegalArgumentException("Elo2 must be greater than 0.");
-        }
-        this.Elo2 = Elo2;
-    }
+    // public void setElo2(Double Elo2) throws IllegalArgumentException {
+    //     if (Elo2 == null) {
+    //         throw new IllegalArgumentException("Elo2 is required.");
+    //     }
+    //     if (Elo2 <= 0) {  // Fixed condition for Elo2
+    //         throw new IllegalArgumentException("Elo2 must be greater than 0.");
+    //     }
+    //     this.Elo2 = Elo2;
+    // }
 
     public Double getAS1() {
         return AS1;
@@ -76,8 +76,8 @@ public class EloUpdateRequest {
 
     // Optional: Add a method to validate all fields at once
     public void validate() throws IllegalArgumentException {
-        setElo1(this.Elo1);
-        setElo2(this.Elo2);
+        // setElo1(this.Elo1);
+        // setElo2(this.Elo2);
         setAS1(this.AS1);
         setAS2(this.AS2);
     }

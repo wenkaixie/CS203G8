@@ -1,0 +1,4 @@
+match\model\MatchModel.class
+match\MatchApplication.class
+match\controllers\MatchController.class
+match\service\MatchService.class
