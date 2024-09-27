@@ -40,11 +40,11 @@ public class EloController {
         logger.info("userId1: {}, userId2: {}", userId1, userId2);
 
         // Manually validating the request object
-        try {
-            request.validate(); // Call the manual validation method in EloUpdateRequest
-        } catch (IllegalArgumentException e) {
-            return createErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        // try {
+        //     request.validate(); // Call the manual validation method in EloUpdateRequest
+        // } catch (IllegalArgumentException e) {
+        //     return createErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
+        // }
 
         logger.info("Received updateElo request: request={}", request);
 
@@ -85,8 +85,8 @@ public class EloController {
 
         logger.info("Received updateElo request: userId1={}, userId2={}, request={}", userId1, userId2, request);
 
-        double AS1 = request.getAS1();
-        double AS2 = request.getAS2();
+        int AS1 = request.getAS1();
+        int AS2 = request.getAS2();
         if (!(AS1 == 0 || AS1 == 0.5 || AS1 == 1) || !(AS2 == 0 || AS2 == 0.5 || AS2 == 1)) {
             return createErrorResponse("AS1 and AS2 must be 0, 0.5, or 1.", HttpStatus.BAD_REQUEST);
         }
@@ -105,22 +105,22 @@ public class EloController {
     }
 
     // Retrieve Elo for a specific user
-    public ResponseEntity<Object> getElo(String userID) {
-        Firestore db = FirestoreClient.getFirestore();
+    // public ResponseEntity<Object> getElo(String userID) {
+    //     Firestore db = FirestoreClient.getFirestore();
     
-        try {
-            DocumentSnapshot userSnapshot = db.collection("Users").document(userID).get().get();
+    //     try {
+    //         DocumentSnapshot userSnapshot = db.collection("Users").document(userID).get().get();
     
-            if (userSnapshot.exists()) {
-                return new ResponseEntity<>(userSnapshot.get("Elo"), HttpStatus.OK);
-            } else {
-                return createErrorResponse("User does not exist.", HttpStatus.NOT_FOUND);
-            }
-        } catch (ExecutionException | InterruptedException e) {
-            logger.error("Error retrieving Elo: {}", e.getMessage(), e);
-            return createErrorResponse("Internal Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+    //         if (userSnapshot.exists()) {
+    //             return new ResponseEntity<>(userSnapshot.get("Elo"), HttpStatus.OK);
+    //         } else {
+    //             return createErrorResponse("User does not exist.", HttpStatus.NOT_FOUND);
+    //         }
+    //     } catch (ExecutionException | InterruptedException e) {
+    //         logger.error("Error retrieving Elo: {}", e.getMessage(), e);
+    //         return createErrorResponse("Internal Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    //     }
+    // }
     
     private ResponseEntity<Object> createErrorResponse(String message, HttpStatus status) {
         return new ResponseEntity<>(message, status);

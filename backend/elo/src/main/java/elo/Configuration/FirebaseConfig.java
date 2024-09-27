@@ -3,6 +3,7 @@ package elo.configuration;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.slf4j.Logger;
@@ -17,37 +18,37 @@ public class FirebaseConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(FirebaseConfig.class);
 
+    // Use @Value to inject the file path from application.properties
+    @Value("${firebase.credentials.path}")
+    private String credentialsPath;
+
     @Bean
     public FirebaseApp initializeFirebaseApp() throws IOException {
-        String credentialsPath = System.getenv("FIREBASE_CREDENTIALS");
+        // Log the credentials path for debugging purposes
+        logger.info("Firebase credentials path from application.properties: {}", credentialsPath);
 
-        if (credentialsPath == null || credentialsPath.isEmpty()) {
-            logger.error("FIREBASE_CREDENTIALS environment variable is not set.");
-            throw new IOException("FIREBASE_CREDENTIALS environment variable is not set.");
-        }
-
+        // Check if the file exists
         File credentialsFile = new File(credentialsPath);
-        if (credentialsFile.exists()) {
-            logger.info("Service account file found at path: {}", credentialsPath);
-        } else {
+        if (!credentialsFile.exists()) {
             logger.error("Service account file not found at path: {}", credentialsPath);
             throw new IOException("Service account file not found at specified path.");
         }
 
-        logger.info("Firebase credentials path: {}", credentialsPath);
-
-        if (FirebaseApp.getApps().isEmpty()) {
+        // Initialize Firebase with the credentials from the file
+        try (FileInputStream serviceAccount = new FileInputStream(credentialsFile)) {
             FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(new FileInputStream(credentialsPath)))
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
 
-            logger.info("Initializing Firebase...");
-            FirebaseApp app = FirebaseApp.initializeApp(options);
-            logger.info("Firebase initialized successfully.");
-            return app;
-        } else {
-            logger.info("FirebaseApp already initialized.");
-            return FirebaseApp.getInstance();
+            if (FirebaseApp.getApps().isEmpty()) {
+                logger.info("Initializing Firebase...");
+                FirebaseApp app = FirebaseApp.initializeApp(options);
+                logger.info("Firebase initialized successfully.");
+                return app;
+            } else {
+                logger.info("FirebaseApp already initialized.");
+                return FirebaseApp.getInstance();
+            }
         }
     }
 }

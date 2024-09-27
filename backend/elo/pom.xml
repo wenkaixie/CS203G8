@@ -45,6 +45,12 @@
             <artifactId>google-cloud-firestore</artifactId>
             <version>3.12.0</version> <!-- Updated version -->
         </dependency>
+
+        <!-- beautify data -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
     </dependencies>
 
 <build>

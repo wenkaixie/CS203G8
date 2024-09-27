@@ -6,6 +6,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
+import java.lang.*;
 
 @Service
 public class EloService {
@@ -32,8 +33,10 @@ public class EloService {
             int K2 = Elo2 < 2100 ? 32 : (Elo2 > 2400 ? 16 : 24);
 
             // Calculate new Elo ratings
-            double newElo1 = Elo1 + K1 * (AS1 - ES1);
-            double newElo2 = Elo2 + K2 * (AS2 - ES2);
+            double newElo1 = Math.round(Elo1 + K1 * (AS1 - ES1));
+            double newElo2 = Math.round(Elo2 + K2 * (AS2 - ES2));
+            if (newElo1 < 0) {newElo1 = 0;};
+            if (newElo2 < 0) {newElo2 = 0;};
 
             // Update Elo ratings in Firestore
             db.collection("User").document(userId1).update("elo", newElo1);
