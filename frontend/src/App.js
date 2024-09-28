@@ -55,10 +55,10 @@ function App() {
               <Routes>
                 <Route path="home" element={<UserHome />} />
                 <Route path="profile" element={<UserHome />} />
-                <Route path="userupcomingtournament" element={<UserUpcomingTournament />} />
-                <Route path="usertournamentparticipants" element={<UserTournamentParticipants />} />
-                <Route path="usertournamentoverview" element={<UserTournamentOverview />} />
-                <Route path="usertournamentmatch" element={<UserTournamentMatch />} />
+                <Route path="upcomingtournament" element={<UserUpcomingTournament />} />
+                <Route path="tournamentparticipants" element={<UserTournamentParticipants />} />
+                <Route path="tournamentoverview" element={<UserTournamentOverview />} />
+                <Route path="tournamentmatch" element={<UserTournamentMatch />} />
                 
                 {/* <Route path="/home" element={<UserHome />} /> */}
               </Routes>
