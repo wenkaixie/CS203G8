@@ -21,14 +21,14 @@ body {
     justify-content: center;
     align-items: center;
     margin: 25px auto 30px;
-    padding: 0 20px;
+    padding: 0 50px;
     flex-wrap: wrap;
 }
 
 /* Search Bar Styles */
 .user-tournament-match .search-bar {
     position: relative;
-    width: 70%;
+    width: 100%;
     max-width: 940px;
     flex-grow: 1;
     margin-right: 10px;
@@ -40,7 +40,6 @@ body {
     border: 1px solid #d1d1d1;
     border-radius: 10px;
     font-size: 1rem;
-    outline: none;
     height: 45px;
     color: #333;
 }
@@ -60,23 +59,64 @@ body {
 }
 
 /* Button Styles for Filters or Rounds */
-.user-tournament-match .round-button {
+.user-tournament-match .buttons-container {
+    display: flex;
+    gap: 15px;
+}
+
+.user-tournament-match .filter-button,
+.user-tournament-match .order-button {
     height: 45px;
     width: 120px;
-    background-color: #ffffff;
+    background-color: #fff;
     border: 1px solid #d1d1d1;
     border-radius: 10px;
     font-size: 1rem;
-    color: #333333;
+    color: #333;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 15px;
 }
 
-.user-tournament-match .round-button:hover {
+.user-tournament-match .filter-button:hover,
+.user-tournament-match .order-button:hover {
     background-color: #e0e0e0;
+}
+
+/* Filter Icon */
+.user-tournament-match .filter-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Dropdown Styles */
+.user-tournament-match .dropdown {
+    position: relative;
+    width: 120px;
+}
+
+.user-tournament-match .dropdown-content {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    margin-top: 5px;
+    z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.user-tournament-match .dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+    color: #333;
+}
+
+.user-tournament-match .dropdown-item:hover {
+    background-color: #f0f0f0;
+    border-radius: 5px;
 }
 
 /* Matches List */

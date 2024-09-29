@@ -2,164 +2,126 @@
 
 /* General Styles */
 body {
-    font-family: 'Josefin Sans', sans-serif !important;
+    font-family: 'Josefin Sans', sans-serif;
     margin: 0;
     padding: 0;
 }
 
 /* User Tournament Container */
 .user-tournament-participants {
-    padding: 300px 40px; /* Adjust padding to accommodate fixed header */
-    width: 100%; /* Full width */
-    margin: 0 auto;
-    background-color: #F5F5EF; 
+    padding: 300px 40px;
+    width: 100%;
+    margin: -25px auto 0;
+    background-color: #F5F5EF;
     box-sizing: border-box;
-    margin-top: -25px;
 }
 
-/* Container for Search, Filter, and Order By Buttons */
-.controls-container {
+/* Controls Container for Search and Filters */
+.user-tournament-participants .controls-container {
     display: flex;
-    justify-content: center; /* Space out the search bar and buttons container */
-    align-items: center; /* Center items vertically */
-    margin: 25px auto;
-    margin-bottom: 30px; /* Space below the controls */
-    padding: 0 20px; /* Add padding to container */
-    flex-wrap: wrap; /* Wrap elements on small screens */
+    justify-content: center;
+    align-items: center;
+    margin: 25px auto 30px;
+    padding: 0 50px;
+    flex-wrap: wrap;
 }
 
 /* Search Bar Styles */
-.search-bar {
-    position: relative; /* For positioning the icon */
-    width: 70%; /* Responsive width adjustment */
-    max-width: 940px; 
-    flex-grow: 1; /* Allow search bar to grow within the container */
-    margin-right: 10px; /* Gap between search bar and filter button */
-}
-
-.search-bar input {
-    width: 100%; /* Full width for the search input */
-    padding: 10px 50px 10px 20px; /* Padding inside the input with space for icon */
-    border: 1px solid #d1d1d1;
-    border-radius: 10px; 
-    font-size: 1rem; 
-    outline: none; /* Remove default outline */
-    height: 45px; 
-    color: #333; 
-}
-
-.search-bar input::placeholder {
-    color: #a1a1a1; 
-}
-
-/* Search Icon inside the input */
-.search-icon {
-    position: absolute; /* Position relative to the search bar */
-    right: 15px; /* Distance from the right */
-    top: 50%; /* Center vertically */
-    transform: translateY(-50%); /* Adjust vertical alignment */
-    width: 30px; 
-    height: 20px; 
-}
-
-/* Container for Filter and Order By Buttons */
-.buttons-container {
-    display: flex;
-    align-items: center; /* Center items vertically */
-    gap: 10px; /* Gap between filter and order by buttons */
-    flex-wrap: wrap; /* Wrap buttons on smaller screens */
-}
-
-/* Filter Button Styles */
-.filter-button {
-    height: 45px; 
-    width: 120px; 
-    background-color: #ffffff; 
-    border: 1px solid #d1d1d1;
-    border-radius: 10px; 
-    font-size: 1rem; 
-    color: #333333; 
-    cursor: pointer; /* Pointer cursor */
-    display: flex; /* Flex for icon and text alignment */
-    align-items: center; /* Center icon and text vertically */
-    justify-content: center; /* Center text horizontally */
-    gap: 10px; /* Space between icon and text */
-}
-
-.filter-button img {
-    width: 20px; 
-    height: 20px; 
-}
-
-.filter-button:hover {
-    background-color: #e0e0e0; 
-}
-
-/* Order By Dropdown */
-.dropdown {
+.user-tournament-participants .search-bar {
     position: relative;
-    display: inline-block;
+    width: 100%;
+    max-width: 940px;
+    flex-grow: 1;
+    margin-right: 10px;
 }
 
-.dropdown-content {
-    display: block;
-    position: absolute;
-    background-color: #ffffff;
-    min-width: 140px;
-    border-radius: 5px;
-    z-index: 1;
-    margin-top: 2px; /* Space between button and dropdown */
-}
-
-.dropdown-item {
-    color: #333;
-    padding: 12px 13px; 
-    text-align: left;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-left: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Hover effect for dropdown items */
-.dropdown-item:hover {
-    background-color: #e0e0e0; 
-    color: #000;
-}
-
-/* Order By Button Styles */
-.order-button {
-    height: 45px; 
-    width: 140px;
-    background-color: #ffffff; 
+.user-tournament-participants .search-bar input {
+    width: 100%;
+    padding: 10px 50px 10px 20px;
     border: 1px solid #d1d1d1;
     border-radius: 10px;
     font-size: 1rem;
-    color: #333333; 
-    cursor: pointer; /* Pointer cursor */
-    display: flex; /* Flex for text alignment */
-    align-items: center; /* Center text vertically */
-    justify-content: center; /* Center text horizontally */
-    position: relative; /* Positioning for dropdown */
-    padding-right: 25px;
+    height: 45px;
+    color: #333;
 }
 
-/* Down Arrow for Order Button */
-.order-button::after {
-    content: ""; /* Arrow content */
-    position: absolute; /* Position relative to the button */
-    right: 20px; /* Adjust right position */
-    top: 50%; /* Center vertically */
-    transform: translateY(-50%); /* Adjust vertical alignment */
-    border-left: 6px solid transparent; /* Create downward arrow */
-    border-right: 6px solid transparent;
-    border-top: 6px solid #333333; 
+.user-tournament-participants .search-bar input::placeholder {
+    color: #a1a1a1;
+}
+
+/* Search Icon inside the Search Bar */
+.user-tournament-participants .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 20px;
+}
+
+/* Button Styles for Filters or Rounds */
+.user-tournament-participants .buttons-container {
+    display: flex;
+    gap: 15px;
+}
+
+.user-tournament-participants .filter-button,
+.user-tournament-participants .order-button {
+    height: 45px;
+    width: 120px;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.user-tournament-participants .filter-button:hover,
+.user-tournament-participants .order-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Filter Icon */
+.user-tournament-participants .filter-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Dropdown Styles */
+.user-tournament-participants .dropdown {
+    position: relative;
+    width: 120px;
+}
+
+.user-tournament-participants .dropdown-content {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    margin-top: 5px;
+    z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.user-tournament-participants .dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+    color: #333;
+}
+
+.user-tournament-participants .dropdown-item:hover {
+    background-color: #f0f0f0;
+    border-radius: 5px;
 }
 
 /* Tournament Table Container */
-.participants-list {
+.user-tournament-participants .participants-list {
     width: 100%;
     max-width: 1250px;
     margin: 0 auto;
@@ -167,32 +129,28 @@ body {
 }
 
 /* Participants Table */
-.participants-table {
+.user-tournament-participants .participants-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 0;
     margin-top: 20px;
 }
 
-/* Table Header Styles */
-.participants-table th {
+.user-tournament-participants .participants-table th {
     font-weight: 600;
-    color: #333333;
+    color: #333;
     padding: 10px 20px;
     border-bottom: 2px solid #e0e0e0;
     text-align: left;
     background-color: #f0f0f0;
 }
 
-/* Table Row Styles */
-.participants-table tr {
+.user-tournament-participants .participants-table tr {
     border-bottom: 1px solid #f5f5f5;
 }
 
-/* Table Cell Styles */
-.participants-table td {
+.user-tournament-participants .participants-table td {
     font-weight: 500;
-    color: #555555;
+    color: #555;
     padding: 15px 20px;
     text-align: left;
     overflow: hidden;
@@ -200,34 +158,33 @@ body {
     white-space: nowrap;
 }
 
-/* Improved Hover Effects */
-.participants-table tr:hover {
+.user-tournament-participants .participants-table tr:hover {
     background-color: #f0f0f0;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .controls-container {
-        flex-direction: column; /* Stack elements vertically on smaller screens */
-        gap: 15px; /* Space between stacked items */
+    .user-tournament-participants .controls-container {
+        flex-direction: column;
+        gap: 15px;
         margin: 15px auto;
     }
-    .search-bar {
-        width: 100%; /* Full width for smaller screens */
-        margin-right: 0; /* No margin in stacked layout */
+    .user-tournament-participants .search-bar {
+        width: 100%;
+        margin-right: 0;
     }
-    .buttons-container {
-        width: 100%; /* Full width for buttons container in stacked layout */
-        justify-content: space-between; /* Distribute buttons evenly */
+    .user-tournament-participants .buttons-container {
+        width: 100%;
+        justify-content: space-between;
     }
-    .filter-button,
-    .order-button {
-        width: 48%; /* Adjust width of buttons in stacked layout */
+    .user-tournament-participants .filter-button,
+    .user-tournament-participants .order-button {
+        width: 48%;
     }
-    .participants-list {
-        padding: 0 10px; /* Reduce padding for smaller screens */
+    .user-tournament-participants .participants-list {
+        padding: 0 10px;
     }
-    .participants-table {
-        font-size: 0.9rem; /* Slightly smaller font for smaller screens */
+    .user-tournament-participants .participants-table {
+        font-size: 0.9rem;
     }
 }

@@ -86,6 +86,7 @@ const UserTournamentMatch = () => {
     return (
         <div>
             <Header 
+                activeTab="games"
                 tournamentTitle="Tournament 1"
                 playerCount={playerCount} // Replace with actual count from database
             />

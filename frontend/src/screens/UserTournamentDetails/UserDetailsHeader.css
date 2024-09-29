@@ -11,12 +11,12 @@ body {
 /* Fixed Header Wrapper */
 .header-wrapper {
     width: 100%;
-    position: fixed; /* Fix the header to the top of the page */
+    position: fixed; 
     top: 0;
     left: 0;
-    z-index: 1000; /* Ensure the header stays on top of other elements */
-    background-color: #ffffff; /* Keep the background color for the header */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
+    z-index: 1000; 
+    background-color: #ffffff; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
     padding: 0;
 }
 
@@ -25,11 +25,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: calc(100% - 30px); /* Adjust width */
-    max-width: 1350px; /* Adjust max-width */
+    width: calc(100% - 30px); 
+    max-width: 1350px; 
     margin: 0 auto;
-    padding: 20px; /* Reduced padding */
-    position: relative; /* For registration-container alignment */
+    padding: 20px; 
+    position: relative; 
     box-sizing: border-box;
 }
 
@@ -37,12 +37,12 @@ body {
 .header-left {
     display: flex;
     align-items: center;
-    gap: 30px; /* Adjusted gap */
+    gap: 30px;
 }
 
 /* Back Button */
 .back-button {
-    font-size: 1.5rem; /* Adjusted size */
+    font-size: 1.5rem; 
     background: none;
     border: none;
     cursor: pointer;
@@ -53,7 +53,7 @@ body {
 
 /* Tournament Title */
 .tournament-title {
-    font-size: 1.5rem; /* Adjusted size */
+    font-size: 1.5rem; 
     font-weight: 600;
     margin: 0;
     color: #333;
@@ -62,57 +62,57 @@ body {
 /* Registration Container */
 .registration-container {
     display: flex;
-    flex-direction: column; /* Stack items vertically */
-    align-items: flex-end; /* Align items to the right */
-    position: absolute; /* Position within the header container */
-    right: 0; /* Align to the right */
-    top: 0; /* Align with the top of the header container */
-    transform: translateX(-10px); /* Adjusted position */
+    flex-direction: column;
+    align-items: flex-end; 
+    position: absolute; 
+    right: 0; 
+    top: 0; 
+    transform: translateX(-10px); 
 }
 
 /* Register Button */
 .register-button {
     background-color: #F9E4D6;
     border: none;
-    padding: 8px 30px; /* Adjusted padding */
+    padding: 8px 30px; 
     color: #333;
     cursor: pointer;
-    font-size: 0.9rem; /* Adjusted font size */
+    font-size: 0.9rem; 
     margin-top: 20px; 
-    border-radius: 30px; /* Adjusted border-radius */
+    border-radius: 30px; 
 }
 
 .registered-button {
     background-color: #F5F5EF;
     border: none;
-    padding: 8px 30px; /* Adjusted padding */
+    padding: 8px 30px; 
     color: #333;
     cursor: pointer;
-    font-size: 0.9rem; /* Adjusted font size */
+    font-size: 0.9rem; 
     margin-top: 20px; 
-    border-radius: 30px; /* Adjusted border-radius */
+    border-radius: 30px; 
 }
 
 /* Players Count */
 .players-count {
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Align text to the right */
-    font-size: 0.9rem; /* Adjusted font size */
+    align-items: flex-end; 
+    font-size: 0.9rem; 
     color: #333;
-    text-align: right; /* Align text to the right */
-    margin-top: 20px; /* Adjusted margin */
+    text-align: right; 
+    margin-top: 20px;
 }
 
 /* Tournament Info Boxes */
 .tournament-info {
     display: flex;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    flex-wrap: wrap; 
     align-items: center;
-    gap: 0px; /* Adjust gap between info boxes */
-    justify-content: flex-start; /* Align info boxes to the left */
-    margin-top: -20px; /* Space between header and info boxes */
-    margin-left: 150px; /* Adjusted left margin */
+    gap: 0px;
+    justify-content: flex-start;
+    margin-top: -20px;
+    margin-left: 150px;
 }
 
 /* Info Box Styles */
@@ -122,23 +122,23 @@ body {
     background-color: #f5f5f5;
     border-radius: 10px;
     padding: 10px 15px;
-    max-width: 180px; /* Adjusted max-width */
-    min-width: 140px; /* Adjust min-width */
-    flex-grow: 1; /* Allow info box to grow */
+    max-width: 180px; 
+    min-width: 140px;
+    flex-grow: 1;
     height: 60px;
-    flex-shrink: 1; /* Allow box to shrink to fit */
-    margin: 5px; /* Adjusted margin */
+    flex-shrink: 1; 
+    margin: 5px;
 }
 
 /* Icon Styles */
 .info-box .icon {
-    font-size: 1.1rem; /* Adjusted icon size */
-    margin-right: 10px; /* Adjusted margin */
+    font-size: 1.1rem;
+    margin-right: 10px; 
 }
 
 /* Info Text Styles */
 .info-box .info-text {
-    font-size: 0.9rem; /* Adjusted font size */
+    font-size: 0.9rem; 
     font-weight: 500;
     color: #333333;
 }
@@ -153,60 +153,68 @@ body {
 
 /* Banner with Subtabs */
 .banner {
-    width: 100vw; /* Full width of the viewport */
+    width: 100vw; 
     background-color: #8F3013; 
-    margin-left: calc(-50vw + 50%); /* Center the banner */
-    padding: 5px 0; /* Padding around the subtabs */
+    margin-left: calc(-50vw + 50%); 
+    padding: 5px 0; 
     margin-top: 20px;
 }
 
 .subtabs {
-    display: flex; /* Flex container for subtabs */
-    justify-content: center; /* Center the subtabs */
+    display: flex; 
+    justify-content: center; 
     list-style-type: none; 
     padding: 0;
     margin: 0;
 }
 
 .subtab-item {
-    padding: 10px 15px; 
+    padding: 12px 20px; /* Consistent padding */
     cursor: pointer;
     font-size: 1.0rem; 
     font-weight: 500;
     color: #fff;
-    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
-    margin: 0 30px; /* Space between subtabs */
+    transition: background-color 0.3s ease; 
+    margin: 0 10px; /* Space between subtabs */
+    border-radius: 10px;
+    min-width: 150px; /* Consistent width for all items */
+    text-align: center; /* Center align text */
 }
 
 .subtab-item:hover {
-    background-color: #6f3218;
-    border-radius: 10px;
+    background-color: #ab4f28;
 }
 
 .subtab-item.active {
-    background-color: #f8c1c1; 
-    color: #333; 
+    background-color: #6f3218; 
+    color: #FFFFFF; 
+}
+
+/* Remove default link styling */
+.subtab-item a, 
+.subtab-item a:visited {
+    text-decoration: none; 
+    color: inherit; /* Inherit color from parent */
 }
 
 /* Adjust the main content to make room for the fixed header */
 .user-tournament {
-    padding-top: 305px; /* Adjust padding to prevent overlap with the fixed header */
-    background-color: #F5F5EF; /* Ensure the background of the content remains */
+    padding-top: 305px; 
+    background-color: #F5F5EF; 
     box-sizing: border-box;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    /* Adjust header container for smaller screens */
     .header-container {
-        flex-direction: column; /* Stack header elements vertically */
-        width: 100%; /* Full width */
-        padding: 20px 10px; /* Adjust padding */
+        flex-direction: column; 
+        width: 100%; 
+        padding: 20px 10px;
     }
 
     .header-left {
-        gap: 15px; /* Reduced gap between elements */
-        justify-content: center; /* Center the header left section */
+        gap: 15px; 
+        justify-content: center;
     }
 
     .tournament-title {
@@ -214,33 +222,34 @@ body {
     }
 
     .registration-container {
-        position: static; /* Default positioning */
-        transform: none; /* Remove translation */
+        position: static; 
+        transform: none; 
         margin-top: 20px; 
-        align-items: center; /* Center the registration container */
+        align-items: center; 
     }
 
     .tournament-info {
         margin-left: 0; 
-        justify-content: center; /* Center info boxes */
+        justify-content: center;
     }
 
     .info-box {
-        max-width: 140px; /* Reduce max-width for smaller screens */
-        min-width: 120px; /* Reduce min-width */
+        max-width: 140px; 
+        min-width: 120px;
     }
 
     .banner {
-        padding: 10px 0; /* Add padding to the banner */
+        padding: 10px 0; 
         margin-top: 10px; 
     }
 
     .subtab-item {
         font-size: 0.8rem; 
-        margin: 0 10px; 
+        margin: 0 10px;
     }
 
     .user-tournament {
-        padding-top: 400px; /* Increase padding for smaller screens */
+        padding-top: 400px; 
     }
 }
+

@@ -44,6 +44,12 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/create_profile" element={<CreateProfile />} />
+
+        <Route path="upcomingtournament" element={<UserUpcomingTournament />} />
+        <Route path="tournament/:id/overview" element={<UserTournamentOverview />} />
+        <Route path="tournament/:id/participants" element={<UserTournamentParticipants />} />
+        <Route path="tournament/:id/games" element={<UserTournamentMatch />} />
+
         {/* User Protected Routes */}
         <Route
           path="/user/*"
@@ -53,12 +59,14 @@ function App() {
                 <Route path="home" element={<UserHome />} />
                 <Route path="profile" element={<UserHome />} />
                 <Route path="upcomingtournament" element={<UserUpcomingTournament />} />
-                <Route path="tournamentparticipants" element={<UserTournamentParticipants />} />
-                <Route path="tournamentoverview" element={<UserTournamentOverview />} />
-                <Route path="tournamentmatch" element={<UserTournamentMatch />} />
 
                 <Route path="upcomingtournament" element={<TournamentUpcoming />} />
                 <Route path="calendar" element={<UserCalendar />} />
+
+                {/* Tournament Details Routes for Users */}
+                <Route path="tournament/:id/overview" element={<UserTournamentOverview />} />
+                <Route path="tournament/:id/participants" element={<UserTournamentParticipants />} />
+                <Route path="tournament/:id/games" element={<UserTournamentMatch />} />
               </Routes>
             </ProtectedRoute>
           }

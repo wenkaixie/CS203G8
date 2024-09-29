@@ -76,6 +76,7 @@ const UserTournamentParticipants = () => {
     return (
         <div>
             <Header
+                activetab="participants"
                 tournamentTitle="Tournament 1"
                 playerCount={playerCount} // Use the centralized player count state
             />

@@ -55,7 +55,8 @@ const UserTournamentOverview = () => {
     return (
         <div>
             {/* Header with registration details */}
-            <UserDetailsHeader
+            <UserDetailsHeader 
+                activeTab="overview"
                 tournamentTitle={tournamentData.title}
                 playerCount={numberOfPlayers} 
             />

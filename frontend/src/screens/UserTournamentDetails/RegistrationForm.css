@@ -116,12 +116,6 @@
     cursor: not-allowed; 
 }
 
-.date-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap; /* Allow wrapping on small screens */
-}
-
 /* Registration Footer */
 .registration-footer {
     padding: 20px;

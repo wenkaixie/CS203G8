@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import './RegistrationForm.css';
-import DateButton from './DateButton'; 
 import LockIcon from '../../assets/images/Password.png';
 
 const RegistrationForm = ({ closeForm, onSubmit }) => {
@@ -8,27 +7,11 @@ const RegistrationForm = ({ closeForm, onSubmit }) => {
     const [age, setAge] = useState(23); // Pre-filled dummy data
     const [location, setLocation] = useState('Singapore'); // Pre-filled dummy data
     const [email, setEmail] = useState('JohnTanCH@gmail.com'); // Pre-filled dummy data
-    const [selectedDates, setSelectedDates] = useState([]); // No dates selected initially
-
-    const dates = [
-        'Jun 17, 2024',
-        'Jun 18, 2024',
-        'Jun 19, 2024'
-    ]; // Dummy data, will be replaced by database values
-
-    // Toggle selected date
-    const toggleDate = (date) => {
-        if (selectedDates.includes(date)) {
-            setSelectedDates(selectedDates.filter(d => d !== date));
-        } else {
-            setSelectedDates([...selectedDates, date]);
-        }
-    };
 
     // Handle form submission
     const handleSubmit = () => {
         // Perform form validation here
-        onSubmit({ fullName, age, location, email, selectedDates });
+        onSubmit({ fullName, age, location, email });
         closeForm();
     };
 
@@ -88,25 +71,12 @@ const RegistrationForm = ({ closeForm, onSubmit }) => {
                         </div>
                     </div>
 
-                    <div className="form-group">
-                        <label>Choose your preferred game dates (at least 1)</label>
-                        <div className="date-buttons">
-                            {dates.map((date) => (
-                                <DateButton 
-                                    key={date}
-                                    date={date}
-                                    isSelected={selectedDates.includes(date)}
-                                    onClick={() => toggleDate(date)}
-                                />
-                            ))}
-                        </div>
-                    </div>
+                    
                 </div>
                 <div className="registration-footer">
                     <button 
                         className="registration-button" 
                         onClick={handleSubmit}
-                        disabled={selectedDates.length === 0} // Disable if no date is selected
                     >
                         Register
                     </button>
