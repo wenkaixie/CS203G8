@@ -6,7 +6,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 
-
+import csd.rankingdashboard.Model.Tournament;
 import csd.rankingdashboard.Model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +31,19 @@ public class FirestoreService {
             users.add(document.toObject(User.class));
         }
         return users;
+    }
+
+    public List<Tournament> getAllTournaments() throws InterruptedException, ExecutionException {
+
+        ApiFuture<QuerySnapshot> future = firestore.collection("Tournament").get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        LOGGER.info("Futuret: " + future);
+        LOGGER.info("Documents: " + documents);
+
+        List<Tournament> tournaments = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            tournaments.add(document.toObject(Tournament.class));
+        }
+        return tournaments;
     }
 }

@@ -1,4 +1,4 @@
-package csd.rankingdashboard.Configuration;
+package csd.playermanagement.Configuration;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;

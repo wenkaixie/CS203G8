@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>csd</groupId>
-	<artifactId>rankingDashboardService</artifactId>
+	<artifactId>matchResultService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>rankingDashboardService</name>
+	<name>matchResultService</name>
 	<description>csdproject</description>
 	<url/>
 	<licenses>
