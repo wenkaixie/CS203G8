@@ -21,12 +21,12 @@ body {
 }
 
 /* Header Container */
-.header-container {
+.header-wrapper .header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: calc(100% - 30px); 
-    max-width: 1350px; 
+    width: 100%; 
+    max-width: 1450px; 
     margin: 0 auto;
     padding: 20px; 
     position: relative; 
@@ -34,14 +34,14 @@ body {
 }
 
 /* Header Left Section */
-.header-left {
+.header-wrapper .header-left {
     display: flex;
     align-items: center;
     gap: 30px;
 }
 
 /* Back Button */
-.back-button {
+.header-wrapper .back-button {
     font-size: 1.5rem; 
     background: none;
     border: none;
@@ -52,7 +52,7 @@ body {
 }
 
 /* Tournament Title */
-.tournament-title {
+.header-wrapper .tournament-title {
     font-size: 1.5rem; 
     font-weight: 600;
     margin: 0;
@@ -60,7 +60,7 @@ body {
 }
 
 /* Registration Container */
-.registration-container {
+.header-wrapper .registration-container {
     display: flex;
     flex-direction: column;
     align-items: flex-end; 
@@ -71,7 +71,7 @@ body {
 }
 
 /* Register Button */
-.register-button {
+.header-wrapper .register-button {
     background-color: #F9E4D6;
     border: none;
     padding: 8px 30px; 
@@ -82,7 +82,7 @@ body {
     border-radius: 30px; 
 }
 
-.registered-button {
+.header-wrapper .registered-button {
     background-color: #F5F5EF;
     border: none;
     padding: 8px 30px; 
@@ -94,7 +94,7 @@ body {
 }
 
 /* Players Count */
-.players-count {
+.header-wrapper .players-count {
     display: flex;
     flex-direction: column;
     align-items: flex-end; 
@@ -105,7 +105,7 @@ body {
 }
 
 /* Tournament Info Boxes */
-.tournament-info {
+.header-wrapper .tournament-info {
     display: flex;
     flex-wrap: wrap; 
     align-items: center;
@@ -116,35 +116,35 @@ body {
 }
 
 /* Info Box Styles */
-.info-box {
+.header-wrapper .info-box {
     display: flex;
     align-items: center;
     background-color: #f5f5f5;
     border-radius: 10px;
     padding: 10px 15px;
     max-width: 180px; 
-    min-width: 140px;
     flex-grow: 1;
     height: 60px;
     flex-shrink: 1; 
     margin: 5px;
+    margin-left: -20px;
 }
 
 /* Icon Styles */
-.info-box .icon {
+.header-wrapper .info-box .icon {
     font-size: 1.1rem;
     margin-right: 10px; 
 }
 
 /* Info Text Styles */
-.info-box .info-text {
+.header-wrapper .info-box .info-text {
     font-size: 0.9rem; 
     font-weight: 500;
     color: #333333;
 }
 
 /* Sub-text Styles */
-.info-box .sub-text {
+.header-wrapper .info-box .sub-text {
     display: block;
     font-size: 0.8rem; 
     color: #777777;
@@ -152,7 +152,7 @@ body {
 }
 
 /* Banner with Subtabs */
-.banner {
+.header-wrapper .banner {
     width: 100vw; 
     background-color: #8F3013; 
     margin-left: calc(-50vw + 50%); 
@@ -160,7 +160,7 @@ body {
     margin-top: 20px;
 }
 
-.subtabs {
+.header-wrapper .subtabs {
     display: flex; 
     justify-content: center; 
     list-style-type: none; 
@@ -168,7 +168,7 @@ body {
     margin: 0;
 }
 
-.subtab-item {
+.header-wrapper .subtab-item {
     padding: 12px 20px; /* Consistent padding */
     cursor: pointer;
     font-size: 1.0rem; 
@@ -181,24 +181,24 @@ body {
     text-align: center; /* Center align text */
 }
 
-.subtab-item:hover {
+.header-wrapper .subtab-item:hover {
     background-color: #ab4f28;
 }
 
-.subtab-item.active {
+.header-wrapper .subtab-item.active {
     background-color: #6f3218; 
     color: #FFFFFF; 
 }
 
 /* Remove default link styling */
-.subtab-item a, 
-.subtab-item a:visited {
+.header-wrapper .subtab-item a, 
+.header-wrapper .subtab-item a:visited {
     text-decoration: none; 
     color: inherit; /* Inherit color from parent */
 }
 
 /* Adjust the main content to make room for the fixed header */
-.user-tournament {
+.header-wrapper .user-tournament {
     padding-top: 305px; 
     background-color: #F5F5EF; 
     box-sizing: border-box;

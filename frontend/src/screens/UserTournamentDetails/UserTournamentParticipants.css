@@ -11,7 +11,7 @@ body {
 .user-tournament-participants {
     padding: 300px 40px;
     width: 100%;
-    margin: -25px auto 0;
+    margin-top: -25px;
     background-color: #F5F5EF;
     box-sizing: border-box;
 }
@@ -19,20 +19,20 @@ body {
 /* Controls Container for Search and Filters */
 .user-tournament-participants .controls-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between; /* Adjust to space-between */
     align-items: center;
+    width: 100%;
+    max-width: 1450px; /* Adjusted to match UserTournamentMatch */
     margin: 25px auto 30px;
-    padding: 0 50px;
-    flex-wrap: wrap;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 /* Search Bar Styles */
 .user-tournament-participants .search-bar {
     position: relative;
-    width: 100%;
-    max-width: 940px;
     flex-grow: 1;
-    margin-right: 10px;
+    margin-right: 5px;
 }
 
 .user-tournament-participants .search-bar input {
@@ -62,7 +62,7 @@ body {
 /* Button Styles for Filters or Rounds */
 .user-tournament-participants .buttons-container {
     display: flex;
-    gap: 15px;
+    gap: 5px;
 }
 
 .user-tournament-participants .filter-button,
@@ -123,7 +123,7 @@ body {
 /* Tournament Table Container */
 .user-tournament-participants .participants-list {
     width: 100%;
-    max-width: 1250px;
+    max-width: 1450px; /* Adjusted to match UserTournamentMatch */
     margin: 0 auto;
     padding: 0 20px;
 }
