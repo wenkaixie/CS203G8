@@ -278,6 +278,7 @@ body {
     text-align: center;
 }
 
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .tournament-tree {

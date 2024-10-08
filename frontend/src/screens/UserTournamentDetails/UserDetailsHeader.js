@@ -114,11 +114,6 @@ const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
                             Games
                         </NavLink>
                     </li>
-                    <li className={`subtab-item ${activeTab === 'results' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/results`}>
-                            Results
-                        </NavLink>
-                    </li>
                     <li className={`subtab-item ${activeTab === 'discussion' ? 'active' : ''}`}>
                         <NavLink to={`/tournament/${tournamentId}/discussion`}>
                             Discussion

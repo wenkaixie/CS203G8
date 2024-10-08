@@ -230,6 +230,7 @@ const UserTournamentMatchTree = () => {
                                     ) : (
                                         <div className="player">No opponent</div>
                                     )}
+                                    
                                 </div>
                             ))}
                         </div>

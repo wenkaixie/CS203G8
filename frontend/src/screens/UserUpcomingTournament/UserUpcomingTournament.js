@@ -1,62 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import './UserUpcomingTournament.css';
 import filterIcon from '../../assets/images/Adjust.png';
 import searchIcon from '../../assets/images/Search.png';
 import Navbar from '../../components/navbar/Navbar';
 
-import { useState, useEffect } from 'react';
-
-// Example API URL where tournaments are fetched
-export const API_URL = 'http://your-api-url/tournaments';
+import { collection, getDocs } from 'firebase/firestore';
+import { FirestoreDB } from '../../firebase/firebase_config';  // Import the Firestore config
 
 const UserUpcomingTournament = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
-
-    const [tournaments, setTournaments] = useState([
-        {
-            id: 1,
-            name: 'Youth Chess Championships 2024',
-            date: 'Jul 27 - Jul 29, 2024',
-            location: 'Singapore',
-            slots: 30,
-            prize: '$50,000',
-            status: 'Open registration',
-        },
-        {
-            id: 2,
-            name: 'Sants Open 2024',
-            date: 'Aug 23 - Sep 02, 2024',
-            location: 'Barcelona, Spain',
-            slots: 100,
-            prize: '$100,000',
-            status: 'Published',
-        },
-        {
-            id: 3,
-            name: '45th FIDE Chess Olympiad 2024',
-            date: 'Sep 10 - Sep 24, 2024',
-            location: 'Budapest, Hungary',
-            slots: 250,
-            prize: '$20,000',
-            status: 'Registered',
-        },
-        {
-            id: 4,
-            name: 'Grand Chess Tour 2024',
-            date: 'Sep 16 - Sep 28, 2024',
-            location: 'London, UK',
-            slots: 75,
-            prize: '$50,000',
-            status: 'Registration closed',
-        },
-
-    ]);
+    const [tournaments, setTournaments] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
     const [filteredTournaments, setFilteredTournaments] = useState([]);
+
+    // Fetch tournaments from Firestore
+    useEffect(() => {
+        const fetchTournaments = async () => {
+            try {
+                const tournamentSnapshot = await getDocs(collection(FirestoreDB, "tournaments"));
+                const tournamentList = tournamentSnapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    id: doc.id
+                }));
+                setTournaments(tournamentList);
+                setFilteredTournaments(tournamentList); // Initially set the filtered list
+            } catch (error) {
+                console.error("Error fetching tournaments: ", error);
+            }
+        };
+
+        fetchTournaments();
+    }, []);
 
     // Filter tournaments based on active tab
     useEffect(() => {
@@ -109,15 +87,12 @@ const UserUpcomingTournament = () => {
             updatedList = updatedList.sort((a, b) => {
                 if (sortBy === 'name') {
                     return a.name.localeCompare(b.name);
-                }
-                else if (sortBy === 'date') {
-                    return new Date(a.date) - new Date(b.date);
-                } 
-                else if (sortBy === 'slots') {
-                    return b.slots - a.slots;
-                }
-                else if (sortBy === 'prize') {
-                    return b.prize - a.prize;
+                } else if (sortBy === 'date') {
+                    return new Date(a.startDatetime.toDate()) - new Date(b.startDatetime.toDate());
+                } else if (sortBy === 'slots') {
+                    return b.capacity - a.capacity;
+                } else if (sortBy === 'prize') {
+                    return parseFloat(b.prize.replace('$', '')) - parseFloat(a.prize.replace('$', ''));
                 }
                 return 0;
             });
@@ -133,7 +108,6 @@ const UserUpcomingTournament = () => {
 
             {/* Tournament Content */}
             <div className="tournament-upcoming">
-
                 {/* Container for Header and Subtask Bar */}
                 <div className="header-subtask-container">
                     {/* Page Header */}
@@ -159,9 +133,7 @@ const UserUpcomingTournament = () => {
                             Past
                         </button>
                     </div>
-
                 </div>
-
 
                 {/* Search and Filter Controls */}
                 <div className="controls-container">
@@ -209,6 +181,7 @@ const UserUpcomingTournament = () => {
                     </div>
                 </div>
 
+                {/* Tournament List */}
                 <div className="tournament-list-container">
                     <table className="tournament-table">
                         <thead>
@@ -227,9 +200,9 @@ const UserUpcomingTournament = () => {
                                 <tr key={tournament.id}>
                                     <td>{index + 1}</td>
                                     <td>{tournament.name}</td>
-                                    <td>{tournament.date}</td>
+                                    <td>{new Date(tournament.startDatetime.toDate()).toLocaleString()}</td>
                                     <td>{tournament.location}</td>
-                                    <td>{tournament.slots}</td>
+                                    <td>{tournament.capacity}</td>
                                     <td>{tournament.prize}</td>
                                     <td className={`status-${tournament.status.replace(/\s+/g, '-').toLowerCase()}`}>
                                         {tournament.status}
@@ -239,7 +212,6 @@ const UserUpcomingTournament = () => {
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
     );

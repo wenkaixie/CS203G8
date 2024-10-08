@@ -109,7 +109,7 @@ body {
     display: flex;
     flex-wrap: wrap; 
     align-items: center;
-    gap: 0px;
+    gap: 20px;
     justify-content: flex-start;
     margin-top: -20px;
     margin-left: 150px;
