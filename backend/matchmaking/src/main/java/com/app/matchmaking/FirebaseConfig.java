@@ -1,4 +1,4 @@
-package elo.configuration;
+package com.app.matchmaking;
 
 import java.io.File;
 // Spring imports

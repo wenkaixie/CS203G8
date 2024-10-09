@@ -1,6 +1,6 @@
 elo\EloApplication.class
 elo\service\EloService.class
-csd\rankingdashboard\Configuration\RestTemplateConfig.class
 elo\model\EloUpdateRequest.class
 elo\controller\EloController.class
 elo\configuration\FirebaseConfig.class
+elo\configuration\RestTemplateConfig.class

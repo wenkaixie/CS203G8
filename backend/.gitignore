@@ -5,4 +5,4 @@
 .vercel
 
 # backend
-/src/main/resources/serviceAccountKey.json
+#/src/main/resources/serviceAccountKey.json

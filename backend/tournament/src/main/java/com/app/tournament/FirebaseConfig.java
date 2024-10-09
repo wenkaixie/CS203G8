@@ -1,4 +1,4 @@
-package elo.configuration;
+package com.app.tournament;
 
 import java.io.File;
 // Spring imports
@@ -100,3 +100,4 @@ public class FirebaseConfig {
         return Optional.empty();
     }
 }
+
