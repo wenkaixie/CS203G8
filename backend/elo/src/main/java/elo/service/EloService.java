@@ -6,7 +6,6 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
-import java.lang.*;
 
 @Service
 public class EloService {
