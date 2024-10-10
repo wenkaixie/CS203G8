@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './UserTournamentParticipants.css';
 import Header from './UserDetailsHeader';
+import FilterOverlay from './FilterOverlay'; // Import the new FilterOverlay component
 
 const UserTournamentParticipants = () => {
     const [participants, setParticipants] = useState([]);
@@ -8,12 +9,11 @@ const UserTournamentParticipants = () => {
     const [sortBy, setSortBy] = useState('');
     const [filteredParticipants, setFilteredParticipants] = useState([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [playerCount, setPlayerCount] = useState(0); // Add player count state
+    const [playerCount, setPlayerCount] = useState(0);
+    const [isFilterOpen, setIsFilterOpen] = useState(false); // State for controlling filter modal
 
-    // Fetch tournament details and participants from API
     useEffect(() => {
         const fetchParticipants = async () => {
-            // Replace with your API call to fetch participants and player count
             const data = [
                 { id: 1, name: 'Hikaru Nakamura', nationality: 'Japan', age: 30, worldRank: 3252, rating: 2860, gamesPlayed: 7 },
                 { id: 2, name: 'Vincent Keymer', nationality: 'Germany', age: 24, worldRank: 3254, rating: 2850, gamesPlayed: 2 },
@@ -22,39 +22,33 @@ const UserTournamentParticipants = () => {
                 { id: 5, name: 'Player 5', nationality: 'United Kingdom', age: 17, worldRank: 1897, rating: 4860, gamesPlayed: 11 },
             ];
             setParticipants(data);
-            setPlayerCount(data.length); // Set player count based on participants length
+            setPlayerCount(data.length);
         };
         fetchParticipants();
     }, []);
 
-    // Handle search input
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
     };
 
-    // Toggle dropdown visibility
     const toggleDropdown = () => {
         setIsDropdownVisible(!isDropdownVisible);
     };
 
-    // Handle selection from dropdown
     const handleSortChange = (criteria) => {
         setSortBy(criteria);
-        setIsDropdownVisible(false); // Hide dropdown after selection
+        setIsDropdownVisible(false);
     };
 
-    // Filter and sort the participants list based on user inputs
     useEffect(() => {
         let updatedList = participants;
 
-        // Filter by search term
         if (searchTerm) {
             updatedList = updatedList.filter((participant) =>
                 participant.name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
-        // Sort the list
         if (sortBy) {
             updatedList = updatedList.sort((a, b) => {
                 if (sortBy === 'name') {
@@ -75,14 +69,9 @@ const UserTournamentParticipants = () => {
 
     return (
         <div>
-            <Header
-                activetab="participants"
-                tournamentTitle="Tournament 1"
-                playerCount={playerCount} // Use the centralized player count state
-            />
+            <Header activetab="participants" tournamentTitle="Tournament 1" playerCount={playerCount} />
 
             <div className="user-tournament-participants">
-                {/* Search and Sort Controls */}
                 <div className="controls-container">
                     <div className="search-bar">
                         <input
@@ -91,47 +80,26 @@ const UserTournamentParticipants = () => {
                             value={searchTerm}
                             onChange={handleSearch}
                         />
-                        {/* Search Icon */}
-                        <img
-                            src={require('../../assets/images/Search.png')}
-                            alt="Search Icon"
-                            className="search-icon"
-                        />
+                        <img src={require('../../assets/images/Search.png')} alt="Search Icon" className="search-icon" />
                     </div>
                     <div className="buttons-container">
-                        {/* Filter Button */}
-                        <button className="filter-button">
-                            <img
-                                src={require('../../assets/images/Adjust.png')}
-                                alt="Filter Icon"
-                                className="filter-icon"
-                            />
+                        <button className="filter-button" onClick={() => setIsFilterOpen(true)}>
+                            <img src={require('../../assets/images/Adjust.png')} alt="Filter Icon" className="filter-icon" />
                             <span>Filter</span>
                         </button>
-
-                        {/* Order By Dropdown Button */}
                         <div className="dropdown">
-                            <button className="order-button" onClick={toggleDropdown}>
-                                Order By
-                            </button>
+                            <button className="order-button" onClick={toggleDropdown}>Order By</button>
                             {isDropdownVisible && (
                                 <div className="dropdown-content">
-                                    <div className="dropdown-item" onClick={() => handleSortChange('name')}>
-                                        Name
-                                    </div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('age')}>
-                                        Age
-                                    </div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('worldRank')}>
-                                        World Rank
-                                    </div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('name')}>Name</div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('age')}>Age</div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('worldRank')}>World Rank</div>
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Participants Table */}
                 <div className="participants-list">
                     <table className="participants-table">
                         <thead>
@@ -162,7 +130,10 @@ const UserTournamentParticipants = () => {
                 </div>
 
             </div>
-        </div >
+
+            {/* Filter Overlay */}
+            <FilterOverlay isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+        </div>
     );
 };
 
