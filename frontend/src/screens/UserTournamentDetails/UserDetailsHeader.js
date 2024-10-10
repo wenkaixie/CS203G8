@@ -4,49 +4,83 @@ import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
 import RegistrationForm from './RegistrationForm';
 
-const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
-    const { tournamentId } = useParams(); // Dynamically get tournamentId from URL parameters
+const UserDetailsHeader = ({ userElo }) => {
+    const { id: tournamentId } = useParams(); // Dynamically get tournamentId from URL parameters
     const location = useLocation(); // Get the current location (URL)
+    const activeTab = location.pathname.split('/').pop(); 
 
     const [isRegistered, setIsRegistered] = useState(false); 
     const [showRegistrationForm, setShowRegistrationForm] = useState(false); 
-    const [totalParticipants, setTotalParticipants] = useState(30); 
-    const [numberOfPlayers, setNumberOfPlayers] = useState(5); 
-
-    // Define activeTab based on the last part of the current URL
-    const activeTab = location.pathname.split('/').pop(); // Get the last part of the URL (e.g., 'overview', 'participants')
+    const [tournamentData, setTournamentData] = useState({});
+    const [numberOfPlayers, setNumberOfPlayers] = useState(0);
+    const [isEligible, setIsEligible] = useState(false); // Track if user meets the ELO requirement
+    const [registrationError, setRegistrationError] = useState(''); // Error message for registration failure
 
     useEffect(() => {
-        // Simulated API response for total participants and registered players
+        // Fetch tournament details from the API
         const fetchTournamentData = async () => {
             try {
-                const totalSlots = 30; // Replace with real API call
-                const registeredPlayers = 5; // Replace with real API call
-                setTotalParticipants(totalSlots);
-                setNumberOfPlayers(registeredPlayers);
+                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tournament data');
+                }
+                const data = await response.json();
+                setTournamentData(data);
+                setNumberOfPlayers(data.users ? data.users.length : 0); // Handle null users, set to 0 if null
+                
+                // Check if user's ELO meets the requirement
+                if (userElo >= data.eloRequirement) {
+                    setIsEligible(true);
+                }
             } catch (error) {
                 console.error("Failed to fetch tournament data:", error);
             }
         };
         fetchTournamentData();
-    }, []);
+    }, [tournamentId, userElo]);
 
-    const availableSlots = totalParticipants - numberOfPlayers;
+    const availableSlots = tournamentData.capacity ? tournamentData.capacity - numberOfPlayers : 0;
 
     const handleRegisterClick = () => {
-        if (!isRegistered) {
+        if (isEligible && !isRegistered) {
             setShowRegistrationForm(true);
         }
     };
 
     const closeForm = () => {
         setShowRegistrationForm(false);
+        setRegistrationError(''); // Clear any previous errors when the form is closed
     };
 
-    const handleFormSubmit = (data) => {
-        setIsRegistered(true);
-        setNumberOfPlayers(numberOfPlayers + 1);
-        setShowRegistrationForm(false);
+    const handleFormSubmit = async (userDetails) => {
+        try {
+            // Make API call to register the user
+            const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fullName: userDetails.fullName,
+                    age: userDetails.age,
+                    location: userDetails.location,
+                    email: userDetails.email
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to register. Please try again.');
+            }
+
+            // If the registration is successful
+            setIsRegistered(true);
+            setNumberOfPlayers(numberOfPlayers + 1); // Increase the player count by 1
+            setShowRegistrationForm(false);
+        } catch (error) {
+            // If registration fails, show the error message and do not register
+            setRegistrationError(error.message);
+            setIsRegistered(false); // Ensure the user is not marked as registered
+        }
     };
 
     return (
@@ -56,15 +90,15 @@ const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
             <div className="header-container">
                 <div className="header-left">
                     <button className="back-button" onClick={() => window.history.back()}>{'<'}</button>
-                    <h1 className="tournament-title">{tournamentTitle}</h1>
+                    <h1 className="tournament-title">{tournamentData.name || "Tournament"}</h1>
                 </div>
                 <div className="registration-container">
                     <button
                         className={isRegistered ? 'registered-button' : 'register-button'}
                         onClick={handleRegisterClick}
-                        disabled={isRegistered}
+                        disabled={!isEligible || isRegistered} // Disable if not eligible or already registered
                     >
-                        {isRegistered ? 'Registered' : 'Register'}
+                        {isRegistered ? 'Registered' : isEligible ? 'Register' : 'Not Eligible'}
                     </button>
                     <div className="players-count">
                         <span>Players:</span>
@@ -73,24 +107,30 @@ const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
                 </div>
             </div>
 
+            {registrationError && <p className="error-message">{registrationError}</p>}
+
             <div className="tournament-info">
                 <div className="info-box">
                     <span className="icon">🕒</span>
                     <div>
-                        <span className="info-text">Jul 21 - Jul 28</span>
+                        <span className="info-text">
+                            {tournamentData.startDatetime ? new Date(tournamentData.startDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'} -  
+                            {' '}
+                            {tournamentData.endDatetime ? new Date(tournamentData.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}
+                        </span>
                     </div>
                 </div>
                 <div className="info-box">
                     <span className="icon">💰</span>
                     <div>
-                        <span className="info-text">$50,000</span>
+                        <span className="info-text">${tournamentData.prize || 'N/A'}</span>
                         <span className="sub-text">Total prize pool</span>
                     </div>
                 </div>
                 <div className="info-box">
                     <span className="icon">✔️</span>
                     <div>
-                        <span className="info-text">{availableSlots}</span>
+                        <span className="info-text">{availableSlots >= 0 ? availableSlots : 'N/A'}</span>
                         <span className="sub-text">Available slots</span>
                     </div>
                 </div>
@@ -126,6 +166,7 @@ const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
                 <RegistrationForm
                     closeForm={closeForm}
                     onSubmit={handleFormSubmit}
+                    tournamentID={tournamentId} // Pass the tournament ID to the registration form
                 />
             )}
         </div>

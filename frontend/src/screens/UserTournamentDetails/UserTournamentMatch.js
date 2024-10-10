@@ -1,68 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import './UserTournamentMatch.css';
 import Header from './UserDetailsHeader';
+import { useParams } from 'react-router-dom';
 
 const UserTournamentMatch = () => {
+    const { id: tournamentId } = useParams(); // Get the tournamentId from the URL
     const [matches, setMatches] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredMatches, setFilteredMatches] = useState([]);
     const [sortBy, setSortBy] = useState('');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const [selectedRound, setSelectedRound] = useState('All rounds');
+    const [availableRounds, setAvailableRounds] = useState([]);
+    const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
-    const [selectedRound, setSelectedRound] = useState('All rounds'); // Initialize selectedRound state here
 
-    // Dummy data with player scores and results (Win/Lost/Draw)
-    const dummyData = [
-        {
-            round: 1,
-            matches: [
-                {
-                    no: 1, date: 'Jun 21, 2024 08:40am', location: 'City Hall, Table 5',
-                    player1: 'Hikaru Nakamura', rating1: 2000, nationality1: 'Japan', score1: 1,
-                    player2: 'Vincent Keymer', rating2: 2100, nationality2: 'Germany', score2: 0
-                },
-                {
-                    no: 2, date: 'Jun 21, 2024 09:45am', location: 'City Hall, Table 5',
-                    player1: 'Hikaru Nakamura', rating1: 2000, nationality1: 'Japan', score1: 0.5,
-                    player2: 'Vincent Keymer', rating2: 2100, nationality2: 'Germany', score2: 0.5
-                }
-            ]
-        },
-        {
-            round: 2,
-            matches: [
-                {
-                    no: 1, date: 'Jun 21, 2024 08:40am', location: 'City Hall, Table 5',
-                    player1: 'Hikaru Nakamura', rating1: 2000, nationality1: 'Japan', score1: 1,
-                    player2: 'Vincent Keymer', rating2: 2100, nationality2: 'Germany', score2: 0
-                },
-                {
-                    no: 2, date: 'Jun 21, 2024 09:45am', location: 'City Hall, Table 5',
-                    player1: 'Hikaru Nakamura', rating1: 2000, nationality1: 'Japan', score1: 0.5,
-                    player2: 'Vincent Keymer', rating2: 2100, nationality2: 'Germany', score2: 0.5
-                }
-            ]
-        }
-    ];
-
+    // Fetch tournament details including the number of players and title
     useEffect(() => {
-        setMatches(dummyData);
-        const allMatches = dummyData.flatMap(roundData => roundData.matches);
-        setFilteredMatches(allMatches);
-    }, [dummyData]);
+        const fetchTournamentDetails = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tournament details');
+                }
+                const tournamentData = await response.json();
+                setTournamentTitle(tournamentData.name || 'Tournament');
+                setPlayerCount(tournamentData.users ? tournamentData.users.length : 0); // Handle null or empty users array
+            } catch (error) {
+                console.error('Error fetching tournament details:', error);
+            }
+        };
+
+        fetchTournamentDetails();
+    }, [tournamentId]);
+
+    // Fetch rounds for the tournament
+    useEffect(() => {
+        const fetchRounds = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/rounds`);
+                const data = await response.json();
+                setAvailableRounds(data); // Set the available rounds for the dropdown
+            } catch (error) {
+                console.error('Error fetching rounds:', error);
+            }
+        };
+
+        fetchRounds();
+    }, [tournamentId]);
+
+    // Fetch matches based on the selected round
+    useEffect(() => {
+        const fetchMatches = async () => {
+            try {
+                const roundId = selectedRound === 'All rounds' ? '' : selectedRound;
+                const response = await fetch(`http://localhost:8080/api/rounds/${roundId}/matches`);
+                const data = await response.json();
+                setMatches(data);
+                setFilteredMatches(data);
+            } catch (error) {
+                console.error('Error fetching matches:', error);
+            }
+        };
+
+        fetchMatches();
+    }, [selectedRound]);
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
     };
 
-    // Handle round selection from the dropdown (without changing display yet)
+    // Handle round selection from the dropdown
     const handleRoundSelection = (round) => {
         setSelectedRound(round);
-        // Filtering logic will be added here later if needed
     };
 
     const handleImageViewClick = () => {
-        const tournamentId = 1; // Replace with the actual tournament ID
         window.location.href = `/tournament/${tournamentId}/matchtree`;
     };
 
@@ -83,7 +96,7 @@ const UserTournamentMatch = () => {
 
     // Filter and sort matches based on search term and sorting criteria
     useEffect(() => {
-        let updatedList = matches.flatMap(roundData => roundData.matches); // Flatten all rounds into a single array
+        let updatedList = matches; // Directly use matches
 
         // Filter by search term
         if (searchTerm) {
@@ -114,8 +127,8 @@ const UserTournamentMatch = () => {
     return (
         <div>
             <Header
-                tournamentTitle="Tournament 1"
-                playerCount={playerCount} // Replace with actual count from database
+                tournamentTitle={tournamentTitle} // Set the tournament name
+                playerCount={playerCount} // Set the actual number of players from API
             />
 
             <div className="user-tournament-match">
@@ -156,16 +169,18 @@ const UserTournamentMatch = () => {
                         </button>
                         {isDropdownVisible && (
                             <div className="dropdown-content">
-                                <div className="dropdown-item" onClick={() => handleRoundSelection('round1')}>
-                                    Round 1
-                                </div>
-                                <div className="dropdown-item" onClick={() => handleRoundSelection('round2')}>
-                                    Round 2
-                                </div>
+                                {availableRounds.map((round, index) => (
+                                    <div
+                                        className="dropdown-item"
+                                        key={index}
+                                        onClick={() => handleRoundSelection(round.trid)}
+                                    >
+                                        Round {round.roundNumber}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
-
                 </div>
 
                 {/* Matches List */}

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.tournament.model.User;
 import com.app.tournament.service.UserService;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/Users") // Lowercase to follow URL convention
 public class UserController {

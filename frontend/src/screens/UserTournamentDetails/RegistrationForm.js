@@ -2,16 +2,41 @@ import React, { useState } from 'react';
 import './RegistrationForm.css';
 import LockIcon from '../../assets/images/Password.png';
 
-const RegistrationForm = ({ closeForm, onSubmit }) => {
+const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
     const [fullName, setFullName] = useState('John Tan Choon Hui'); // Pre-filled dummy data
     const [age, setAge] = useState(23); // Pre-filled dummy data
     const [location, setLocation] = useState('Singapore'); // Pre-filled dummy data
     const [email, setEmail] = useState('JohnTanCH@gmail.com'); // Pre-filled dummy data
 
+    // Function to register user for the tournament
+    const registerUser = async (tournamentID, userDetails) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentID}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userDetails),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to register user');
+            }
+
+            const data = await response.json();
+            console.log('User registered successfully:', data);
+            alert('Registration successful!');
+        } catch (error) {
+            console.error('Error registering user:', error);
+            alert('Failed to register. Please try again.');
+        }
+    };
+
     // Handle form submission
     const handleSubmit = () => {
-        // Perform form validation here
-        onSubmit({ fullName, age, location, email });
+        const userDetails = { fullName, age, location, email };
+        registerUser(tournamentID, userDetails);
+        onSubmit(userDetails);
         closeForm();
     };
 
@@ -70,8 +95,6 @@ const RegistrationForm = ({ closeForm, onSubmit }) => {
                             <img src={LockIcon} alt="Lock Icon" className="lock-icon" />
                         </div>
                     </div>
-
-                    
                 </div>
                 <div className="registration-footer">
                     <button 

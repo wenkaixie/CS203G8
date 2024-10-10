@@ -1,31 +1,52 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import './UserTournamentParticipants.css';
 import Header from './UserDetailsHeader';
-import FilterOverlay from './FilterOverlay'; // Import the new FilterOverlay component
 
 const UserTournamentParticipants = () => {
+    const { tournamentId } = useParams(); // Get the tournamentId from the URL
     const [participants, setParticipants] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filteredParticipants, setFilteredParticipants] = useState([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [playerCount, setPlayerCount] = useState(0);
-    const [isFilterOpen, setIsFilterOpen] = useState(false); // State for controlling filter modal
+    const [tournamentTitle, setTournamentTitle] = useState(''); // State for the tournament title
 
+    // Fetch tournament details and participants
     useEffect(() => {
-        const fetchParticipants = async () => {
-            const data = [
-                { id: 1, name: 'Hikaru Nakamura', nationality: 'Japan', age: 30, worldRank: 3252, rating: 2860, gamesPlayed: 7 },
-                { id: 2, name: 'Vincent Keymer', nationality: 'Germany', age: 24, worldRank: 3254, rating: 2850, gamesPlayed: 2 },
-                { id: 3, name: 'Wei Yi', nationality: 'China', age: 43, worldRank: 2789, rating: 3060, gamesPlayed: 13 },
-                { id: 4, name: 'John Tan', nationality: 'Singapore', age: 36, worldRank: 3198, rating: 2760, gamesPlayed: 23 },
-                { id: 5, name: 'Player 5', nationality: 'United Kingdom', age: 17, worldRank: 1897, rating: 4860, gamesPlayed: 11 },
-            ];
-            setParticipants(data);
-            setPlayerCount(data.length);
+        const fetchTournamentDetails = async () => {
+            try {
+                // Fetch tournament details including participants and title
+                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tournament details');
+                }
+                const tournamentData = await response.json();
+                
+                // Set tournament title and player count
+                setTournamentTitle(tournamentData.name || 'Tournament');
+                setPlayerCount(tournamentData.users ? tournamentData.users.length : 0);
+
+                // Fetch user details for each participant by their userID
+                const participantDetails = await Promise.all(
+                    (tournamentData.users || []).map(async (userID) => {
+                        const userResponse = await fetch(`http://localhost:8080/user/getUser/${userID}`);
+                        if (!userResponse.ok) {
+                            throw new Error(`Failed to fetch user details for user ${userID}`);
+                        }
+                        return await userResponse.json();
+                    })
+                );
+
+                setParticipants(participantDetails); // Set participants with user details
+            } catch (error) {
+                console.error('Error fetching tournament details and participants:', error);
+            }
         };
-        fetchParticipants();
-    }, []);
+
+        fetchTournamentDetails();
+    }, [tournamentId]);
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -53,11 +74,9 @@ const UserTournamentParticipants = () => {
             updatedList = updatedList.sort((a, b) => {
                 if (sortBy === 'name') {
                     return a.name.localeCompare(b.name);
-                }
-                else if (sortBy === 'age') {
+                } else if (sortBy === 'age') {
                     return b.age - a.age;
-                }
-                else if (sortBy === 'worldRank') {
+                } else if (sortBy === 'worldRank') {
                     return a.worldRank - b.worldRank;
                 }
                 return 0;
@@ -69,7 +88,11 @@ const UserTournamentParticipants = () => {
 
     return (
         <div>
-            <Header activetab="participants" tournamentTitle="Tournament 1" playerCount={playerCount} />
+            <Header 
+                activetab="participants" 
+                tournamentTitle={tournamentTitle} // Display the fetched tournament title
+                playerCount={playerCount} // Display the fetched player count
+            />
 
             <div className="user-tournament-participants">
                 <div className="controls-container">
@@ -83,7 +106,7 @@ const UserTournamentParticipants = () => {
                         <img src={require('../../assets/images/Search.png')} alt="Search Icon" className="search-icon" />
                     </div>
                     <div className="buttons-container">
-                        <button className="filter-button" onClick={() => setIsFilterOpen(true)}>
+                        <button className="filter-button">
                             <img src={require('../../assets/images/Adjust.png')} alt="Filter Icon" className="filter-icon" />
                             <span>Filter</span>
                         </button>
@@ -131,8 +154,6 @@ const UserTournamentParticipants = () => {
 
             </div>
 
-            {/* Filter Overlay */}
-            <FilterOverlay isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
         </div>
     );
 };

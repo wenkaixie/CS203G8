@@ -19,6 +19,7 @@ import com.app.tournament.DTO.RoundMatchDTO;
 import com.app.tournament.model.RoundMatch;
 import com.app.tournament.service.RoundMatchService;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/rounds") // Base URL for round-related operations
 public class RoundMatchController {

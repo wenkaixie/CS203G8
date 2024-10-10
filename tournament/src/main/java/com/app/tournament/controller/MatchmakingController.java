@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.tournament.model.RoundMatch;
 import com.app.tournament.service.MatchmakingService;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/tournaments")
 public class MatchmakingController {

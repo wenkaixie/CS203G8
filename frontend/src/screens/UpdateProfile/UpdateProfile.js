@@ -7,6 +7,7 @@ import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import axios from 'axios';
+import {getAuth} from 'firebase/auth';
 
 const UpdateProfile = () => {
     // Define state for form inputs
@@ -27,16 +28,26 @@ const UpdateProfile = () => {
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                // Replace with your API endpoint to fetch profile data
-                const response = await axios.get('https://your-api-url.com/api/profile');  // Change to your API endpoint
-                if (response.status === 200) {
-                    const data = response.data;
-                    setProfileData({
-                        firstName: data.firstName || '', // Fallback to empty string if undefined
-                        lastName: data.lastName || '',
-                        country: data.country || '',
-                        age: data.age || ''
-                    });
+                // Initialize Firebase auth
+                const auth = getAuth();
+                const user = auth.currentUser;
+
+                if (user) {
+                    const uid = user.uid; // Fetch user ID from Firebase
+
+                    // Make API call to your backend with the user ID
+                    const response = await axios.get(`http://localhost:9090/user/getUser/${uid}`);
+
+                    if (response.status === 200) {
+                        const data = response.data;
+                        setProfileData({
+                            firstName: data.name || '', // Fallback to empty string if undefined
+                            country: data.country || '',
+                            age: data.age || ''
+                        });
+                    }
+                } else {
+                    console.log('No authenticated user found.');
                 }
             } catch (error) {
                 console.error('Error fetching profile data:', error);

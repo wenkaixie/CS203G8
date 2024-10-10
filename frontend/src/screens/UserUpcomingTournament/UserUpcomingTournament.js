@@ -4,55 +4,72 @@ import filterIcon from '../../assets/images/Adjust.png';
 import searchIcon from '../../assets/images/Search.png';
 import Navbar from '../../components/navbar/Navbar';
 
-import { collection, getDocs } from 'firebase/firestore';
-import { FirestoreDB } from '../../firebase/firebase_config';  // Import the Firestore config
-
 const UserUpcomingTournament = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-
     const [tournaments, setTournaments] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
-    const [filterStatus, setFilterStatus] = useState('');
     const [filteredTournaments, setFilteredTournaments] = useState([]);
 
-    // Fetch tournaments from Firestore
+    // Fetch tournaments from the API
     useEffect(() => {
         const fetchTournaments = async () => {
             try {
-                const tournamentSnapshot = await getDocs(collection(FirestoreDB, "tournaments"));
-                const tournamentList = tournamentSnapshot.docs.map(doc => ({
-                    ...doc.data(),
-                    id: doc.id
-                }));
+                console.log("Fetching tournaments...");
+
+                const response = await fetch('http://localhost:8080/api/tournaments');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const tournamentList = await response.json();
+                console.log("Fetched tournaments:", tournamentList);
                 setTournaments(tournamentList);
-                setFilteredTournaments(tournamentList); // Initially set the filtered list
+                setFilteredTournaments(tournamentList); // Initially set to all tournaments
             } catch (error) {
-                console.error("Error fetching tournaments: ", error);
+                console.error("Error fetching tournaments:", error);
             }
         };
 
         fetchTournaments();
     }, []);
 
-    // Filter tournaments based on active tab
+    // Determine if a tournament is upcoming, ongoing, or past
+    const getTournamentStatus = (tournament) => {
+        const currentDateTime = new Date();
+        const startDateTime = new Date(tournament.startDatetime);
+
+        if (tournament.Completed === 1) {
+            return 'past'; // Completed tournaments are in the past
+        }
+
+        // Not completed: check if upcoming or ongoing
+        if (startDateTime > currentDateTime) {
+            return 'upcoming'; // If start date is in the future
+        } else {
+            return 'ongoing'; // If the tournament has started
+        }
+    };
+
+    // Filter tournaments based on active tab (upcoming, ongoing, past)
     useEffect(() => {
         let filteredList = tournaments;
-        if (activeTab !== '') {
-            filteredList = tournaments.filter(tournament => tournament.status === activeTab);
+
+        if (activeTab === 'upcoming') {
+            filteredList = tournaments.filter(tournament => getTournamentStatus(tournament) === 'upcoming');
+        } else if (activeTab === 'ongoing') {
+            filteredList = tournaments.filter(tournament => getTournamentStatus(tournament) === 'ongoing');
+        } else if (activeTab === 'past') {
+            filteredList = tournaments.filter(tournament => getTournamentStatus(tournament) === 'past');
         }
+
         setFilteredTournaments(filteredList);
     }, [activeTab, tournaments]);
 
     // Handle search input
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
-    };
-
-    // Handle filter option
-    const handleFilterChange = (e) => {
-        setFilterStatus(e.target.value);
     };
 
     // Toggle dropdown visibility
@@ -68,12 +85,7 @@ const UserUpcomingTournament = () => {
 
     // Filter and sort the tournament list based on user inputs
     useEffect(() => {
-        let updatedList = tournaments;
-
-        // Filter by status
-        if (filterStatus) {
-            updatedList = updatedList.filter(tournament => tournament.status === filterStatus);
-        }
+        let updatedList = filteredTournaments;
 
         // Filter by search term (tournament name)
         if (searchTerm) {
@@ -88,9 +100,11 @@ const UserUpcomingTournament = () => {
                 if (sortBy === 'name') {
                     return a.name.localeCompare(b.name);
                 } else if (sortBy === 'date') {
-                    return new Date(a.startDatetime.toDate()) - new Date(b.startDatetime.toDate());
+                    return new Date(a.startDatetime) - new Date(b.startDatetime);
                 } else if (sortBy === 'slots') {
                     return b.capacity - a.capacity;
+                } else if (sortBy === 'eloRequirement') {
+                    return b.eloRequirement - a.eloRequirement;
                 } else if (sortBy === 'prize') {
                     return parseFloat(b.prize.replace('$', '')) - parseFloat(a.prize.replace('$', ''));
                 }
@@ -99,7 +113,7 @@ const UserUpcomingTournament = () => {
         }
 
         setFilteredTournaments(updatedList);
-    }, [searchTerm, sortBy, filterStatus, tournaments]);
+    }, [searchTerm, sortBy, filteredTournaments]);
 
     return (
         <div>
@@ -162,7 +176,7 @@ const UserUpcomingTournament = () => {
                                 Order By
                             </button>
                             {isDropdownVisible && (
-                                <div className="dropdown-content">
+                                <div className="dropdown-content show">
                                     <div className="dropdown-item" onClick={() => handleSortChange('name')}>
                                         Name
                                     </div>
@@ -171,6 +185,9 @@ const UserUpcomingTournament = () => {
                                     </div>
                                     <div className="dropdown-item" onClick={() => handleSortChange('slots')}>
                                         Slots
+                                    </div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('eloRequirement')}>
+                                        ELO Requirement
                                     </div>
                                     <div className="dropdown-item" onClick={() => handleSortChange('prize')}>
                                         Prize
@@ -191,21 +208,27 @@ const UserUpcomingTournament = () => {
                                 <th>Date</th>
                                 <th>Location</th>
                                 <th>Slots</th>
-                                <th>Prize</th>
+                                <th>ELO Requirement</th>
+                                <th>Prize Amount</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredTournaments.map((tournament, index) => (
-                                <tr key={tournament.id}>
+                                <tr key={tournament.tid}>
                                     <td>{index + 1}</td>
                                     <td>{tournament.name}</td>
-                                    <td>{new Date(tournament.startDatetime.toDate()).toLocaleString()}</td>
+                                    <td>
+                                        {new Date(tournament.startDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} —  
+                                        {' '}
+                                        {new Date(tournament.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </td>
                                     <td>{tournament.location}</td>
                                     <td>{tournament.capacity}</td>
-                                    <td>{tournament.prize}</td>
-                                    <td className={`status-${tournament.status.replace(/\s+/g, '-').toLowerCase()}`}>
-                                        {tournament.status}
+                                    <td>{tournament.eloRequirement}</td>
+                                    <td>${tournament.prize}</td>
+                                    <td className={`status-${tournament.status ? tournament.status.replace(/\s+/g, '-').toLowerCase() : ''}`}>
+                                        {tournament.status || 'Unknown'}
                                     </td>
                                 </tr>
                             ))}
