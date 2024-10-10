@@ -1,108 +1,67 @@
 package csd.rankingdashboard.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import csd.rankingdashboard.Model.Tournament;
 import csd.rankingdashboard.Model.User;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 
 @Service
 public class RankingServiceImplt implements RankingService{
 
     @Autowired
-    private RestTemplate restTemplate;
+    private Firestore firestore;
 
-    // first call the calculate service to get all the player ratings
-    // sort the list according to rating in descending order
-    @Override
-    public List<User> getRankings() {
-        List<User> allRatings = fetchAllPlayerRatings();
+    public List<User> getRankings() throws InterruptedException, ExecutionException {
+    // Create a reference to the "Users" collection
+    CollectionReference usersRef = firestore.collection("User");
+    System.out.println("Collection usersRef: " + usersRef);
 
-        // Sort players by rating in descending order
-        return allRatings.stream()
-                         .sorted(Comparator.comparing(User::getElo).reversed())
-                         .collect(Collectors.toList());
-    }
-
-    /* UNCOMMENT THIS AFTER CALCULATE SERVICE IS DONE
-    // URL for calculate service
-    private static final String URL = "http://localhost:8081/calculate"; // can store the url in application.properties(externalize the url)
+    // Get all documents from the "Users" collection
+    ApiFuture<QuerySnapshot> querySnapshot = usersRef.get();
+    System.out.println("QuerySnapshot: " + querySnapshot);
     
-    private List<Player> fetchAllPlayerRatings(){
-        // Make a GET request to CalculationService to fetch all player ratings
-        ResponseEntity<PlayerRating[]> response = restTemplate.getForEntity(URL, PlayerRating[].class);
-        
-        // Convert the response body to a list
-        return Arrays.asList(response.getBody());
-    }
-    */
+    // Create a list to hold the users
+    List<User> usersList = new ArrayList<>();
 
-    @Override
-   public List<User> getRankingsByTournament(String tournamentName) {
-        List<Tournament> allTournaments = fetchAllTournamentsWithParticipants();
+    // Loop through the query snapshot and add each user to the list
+    for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {
+        // Convert the document to a User object
+        User user = document.toObject(User.class);
 
-        // Find the tournament by name
-        Tournament tournament = allTournaments.stream()
-                                              .filter(t -> t.getName().equalsIgnoreCase(tournamentName))
-                                              .findFirst()
-                                              .orElse(null);
-
-        if (tournament == null) {
-            // Handle case where the tournament is not found
-            return null;
+        // Add the user to the list
+        if (user != null) {
+            usersList.add(user);
         }
-
-        // Sort users by number of wins in descending order
-        return tournament.getParticipantsWithWins().entrySet().stream()
-                         .sorted(Map.Entry.<User, Integer>comparingByValue().reversed())
-                         .map(Map.Entry::getKey)
-                         .collect(Collectors.toList());
     }
 
+    System.out.println("UsersList: " + usersList);
 
 
+    // Sort the list of users by "elo" in descending order
+    usersList.sort((u1, u2) -> Integer.compare(u2.getElo(), u1.getElo()));
+
+    // Return the sorted list
+    return usersList;
+}
 
 
-    // Dummy data for testing
-    private List<User> fetchAllPlayerRatings() {
-        // Fake data for testing purposes
-        List<User> mockRatings = Arrays.asList(
-            new User("Player5", 88, 27, "Germany", "1234567894", "player5@example.com"),
-            new User("Player6", 92, 29, "France", "1234567895", "player6@example.com"),
-            new User("Player7", 78, 26, "Italy", "1234567896", "player7@example.com"),
-            new User("Player8", 85, 24, "Spain", "1234567897", "player8@example.com")
-        );
-        return mockRatings;
-    }
-    
-     // Dummy data for testing
-     private List<Tournament> fetchAllTournamentsWithParticipants() {
-        List<Tournament> mockTournaments = Arrays.asList(
-            new Tournament("Tournament A", "Location A", "2023-09-01", Map.of(
-                new User("Player1", 88, 27, "USA", "1234567890", "player1@example.com"), 10,
-                new User("Player2", 85, 25, "UK", "1234567891", "player2@example.com"), 8,
-                new User("Player3", 90, 29, "Canada", "1234567892", "player3@example.com"), 15
-            )),
-            new Tournament("Tournament B", "Location B", "2023-09-05", Map.of(
-                new User("Player4", 80, 24, "Germany", "1234567893", "player4@example.com"), 12,
-                new User("Player5", 75, 22, "France", "1234567894", "player5@example.com"), 7,
-                new User("Player6", 82, 26, "Italy", "1234567895", "player6@example.com"), 9
-            )),
-            new Tournament("Tournament C", "Location C", "2023-09-10", Map.of(
-                new User("Player7", 78, 24, "Spain", "1234567896", "player7@example.com"), 5,
-                new User("Player8", 88, 27, "Portugal", "1234567897", "player8@example.com"), 11,
-                new User("Player9", 73, 23, "Brazil", "1234567898", "player9@example.com"), 3
-            ))
-        );
-        return mockTournaments;
-    }
 
 
 }

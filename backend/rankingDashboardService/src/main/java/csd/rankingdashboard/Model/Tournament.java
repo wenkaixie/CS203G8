@@ -1,6 +1,9 @@
 package csd.rankingdashboard.Model;
 
-import java.util.Map;
+import java.util.List;
+
+import com.google.cloud.Timestamp;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,8 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor // Generates a no-argument constructor
 @AllArgsConstructor // Generates an all-arguments constructor
 public class Tournament {
-    String name;
-    String location;   
-    String date;
-    Map<User, Integer> participantsWithWins; // Stores participants with their corresponding wins
+    private int capacity;
+    private Timestamp createdLocalDateTime;
+    private String description;
+    private int eloRequirement;
+    private Timestamp endDateime;
+    private String location;
+    private List<String> participants;
+    private Timestamp startDatetime;
+    private String tid;
+    
 }

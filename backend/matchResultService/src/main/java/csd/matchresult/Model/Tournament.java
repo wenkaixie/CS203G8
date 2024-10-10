@@ -1,9 +1,8 @@
-package csd.rankingdashboard.Model;
+package csd.matchresult.Model;
 
-import java.security.Timestamp;
-import java.util.Map;
 
 import java.util.List;
+import com.google.cloud.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,10 +16,11 @@ public class Tournament {
     private Timestamp createdTimestamp;
     private String description;
     private int eloRequirement;
-    private Timestamp endDateTime;
+    private Timestamp endDateime;
     private String location;
-    private List<String> participants;
-    private Timestamp startDateTime;
+    private String name;
+    private Timestamp startDatetime;
     private String tid;
-    
+    private String trid;
+    // private List<String> participants;
 }

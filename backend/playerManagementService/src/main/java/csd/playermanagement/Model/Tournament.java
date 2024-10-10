@@ -15,13 +15,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor // Generates an all-arguments constructor
 public class Tournament {
     private int capacity;
-    private Timestamp createdLocalDateTime;
+    private Timestamp createdTimestamp;
     private String description;
     private int eloRequirement;
     private Timestamp endDateime;
     private String location;
-    private List<String> participants;
+    private String name;
     private Timestamp startDatetime;
     private String tid;
-    
+    private String trid;
+    // private List<String> participants;
+
 }
