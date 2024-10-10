@@ -2,7 +2,7 @@
 // import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 // import Home from './screens/Home/Home';
 // import Login from './screens/Login/Login';
-// import CreateProfile from './screens/CreateProfile/CreateProfile';
+// import UpdateProfile from './screens/UpdateProfile/UpdateProfile';
 // import Signup from './screens/Signup/Signup';
 
 // function App() {
@@ -12,7 +12,7 @@
 //         <Route path="/login" element={<Login />} />
 //         <Route path="/signup" element={<Signup />} />
 //         <Route path="/home" element={<Home />} />
-//         <Route path="/create_profile" element={<CreateProfile />} />
+//         <Route path="/create_profile" element={<UpdateProfile />} />
 //       </Routes>
 //     </Router>
 //   );
@@ -27,8 +27,12 @@ import ProtectedRoute from './components/routeProtection/ProtectedRoute';
 // Import your pages/components
 import UserHome from './screens/UserHome/UserHome';
 import Login from './screens/Login/Login';
-import CreateProfile from './screens/CreateProfile/CreateProfile';
+import UpdateProfile from './screens/UpdateProfile/UpdateProfile';
 import Signup from './screens/Signup/Signup';
+import UserUpcomingTournament from './screens/UserUpcomingTournament/UserUpcomingTournament';
+import UserTournamentParticipants from './screens/UserTournamentDetails/UserTournamentParticipants';
+import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
+import UserTournamentMatch from './screens/UserTournamentDetails/UserTournamentMatch';
 import UserCalendar from './screens/UserCalendar/UserCalendar';
 import TournamentUpcoming from './screens/TournamentUpcoming/TournamentUpcoming';
 
@@ -37,19 +41,31 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/user/home" element={<UserHome />} />
-        <Route path="/user/calendar" element={<UserCalendar />} />
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/create_profile" element={<CreateProfile />} />
-        <Route path="/tournamentupcoming" element={<TournamentUpcoming />} />
+
+        <Route path="upcomingtournament" element={<UserUpcomingTournament />} />
+        <Route path="tournament/:id/overview" element={<UserTournamentOverview />} />
+        <Route path="tournament/:id/participants" element={<UserTournamentParticipants />} />
+        <Route path="tournament/:id/games" element={<UserTournamentMatch />} />
+
         {/* User Protected Routes */}
         <Route
-          path="/user"
+          path="/user/*"
           element={
-            <ProtectedRoute allowedRoles={['user']}>
+            <ProtectedRoute allowedRoles={['User']}>
               <Routes>
-                {/* <Route path="/home" element={<UserHome />} /> */}
+                <Route path="home" element={<UserHome />} />
+                <Route path="profile" element={<UpdateProfile />} />
+                <Route path="upcomingtournament" element={<UserUpcomingTournament />} />
+
+                <Route path="upcomingtournament" element={<TournamentUpcoming />} />
+                <Route path="calendar" element={<UserCalendar />} />
+
+                {/* Tournament Details Routes for Users */}
+                <Route path="tournament/:id/overview" element={<UserTournamentOverview />} />
+                <Route path="tournament/:id/participants" element={<UserTournamentParticipants />} />
+                <Route path="tournament/:id/games" element={<UserTournamentMatch />} />
               </Routes>
             </ProtectedRoute>
           }
@@ -57,9 +73,9 @@ function App() {
 
         {/* Admin Protected Routes */}
         <Route
-          path="/admin"
+          path="/admin/*"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['Admin']}>
               <Routes>
                 {/* <Route path="/home" element={<AdminHome />} /> */}
               </Routes>

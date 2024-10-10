@@ -8,28 +8,28 @@ body {
     padding: 30px 50px !important;
 }
 
-.create-profile-wrapper {
+.update-profile-wrapper {
     display: flex;
     padding: 0px 100px;
     justify-content: center;
 }
 
-.create-profile-container {
+.update-profile-container {
     width: 100%;
     max-width: 768px;
 }
 
-.create-profile-heading {
+.update-profile-heading {
     text-align: left;
     padding: 20px 0px;
 }
 
-.create-profile-icon-wrapper {
+.update-profile-icon-wrapper {
     display: flex;
     justify-content: center;
 }
 
-.create-profile-picture {
+.update-profile-picture {
     width: 100px;
     height: 100px;
     object-fit: cover;
@@ -37,13 +37,13 @@ body {
     background-color: #F5F5EF;
 }
 
-.create-profile-details-wrapper {
+.update-profile-details-wrapper {
     display: flex;
     flex-direction: column;
     padding: 30px 0px;
 }
 
-.create-profile-button-wrapper {
+.update-profile-button-wrapper {
     padding: 20px 0px;
 }
 

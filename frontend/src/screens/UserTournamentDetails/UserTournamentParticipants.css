@@ -1,0 +1,190 @@
+@import url('https://fonts.cdnfonts.com/css/josefin-sans');
+
+/* General Styles */
+body {
+    font-family: 'Josefin Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* User Tournament Container */
+.user-tournament-participants {
+    padding: 300px 40px;
+    width: 100%;
+    margin: -25px auto 0;
+    background-color: #F5F5EF;
+    box-sizing: border-box;
+}
+
+/* Controls Container for Search and Filters */
+.user-tournament-participants .controls-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 25px auto 30px;
+    padding: 0 50px;
+    flex-wrap: wrap;
+}
+
+/* Search Bar Styles */
+.user-tournament-participants .search-bar {
+    position: relative;
+    width: 100%;
+    max-width: 940px;
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.user-tournament-participants .search-bar input {
+    width: 100%;
+    padding: 10px 50px 10px 20px;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    height: 45px;
+    color: #333;
+}
+
+.user-tournament-participants .search-bar input::placeholder {
+    color: #a1a1a1;
+}
+
+/* Search Icon inside the Search Bar */
+.user-tournament-participants .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 20px;
+}
+
+/* Button Styles for Filters or Rounds */
+.user-tournament-participants .buttons-container {
+    display: flex;
+    gap: 15px;
+}
+
+.user-tournament-participants .filter-button,
+.user-tournament-participants .order-button {
+    height: 45px;
+    width: 120px;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.user-tournament-participants .filter-button:hover,
+.user-tournament-participants .order-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Filter Icon */
+.user-tournament-participants .filter-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Dropdown Styles */
+.user-tournament-participants .dropdown {
+    position: relative;
+    width: 120px;
+}
+
+.user-tournament-participants .dropdown-content {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    margin-top: 5px;
+    z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.user-tournament-participants .dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+    color: #333;
+}
+
+.user-tournament-participants .dropdown-item:hover {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+
+/* Tournament Table Container */
+.user-tournament-participants .participants-list {
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Participants Table */
+.user-tournament-participants .participants-table {
+    width: 100%;
+    border-collapse: separate;
+    margin-top: 20px;
+}
+
+.user-tournament-participants .participants-table th {
+    font-weight: 600;
+    color: #333;
+    padding: 10px 20px;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: left;
+    background-color: #f0f0f0;
+}
+
+.user-tournament-participants .participants-table tr {
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.user-tournament-participants .participants-table td {
+    font-weight: 500;
+    color: #555;
+    padding: 15px 20px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-tournament-participants .participants-table tr:hover {
+    background-color: #f0f0f0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .user-tournament-participants .controls-container {
+        flex-direction: column;
+        gap: 15px;
+        margin: 15px auto;
+    }
+    .user-tournament-participants .search-bar {
+        width: 100%;
+        margin-right: 0;
+    }
+    .user-tournament-participants .buttons-container {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .user-tournament-participants .filter-button,
+    .user-tournament-participants .order-button {
+        width: 48%;
+    }
+    .user-tournament-participants .participants-list {
+        padding: 0 10px;
+    }
+    .user-tournament-participants .participants-table {
+        font-size: 0.9rem;
+    }
+}
