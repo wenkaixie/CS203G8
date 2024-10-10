@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.tournament.model.RoundMatch;
+import com.app.tournament.DTO.RoundMatchDTO;
 import com.app.tournament.service.MatchmakingService;
 
 @RestController
@@ -20,7 +20,7 @@ public class MatchmakingController {
 
     // Endpoint to generate pairings for a specific round in a tournament
     @PostMapping("/{tournamentId}/rounds/{roundNumber}/pairings")
-    public List<RoundMatch> createPairingsForRound(@PathVariable String tournamentId, @PathVariable int roundNumber)
+    public List<RoundMatchDTO> createPairingsForRound(@PathVariable String tournamentId, @PathVariable int roundNumber)
             throws Exception {
         return matchmakingService.createPairingsForRound(tournamentId, roundNumber);
     }

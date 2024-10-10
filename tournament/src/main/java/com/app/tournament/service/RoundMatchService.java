@@ -86,8 +86,8 @@ public class RoundMatchService {
 
         // Update fields that were changed
         matchRef.update(
-                "user1Score", updatedMatch.getUser1Score(),
-                "user2Score", updatedMatch.getUser2Score()).get(); // Block until the write completes
+                "player1Score", updatedMatch.getUser1Score(),
+                "player2Score", updatedMatch.getUser2Score()).get(); // Block until the write completes
 
         return "Match updated successfully.";
     }

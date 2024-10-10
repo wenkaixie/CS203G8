@@ -136,22 +136,22 @@ public class TournamentService {
         return tournaments;
     }
    
-    // Method to add a User to a tournament
-    public String addUserToTournament(String tournamentID, String UserID)
+    // Method to add a player to a tournament
+    public String addPlayerToTournament(String tournamentID, String playerID)
             throws InterruptedException, ExecutionException {
         // Reference the tournament document in Firestore
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
 
-        // Add the UserID directly to the Users array field in the tournament document
-        tournamentRef.update("users", FieldValue.arrayUnion(UserID)).get();
+        // Add the playerID directly to the players array field in the tournament document
+        tournamentRef.update("players", FieldValue.arrayUnion(playerID)).get();
 
-        return "User added successfully to the tournament.";
+        return "Player added successfully to the tournament.";
     }
     
-    public String removeUserFromTournament(String tournamentID, String UserID)
+    public String removePlayerFromTournament(String tournamentID, String playerID)
         throws InterruptedException, ExecutionException {
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
-        tournamentRef.update("users", FieldValue.arrayRemove(UserID)).get();
-        return "User removed successfully from the tournament.";
+        tournamentRef.update("players", FieldValue.arrayRemove(playerID)).get();
+        return "Player removed successfully from the tournament.";
     }
 }
