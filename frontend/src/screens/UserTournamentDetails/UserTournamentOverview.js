@@ -4,7 +4,7 @@ import UserDetailsHeader from './UserDetailsHeader';
 
 const UserTournamentOverview = () => {
     // State for total participants and current number of registered players
-    const [numberOfPlayers, setNumberOfPlayers] = useState(0);  // State to hold the current number of registered players
+    const [numberOfPlayers, setNumberOfPlayers] = useState(0);  
     const [tournamentData, setTournamentData] = useState({
         title: "Tournament 1",
         dateRange: "June 21, 2024 to July 01, 2024",
@@ -36,13 +36,13 @@ const UserTournamentOverview = () => {
     useEffect(() => {
         const fetchNumberOfPlayers = async () => {
             try {
-                // Replace with your API call
+                // Replace with API call
                 // Example: const response = await fetch('/api/tournament/1/playersCount');
                 // const data = await response.json();
                 // setNumberOfPlayers(data.numberOfPlayers);
 
                 // Simulating an API response
-                const simulatedPlayersCount = 5;  // Replace this with the actual API response
+                const simulatedPlayersCount = 5;  // Replace with the actual API response
                 setNumberOfPlayers(simulatedPlayersCount);
             } catch (error) {
                 console.error("Failed to fetch number of players:", error);
