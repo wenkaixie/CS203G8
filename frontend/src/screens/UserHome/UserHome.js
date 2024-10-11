@@ -59,7 +59,7 @@ const Dashboard = ({ tournaments }) => {
           </div>
           <MatchCard />
           <div onClick={ handleViewGamesHistory } className='games-history'>
-            <h8>View games history</h8>
+            <h6>View games history</h6>
           </div>
         </div>
       </div>
@@ -106,7 +106,6 @@ const Home = () => {
       try {
         const response = await axios.get('http://localhost:8080/api/tournaments');
         setTournaments(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error('Error fetching tournaments:', error);
       }
