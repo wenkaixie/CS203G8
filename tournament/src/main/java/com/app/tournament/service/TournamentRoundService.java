@@ -85,7 +85,7 @@ public class TournamentRoundService {
         // Update fields that were changed
         roundRef.update(
                 "roundNumber", updatedRound.getRoundNumber(),
-                "mids", updatedRound.getMids()).get(); // Block until the write completes
+                "matchIds", updatedRound.getMids()).get(); // Block until the write completes
 
         return "Round updated successfully.";
     }
