@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './UserHome.css';
 import Navbar from '../../components/navbar/Navbar';
 import Carousel from 'react-bootstrap/Carousel';
@@ -10,14 +10,14 @@ import MatchCard from './MatchCard';
 import TournamentsTable from './TournamentsTable';
 import { useNavigate } from 'react-router-dom';
 import CountdownTimer from './CountdownTimer';
+import axios from 'axios';
 
-
-const Dashboard = () => {
+const Dashboard = ({ tournaments }) => {
   const navigate = useNavigate();
 
-  const handleViewGamesHistory = (event) => {
-    navigate ('/user/home'); // replace with round details
-  }
+  const handleViewGamesHistory = () => {
+    navigate('/user/home');
+  };
 
   return (
     <div className='dashboard'>
@@ -26,7 +26,7 @@ const Dashboard = () => {
           <div className='welcome-back'>
             <h2>Welcome Back, John!</h2>
           </div>
-          <div className='rating-and-rank'> 
+          <div className='rating-and-rank'>
             <div className='rating-and-rank-section'>
               <h4>Rating</h4>
               <div fluid className='rating-and-rank-section-details'>
@@ -65,58 +65,67 @@ const Dashboard = () => {
       </div>
       <div className='dashboard-col'>
         <div className='dashboard-col-inner'>
-          <TournamentsTable />
+          <TournamentsTable tournaments={tournaments} />
         </div>
       </div>
     </div>
   );
 };
 
-const TournamentJumbotron = () => {
+const TournamentJumbotron = ({ tournaments }) => {
+  const navigate = useNavigate(); // Use the navigate hook
+
+  // Function to handle clicking on a tournament
+  const handleTournamentClick = (tournamentId) => {
+    navigate(`/user/tournament/${tournamentId}/overview`);
+  };
+
   return (
     <Container fluid>
       <Carousel data-bs-theme="dark">
-        <Carousel.Item>
-          <Carousel.Caption>
-            <p>Upcoming Tournaments</p>
-            <h2>Tournament 1</h2>
-            <h3>Round 1</h3>
-            <CountdownTimer targetDate={'2024-09-22T10:00:00'}/>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <Carousel.Caption>
-            <p>Upcoming Tournaments</p>
-            <h2>Tournament 2</h2>
-            <h3>Round 1</h3>
-            <CountdownTimer targetDate={'2024-09-24T10:00:00'}/>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <Carousel.Caption>
-            <p>Upcoming Tournaments</p>
-            <h2>Tournament 3</h2>
-            <h3>Round 1</h3>
-            <CountdownTimer targetDate={'2024-09-27T10:00:00'}/>
-          </Carousel.Caption>
-        </Carousel.Item>
+        {tournaments.map((tournament, index) => (
+          <Carousel.Item key={index} onClick={() => handleTournamentClick(tournament.tid)} style={{ cursor: 'pointer' }} >
+            <Carousel.Caption>
+              <p>Upcoming Tournaments</p>
+              <h2>{tournament.name}</h2>
+              <h3>Round 1</h3>
+              <CountdownTimer targetDate={tournament.startDatetime} />
+            </Carousel.Caption>
+          </Carousel.Item>
+        ))}
       </Carousel>
     </Container>
   );
 };
 
 const Home = () => {
+  const [tournaments, setTournaments] = useState([]);
+
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/tournaments');
+        setTournaments(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching tournaments:', error);
+      }
+    };
+
+    fetchTournaments();
+  }, []);
+
   return (
     <div>
-        <div className='background'>
-          <div className='background-content'>
-            <Navbar />
-            <TournamentJumbotron />
-            <Dashboard />
-          </div>
+      <div className='background'>
+        <div className='background-content'>
+          <Navbar />
+          <TournamentJumbotron tournaments={tournaments} />
+          <Dashboard tournaments={tournaments} />
         </div>
+      </div>
     </div>
   );
-}
+};
 
 export default Home;

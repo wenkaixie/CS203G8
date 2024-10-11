@@ -98,6 +98,7 @@
 
   .clickable-row:hover {
     background-color: #F5F5EF;
+    cursor: pointer;
   }  
   
   /* Pagination */

@@ -5,7 +5,7 @@ import TimerIcon from '@mui/icons-material/Timer';
 import TuneIcon from '@mui/icons-material/Tune';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 
-const TournamentsTable = () => {
+const TournamentsTable = ({ tournaments }) => {
     const [eligibleButton, setEligibleButton] = useState(true);
     const [allButton, setAllButton] = useState(false);
 
@@ -16,20 +16,16 @@ const TournamentsTable = () => {
         setAllButton(!allButton);
     }
 
-    const handleRowClick = (event) => {
-        // need to pass in tournamentID as well
-        navigate('/user/home'); // replace with tournament-details page and include tournamentID
+    const handleRowClick = (tournamentId) => {
+        // Navigate to the specific tournament overview page using the tournament ID
+        navigate(`/user/tournament/${tournamentId}/overview`);
     }
 
-    const tournaments = [
-        { no: 1, name: 'Youth Chess Championships 2024', date: 'Jul 27 - Jul 29', location: 'Singapore', slots: 30, status: 'Registered' },
-        { no: 2, name: 'Sants Open 2024', date: 'Aug 23 - Sep 02', location: 'Barcelona, Spain', slots: 100, status: 'Open registration' },
-        { no: 3, name: '45th FIDE Chess Olympiad 2024', date: 'Sep 10 - Sep 24', location: 'Budapest, Hungary', slots: 250, status: 'Published' },
-        { no: 4, name: 'Grand Chess Tour 2024', date: 'Sep 16 - Sep 28', location: 'London, UK', slots: 75, status: 'Published' },
-        { no: 5, name: 'Grand Chess Tour 2024', date: 'Sep 16 - Sep 28', location: 'London, UK', slots: 75, status: 'Published' },
-        { no: 6, name: 'Grand Chess Tour 2024', date: 'Sep 16 - Sep 28', location: 'London, UK', slots: 75, status: 'Published' },
-        { no: 7, name: 'Grand Chess Tour 2024', date: 'Sep 16 - Sep 28', location: 'London, UK', slots: 75, status: 'Published' },
-    ];
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const options = { month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    };
 
     return (
         <div className="tournament-container">
@@ -62,17 +58,17 @@ const TournamentsTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {tournaments.map((tournament) => (
+                    {tournaments.map((tournament, index) => (
                         <tr key={tournament.no} 
-                            onClick={() => handleRowClick(tournament.no)} 
+                            onClick={() => handleRowClick(tournament.tid)}
                             className='clickable-row'
                         >
-                            <td>{tournament.no}</td>
+                            <td>{index + 1}</td>
                             <td>{tournament.name}</td>
-                            <td>{tournament.date}</td>
+                            <td>{formatDate(tournament.startDatetime)} - {formatDate(tournament.endDatetime)}</td>
                             <td>{tournament.location}</td>
-                            <td>{tournament.slots}</td>
-                            <td>{tournament.status}</td>
+                            <td>{tournament.capacity}</td>
+                            <td>empty</td>
                             <td>
                                 <BookmarkBorderIcon />
                             </td>
