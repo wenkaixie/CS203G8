@@ -1,4 +1,4 @@
-package csd.playermanagement.Model;
+package csd.playermanagement.DTO;
 
 import java.util.List;
 
@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @Data // Generates getters, setters, toString, equals, and hashCode methods
 @NoArgsConstructor // Generates a no-argument constructor
 @AllArgsConstructor // Generates an all-arguments constructor
-public class User {
+public class UserDTO {
     private String authID;
-    private Timestamp dateOfBirth;
+    private String dateOfBirth; 
     private int elo;
     private String email;
     private String name;
@@ -26,6 +26,7 @@ public class User {
     private String uid;
     private String username;
     private String chessUsername;
+
 }
 
 

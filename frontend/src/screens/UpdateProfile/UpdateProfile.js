@@ -10,12 +10,12 @@ import axios from 'axios';
 import { getAuth } from "firebase/auth";
 
 const UpdateProfile = () => {
-    // Define state for form inputs
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [nationality, setNationality] = useState('');
     const [dob, setDob] = useState('');
+    const [chessUsername, setChessUsername] = useState('');
 
     const auth = getAuth();
 
@@ -24,11 +24,19 @@ const UpdateProfile = () => {
             try {
                 const response = await axios.get(`http://localhost:9090/user/getUser/${auth.currentUser.uid}`);
                 const data = response.data;
+                console.log("Data received:", data);
                 setName(data.name || '');
                 setUsername(data.username || '');
                 setPhoneNumber(data.phoneNumber || '');
                 setNationality(data.nationality || '');
-                setDob(data.dateOfBirth || '');
+                if (data.dateOfBirth) {
+                    const timestamp = data.dateOfBirth;
+                    const date = new Date(timestamp.seconds * 1000);
+                    const formattedDate = date.toISOString().split('T')[0];
+                    setDob(formattedDate);
+                } else {
+                    setDob('');
+                }
             } catch (error) {
                 console.error('Error fetching profile data:', error);
             }
@@ -45,7 +53,8 @@ const UpdateProfile = () => {
             username: username,
             phoneNumber: phoneNumber,
             nationality: nationality,
-            dateOfBirth: dob
+            dateOfBirth: dob,
+            chessUsername: chessUsername
         };
 
         try {
@@ -123,6 +132,15 @@ const UpdateProfile = () => {
                                     type="date"
                                     value={dob}
                                     onChange={(e) => setDob(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="formBasicChessUsername">
+                                <Form.Label>Chess.com Username</Form.Label>
+                                <Form.Control 
+                                    type="text" 
+                                    placeholder="Enter username" 
+                                    value={chessUsername}
+                                    onChange={(e) => setChessUsername(e.target.value)}
                                 />
                             </Form.Group>
                             <div className="update-profile-button-wrapper">
