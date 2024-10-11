@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import './UpdateProfile.css';
 import logoImage from '../../assets/images/logo.png';
 import profileImage from '../../assets/images/chess-profile-pic.jpg';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { Img } from "react-image";
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const UpdateProfile = () => {
     const [name, setName] = useState('');
@@ -18,6 +20,7 @@ const UpdateProfile = () => {
     const [chessUsername, setChessUsername] = useState('');
 
     const auth = getAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -62,12 +65,22 @@ const UpdateProfile = () => {
 
             if (response.status === 200) {
                 alert('Profile updated successfully!');
+                handleReturn();
             }
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('Failed to update profile.');
         }
     };
+
+    const handleReturn = () => {
+        navigate(-1);
+    };
+
+    const handleHome = () => {
+        navigate("/user/home");
+    };
+
 
     return (
         <div>
@@ -76,12 +89,15 @@ const UpdateProfile = () => {
                     src={logoImage}
                     width={212}
                     height={72}
+                    onClick={handleHome}
+                    style={{cursor: "pointer"}}
                 />
             </div>
             <div className="update-profile-wrapper">
                 <div className="update-profile-container">
-                    <div className="update-profile-heading">
-                        <h1>Update Profile</h1>
+                    <div className="update-profile-heading" onClick={handleReturn}>
+                        <ArrowBackIosNewIcon sx={{ fontSize: '2rem', cursor: 'pointer' }}/>
+                        <h1 style={{ marginBottom:"0px", marginTop:"10px"}}>Update Profile</h1>
                     </div>
                     <div className="update-profile-icon-wrapper">
                         <div className="update-profile-icon">

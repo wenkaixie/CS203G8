@@ -21,7 +21,10 @@ body {
 
 .update-profile-heading {
     text-align: left;
+    display: flex;
+    align-items: center;
     padding: 20px 0px;
+    gap: 20px;
 }
 
 .update-profile-icon-wrapper {
