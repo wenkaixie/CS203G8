@@ -7,37 +7,28 @@ import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import axios from 'axios';
+import { getAuth } from "firebase/auth";
 
 const UpdateProfile = () => {
     // Define state for form inputs
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [country, setCountry] = useState('');
-    const [age, setAge] = useState('');
+    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [nationality, setNationality] = useState('');
+    const [dob, setDob] = useState('');
 
-    // Define state for placeholders (fetched data)
-    const [profileData, setProfileData] = useState({
-        firstName: '',
-        lastName: '',
-        country: '',
-        age: ''
-    });
+    const auth = getAuth();
 
-    // Fetch user profile data when the component mounts
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                // Replace with your API endpoint to fetch profile data
-                const response = await axios.get('https://your-api-url.com/api/profile');  // Change to your API endpoint
-                if (response.status === 200) {
-                    const data = response.data;
-                    setProfileData({
-                        firstName: data.firstName || '', // Fallback to empty string if undefined
-                        lastName: data.lastName || '',
-                        country: data.country || '',
-                        age: data.age || ''
-                    });
-                }
+                const response = await axios.get(`http://localhost:9090/user/getUser/${auth.currentUser.uid}`);
+                const data = response.data;
+                setName(data.name || '');
+                setUsername(data.username || '');
+                setPhoneNumber(data.phoneNumber || '');
+                setNationality(data.nationality || '');
+                setDob(data.dateOfBirth || '');
             } catch (error) {
                 console.error('Error fetching profile data:', error);
             }
@@ -46,28 +37,24 @@ const UpdateProfile = () => {
         fetchProfileData();
     }, []);
 
-    // Handler for form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // Data to be sent to the server
         const updatedProfileData = {
-            firstName,
-            lastName,
-            country,
-            age
+            name: name,
+            username: username,
+            phoneNumber: phoneNumber,
+            nationality: nationality,
+            dateOfBirth: dob
         };
 
         try {
-            // Replace with your API endpoint to update profile data
-            const response = await axios.put('https://your-api-url.com/api/profile/update', updatedProfileData); // Change to your API endpoint
+            const response = await axios.put(`http://localhost:9090/user/updateUser/${auth.currentUser.uid}`, updatedProfileData);
 
-            // Handle successful response (e.g., display success message)
             if (response.status === 200) {
                 alert('Profile updated successfully!');
             }
         } catch (error) {
-            // Handle error response
             console.error('Error updating profile:', error);
             alert('Failed to update profile.');
         }
@@ -98,40 +85,44 @@ const UpdateProfile = () => {
                     </div>
                     <div className="update-profile-details-wrapper">
                         <Form style={{ fontSize: "20px" }} onSubmit={handleSubmit}>
-                            <Form.Group className="mb-3" controlId="formBasicFirstName">
-                                <Form.Label>First Name</Form.Label>
+                            <Form.Group className="mb-3" controlId="formBasicName">
+                                <Form.Label>Name</Form.Label>
                                 <Form.Control 
                                     type="text" 
-                                    placeholder={profileData.firstName || 'Enter first name'} // Use placeholder from fetched data
-                                    value={firstName}
-                                    onChange={(e) => setFirstName(e.target.value)}  // Update firstName state
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                 />
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="formBasicLastName">
-                                <Form.Label>Last Name</Form.Label>
+                            <Form.Group className="mb-3" controlId="formBasicUsername">
+                                <Form.Label>Username</Form.Label>
                                 <Form.Control 
                                     type="text" 
-                                    placeholder={profileData.lastName || 'Enter last name'} // Use placeholder from fetched data
-                                    value={lastName}
-                                    onChange={(e) => setLastName(e.target.value)}  // Update lastName state
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                 />
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="formBasicCountry">
-                                <Form.Label>Country</Form.Label>
+                            <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
+                                <Form.Label>Phone Number</Form.Label>
                                 <Form.Control 
                                     type="text" 
-                                    placeholder={profileData.country || 'Enter country'} // Use placeholder from fetched data
-                                    value={country}
-                                    onChange={(e) => setCountry(e.target.value)}  // Update country state
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
                                 />
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="formBasicAge">
-                                <Form.Label>Age</Form.Label>
+                            <Form.Group className="mb-3" controlId="formBasicNationality">
+                                <Form.Label>Nationality</Form.Label>
                                 <Form.Control 
-                                    type="number" 
-                                    placeholder={profileData.age || 'Enter age'} // Use placeholder from fetched data
-                                    value={age}
-                                    onChange={(e) => setAge(e.target.value)}  // Update age state
+                                    type="text" 
+                                    value={nationality}
+                                    onChange={(e) => setNationality(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="formBasicDob">
+                                <Form.Label>Date of Birth</Form.Label>
+                                <Form.Control 
+                                    type="date"
+                                    value={dob}
+                                    onChange={(e) => setDob(e.target.value)}
                                 />
                             </Form.Group>
                             <div className="update-profile-button-wrapper">
