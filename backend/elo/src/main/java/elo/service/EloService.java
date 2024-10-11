@@ -16,8 +16,8 @@ public class EloService {
         
         try {
             // Check if both users exist before updating
-            DocumentSnapshot user1Snapshot = db.collection("User").document(userId1).get().get();
-            DocumentSnapshot user2Snapshot = db.collection("User").document(userId2).get().get();
+            DocumentSnapshot user1Snapshot = db.collection("Users").document(userId1).get().get();
+            DocumentSnapshot user2Snapshot = db.collection("Users").document(userId2).get().get();
             
             if (!user1Snapshot.exists() || !user2Snapshot.exists()) {
                 throw new Exception("One or both users do not exist.");
@@ -38,8 +38,8 @@ public class EloService {
             if (newElo2 < 0) {newElo2 = 0;};
 
             // Update Elo ratings in Firestore
-            db.collection("User").document(userId1).update("elo", newElo1);
-            db.collection("User").document(userId2).update("elo", newElo2);
+            db.collection("Users").document(userId1).update("elo", newElo1);
+            db.collection("Users").document(userId2).update("elo", newElo2);
 
         } catch (ExecutionException | InterruptedException e) {
             // Handle Firestore operation failures
@@ -51,7 +51,7 @@ public class EloService {
         Firestore db = FirestoreClient.getFirestore();
     
         try {
-            DocumentSnapshot userSnapshot = db.collection("User").document(userID).get().get();
+            DocumentSnapshot userSnapshot = db.collection("Users").document(userID).get().get();
     
             if (userSnapshot.exists()) {
                 return userSnapshot.get("elo");

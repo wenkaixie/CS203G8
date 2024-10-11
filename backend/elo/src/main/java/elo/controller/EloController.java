@@ -50,7 +50,7 @@ public class EloController {
 
         try {
             // Retrieve userId1's document from Firebase and get Elo1
-            DocumentSnapshot user1Snapshot = db.collection("User").document(userId1).get().get();
+            DocumentSnapshot user1Snapshot = db.collection("Users").document(userId1).get().get();
     
             if (!user1Snapshot.exists()) {
                 return createErrorResponse("User 1 does not exist in Firebase.", HttpStatus.NOT_FOUND);
@@ -61,7 +61,7 @@ public class EloController {
             }
     
             // Retrieve userId2's document from Firebase and get Elo2
-            DocumentSnapshot user2Snapshot = db.collection("User").document(userId2).get().get();
+            DocumentSnapshot user2Snapshot = db.collection("Users").document(userId2).get().get();
     
             if (!user2Snapshot.exists()) {
                 return createErrorResponse("User 2 does not exist in Firebase.", HttpStatus.NOT_FOUND);
