@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './UserTournamentMatch.css';
 import Header from './UserDetailsHeader';
+import UserTournamentMatchDiagram from './UserTournamentMatchDiagram';
 
 const UserTournamentMatch = () => {
     const [matches, setMatches] = useState([]);
@@ -9,8 +10,9 @@ const UserTournamentMatch = () => {
     const [sortBy, setSortBy] = useState('');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [playerCount, setPlayerCount] = useState(0);
+    const [activeView, setActiveView] = useState('diagram'); // State to control active view
 
-    //Replace with database values
+    // Dummy data
     const dummyData = [
         {
             round: 1,
@@ -36,6 +38,15 @@ const UserTournamentMatch = () => {
         const allMatches = dummyData.flatMap(roundData => roundData.matches); // Flatten all rounds into a single array
         setFilteredMatches(allMatches);
     }, []);
+
+    // Switch view between list and diagram
+    const handleListButtonClick = () => {
+        setActiveView('list');
+    };
+
+    const handleDiagramButtonClick = () => {
+        setActiveView('diagram');
+    };
 
     // Handle search input
     const handleSearch = (e) => {
@@ -101,7 +112,6 @@ const UserTournamentMatch = () => {
                             value={searchTerm}
                             onChange={handleSearch}
                         />
-                        {/* Search Icon */}
                         <img
                             src={require('../../assets/images/Search.png')}
                             alt="Search Icon"
@@ -109,7 +119,6 @@ const UserTournamentMatch = () => {
                         />
                     </div>
                     <div className="buttons-container">
-                        {/* Filter Button */}
                         <button className="filter-button">
                             <img
                                 src={require('../../assets/images/Adjust.png')}
@@ -119,7 +128,6 @@ const UserTournamentMatch = () => {
                             <span>Filter</span>
                         </button>
 
-                        {/* Order By Dropdown Button */}
                         <div className="dropdown">
                             <button className="order-button" onClick={toggleDropdown}>
                                 Order By
@@ -135,45 +143,66 @@ const UserTournamentMatch = () => {
                                 </div>
                             )}
                         </div>
+
+                        <div className="user-diagram-header-buttons">
+                            <button
+                                onClick={handleDiagramButtonClick}
+                                className={`user-diagram-header-button ${activeView === 'diagram' ? 'active' : ''}`}
+                            >
+                                Diagram
+                            </button>
+                            <button
+                                onClick={handleListButtonClick}
+                                className={`user-diagram-header-button ${activeView === 'list' ? 'active' : ''}`}
+                            >
+                                List
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Matches List */}
-                <div className="match-list">
-                    {matches.map((roundData, roundIndex) => (
-                        <div key={roundIndex}>
-                            <div className="round-title">Round {roundData.round}</div>
-                            <table className="matches-table">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Date</th>
-                                        <th>Location</th> 
-                                        <th>Player 1</th>
-                                        <th>Nationality</th>
-                                        <th></th>
-                                        <th>Nationality</th>
-                                        <th>Player 2</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {roundData.matches.map((match, matchIndex) => (
-                                        <tr key={matchIndex}>
-                                            <td>{match.no}</td>
-                                            <td>{match.date}</td>
-                                            <td>{match.location}</td> 
-                                            <td>{match.player1}</td>
-                                            <td>{match.nationality1}</td>
-                                            <td>VS</td>
-                                            <td>{match.nationality2}</td>
-                                            <td>{match.player2}</td>
+                {/* Conditionally Render List or Diagram */}
+                {activeView === 'list' && (
+                    <div className="match-list">
+                        {matches.map((roundData, roundIndex) => (
+                            <div key={roundIndex}>
+                                <div className="round-title">Round {roundData.round}</div>
+                                <table className="matches-table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Date</th>
+                                            <th>Location</th> 
+                                            <th>Player 1</th>
+                                            <th>Nationality</th>
+                                            <th></th>
+                                            <th>Nationality</th>
+                                            <th>Player 2</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ))}
-                </div>
+                                    </thead>
+                                    <tbody>
+                                        {roundData.matches.map((match, matchIndex) => (
+                                            <tr key={matchIndex}>
+                                                <td>{match.no}</td>
+                                                <td>{match.date}</td>
+                                                <td>{match.location}</td> 
+                                                <td>{match.player1}</td>
+                                                <td>{match.nationality1}</td>
+                                                <td>VS</td>
+                                                <td>{match.nationality2}</td>
+                                                <td>{match.player2}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {activeView === 'diagram' && (
+                    <UserTournamentMatchDiagram />
+                )}
             </div>
         </div>
     );

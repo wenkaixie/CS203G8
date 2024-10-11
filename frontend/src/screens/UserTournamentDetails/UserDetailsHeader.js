@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useParams, useLocation } from 'react-router-dom'; 
+import { useParams, useLocation, useNavigate } from 'react-router-dom'; 
 import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
 import RegistrationForm from './RegistrationForm';
@@ -7,6 +7,7 @@ import RegistrationForm from './RegistrationForm';
 const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
     const { tournamentId } = useParams(); // Dynamically get tournamentId from URL parameters
     const location = useLocation(); // Get the current location (URL)
+    const navigate = useNavigate(); // Hook to handle navigation
 
     const [isRegistered, setIsRegistered] = useState(false); 
     const [showRegistrationForm, setShowRegistrationForm] = useState(false); 
@@ -49,13 +50,19 @@ const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
         setShowRegistrationForm(false);
     };
 
+    // Navigation for different subtabs
+    const handleTabNavigation = (tab) => {
+        navigate(`/tournament/${tournamentId}/${tab}`);
+    };
+
     return (
         <div className="header-wrapper">
             <Navbar />
 
             <div className="header-container">
                 <div className="header-left">
-                    <button className="back-button" onClick={() => window.history.back()}>{'<'}</button>
+                    {/* Use navigate for back navigation */}
+                    <button className="back-button" onClick={() => navigate(`/user/home`)}>{'<'}</button>
                     <h1 className="tournament-title">{tournamentTitle}</h1>
                 </div>
                 <div className="registration-container">
@@ -99,30 +106,20 @@ const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
             {/* Updated Banner */}
             <div className="banner">
                 <ul className="subtabs">
-                    <li className={`subtab-item ${activeTab === 'overview' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/overview`}>
-                            Overview
-                        </NavLink>
+                    <li className={`subtab-item ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => handleTabNavigation('overview')}>
+                        <div>Overview</div>
                     </li>
-                    <li className={`subtab-item ${activeTab === 'participants' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/participants`}>
-                            Participants
-                        </NavLink>
+                    <li className={`subtab-item ${activeTab === 'participants' ? 'active' : ''}`} onClick={() => handleTabNavigation('participants')}>
+                        <div>Participants</div>
                     </li>
-                    <li className={`subtab-item ${activeTab === 'games' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/games`}>
-                            Games
-                        </NavLink>
+                    <li className={`subtab-item ${activeTab === 'games' ? 'active' : ''}`} onClick={() => handleTabNavigation('games')}>
+                        <div>Games</div>
                     </li>
-                    <li className={`subtab-item ${activeTab === 'results' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/results`}>
-                            Results
-                        </NavLink>
+                    <li className={`subtab-item ${activeTab === 'results' ? 'active' : ''}`} onClick={() => handleTabNavigation('results')}>
+                        <div>Results</div>
                     </li>
-                    <li className={`subtab-item ${activeTab === 'discussion' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/discussion`}>
-                            Discussion
-                        </NavLink>
+                    <li className={`subtab-item ${activeTab === 'discussion' ? 'active' : ''}`} onClick={() => handleTabNavigation('discussion')}>
+                        <div>Discussion</div>
                     </li>
                 </ul>
             </div>
