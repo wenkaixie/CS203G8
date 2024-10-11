@@ -6,10 +6,10 @@ import Icon from '../../assets/images/icon.jpg';
 import { Img } from 'react-image';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { FaGoogle, FaFacebook } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import FBInstanceAuth from "../../firebase/firebase_auth";  // Firebase auth class instance
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { FirestoreDB } from '../../firebase/firebase_config';
 
@@ -20,21 +20,22 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);  // Show/hide password
     const [loading, setLoading] = useState(true); // Loading state for auth check
 
-    const auth = FBInstanceAuth.getAuth();  // Get Firebase auth instance
+    const auth = getAuth();  // Get Firebase auth instance
     const navigate = useNavigate();  // React router's navigation hook
 
     useEffect(() => {
         let initialLoad = true;
-        
+    
         // Listen for authentication state changes
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
                     setLoading(true);
+                    //console.log("User logged in:", user.email);
                     const role = await getUserRole(user.email); // Await role checking
-                    console.log('User email:', user.email);    
-        
-                    // Redirect user to the appropriate home page based on role
+                    //console.log("User role:", role);   
+
+                    // Redirect user to the appropriate home page based on the collection they belong to
                     if (role === 'User') {
                         navigate('/user/home');
                     } else if (role === 'Admin') {
@@ -52,38 +53,38 @@ const Login = () => {
             } else {
                 setLoading(false); // No user, stop loading
             }
-            
+    
             initialLoad = false; // Set to false after the first run
         });
     
         // Clean up the listener on component unmount
         return () => unsubscribe();
-    }, [auth, navigate]);
-    
-    
+    }, [auth, navigate]);    
 
-    // Handler for finding user role in firebase
+    //Handler for finding user role in Firebase Firestore
     const getUserRole = async (email) => {
-        console.log('Checking user role');
-    
         try {
-          const roles = ['User', 'Admin'];
-    
-          for (const role of roles) {
-            const roleQuery = query(collection(FirestoreDB, role), where('email', '==', email));
-            const roleSnapshot = await getDocs(roleQuery);
-    
-            if (!roleSnapshot.empty) {
-              localStorage.setItem('userRole', role);
-              return role;
+            // Check the 'User' collection
+            console.log("Checking user role for email:", email);
+            const userQuery = query(collection(FirestoreDB, 'User'), where('email', '==', email));
+            const userSnapshot = await getDocs(userQuery);
+
+            if (!userSnapshot.empty) {
+                return 'User'; // User found in 'User' collection
             }
-          }
-    
-          console.log('User not found in any role');
-          return null;
+
+            // Check the 'Admin' collection
+            const adminQuery = query(collection(FirestoreDB, 'Admin'), where('email', '==', email));
+            const adminSnapshot = await getDocs(adminQuery);
+
+            if (!adminSnapshot.empty) {
+                return 'Admin'; // User found in 'Admin' collection
+            }
+
+            return null; // User not found in either collection
         } catch (error) {
-          console.error('Error checking user role:', error);
-          return null;
+            console.error('Error checking user role:', error);
+            return null;
         }
     };
 
@@ -138,23 +139,23 @@ const Login = () => {
     };
     
 
-    // Handle Facebook login
-    const handleFacebookLogin = async () => {
-        try {
-            const { user, errorCode } = await FBInstanceAuth.facebookLogin(auth);
+    // // Handle Facebook login
+    // const handleFacebookLogin = async () => {
+    //     try {
+    //         const { user, errorCode } = await FBInstanceAuth.facebookLogin(auth);
 
-            if (user) {
-                console.log("Facebook login successful");
-                // onAuthStateChanged will handle the redirection to '/home'
-            } else {
-                setError(`Facebook login failed: ${errorCode}`);
-            }
-        } catch (error) {
-            console.error("Facebook login error:", error.message);
-            setError(`Facebook login failed: ${error.message}`);
-            setLoading(false);
-        } 
-    };
+    //         if (user) {
+    //             console.log("Facebook login successful");
+    //             // onAuthStateChanged will handle the redirection to '/home'
+    //         } else {
+    //             setError(`Facebook login failed: ${errorCode}`);
+    //         }
+    //     } catch (error) {
+    //         console.error("Facebook login error:", error.message);
+    //         setError(`Facebook login failed: ${error.message}`);
+    //         setLoading(false);
+    //     } 
+    // };
 
     // Redirect to the sign-up page when the user clicks "Sign up"
     const handleSignUpClick = () => {

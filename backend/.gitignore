@@ -6,6 +6,10 @@
 
 # backend
 /firebase/serviceAccountKey.json
+<<<<<<< HEAD
 
 ### DS_Store ###
 .DS_Store
+=======
+/serviceAccountKey.json
+>>>>>>> 23fa873a1e51c0e90ddb8cad72265a5a385dd93b

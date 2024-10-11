@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { query, getDocs, collection, where } from 'firebase/firestore'; // Firestore for fetching user roles
+import { FirestoreDB } from '../../firebase/firebase_config';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const navigate = useNavigate();
@@ -15,25 +17,45 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
             const unsubscribe = onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    // User is authenticated
-                    const userRole = localStorage.getItem('userRole');
+                    try {
+                        let userRole = null;
 
-                    if (!allowedRoles.includes(userRole)) {
-                        // User is authenticated but doesn't have the required role
-                        setAccessDenied(true);
-                    } else {
-                        // User is authenticated and has the required role
-                        setAccessDenied(false);
+                        // Check if the user exists in the 'User' collection
+                        const userQuery = query(collection(FirestoreDB, 'User'), where('uid', '==', user.uid));
+                        const userSnapshot = await getDocs(userQuery);
+            
+                        if (!userSnapshot.empty) {
+                            userRole = 'User';
+                        } else {
+                            // If not found in 'User', check the 'Admin' collection
+                            const userQuery = query(collection(FirestoreDB, 'Admin'), where('uid', '==', user.uid));
+                            const userSnapshot = await getDocs(userQuery);
+                
+                            if (!userSnapshot.empty) {
+                                userRole = 'Admin';
+                            }
+                        }
+
+                        if (!userRole || !allowedRoles.includes(userRole)) {
+                            // User is authenticated but doesn't have the required role
+                            setAccessDenied(true);
+                        } else {
+                            // User is authenticated and has the required role
+                            setAccessDenied(false);
+                        }
+                    } catch (error) {
+                        console.error("Error fetching user role: ", error);
+                        setAccessDenied(true); // Deny access if any error occurs
                     }
                 } else {
                     // User is not authenticated, redirect to login
-                    navigate('/login');
+                    navigate('/');
+                    setAccessDenied(true);
                 }
 
                 setLoading(false);
             });
 
-            // Clean up the listener on component unmount
             return () => unsubscribe();
         };
 
@@ -42,12 +64,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
     const handleClosePopup = () => {
         setAccessDenied(false);
+        setLoading(true);
         navigate(-1); // Go back to the previous route
     };
 
-    // Early return to prevent rendering children until loading is complete or access is granted
     if (loading) {
-        return <div>Loading...</div>; // Optionally, return a loading spinner or similar
+        return; // return a blank page during loading process
     }
 
     return (
