@@ -1,4 +1,4 @@
-package csd.rankingdashboard;
+package csd.playermanagement;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

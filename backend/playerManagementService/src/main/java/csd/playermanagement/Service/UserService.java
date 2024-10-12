@@ -59,76 +59,67 @@ public class UserService {
     
         Timestamp startTimestamp = tournament.getStartDatetime();
         Date startDate = (startTimestamp != null) ? startTimestamp.toDate() : null;
-    
         Date currentDate = new Date();
-
-        // logic for comparing the tournament date with the current date
+    
+        // Check if the tournament has already started
         if (currentDate.after(startDate)) {
             return "Cannot register: The tournament has already started.";
         }
-        
-        // tournament users
-        List<String> tournamentUsers = tournament.getUsers();
     
+        List<String> tournamentUsers = tournament.getUsers();
         Long capacityCountLong = tournamentSnapshot.getLong("capacity");
         int capacityCount = (capacityCountLong != null) ? capacityCountLong.intValue() : 0;
-    
         Long eloRequirementLong = tournamentSnapshot.getLong("eloRequirement");
         int eloRequirement = (eloRequirementLong != null) ? eloRequirementLong.intValue() : 0;
-
+    
         System.out.println("userId: " + userDto);
         System.out.println("eloRequirement: " + eloRequirement + " capacityCount: " + capacityCount);
     
         CollectionReference usersRef = firestore.collection("Users");
-        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("uid", userDto.getUid()).get();
+        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userDto.getAuthId()).get();
+    
         if (querySnapshot.get().isEmpty()) {
             return "User not found.";
         }
-
-        System.out.println("querySnapshot: " + querySnapshot.get().getDocuments());
     
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
-        System.out.println("userDocuments: " + userDocuments);
-
-        if (!userDocuments.isEmpty()) {
-            DocumentSnapshot userSnapshot = userDocuments.get(0);
-
-            if (userSnapshot == null) {
-                System.out.println("userSnapshot is null.");
-                return "Error retrieving user data.";
-            }
-
-            User user = userSnapshot.toObject(User.class);
-
-            System.out.println("user: " + user);
-    
-            if (user == null) {
-                return "Error retrieving user data.";
-            }
-
-            if (tournamentUsers.contains(user.getUid())) {
-                return "User already registered for this tournament.";
-            }
-    
-            if (tournamentUsers.size() < capacityCount && user.getElo() >= eloRequirement) {
-                tournamentUsers.add(user.getUid());
-
-                // Users registrationHistory
-                List<String> registrationHistory = user.getRegistrationHistory();
-                registrationHistory.add(tournamentId);
-    
-                ApiFuture<WriteResult> writeResult = tournamentRef.update("users", tournamentUsers);
-                ApiFuture<WriteResult> writeResult2 = usersRef.document(user.getUid()).update("registrationHistory", registrationHistory);
-                writeResult.get();
-                writeResult2.get();
-    
-                return "User successfully registered for the tournament.";
-            } else {
-                return "User not added: Either the tournament is full or the user's elo does not meet the requirement.";
-            }
-        } else {
+        if (userDocuments.isEmpty()) {
             return "User not found.";
         }
+    
+        DocumentSnapshot userSnapshot = userDocuments.get(0);
+        if (userSnapshot == null) {
+            return "Error retrieving user data.";
+        }
+    
+        User user = userSnapshot.toObject(User.class);
+        if (user == null) {
+            return "Error retrieving user data.";
+        }
+    
+        if (tournamentUsers.contains(user.getAuthId())) {
+            return "User already registered for this tournament.";
+        }
+    
+        if (user.getElo() < eloRequirement) {
+            return "User does not meet the Elo requirement for this tournament.";
+        }
+    
+        if (tournamentUsers.size() >= capacityCount) {
+            return "Tournament is at full capacity.";
+        }
+    
+        // If all checks pass, register the user
+        tournamentUsers.add(user.getAuthId());
+        List<String> registrationHistory = user.getRegistrationHistory();
+        registrationHistory.add(tournamentId);
+    
+        ApiFuture<WriteResult> tournamentUpdate = tournamentRef.update("users", tournamentUsers);
+        ApiFuture<WriteResult> userUpdate = usersRef.document(user.getUid()).update("registrationHistory", registrationHistory);
+        tournamentUpdate.get();
+        userUpdate.get();
+    
+        return "User successfully registered for the tournament.";
     }
 
     public Map<String, Object> updateUserProfile(String userId, UserDTO updatedUser) throws InterruptedException, ExecutionException {
@@ -136,13 +127,13 @@ public class UserService {
         System.out.println("Received updated user:" + updatedUser);
         
         CollectionReference usersRef = firestore.collection("Users");
-        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authID", userId).get();
+        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userId).get();
         
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
         System.out.println(userDocuments);
         
         if (userDocuments.isEmpty()) {
-            throw new RuntimeException("No user found with the provided authID.");
+            throw new RuntimeException("No user found with the provided authId.");
         }
         
         DocumentSnapshot userSnapshot = userDocuments.get(0);
@@ -227,7 +218,7 @@ public class UserService {
         }
         
         Map<String, Object> response = new HashMap<>();
-        response.put("authID", fullUpdatedUser.getAuthID());
+        response.put("authId", fullUpdatedUser.getAuthId());
         
         // To reformat the dateOfBirth back to "yyyy/MM/dd"
         if (fullUpdatedUser.getDateOfBirth() != null) {
@@ -287,14 +278,21 @@ public class UserService {
     }   
     
     public List<User> getAllUsers() throws InterruptedException, ExecutionException {
+
+        System.out.println("Registering user for tournament...");
+ 
         CollectionReference usersRef = firestore.collection("Users");
-    
+        System.out.println("userRef " + usersRef);
+
         ApiFuture<QuerySnapshot> querySnapshot = usersRef.get();
-    
+        System.out.println("querySnapshot " + querySnapshot);
+
         List<User> usersList = new ArrayList<>();
-    
+        
+
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
-    
+        System.out.println("userDocuments " + userDocuments);
+
         for (QueryDocumentSnapshot document : userDocuments) {
             User user = document.toObject(User.class);
             
@@ -308,12 +306,12 @@ public class UserService {
     public User getUserbyId(String userId) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
         
-        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authID", userId).get();
+        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userId).get();
     
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
     
         if (userDocuments.isEmpty()) {
-            throw new RuntimeException("No user found with the provided authID.");
+            throw new RuntimeException("No user found with the provided authId.");
         }
     
         DocumentSnapshot userSnapshot = userDocuments.get(0);
