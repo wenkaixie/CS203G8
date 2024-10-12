@@ -3,6 +3,7 @@ import './UserTournaments.css';
 import filterIcon from '../../assets/images/Adjust.png';
 import searchIcon from '../../assets/images/Search.png';
 import Navbar from '../../components/navbar/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 const UserTournaments = ({ currentUserId }) => {
     const [activeTab, setActiveTab] = useState('upcoming');
@@ -12,6 +13,8 @@ const UserTournaments = ({ currentUserId }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filteredTournaments, setFilteredTournaments] = useState([]);
+
+    const navigate = useNavigate();
 
     // Fetch tournaments from the API
     useEffect(() => {
@@ -52,6 +55,10 @@ const UserTournaments = ({ currentUserId }) => {
         return tournament.users && tournament.users.includes(currentUserId);
     };
 
+    const handleRowClick = (tournamentId) => {
+        navigate(`/user/tournament/${tournamentId}/overview`);
+    };
+
     // Filter tournaments based on active tab (upcoming, ongoing, past)
     useEffect(() => {
         let filteredList = tournaments;
@@ -64,10 +71,18 @@ const UserTournaments = ({ currentUserId }) => {
             filteredList = tournaments.filter(tournament => getTournamentStatus(tournament) === 'past');
         }
 
+        // Filter by search term
+        if (searchTerm) {
+            filteredList = filteredList.filter(tournament =>
+                tournament.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                tournament.location.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
         setFilteredTournaments(filteredList);
         setSortBy('');
         setSortedTournaments(null);
-    }, [activeTab, tournaments]);
+    }, [activeTab, tournaments, searchTerm]);
 
     // Handle search input
     const handleSearch = (e) => {
@@ -88,6 +103,8 @@ const UserTournaments = ({ currentUserId }) => {
             sortedList.sort((a, b) => new Date(a.startDatetime) - new Date(b.startDatetime));
         } else if (criteria === 'Slots') {
             sortedList.sort((a, b) => a.capacity - b.capacity);
+        } else if (criteria === 'EloRequirement') {
+            sortedList.sort((a, b) => a.eloRequirement - b.eloRequirement);
         } else if (criteria === 'Prize') {
             sortedList.sort((a, b) => a.prizePool - b.prizePool);
         }
@@ -192,7 +209,7 @@ const UserTournaments = ({ currentUserId }) => {
                         </thead>
                         <tbody>
                             {tournamentsToDisplay.map((tournament, index) => (
-                                <tr key={tournament.tid}>
+                                <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)}>
                                     <td>{index + 1}</td>
                                     <td>{tournament.name}</td>
                                     <td>
