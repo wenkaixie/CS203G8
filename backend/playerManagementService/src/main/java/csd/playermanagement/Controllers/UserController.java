@@ -3,6 +3,7 @@ package csd.playermanagement.Controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,11 +17,14 @@ import csd.playermanagement.DTO.UserDTO;
 import csd.playermanagement.Model.Tournament;
 import csd.playermanagement.Service.FirestoreService;
 import csd.playermanagement.Service.UserService;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/user")
 public class UserController {
     

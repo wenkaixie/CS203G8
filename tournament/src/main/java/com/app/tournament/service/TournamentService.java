@@ -46,6 +46,7 @@ public class TournamentService {
             tournament.setEndDatetime(tournamentDTO.getEndDatetime());
             tournament.setCapacity(tournamentDTO.getCapacity());
             tournament.setCreatedTimestamp(Instant.now()); // Set the creation timestamp
+            tournament.setPrize(tournamentDTO.getPrize());
 
             // Write the Tournament object to Firestore and block until the write operation is complete
             ApiFuture<WriteResult> futureTournament = newTournamentRef.set(tournament);
@@ -95,6 +96,7 @@ public class TournamentService {
         updates.put("location", updatedTournament.getLocation());
         updates.put("startDatetime", updatedTournament.getStartDatetime());
         updates.put("endDatetime", updatedTournament.getEndDatetime());
+        updates.put("prize", updatedTournament.getPrize());
 
         tournamentRef.update(updates).get();
 

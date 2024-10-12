@@ -46,9 +46,9 @@ function App() {
 
         <Route path="upcomingtournament" element={<UserUpcomingTournament />} />
 
-        <Route path="tournament/:id/overview" element={<UserTournamentOverview />} />
-        <Route path="tournament/:id/participants" element={<UserTournamentParticipants />} />
-        <Route path="tournament/:id/games" element={<UserTournamentMatch />} />
+        <Route path="tournament/:tournamentId/overview" element={<UserTournamentOverview />} />
+        <Route path="tournament/:tournamentId/participants" element={<UserTournamentParticipants />} />
+        <Route path="tournament/:tournamentId/games" element={<UserTournamentMatch />} />
 
         {/* User Protected Routes */}
         <Route
@@ -64,9 +64,9 @@ function App() {
                 <Route path="calendar" element={<UserCalendar />} />
 
                 {/* Tournament Details Routes for Users */}
-                <Route path="tournament/:id/overview" element={<UserTournamentOverview />} />
-                <Route path="tournament/:id/participants" element={<UserTournamentParticipants />} />
-                <Route path="tournament/:id/games" element={<UserTournamentMatch />} />
+                <Route path="tournament/:tournamentId/overview" element={<UserTournamentOverview />} />
+                <Route path="tournament/:tournamentId/participants" element={<UserTournamentParticipants />} />
+                <Route path="tournament/:tournamentId/games" element={<UserTournamentMatch />} />
               </Routes>
             </ProtectedRoute>
           }

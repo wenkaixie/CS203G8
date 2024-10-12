@@ -93,6 +93,13 @@ body {
     border-radius: 30px; 
 }
 
+/* Disabled Register Button */
+.header-wrapper .register-button:disabled {
+    background-color: #e0e0e0; /* Grey background */
+    color: #777; /* Grey text */
+    cursor: not-allowed; /* Change cursor to not-allowed */
+}
+
 /* Players Count */
 .header-wrapper .players-count {
     display: flex;
@@ -151,7 +158,7 @@ body {
     margin-top: 3px; 
 }
 
-/* Banner with Subtabs */
+/* Subheader / Banner with Subtabs */
 .header-wrapper .banner {
     width: 100vw; 
     background-color: #8F3013; 
@@ -175,18 +182,20 @@ body {
     font-weight: 500;
     color: #fff;
     transition: background-color 0.3s ease; 
-    margin: 0 10px; /* Space between subtabs */
+    margin: 0 10px; 
     border-radius: 10px;
-    min-width: 150px; /* Consistent width for all items */
-    text-align: center; /* Center align text */
+    min-width: 150px; 
+    text-align: center; 
 }
 
+/* Hover effect for the subtab */
 .header-wrapper .subtab-item:hover {
-    background-color: #ab4f28;
+    background-color: rgba(171, 79, 40, 0.9); /* Darker on hover */
 }
 
+/* Active subtab with a darker background */
 .header-wrapper .subtab-item.active {
-    background-color: #6f3218; 
+    background-color: rgb(111, 53, 28); /* Darkened background for the active tab */
     color: #FFFFFF; 
 }
 
@@ -253,3 +262,9 @@ body {
     }
 }
 
+/* Error message */
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}

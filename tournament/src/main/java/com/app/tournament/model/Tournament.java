@@ -37,6 +37,7 @@ public class Tournament {
     private Instant createdTimestamp;
 
     private String trid; // need to
+    private int prize;
 
     
     

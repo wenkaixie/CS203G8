@@ -26,7 +26,7 @@ public class FirebaseConfig {
             // Firebase SDK credential file
             FileInputStream serviceAccount = 
             // correct one
-            new FileInputStream("/Users/jonathanholton/Desktop/CSD/serviceAccountKey.json");
+            new FileInputStream("C:\\CS203G8\\serviceAccountKey.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
