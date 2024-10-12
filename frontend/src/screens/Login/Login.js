@@ -36,7 +36,7 @@ const Login = () => {
                     //console.log("User role:", role);   
 
                     // Redirect user to the appropriate home page based on the collection they belong to
-                    if (role === 'User') {
+                    if (role === 'Users') {
                         navigate('/user/home');
                     } else if (role === 'Admin') {
                         navigate('/admin/home');
@@ -66,11 +66,12 @@ const Login = () => {
         try {
             // Check the 'User' collection
             console.log("Checking user role for email:", email);
-            const userQuery = query(collection(FirestoreDB, 'User'), where('email', '==', email));
+            const userQuery = query(collection(FirestoreDB, 'Users'), where('email', '==', email));
             const userSnapshot = await getDocs(userQuery);
+            console.log("User snapshot:", userSnapshot);
 
             if (!userSnapshot.empty) {
-                return 'User'; // User found in 'User' collection
+                return 'Users'; // User found in 'User' collection
             }
 
             // Check the 'Admin' collection
