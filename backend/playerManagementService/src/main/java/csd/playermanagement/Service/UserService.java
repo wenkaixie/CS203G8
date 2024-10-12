@@ -2,6 +2,7 @@ package csd.playermanagement.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.Period;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -67,12 +68,17 @@ public class UserService {
         }
     
         List<String> tournamentUsers = tournament.getUsers();
+
         Long capacityCountLong = tournamentSnapshot.getLong("capacity");
         int capacityCount = (capacityCountLong != null) ? capacityCountLong.intValue() : 0;
+
         Long eloRequirementLong = tournamentSnapshot.getLong("eloRequirement");
         int eloRequirement = (eloRequirementLong != null) ? eloRequirementLong.intValue() : 0;
+
+        Long ageLimitLomg = tournamentSnapshot.getLong("ageLimit");
+        int ageLimit = (ageLimitLomg != null) ? ageLimitLomg.intValue() : 0;
     
-        System.out.println("userId: " + userDto);
+        System.out.println("userDto: " + userDto);
         System.out.println("eloRequirement: " + eloRequirement + " capacityCount: " + capacityCount);
     
         CollectionReference usersRef = firestore.collection("Users");
@@ -107,6 +113,27 @@ public class UserService {
     
         if (tournamentUsers.size() >= capacityCount) {
             return "Tournament is at full capacity.";
+        }
+
+        /// Get user's date of birth
+        Timestamp dateOfBirthTimestamp = user.getDateOfBirth();
+        if (dateOfBirthTimestamp == null) {
+            return "User's date of birth is not available.";
+        }
+
+        // Calculate user's age
+        Date dateOfBirthDate = dateOfBirthTimestamp.toDate();
+        Instant dobInstant = dateOfBirthDate.toInstant();
+        LocalDate dobLocalDate = dobInstant.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate currentDateLocal = LocalDate.now();
+
+        int age = Period.between(dobLocalDate, currentDateLocal).getYears();
+
+        System.out.println("User's age: " + age);
+
+        // Check if user's age meets the tournament's age requirements
+        if (age < ageLimit) {
+            return "User does not meet the age requirement for this tournament.";
         }
     
         // If all checks pass, register the user
