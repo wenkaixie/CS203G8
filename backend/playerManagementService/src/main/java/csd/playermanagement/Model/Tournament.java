@@ -18,12 +18,12 @@ public class Tournament {
     private Timestamp createdTimestamp;
     private String description;
     private int eloRequirement;
-    private Timestamp endDateime;
+    private Timestamp endDatetime;
     private String location;
     private String name;
+    private int prize;
     private Timestamp startDatetime;
     private String tid;
     private String trid;
-    // private List<String> participants;
-
+    private List<String> users;
 }

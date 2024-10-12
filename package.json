@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@g-loot/react-tournament-brackets": "^1.0.31-rc",
     "bootstrap": "^5.3.3",
     "firebase": "^10.14.0",
     "moment": "^2.30.1",

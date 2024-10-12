@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { getAuth } from 'firebase/auth'; // Import Firebase Auth
-import { NavLink, useParams, useLocation } from 'react-router-dom'; 
+import { useParams, useLocation, useNavigate } from 'react-router-dom'; 
+import { getAuth } from 'firebase/auth';
 import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
 import RegistrationForm from './RegistrationForm';
 
 const UserDetailsHeader = ({ userElo }) => {
-    const { tournamentId } = useParams(); 
-    const location = useLocation(); 
-    const activeTab = location.pathname.split('/').pop(); 
+    const { tournamentId } = useParams(); // Dynamically get tournamentId from URL parameters
+    const location = useLocation(); // Track the current route
+    const navigate = useNavigate(); // Hook to handle navigation
 
+    const [activeTab, setActiveTab] = useState('overview'); // Track active tab
     const [isRegistered, setIsRegistered] = useState(false); 
     const [showRegistrationForm, setShowRegistrationForm] = useState(false); 
     const [tournamentData, setTournamentData] = useState({});
@@ -17,6 +18,12 @@ const UserDetailsHeader = ({ userElo }) => {
     const [isEligible, setIsEligible] = useState(false); 
     const [registrationError, setRegistrationError] = useState(''); 
     const [userUid, setUserUid] = useState(null); 
+
+    // Update activeTab based on the current URL path
+    useEffect(() => {
+        const path = location.pathname.split('/').pop(); // Get the current tab from the URL
+        setActiveTab(path); // Set it as the active tab
+    }, [location.pathname]);
 
     // Fetch tournament details and current user UID
     useEffect(() => {
@@ -26,18 +33,15 @@ const UserDetailsHeader = ({ userElo }) => {
         if (user) {
             setUserUid(user.uid); 
 
-            // Fetch tournament details from the API
             const fetchTournamentData = async () => {
                 try {
                     const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch tournament data');
-                    }
+                    if (!response.ok) throw new Error('Failed to fetch tournament data');
+
                     const data = await response.json();
                     setTournamentData(data);
                     setNumberOfPlayers(data.users ? data.users.length : 0); 
 
-                    // Check if user's ELO meets the requirement
                     if (userElo >= data.eloRequirement) {
                         setIsEligible(true);
                     }
@@ -51,7 +55,9 @@ const UserDetailsHeader = ({ userElo }) => {
         }
     }, [tournamentId, userElo]);
 
-    const availableSlots = tournamentData.capacity ? tournamentData.capacity - numberOfPlayers : 0;
+    const availableSlots = tournamentData.capacity 
+        ? tournamentData.capacity - numberOfPlayers 
+        : 0;
 
     const handleRegisterClick = () => {
         if (isEligible && !isRegistered) {
@@ -61,38 +67,35 @@ const UserDetailsHeader = ({ userElo }) => {
 
     const closeForm = () => {
         setShowRegistrationForm(false);
-        setRegistrationError(''); // Clear any previous errors when the form is closed
+        setRegistrationError('');
     };
 
     const handleFormSubmit = async (userDetails) => {
         try {
-            // Make API call to register the user using UID instead of email
             const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/users`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    uid: userUid,  // Use the UID here
+                    uid: userUid,
                     fullName: userDetails.fullName,
                     age: userDetails.age,
-                    location: userDetails.location
-                })
+                    location: userDetails.location,
+                }),
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to register. Please try again.');
-            }
+            if (!response.ok) throw new Error('Failed to register. Please try again.');
 
-            // If the registration is successful
             setIsRegistered(true);
-            setNumberOfPlayers(numberOfPlayers + 1); // Increase the player count by 1
+            setNumberOfPlayers((prev) => prev + 1);
             setShowRegistrationForm(false);
         } catch (error) {
-            // If registration fails, show the error message and do not register
             setRegistrationError(error.message);
-            setIsRegistered(false); // Ensure the user is not marked as registered
+            setIsRegistered(false);
         }
+    };
+
+    const handleTabNavigation = (tab) => {
+        navigate(`/tournament/${tournamentId}/${tab}`);
     };
 
     return (
@@ -101,14 +104,18 @@ const UserDetailsHeader = ({ userElo }) => {
 
             <div className="header-container">
                 <div className="header-left">
-                    <button className="back-button" onClick={() => window.history.back()}>{'<'}</button>
-                    <h1 className="tournament-title">{tournamentData.name || "Tournament"}</h1>
+                    <button className="back-button" onClick={() => navigate('/user/home')}>
+                        {'<'}
+                    </button>
+                    <h1 className="tournament-title">
+                        {tournamentData.name || 'Tournament'}
+                    </h1>
                 </div>
                 <div className="registration-container">
                     <button
                         className={isRegistered ? 'registered-button' : 'register-button'}
                         onClick={handleRegisterClick}
-                        disabled={!isEligible || isRegistered} // Disable if not eligible or already registered
+                        disabled={!isEligible || isRegistered}
                     >
                         {isRegistered ? 'Registered' : isEligible ? 'Register' : 'Not Eligible'}
                     </button>
@@ -126,9 +133,17 @@ const UserDetailsHeader = ({ userElo }) => {
                     <span className="icon">🕒</span>
                     <div>
                         <span className="info-text">
-                            {tournamentData.startDatetime ? new Date(tournamentData.startDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'} -  
-                            {' '}
-                            {tournamentData.endDatetime ? new Date(tournamentData.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}
+                            {tournamentData.startDatetime 
+                                ? new Date(tournamentData.startDatetime).toLocaleDateString('en-US', {
+                                      year: 'numeric', month: 'short', day: 'numeric',
+                                  }) 
+                                : 'N/A'}
+                            {' - '}
+                            {tournamentData.endDatetime 
+                                ? new Date(tournamentData.endDatetime).toLocaleDateString('en-US', {
+                                      year: 'numeric', month: 'short', day: 'numeric',
+                                  }) 
+                                : 'N/A'}
                         </span>
                     </div>
                 </div>
@@ -142,35 +157,25 @@ const UserDetailsHeader = ({ userElo }) => {
                 <div className="info-box">
                     <span className="icon">✔️</span>
                     <div>
-                        <span className="info-text">{availableSlots >= 0 ? availableSlots : 'N/A'}</span>
+                        <span className="info-text">
+                            {availableSlots >= 0 ? availableSlots : 'N/A'}
+                        </span>
                         <span className="sub-text">Available slots</span>
                     </div>
                 </div>
             </div>
 
-            {/* Updated Banner */}
             <div className="banner">
                 <ul className="subtabs">
-                    <li className={`subtab-item ${activeTab === 'overview' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/overview`}>
-                            Overview
-                        </NavLink>
-                    </li>
-                    <li className={`subtab-item ${activeTab === 'participants' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/participants`}>
-                            Participants
-                        </NavLink>
-                    </li>
-                    <li className={`subtab-item ${activeTab === 'games' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/games`}>
-                            Games
-                        </NavLink>
-                    </li>
-                    <li className={`subtab-item ${activeTab === 'discussion' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/discussion`}>
-                            Discussion
-                        </NavLink>
-                    </li>
+                    {['overview', 'participants', 'games', 'discussion'].map((tab) => (
+                        <li
+                            key={tab}
+                            className={`subtab-item ${activeTab === tab ? 'active' : ''}`}
+                            onClick={() => handleTabNavigation(tab)}
+                        >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </li>
+                    ))}
                 </ul>
             </div>
 
@@ -178,7 +183,7 @@ const UserDetailsHeader = ({ userElo }) => {
                 <RegistrationForm
                     closeForm={closeForm}
                     onSubmit={handleFormSubmit}
-                    tournamentID={tournamentId} // Pass the tournament ID to the registration form
+                    tournamentID={tournamentId}
                 />
             )}
         </div>

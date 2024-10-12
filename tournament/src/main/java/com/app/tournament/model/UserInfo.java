@@ -11,8 +11,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserInfo {
 
-    private String UserId; // Unique ID of the player
+    private String uid; // Unique ID of the player
     private String name; // Name of the player
-    private double elo; // Player's Elo rating at the tournament start
+    private int elo; // Player's Elo rating at the tournament start
+
+    private int score;
+
+    private int whiteGamesCount;
     
 }
