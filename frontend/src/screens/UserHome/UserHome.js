@@ -1,23 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './UserHome.css';
 import Navbar from '../../components/navbar/Navbar';
-import Carousel from 'react-bootstrap/Carousel';
-import Container from 'react-bootstrap/Container';
 import TrophyIcon from '../../assets/images/trophy.png';
 import StarIcon from '../../assets/images/star.png';
 import { Img } from 'react-image';
 import MatchCard from './MatchCard';
-import TournamentsTable from './TournamentsTable';
+import MyTournamentsTable from './MyTournamentsTable';
+import UpcomingTournamentsTable from './UpcomingTournamentsTable';
 import { useNavigate } from 'react-router-dom';
-import CountdownTimer from './CountdownTimer';
-
+import TournamentCarousel from './TournamentCarousel';
+import Divider from '@mui/material/Divider';
+import axios from 'axios';
+import { getAuth } from "firebase/auth";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const auth = getAuth();
+  const [userDetails, setUserDetails] = useState(null);
 
-  const handleViewGamesHistory = (event) => {
-    navigate ('/user/home'); // replace with round details
-  }
+  const handleViewGamesHistory = () => {
+    navigate('/user/home');
+  };
+
+  const fetchUserDetails = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8080/user/${auth.currentUser.uid}`); //todo fetch from userdetails
+        setUserDetails(response.data);
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
 
   return (
     <div className='dashboard'>
@@ -26,7 +42,7 @@ const Dashboard = () => {
           <div className='welcome-back'>
             <h2>Welcome Back, John!</h2>
           </div>
-          <div className='rating-and-rank'> 
+          <div className='rating-and-rank'>
             <div className='rating-and-rank-section'>
               <h4>Rating</h4>
               <div fluid className='rating-and-rank-section-details'>
@@ -59,64 +75,34 @@ const Dashboard = () => {
           </div>
           <MatchCard />
           <div onClick={ handleViewGamesHistory } className='games-history'>
-            <h8>View games history</h8>
+            <h6>View Tournament</h6>
           </div>
         </div>
       </div>
       <div className='dashboard-col'>
         <div className='dashboard-col-inner'>
-          <TournamentsTable />
+          <MyTournamentsTable />
+          <Divider sx={{ my: 0.5 }} />
+          <UpcomingTournamentsTable />
         </div>
       </div>
     </div>
   );
 };
 
-const TournamentJumbotron = () => {
-  return (
-    <Container fluid>
-      <Carousel data-bs-theme="dark">
-        <Carousel.Item>
-          <Carousel.Caption>
-            <p>Upcoming Tournaments</p>
-            <h2>Tournament 1</h2>
-            <h3>Round 1</h3>
-            <CountdownTimer targetDate={'2024-09-22T10:00:00'}/>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <Carousel.Caption>
-            <p>Upcoming Tournaments</p>
-            <h2>Tournament 2</h2>
-            <h3>Round 1</h3>
-            <CountdownTimer targetDate={'2024-09-24T10:00:00'}/>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <Carousel.Caption>
-            <p>Upcoming Tournaments</p>
-            <h2>Tournament 3</h2>
-            <h3>Round 1</h3>
-            <CountdownTimer targetDate={'2024-09-27T10:00:00'}/>
-          </Carousel.Caption>
-        </Carousel.Item>
-      </Carousel>
-    </Container>
-  );
-};
-
 const Home = () => {
+
   return (
     <div>
-        <div className='background'>
-          <div className='background-content'>
-            <Navbar />
-            <TournamentJumbotron />
-            <Dashboard />
-          </div>
+      <div className='background'>
+        <div className='background-content'>
+          <Navbar />
+          <TournamentCarousel />
+          <Dashboard />
         </div>
+      </div>
     </div>
   );
-}
+};
 
 export default Home;

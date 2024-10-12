@@ -17,7 +17,7 @@ import { signOut } from 'firebase/auth';
 import FBInstanceAuth from '../../firebase/firebase_auth'; // Assuming this is where Firebase auth is managed
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const pages = ['Home', 'Performance', 'Tournament', 'Calendar'];
+const pages = ['Home', 'Tournaments', 'Calendar', 'Performance'];
 const settings = ['Profile', 'Logout'];
 
 function Navbar() {
@@ -45,6 +45,10 @@ function Navbar() {
 
   const handleGoToHome = () => {
     navigate('/user/home');
+  }
+
+  const handleGoToTournaments = () => {
+    navigate('/user/tournaments');
   }
 
   const handleGoToCalendar = () => {
@@ -108,6 +112,10 @@ function Navbar() {
                   <MenuItem key={page} onClick={handleGoToCalendar}>
                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                   </MenuItem>
+                ) : page === 'Tournaments' ? (
+                  <MenuItem key={page} onClick={handleGoToTournaments}>
+                    <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                  </MenuItem>
                 ) : (
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
@@ -127,6 +135,15 @@ function Navbar() {
                 >
                   {page}
                 </Button>
+                ) : page === 'Tournaments' ? (
+                  <Button
+                    key={page}
+                    onClick={handleGoToTournaments}
+                    style={{ cursor: 'pointer' }}
+                    sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
+                  >
+                    {page}
+                  </Button>
                 ) : page === 'Calendar' ? (
                   <Button
                     key={page}
@@ -136,7 +153,7 @@ function Navbar() {
                   >
                     {page}
                   </Button>
-                  ) : (
+                ) : (
                   <Button
                     key={page}
                     onClick={handleCloseNavMenu}

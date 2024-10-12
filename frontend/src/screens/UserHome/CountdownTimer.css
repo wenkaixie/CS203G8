@@ -36,6 +36,7 @@
   
   .countdown-box {
     display: flex;
+    flex: 1 1;
     gap: 20px;
   }
   
