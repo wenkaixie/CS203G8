@@ -9,7 +9,7 @@ import { FirestoreDB } from "./firebase_config";
 class FirebaseFirestore {
 	// google login add user to firestore
 	googleLogin = async function (userID, userDisplayName, userEmail) {
-		const docRef = doc(FirestoreDB, "users", userID);
+		const docRef = doc(FirestoreDB, "Users", userID);
 		const docSnap = await getDoc(docRef);
 		if (docSnap.exists()) {
 			console.log("Document data:", docSnap.data());
@@ -21,7 +21,7 @@ class FirebaseFirestore {
 
 	//facebook login add user to firestore
 	facebookLogin = async function (userID, userDisplayName, userEmail) {
-		const docRef = doc(FirestoreDB, "users", userID);
+		const docRef = doc(FirestoreDB, "Users", userID);
 		const docSnap = await getDoc(docRef);
 		if (docSnap.exists()) {
 			console.log("Document data:", docSnap.data());
@@ -33,7 +33,7 @@ class FirebaseFirestore {
 
 	// register user to firestore
 	register = async function (userID, userDisplayName, userEmail) {
-		await setDoc(doc(FirestoreDB, "users", userID), {
+		await setDoc(doc(FirestoreDB, "Users", userID), {
 			name: userDisplayName,
 			email: userEmail,
 		});
