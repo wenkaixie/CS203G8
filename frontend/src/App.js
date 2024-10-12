@@ -51,9 +51,8 @@ function App() {
             <ProtectedRoute allowedRoles={['User']}>
               <Routes>
                 <Route path="home" element={<UserHome />} />
-                <Route path="profile" element={<UserHome />} />
-                <Route path="tournaments" element={<UserUpcomingTournament />} />
                 <Route path="profile" element={<UpdateProfile />} />
+                <Route path="tournaments" element={<UserUpcomingTournament />} />
                 <Route path="calendar" element={<UserCalendar />} />
 
                 {/* Tournament Details Routes for Users */}
