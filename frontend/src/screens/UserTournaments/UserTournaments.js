@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import './UserUpcomingTournament.css';
+import './UserTournaments.css';
 import filterIcon from '../../assets/images/Adjust.png';
 import searchIcon from '../../assets/images/Search.png';
 import Navbar from '../../components/navbar/Navbar';
 
-const UserUpcomingTournament = ({ currentUserId }) => {
+const UserTournaments = ({ currentUserId }) => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [tournaments, setTournaments] = useState([]);
@@ -124,7 +124,7 @@ const UserUpcomingTournament = ({ currentUserId }) => {
                 {/* Container for Header and Subtask Bar */}
                 <div className="header-subtask-container">
                     {/* Page Header */}
-                    <h1>Tournament</h1>
+                    <h1>All Tournaments</h1>
 
                     <div className="subtask-bar">
                         <button
@@ -239,4 +239,4 @@ const UserUpcomingTournament = ({ currentUserId }) => {
     );
 };
 
-export default UserUpcomingTournament;
+export default UserTournaments;

@@ -17,7 +17,7 @@ import { signOut } from 'firebase/auth';
 import FBInstanceAuth from '../../firebase/firebase_auth'; // Assuming this is where Firebase auth is managed
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const pages = ['Home', 'Tournaments', 'Calendar', 'Performance'];
+const pages = ['Home', 'Tournaments', 'My Calendar', 'My Performance'];
 const settings = ['Profile', 'Logout'];
 
 function Navbar() {
@@ -108,7 +108,7 @@ function Navbar() {
                   <MenuItem key={page} onClick={handleGoToHome}>
                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                   </MenuItem>
-                ) : page === 'Calendar' ? (
+                ) : page === 'My Calendar' ? (
                   <MenuItem key={page} onClick={handleGoToCalendar}>
                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                   </MenuItem>
@@ -144,7 +144,7 @@ function Navbar() {
                   >
                     {page}
                   </Button>
-                ) : page === 'Calendar' ? (
+                ) : page === 'My Calendar' ? (
                   <Button
                     key={page}
                     onClick={handleGoToCalendar}
