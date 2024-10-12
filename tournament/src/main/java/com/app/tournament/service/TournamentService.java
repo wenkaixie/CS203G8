@@ -137,73 +137,86 @@ public class TournamentService {
     }
 
     // Method to get upcoming tournaments
-    public List<Tournament> getUpcomingTournaments() throws InterruptedException, ExecutionException {
+    public List<Tournament> getUpcomingTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
+        DocumentReference userRef = firestore.collection("Users").document(userID);
+        ApiFuture<DocumentSnapshot> futureUserDoc = userRef.get();
+        DocumentSnapshot userDoc = futureUserDoc.get();
+    
+        if (!userDoc.exists()) {
+            return new ArrayList<>(); // Return an empty list if user document does not exist
+        }
+    
+        List<String> registrationHistory = (List<String>) userDoc.get("registrationHistory");
+    
+        if (registrationHistory == null || registrationHistory.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if registrationHistory is empty or null
+        }
+    
         Instant currentTimestamp = Instant.now();
-
-        ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments")
-                .whereGreaterThan("endDatetime", currentTimestamp).get();
-
-        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-
-        if (documents.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Tournament> tournaments = new ArrayList<>();
-        for (DocumentSnapshot document : documents) {
-            tournaments.add(document.toObject(Tournament.class));
-        }
-        return tournaments;
-    }
-
-    // Method to get past tournaments
-    public List<Tournament> getPastTournaments() throws InterruptedException, ExecutionException {
-        Instant currentTimestamp = Instant.now();
-
-        ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments")
-                .whereLessThan("endDatetime", currentTimestamp).get();
-
-        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-
-        if (documents.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Tournament> tournaments = new ArrayList<>();
-        for (DocumentSnapshot document : documents) {
-            tournaments.add(document.toObject(Tournament.class));
-        }
-        return tournaments;
-    }
-
-    // Method to get ongoing tournaments
-    public List<Tournament> getOngoingTournaments() throws InterruptedException, ExecutionException {
-        Instant currentTimestamp = Instant.now();
+        List<Tournament> pastTournaments = new ArrayList<>();
     
-        // Fetch tournaments where the endDatetime is greater than the current timestamp
-        ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments")
-                .whereGreaterThan("endDatetime", currentTimestamp).get();
+        for (String tournamentId : registrationHistory) {
+            System.out.println("Tournament ID: " + tournamentId);
+            // Retrieve each tournament document
+            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+            ApiFuture<DocumentSnapshot> futureTournamentDoc = tournamentRef.get();
+            DocumentSnapshot tournamentDoc = futureTournamentDoc.get();
     
-        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-        List<Tournament> tournaments = new ArrayList<>();
-    
-        if (documents.isEmpty()) {
-            return tournaments; 
-        }
-    
-        // Filter documents based on the startDatetime
-        for (DocumentSnapshot document : documents) {
-            Instant startDatetime = document.get("startDatetime", Instant.class);
-    
-            // Check if the startDatetime is before or equal to the current timestamp
-            if (startDatetime != null && startDatetime.isBefore(currentTimestamp)) {
-                tournaments.add(document.toObject(Tournament.class));
+            if (tournamentDoc.exists()) {
+                // Check if the tournament is in the future
+                Instant startDatetime = tournamentDoc.get("startDatetime", Instant.class);
+                if (startDatetime != null && startDatetime.isAfter(currentTimestamp)) {
+                    // Convert the document to a Tournament object and add it to the list
+                    pastTournaments.add(tournamentDoc.toObject(Tournament.class));
+                }
             }
         }
     
-        return tournaments;
+        return pastTournaments; // Return the list of past tournaments
+    }    
+
+    // Method to get ongoing tournaments
+    public List<Tournament> getOngoingTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
+        DocumentReference userRef = firestore.collection("Users").document(userID);
+        ApiFuture<DocumentSnapshot> futureUserDoc = userRef.get();
+        DocumentSnapshot userDoc = futureUserDoc.get();
+
+        if (!userDoc.exists()) {
+            return new ArrayList<>(); // Return an empty list if the user document does not exist
+        }
+
+        List<String> registrationHistory = (List<String>) userDoc.get("registrationHistory");
+
+        if (registrationHistory == null || registrationHistory.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if registrationHistory is empty or null
+        }
+
+        Instant currentTimestamp = Instant.now();
+        List<Tournament> ongoingTournaments = new ArrayList<>();
+
+        for (String tournamentId : registrationHistory) {
+            System.out.println("Tournament ID: " + tournamentId);
+            // Retrieve each tournament document
+            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+            ApiFuture<DocumentSnapshot> futureTournamentDoc = tournamentRef.get();
+            DocumentSnapshot tournamentDoc = futureTournamentDoc.get();
+
+            if (tournamentDoc.exists()) {
+                // Retrieve startDatetime and endDatetime
+                Instant startDatetime = tournamentDoc.get("startDatetime", Instant.class);
+                Instant endDatetime = tournamentDoc.get("endDatetime", Instant.class);
+
+                // Check if the tournament is ongoing (current time is between startDatetime and endDatetime)
+                if (startDatetime != null && endDatetime != null && 
+                    currentTimestamp.isAfter(startDatetime) && currentTimestamp.isBefore(endDatetime)) {
+                    // Convert the document to a Tournament object and add it to the list
+                    ongoingTournaments.add(tournamentDoc.toObject(Tournament.class));
+                }
+            }
+        }
+
+        return ongoingTournaments; // Return the list of ongoing tournaments
     }
-    
    
     // Method to add a player to a tournament
     public String addPlayerToTournament(String tournamentID, String playerID)

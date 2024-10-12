@@ -108,10 +108,10 @@ public class TournamentController {
     }
 
     // Get upcoming tournaments
-    @GetMapping("/upcoming")
-    public ResponseEntity<List<Tournament>> getUpcomingTournaments() {
+    @GetMapping("/upcoming/{userID}")
+    public ResponseEntity<List<Tournament>> getUpcomingTournamentsOfUser(@PathVariable String userID) {
         try {
-            List<Tournament> tournaments = tournamentService.getUpcomingTournaments();
+            List<Tournament> tournaments = tournamentService.getUpcomingTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -119,21 +119,21 @@ public class TournamentController {
     }
 
     // Get past tournaments
-    @GetMapping("/past")
-    public ResponseEntity<List<Tournament>> getPastTournaments() {
+    @GetMapping("/past/{userID}")
+    public ResponseEntity<List<Tournament>> getPastTournamentsOfUser(@PathVariable String userID) {
         try {
-            List<Tournament> tournaments = tournamentService.getPastTournaments();
+            List<Tournament> tournaments = tournamentService.getPastTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    // Get ongoing tournaments
-    @GetMapping("/ongoing")
-    public ResponseEntity<List<Tournament>> getOngoingTournaments() {
+    // Get ongoing tournaments of user
+    @GetMapping("/ongoing/{userID}")
+    public ResponseEntity<List<Tournament>> getOngoingTournamentsOfUser(@PathVariable String userID) {
         try {
-            List<Tournament> tournaments = tournamentService.getOngoingTournaments();
+            List<Tournament> tournaments = tournamentService.getOngoingTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
