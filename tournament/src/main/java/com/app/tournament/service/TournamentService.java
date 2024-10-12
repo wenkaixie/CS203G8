@@ -301,10 +301,12 @@ public class TournamentService {
         CollectionReference tournamentsCollection = firestore.collection("Tournaments");
         ApiFuture<QuerySnapshot> futureTournamentsQuery = tournamentsCollection.get();
         QuerySnapshot tournamentsSnapshot = futureTournamentsQuery.get();
+        System.out.println("Tournaments count: " + tournamentsSnapshot.size());
     
         List<Tournament> eligibleTournaments = new ArrayList<>();
     
         for (DocumentSnapshot tournamentDoc : tournamentsSnapshot.getDocuments()) {
+            System.out.println("Tournament ID: " + tournamentDoc.getId());
             if (tournamentDoc.exists()) {
                 // Check if the tournament is an upcoming tournament
                 Instant startDatetime = tournamentDoc.get("startDatetime", Instant.class);

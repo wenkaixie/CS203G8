@@ -147,9 +147,9 @@ public class TournamentController {
 
     // Get eligible tournaments of user
     @GetMapping("/eligible/{userID}")
-    public ResponseEntity<List<Tournament>> getEligibleTournamentOfUser(@PathVariable String userID) {
+    public ResponseEntity<List<Tournament>> getEligibleTournamentsOfUser(@PathVariable String userID) {
         try {
-            List<Tournament> tournaments = tournamentService.getEligibleTournamentOfUser(userID);
+            List<Tournament> tournaments = tournamentService.getEligibleTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
