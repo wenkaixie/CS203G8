@@ -84,7 +84,7 @@ const Signup = () => {
             const userDocRef = doc(FirestoreDB, 'User', user.uid); // Using uid as document ID
 
             await setDoc(userDocRef, {
-                authID: user.uid,  // Storing the authentication ID
+                authId: user.uid,  // Storing the authentication ID
                 Email: user.email, // Storing email
                 uid: userDocRef.id // Storing the document ID
             });
