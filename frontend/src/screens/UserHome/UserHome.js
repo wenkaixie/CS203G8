@@ -1,23 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import './UserHome.css';
 import Navbar from '../../components/navbar/Navbar';
-import Carousel from 'react-bootstrap/Carousel';
-import Container from 'react-bootstrap/Container';
 import TrophyIcon from '../../assets/images/trophy.png';
 import StarIcon from '../../assets/images/star.png';
 import { Img } from 'react-image';
 import MatchCard from './MatchCard';
-import TournamentsTable from './TournamentsTable';
+import MyTournamentsTable from './MyTournamentsTable';
+import UpcomingTournamentsTable from './UpcomingTournamentsTable';
 import { useNavigate } from 'react-router-dom';
-import CountdownTimer from './CountdownTimer';
+import TournamentCarousel from './TournamentCarousel';
+import Divider from '@mui/material/Divider';
 import axios from 'axios';
+import { getAuth } from "firebase/auth";
 
-const Dashboard = ({ tournaments }) => {
+const Dashboard = () => {
   const navigate = useNavigate();
+  const auth = getAuth();
+  const [userDetails, setUserDetails] = useState(null);
 
   const handleViewGamesHistory = () => {
     navigate('/user/home');
   };
+
+  const fetchUserDetails = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8080/user/${auth.currentUser.uid}`); //todo fetch from userdetails
+        setUserDetails(response.data);
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
 
   return (
     <div className='dashboard'>
@@ -59,68 +75,30 @@ const Dashboard = ({ tournaments }) => {
           </div>
           <MatchCard />
           <div onClick={ handleViewGamesHistory } className='games-history'>
-            <h6>View games history</h6>
+            <h6>View Tournament</h6>
           </div>
         </div>
       </div>
       <div className='dashboard-col'>
         <div className='dashboard-col-inner'>
-          <TournamentsTable tournaments={tournaments} />
+          <MyTournamentsTable />
+          <Divider sx={{ my: 0.5 }} />
+          <UpcomingTournamentsTable />
         </div>
       </div>
     </div>
   );
 };
 
-const TournamentJumbotron = ({ tournaments }) => {
-  const navigate = useNavigate(); // Use the navigate hook
-
-  // Function to handle clicking on a tournament
-  const handleTournamentClick = (tournamentId) => {
-    navigate(`/user/tournament/${tournamentId}/overview`);
-  };
-
-  return (
-    <Container fluid>
-      <Carousel data-bs-theme="dark">
-        {tournaments.map((tournament, index) => (
-          <Carousel.Item key={index} onClick={() => handleTournamentClick(tournament.tid)} style={{ cursor: 'pointer' }} >
-            <Carousel.Caption>
-              <p>Upcoming Tournaments</p>
-              <h2>{tournament.name}</h2>
-              <h3>Round 1</h3>
-              <CountdownTimer targetDate={tournament.startDatetime} />
-            </Carousel.Caption>
-          </Carousel.Item>
-        ))}
-      </Carousel>
-    </Container>
-  );
-};
-
 const Home = () => {
-  const [tournaments, setTournaments] = useState([]);
-
-  useEffect(() => {
-    const fetchTournaments = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/tournaments');
-        setTournaments(response.data);
-      } catch (error) {
-        console.error('Error fetching tournaments:', error);
-      }
-    };
-
-    fetchTournaments();
-  }, []);
 
   return (
     <div>
       <div className='background'>
         <div className='background-content'>
           <Navbar />
-          <TournamentJumbotron tournaments={tournaments} />
-          <Dashboard tournaments={tournaments} />
+          <TournamentCarousel />
+          <Dashboard />
         </div>
       </div>
     </div>

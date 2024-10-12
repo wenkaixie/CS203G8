@@ -1,20 +1,58 @@
-import React, { useState } from 'react';
-import './TournamentsTable.css';
+import React, { useState, useEffect } from 'react';
+import './UpcomingTournamentsTable.css';
 import { useNavigate } from 'react-router-dom';
-import filterIcon from '../../assets/images/Adjust.png';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import axios from 'axios';
 
-const TournamentsTable = ({ tournaments }) => {
+const UpcomingTournamentsTable = () => {
     const [eligibleButton, setEligibleButton] = useState(true);
     const [allButton, setAllButton] = useState(false);
     const [sortedTournaments, setSortedTournaments] = useState(null); // Initially null
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [sortBy, setSortBy] = useState('');
+    const [currentPage, setCurrentPage] = useState(1); // Track the current page
+    const tournamentsPerPage = 5; // Define how many tournaments to show per page
+    const [tournaments, setTournaments] = useState([]);
 
     const navigate = useNavigate();
 
-    const handleEligibleAllButtonChange = () => {
-        setEligibleButton(!eligibleButton);
-        setAllButton(!allButton);
+    // Fetch eligible upcoming tournaments
+    const fetchEligibleUpcomingTournaments = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/api/tournaments/ongoing');
+            setTournaments(response.data);
+        } catch (error) {
+            console.error('Error fetching eligible tournaments:', error);
+        }
+    };
+
+    // Fetch all upcoming tournaments
+    const fetchAllUpcomingTournaments = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/api/tournaments/upcoming'); // TODO replace with eligible
+            setTournaments(response.data);
+        } catch (error) {
+            console.error('Error fetching all tournaments:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchEligibleUpcomingTournaments();
+    }, []);
+
+    const handleEligibleAllButtonChange = (type) => {
+        setSortBy('');
+        setSortedTournaments(null);
+        if (type === 'eligible') {
+            setEligibleButton(true);
+            setAllButton(false);
+            fetchEligibleUpcomingTournaments();
+        } else if (type === 'all') {
+            setEligibleButton(false);
+            setAllButton(true);
+            fetchAllUpcomingTournaments(); 
+        }
     };
 
     const handleRowClick = (tournamentId) => {
@@ -43,44 +81,54 @@ const TournamentsTable = ({ tournaments }) => {
         } else if (criteria === 'Prize') {
             sortedList.sort((a, b) => a.prizePool - b.prizePool);
         }
-        console.log(sortedList);
         setSortedTournaments(sortedList); // Set the sorted tournaments
         setSortBy(criteria);
         setIsDropdownVisible(false);
+        setCurrentPage(1); // Reset to page 1 after sorting
     };
 
     const toggleDropdown = () => {
         setIsDropdownVisible(!isDropdownVisible);
     };
 
-    const handleFilterClick = () => {
-        alert('Filter button clicked! This can be implemented based on specific filtering logic.');
-    };
-
     const tournamentsToDisplay = sortedTournaments || tournaments; // Use sortedTournaments if available, otherwise use original tournaments
+
+    // Handle case when tournaments array is empty or null
+    if (!tournamentsToDisplay || tournamentsToDisplay.length === 0) {
+        return (
+            <div className="tournament-container">
+                <h2 className="tournament-title">All Tournaments</h2>
+                <div className="no-tournaments">No Tournaments Available</div>
+            </div>
+        );
+    }
+
+    // Pagination logic
+    const indexOfLastTournament = currentPage * tournamentsPerPage;
+    const indexOfFirstTournament = indexOfLastTournament - tournamentsPerPage;
+    const currentTournaments = tournamentsToDisplay.slice(indexOfFirstTournament, indexOfLastTournament);
+
+    const totalPages = Math.ceil(tournamentsToDisplay.length / tournamentsPerPage);
+
+    // Handle page navigation
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
     return (
         <div className="tournament-container">
-            <h2 className="tournament-title">Tournaments</h2>
+            <h2 className="tournament-title">All Tournaments</h2>
             <div className="filter-tabs">
                 <div className='eligible-all-buttons'>
-                    <button onClick={handleEligibleAllButtonChange} className={`eligible-all-button tab ${eligibleButton ? 'active' : ''}`}>
+                    <button onClick={() => handleEligibleAllButtonChange('eligible')} className={`eligible-all-button tab ${eligibleButton ? 'active' : ''}`}>
                         Eligible
                     </button>
-                    <button onClick={handleEligibleAllButtonChange} className={`eligible-all-button tab ${allButton ? 'active' : ''}`}>
+                    <button onClick={() => handleEligibleAllButtonChange('all')} className={`eligible-all-button tab ${allButton ? 'active' : ''}`}>
                         All
                     </button>
                 </div>
 
-                {/* Buttons Container */}
                 <div className="buttons-container">
-                    {/* Filter Button */}
-                    <button className="filter-button" onClick={handleFilterClick}>
-                        <img src={filterIcon} alt="Filter Icon" className="filter-icon" />
-                        Filter
-                    </button>
-
-                    {/* Order By Dropdown Button */}
                     <div className="dropdown">
                         <button className="order-button" onClick={toggleDropdown}>
                             Order By {sortBy && `(${sortBy})`}
@@ -118,9 +166,9 @@ const TournamentsTable = ({ tournaments }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {tournamentsToDisplay.map((tournament, index) => (
+                    {currentTournaments.map((tournament, index) => (
                         <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className='clickable-row'>
-                            <td>{index + 1}</td>
+                            <td>{indexOfFirstTournament + index + 1}</td> {/* Display correct numbering */}
                             <td>{tournament.name}</td>
                             <td>{formatDate(tournament.startDatetime)} - {formatDate(tournament.endDatetime)}</td>
                             <td>{tournament.location}</td>
@@ -132,18 +180,36 @@ const TournamentsTable = ({ tournaments }) => {
                 </tbody>
             </table>
 
+            {/* Pagination */}
             <div className="pagination">
-                <span>&lt;</span>
-                <span className="page-number">1</span>
-                <span className="page-number">2</span>
-                <span className="page-number">3</span>
-                <span>…</span>
-                <span className="page-number">8</span>
-                <span>&gt;</span>
+                <span>
+                    <ArrowBackIosNewIcon 
+                        onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                        sx={{cursor:"pointer", fontSize:"20px"}}
+                    />
+                </span>
+                {Array.from({ length: totalPages }, (_, i) => (
+                    <span
+                        key={i + 1}
+                        className={`page-number ${currentPage === i + 1 ? 'active' : ''}`}
+                        onClick={() => handlePageChange(i + 1)}
+                    >
+                        {i + 1}
+                    </span>
+                ))}
+                <span>
+                    <ArrowForwardIosIcon
+                        onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                        sx={{cursor:"pointer", fontSize:"20px"}}
+                    />
+                </span>
             </div>
-            <div className="show-more" onClick={handleViewAllTournaments}>View All Tournaments</div>
+
+            <div className="show-more-text" onClick={handleViewAllTournaments}>
+                View All Tournaments
+            </div>
         </div>
     );
 };
 
-export default TournamentsTable;
+export default UpcomingTournamentsTable;
