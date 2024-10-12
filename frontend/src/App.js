@@ -29,12 +29,11 @@ import UserHome from './screens/UserHome/UserHome';
 import Login from './screens/Login/Login';
 import UpdateProfile from './screens/UpdateProfile/UpdateProfile';
 import Signup from './screens/Signup/Signup';
-import UserUpcomingTournament from './screens/UserUpcomingTournament/UserUpcomingTournament';
+import UserTournaments from './screens/UserTournaments/UserTournaments';
 import UserTournamentParticipants from './screens/UserTournamentDetails/UserTournamentParticipants';
 import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
 import UserTournamentMatch from './screens/UserTournamentDetails/UserTournamentMatch';
 import UserCalendar from './screens/UserCalendar/UserCalendar';
-import TournamentUpcoming from './screens/TournamentUpcoming/TournamentUpcoming';
 
 function App() {
   return (
@@ -52,7 +51,7 @@ function App() {
               <Routes>
                 <Route path="home" element={<UserHome />} />
                 <Route path="profile" element={<UpdateProfile />} />
-                <Route path="tournaments" element={<UserUpcomingTournament />} />
+                <Route path="tournaments" element={<UserTournaments />} />
                 <Route path="calendar" element={<UserCalendar />} />
 
                 {/* Tournament Details Routes for Users */}
