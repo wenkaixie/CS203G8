@@ -10,7 +10,7 @@ const UserTournamentMatch = () => {
     const [filteredMatches, setFilteredMatches] = useState([]);
     const [sortBy, setSortBy] = useState('');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [selectedRound, setSelectedRound] = useState('All rounds');
+    const [selectedRound, setSelectedRound] = useState(''); // Initially, empty to display "All rounds"
     const [availableRounds, setAvailableRounds] = useState([]);
     const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
@@ -25,7 +25,7 @@ const UserTournamentMatch = () => {
                 }
                 const tournamentData = await response.json();
                 setTournamentTitle(tournamentData.name || 'Tournament');
-                setPlayerCount(tournamentData.users ? tournamentData.users.length : 0); // Handle null or empty users array
+                setPlayerCount(tournamentData.users ? tournamentData.users.length : 0);
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
             }
@@ -49,15 +49,37 @@ const UserTournamentMatch = () => {
         fetchRounds();
     }, [tournamentId]);
 
-    // Fetch matches based on the selected round
+    // Fetch matches for the selected round
     useEffect(() => {
         const fetchMatches = async () => {
             try {
-                const roundId = selectedRound === 'All rounds' ? '' : selectedRound;
+                const roundId = selectedRound === '' ? '' : selectedRound;
                 const response = await fetch(`http://localhost:8080/api/rounds/${roundId}/matches`);
-                const data = await response.json();
-                setMatches(data);
-                setFilteredMatches(data);
+                const matchesData = await response.json();
+
+                // Fetch player details for each match
+                const enhancedMatches = await Promise.all(
+                    matchesData.map(async (match) => {
+                        const player1Response = await fetch(`http://localhost:9090/api/Users/${match.uid1}`);
+                        const player2Response = await fetch(`http://localhost:9090/api/Users/${match.uid2}`);
+
+                        const player1Data = await player1Response.json();
+                        const player2Data = await player2Response.json();
+
+                        return {
+                            ...match,
+                            player1: player1Data.name || 'Player 1',
+                            rating1: player1Data.elo || 'N/A',
+                            nationality1: player1Data.nationality || 'N/A',
+                            player2: player2Data.name || 'Player 2',
+                            rating2: player2Data.elo || 'N/A',
+                            nationality2: player2Data.nationality || 'N/A',
+                        };
+                    })
+                );
+
+                setMatches(enhancedMatches);
+                setFilteredMatches(enhancedMatches);
             } catch (error) {
                 console.error('Error fetching matches:', error);
             }
@@ -72,15 +94,16 @@ const UserTournamentMatch = () => {
 
     // Handle round selection from the dropdown
     const handleRoundSelection = (round) => {
-        setSelectedRound(round);
+        setSelectedRound(round); // Set selected round
+        setIsDropdownVisible(false); // Hide dropdown after selection
     };
 
     const handleImageViewClick = () => {
-        window.location.href = `/tournament/${tournamentId}/matchtree`;
+        window.location.href = `/tournament/${tournamentId}/overview`; // Navigate to overview page
     };
 
     const toggleDropdown = () => {
-        setIsDropdownVisible(!isDropdownVisible);
+        setIsDropdownVisible(!isDropdownVisible); // Toggle dropdown visibility
     };
 
     const handleSortChange = (criteria) => {
@@ -96,7 +119,7 @@ const UserTournamentMatch = () => {
 
     // Filter and sort matches based on search term and sorting criteria
     useEffect(() => {
-        let updatedList = matches; // Directly use matches
+        let updatedList = matches;
 
         // Filter by search term
         if (searchTerm) {
@@ -105,7 +128,7 @@ const UserTournamentMatch = () => {
                     match.player1.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     match.player2.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     match.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    match.location.toLowerCase().includes(searchTerm.toLowerCase()) // Filter by location
+                    match.location.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
@@ -127,12 +150,11 @@ const UserTournamentMatch = () => {
     return (
         <div>
             <Header
-                tournamentTitle={tournamentTitle} // Set the tournament name
-                playerCount={playerCount} // Set the actual number of players from API
+                tournamentTitle={tournamentTitle}
+                playerCount={playerCount}
             />
 
             <div className="user-tournament-match">
-                {/* Search and Sort Controls */}
                 <div className="controls-container">
                     <div className="view-buttons">
                         <button className="list-view-button">
@@ -162,13 +184,20 @@ const UserTournamentMatch = () => {
                         <span>Filter</span>
                     </button>
 
-                    {/* Order By Dropdown */}
                     <div className="dropdown">
+                        {/* Set the button to show "All rounds" by default */}
                         <button className="order-button" onClick={toggleDropdown}>
-                            All rounds
+                            {selectedRound === '' ? 'All rounds' : `Round ${selectedRound}`}
                         </button>
                         {isDropdownVisible && (
                             <div className="dropdown-content">
+                                {/* Show available rounds */}
+                                <div
+                                    className="dropdown-item"
+                                    onClick={() => handleRoundSelection('')}
+                                >
+                                    All rounds
+                                </div>
                                 {availableRounds.map((round, index) => (
                                     <div
                                         className="dropdown-item"
@@ -183,11 +212,10 @@ const UserTournamentMatch = () => {
                     </div>
                 </div>
 
-                {/* Matches List */}
                 <div className="match-list">
-                    {matches.map((roundData, roundIndex) => (
-                        <div key={roundIndex}>
-                            <div className="round-title">Round {roundData.round}</div>
+                    {filteredMatches.map((match, matchIndex) => (
+                        <div key={matchIndex}>
+                            <div className="round-title">Round {match.roundNumber}</div>
                             <table className="matches-table">
                                 <thead>
                                     <tr>
@@ -206,41 +234,37 @@ const UserTournamentMatch = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {roundData.matches.map((match, matchIndex) => (
-                                        <tr key={matchIndex}>
-                                            <td>{match.no}</td>
-                                            <td>{match.date}</td>
-                                            <td>{match.location}</td>
-                                            <td>{match.player1}</td>
-                                            <td>{match.rating1}</td>
-                                            <td>{match.nationality1}</td>
-                                            <td className="result-column">
-                                                <span className={`result-gap ${getResult(match.score1, match.score2).toLowerCase()}`}>
-                                                    {getResult(match.score1, match.score2)}
-                                                </span>
-
-                                                <span className="score">{match.score1}</span>
-                                            </td>
-                                            <td className="vs-text">VS</td>
-                                            <td className="result-column">
-                                                <span className="score">{match.score2}</span>
-                                                <span className={`result-gap ${getResult(match.score2, match.score1).toLowerCase()}`}>
-                                                    {getResult(match.score2, match.score1)}
-                                                </span>
-
-                                            </td>
-                                            <td>{match.player2}</td>
-                                            <td>{match.rating2}</td>
-                                            <td>{match.nationality2}</td>
-                                        </tr>
-                                    ))}
+                                    <tr>
+                                        <td>{matchIndex + 1}</td>
+                                        <td>{match.matchDate}</td>
+                                        <td>{match.location}</td>
+                                        <td>{match.player1}</td>
+                                        <td>{match.rating1}</td>
+                                        <td>{match.nationality1}</td>
+                                        <td className="result-column">
+                                            <span className={`result-gap ${getResult(match.user1Score, match.user2Score).toLowerCase()}`}>
+                                                {getResult(match.user1Score, match.user2Score)}
+                                            </span>
+                                            <span className="score">{match.user1Score}</span>
+                                        </td>
+                                        <td className="vs-text">VS</td>
+                                        <td className="result-column">
+                                            <span className="score">{match.user2Score}</span>
+                                            <span className={`result-gap ${getResult(match.user2Score, match.user1Score).toLowerCase()}`}>
+                                                {getResult(match.user2Score, match.user1Score)}
+                                            </span>
+                                        </td>
+                                        <td>{match.player2}</td>
+                                        <td>{match.rating2}</td>
+                                        <td>{match.nationality2}</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
                     ))}
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

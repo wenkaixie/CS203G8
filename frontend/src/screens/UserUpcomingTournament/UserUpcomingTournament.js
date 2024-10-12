@@ -4,7 +4,7 @@ import filterIcon from '../../assets/images/Adjust.png';
 import searchIcon from '../../assets/images/Search.png';
 import Navbar from '../../components/navbar/Navbar';
 
-const UserUpcomingTournament = () => {
+const UserUpcomingTournament = ({ currentUserId }) => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [tournaments, setTournaments] = useState([]);
@@ -16,17 +16,13 @@ const UserUpcomingTournament = () => {
     useEffect(() => {
         const fetchTournaments = async () => {
             try {
-                console.log("Fetching tournaments...");
-
                 const response = await fetch('http://localhost:8080/api/tournaments');
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const tournamentList = await response.json();
-                console.log("Fetched tournaments:", tournamentList);
                 setTournaments(tournamentList);
-                setFilteredTournaments(tournamentList); // Initially set to all tournaments
             } catch (error) {
                 console.error("Error fetching tournaments:", error);
             }
@@ -39,17 +35,20 @@ const UserUpcomingTournament = () => {
     const getTournamentStatus = (tournament) => {
         const currentDateTime = new Date();
         const startDateTime = new Date(tournament.startDatetime);
+        const endDateTime = new Date(tournament.endDatetime);
 
-        if (tournament.Completed === 1) {
-            return 'past'; // Completed tournaments are in the past
-        }
-
-        // Not completed: check if upcoming or ongoing
         if (startDateTime > currentDateTime) {
-            return 'upcoming'; // If start date is in the future
+            return 'upcoming';
+        } else if (currentDateTime >= startDateTime && currentDateTime <= endDateTime) {
+            return 'ongoing';
         } else {
-            return 'ongoing'; // If the tournament has started
+            return 'past';
         }
+    };
+
+    // Check if the current user is registered for a tournament
+    const isPlayerRegistered = (tournament) => {
+        return tournament.users && tournament.users.includes(currentUserId);
     };
 
     // Filter tournaments based on active tab (upcoming, ongoing, past)
@@ -227,8 +226,8 @@ const UserUpcomingTournament = () => {
                                     <td>{tournament.capacity}</td>
                                     <td>{tournament.eloRequirement}</td>
                                     <td>${tournament.prize}</td>
-                                    <td className={`status-${tournament.status ? tournament.status.replace(/\s+/g, '-').toLowerCase() : ''}`}>
-                                        {tournament.status || 'Unknown'}
+                                    <td className={`status-${isPlayerRegistered(tournament) ? 'registered' : ''}`}>
+                                        {isPlayerRegistered(tournament) ? 'Registered' : (tournament.status || 'null')}
                                     </td>
                                 </tr>
                             ))}

@@ -1,42 +1,54 @@
 import React, { useState, useEffect } from 'react';
+import { getAuth } from 'firebase/auth'; // Import Firebase Auth
 import { NavLink, useParams, useLocation } from 'react-router-dom'; 
 import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
 import RegistrationForm from './RegistrationForm';
 
 const UserDetailsHeader = ({ userElo }) => {
-    const { id: tournamentId } = useParams(); // Dynamically get tournamentId from URL parameters
-    const location = useLocation(); // Get the current location (URL)
+    const { tournamentId } = useParams(); 
+    const location = useLocation(); 
     const activeTab = location.pathname.split('/').pop(); 
 
     const [isRegistered, setIsRegistered] = useState(false); 
     const [showRegistrationForm, setShowRegistrationForm] = useState(false); 
     const [tournamentData, setTournamentData] = useState({});
     const [numberOfPlayers, setNumberOfPlayers] = useState(0);
-    const [isEligible, setIsEligible] = useState(false); // Track if user meets the ELO requirement
-    const [registrationError, setRegistrationError] = useState(''); // Error message for registration failure
+    const [isEligible, setIsEligible] = useState(false); 
+    const [registrationError, setRegistrationError] = useState(''); 
+    const [userUid, setUserUid] = useState(null); 
 
+    // Fetch tournament details and current user UID
     useEffect(() => {
-        // Fetch tournament details from the API
-        const fetchTournamentData = async () => {
-            try {
-                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch tournament data');
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (user) {
+            setUserUid(user.uid); 
+
+            // Fetch tournament details from the API
+            const fetchTournamentData = async () => {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch tournament data');
+                    }
+                    const data = await response.json();
+                    setTournamentData(data);
+                    setNumberOfPlayers(data.users ? data.users.length : 0); 
+
+                    // Check if user's ELO meets the requirement
+                    if (userElo >= data.eloRequirement) {
+                        setIsEligible(true);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch tournament data:", error);
                 }
-                const data = await response.json();
-                setTournamentData(data);
-                setNumberOfPlayers(data.users ? data.users.length : 0); // Handle null users, set to 0 if null
-                
-                // Check if user's ELO meets the requirement
-                if (userElo >= data.eloRequirement) {
-                    setIsEligible(true);
-                }
-            } catch (error) {
-                console.error("Failed to fetch tournament data:", error);
-            }
-        };
-        fetchTournamentData();
+            };
+            fetchTournamentData();
+        } else {
+            console.error('No user is signed in');
+        }
     }, [tournamentId, userElo]);
 
     const availableSlots = tournamentData.capacity ? tournamentData.capacity - numberOfPlayers : 0;
@@ -54,17 +66,17 @@ const UserDetailsHeader = ({ userElo }) => {
 
     const handleFormSubmit = async (userDetails) => {
         try {
-            // Make API call to register the user
+            // Make API call to register the user using UID instead of email
             const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    uid: userUid,  // Use the UID here
                     fullName: userDetails.fullName,
                     age: userDetails.age,
-                    location: userDetails.location,
-                    email: userDetails.email
+                    location: userDetails.location
                 })
             });
 

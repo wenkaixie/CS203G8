@@ -1,12 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getAuth } from 'firebase/auth'; 
 import './RegistrationForm.css';
 import LockIcon from '../../assets/images/Password.png';
 
+
 const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
-    const [fullName, setFullName] = useState('John Tan Choon Hui'); // Pre-filled dummy data
-    const [age, setAge] = useState(23); // Pre-filled dummy data
-    const [location, setLocation] = useState('Singapore'); // Pre-filled dummy data
-    const [email, setEmail] = useState('JohnTanCH@gmail.com'); // Pre-filled dummy data
+    const [fullName, setFullName] = useState(''); 
+    const [age, setAge] = useState(''); 
+    const [location, setLocation] = useState(''); 
+    const [email, setEmail] = useState(''); 
+    const [uid, setUid] = useState(null); // To store the user's UID
+
+    // Fetch the UID and user details when the component mounts
+    useEffect(() => {
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (user) {
+            setUid(user.uid); // Set the user's UID
+
+            // Fetch user details using the uid
+            const fetchUserDetails = async () => {
+                try {
+                    const response = await fetch(`http://localhost:8080/user/getUser/${user.uid}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch user details');
+                    }
+
+                    const userData = await response.json();
+                    // Set the form fields with the retrieved user data
+                    setFullName(userData.fullName || '');
+                    setAge(userData.age || '');
+                    setLocation(userData.location || '');
+                    setEmail(userData.email || '');
+                } catch (error) {
+                    console.error('Error fetching user details:', error);
+                }
+            };
+
+            fetchUserDetails();
+        } else {
+            console.error('No user is signed in.');
+        }
+    }, []);
 
     // Function to register user for the tournament
     const registerUser = async (tournamentID, userDetails) => {
@@ -16,7 +52,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(userDetails),
+                body: JSON.stringify(userDetails), // Send user details including UID
             });
 
             if (!response.ok) {
@@ -34,7 +70,13 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
 
     // Handle form submission
     const handleSubmit = () => {
-        const userDetails = { fullName, age, location, email };
+        if (!uid) {
+            alert('User not authenticated');
+            return;
+        }
+
+        // Include UID in userDetails
+        const userDetails = { fullName, age, location, email, uid };
         registerUser(tournamentID, userDetails);
         onSubmit(userDetails);
         closeForm();
@@ -52,9 +94,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
                 </div>
                 <div className="registration-body">
                     <div className="form-group">
-                        <div className="form-group">
-                            <label className="verify-label">Verify your personal details</label>
-                        </div>
+                        <label className="verify-label">Verify your personal details</label>
 
                         <div className="input-group">
                             <label>Full name</label>

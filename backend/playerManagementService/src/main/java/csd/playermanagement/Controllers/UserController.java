@@ -16,6 +16,8 @@ import csd.playermanagement.Model.User;
 import csd.playermanagement.Model.Tournament;
 import csd.playermanagement.Service.FirestoreService;
 import csd.playermanagement.Service.UserService;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 
 import java.util.List;
 

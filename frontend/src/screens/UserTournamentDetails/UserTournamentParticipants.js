@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import './UserTournamentParticipants.css';
 import Header from './UserDetailsHeader';
 
@@ -11,41 +12,33 @@ const UserTournamentParticipants = () => {
     const [filteredParticipants, setFilteredParticipants] = useState([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [playerCount, setPlayerCount] = useState(0);
-    const [tournamentTitle, setTournamentTitle] = useState(''); // State for the tournament title
 
-    // Fetch tournament details and participants
     useEffect(() => {
-        const fetchTournamentDetails = async () => {
+        const fetchTournamentData = async () => {
             try {
-                // Fetch tournament details including participants and title
-                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch tournament details');
-                }
-                const tournamentData = await response.json();
-                
-                // Set tournament title and player count
-                setTournamentTitle(tournamentData.name || 'Tournament');
-                setPlayerCount(tournamentData.users ? tournamentData.users.length : 0);
+                // Fetch tournament data
+                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                const tournamentData = response.data;
 
-                // Fetch user details for each participant by their userID
+                const participantIds = tournamentData.users || []; // Users' UIDs
+
+                // Fetch user details for each participant by their UID
                 const participantDetails = await Promise.all(
-                    (tournamentData.users || []).map(async (userID) => {
-                        const userResponse = await fetch(`http://localhost:8080/user/getUser/${userID}`);
-                        if (!userResponse.ok) {
-                            throw new Error(`Failed to fetch user details for user ${userID}`);
-                        }
-                        return await userResponse.json();
+                    participantIds.map(async (userID) => {
+                        const sanitizedUserID = userID.replace(/['"]/g, ''); // Remove quotes if present
+                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${sanitizedUserID}`);
+                        return userResponse.data;
                     })
                 );
 
                 setParticipants(participantDetails); // Set participants with user details
+                setPlayerCount(participantDetails.length);
             } catch (error) {
-                console.error('Error fetching tournament details and participants:', error);
+                console.error('Error fetching participants:', error);
             }
         };
 
-        fetchTournamentDetails();
+        fetchTournamentData();
     }, [tournamentId]);
 
     const handleSearch = (e) => {
@@ -53,31 +46,33 @@ const UserTournamentParticipants = () => {
     };
 
     const toggleDropdown = () => {
-        setIsDropdownVisible(!isDropdownVisible);
+        setIsDropdownVisible(!isDropdownVisible); // Toggle dropdown visibility
     };
 
     const handleSortChange = (criteria) => {
         setSortBy(criteria);
-        setIsDropdownVisible(false);
+        setIsDropdownVisible(false); // Hide dropdown after selecting
     };
 
     useEffect(() => {
-        let updatedList = participants;
+        let updatedList = [...participants]; // Make a shallow copy of participants
 
+        // Filter by search term
         if (searchTerm) {
             updatedList = updatedList.filter((participant) =>
                 participant.name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
+        // Sort the list
         if (sortBy) {
             updatedList = updatedList.sort((a, b) => {
                 if (sortBy === 'name') {
                     return a.name.localeCompare(b.name);
                 } else if (sortBy === 'age') {
                     return b.age - a.age;
-                } else if (sortBy === 'worldRank') {
-                    return a.worldRank - b.worldRank;
+                } else if (sortBy === 'rating') {
+                    return b.elo - a.elo; // Assuming "elo" is the rating field
                 }
                 return 0;
             });
@@ -88,11 +83,7 @@ const UserTournamentParticipants = () => {
 
     return (
         <div>
-            <Header 
-                activetab="participants" 
-                tournamentTitle={tournamentTitle} // Display the fetched tournament title
-                playerCount={playerCount} // Display the fetched player count
-            />
+            <Header activetab="participants" tournamentTitle={tournamentId} playerCount={playerCount} />
 
             <div className="user-tournament-participants">
                 <div className="controls-container">
@@ -116,7 +107,7 @@ const UserTournamentParticipants = () => {
                                 <div className="dropdown-content">
                                     <div className="dropdown-item" onClick={() => handleSortChange('name')}>Name</div>
                                     <div className="dropdown-item" onClick={() => handleSortChange('age')}>Age</div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('worldRank')}>World Rank</div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('rating')}>Rating</div>
                                 </div>
                             )}
                         </div>
@@ -132,28 +123,32 @@ const UserTournamentParticipants = () => {
                                 <th>Nationality</th>
                                 <th>Age</th>
                                 <th>World rank</th>
-                                <th>Rating</th>
+                                <th>ELO Rating</th>
                                 <th>Games played this season</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredParticipants.map((participant, index) => (
-                                <tr key={participant.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{participant.name}</td>
-                                    <td>{participant.nationality}</td>
-                                    <td>{participant.age}</td>
-                                    <td>{participant.worldRank}</td>
-                                    <td>{participant.rating}</td>
-                                    <td>{participant.gamesPlayed}</td>
+                            {filteredParticipants.length > 0 ? (
+                                filteredParticipants.map((participant, index) => (
+                                    <tr key={participant.uid || index}>
+                                        <td>{index + 1}</td>
+                                        <td>{participant.name || 'null'}</td>
+                                        <td>{participant.nationality || 'null'}</td>
+                                        <td>{participant.age || 'null'}</td>
+                                        <td>{participant.worldRank || 'null'}</td>
+                                        <td>{participant.elo || 'null'}</td>
+                                        <td>{participant.gamesPlayed || 'null'}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="7">No participants available</td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
-
             </div>
-
         </div>
     );
 };
