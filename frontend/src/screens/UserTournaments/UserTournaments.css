@@ -86,30 +86,25 @@ body {
 }
 
 .dropdown-content {
-  display: none;
-  position: absolute;
   background-color: #ffffff;
-  min-width: 140px;
+  min-width: 180px;
   border: 1px solid #d1d1d1;
   border-radius: 5px;
   z-index: 1;
   margin-top: 5px;
 }
 
-.dropdown-content.show {
-  display: block;
-}
-
 .dropdown-item {
   color: #333;
-  padding: 10px 15px;
+  padding: 10px 15px !important;
+  margin: 0px;
   text-align: left;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .dropdown-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f0f0f0 !important;
 }
 
 .dropdown-item:active {
@@ -119,7 +114,7 @@ body {
 /* Order Button */
 .order-button {
   height: 45px;
-  width: 140px;
+  width: 180px;
   background-color: #ffffff;
   border: 1px solid #d1d1d1;
   border-radius: 10px;

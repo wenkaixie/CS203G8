@@ -8,6 +8,7 @@ const UserTournaments = ({ currentUserId }) => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [tournaments, setTournaments] = useState([]);
+    const [sortedTournaments, setSortedTournaments] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filteredTournaments, setFilteredTournaments] = useState([]);
@@ -64,6 +65,8 @@ const UserTournaments = ({ currentUserId }) => {
         }
 
         setFilteredTournaments(filteredList);
+        setSortBy('');
+        setSortedTournaments(null);
     }, [activeTab, tournaments]);
 
     // Handle search input
@@ -76,43 +79,25 @@ const UserTournaments = ({ currentUserId }) => {
         setIsDropdownVisible(!isDropdownVisible);
     };
 
-    // Handle selection from dropdown
+    // Sorting the tournaments
     const handleSortChange = (criteria) => {
+        let sortedList = [...filteredTournaments]; // Use the filtered tournaments array
+        if (criteria === 'Name') {
+            sortedList.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (criteria === 'Date') {
+            sortedList.sort((a, b) => new Date(a.startDatetime) - new Date(b.startDatetime));
+        } else if (criteria === 'Slots') {
+            sortedList.sort((a, b) => a.capacity - b.capacity);
+        } else if (criteria === 'Prize') {
+            sortedList.sort((a, b) => a.prizePool - b.prizePool);
+        }
+        setSortedTournaments(sortedList); // Set the sorted tournaments
         setSortBy(criteria);
-        setIsDropdownVisible(false); // Hide dropdown after selection
+        setIsDropdownVisible(false);
     };
 
-    // Filter and sort the tournament list based on user inputs
-    useEffect(() => {
-        let updatedList = filteredTournaments;
-
-        // Filter by search term (tournament name)
-        if (searchTerm) {
-            updatedList = updatedList.filter(tournament =>
-                tournament.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        // Sort the list
-        if (sortBy) {
-            updatedList = updatedList.sort((a, b) => {
-                if (sortBy === 'name') {
-                    return a.name.localeCompare(b.name);
-                } else if (sortBy === 'date') {
-                    return new Date(a.startDatetime) - new Date(b.startDatetime);
-                } else if (sortBy === 'slots') {
-                    return b.capacity - a.capacity;
-                } else if (sortBy === 'eloRequirement') {
-                    return b.eloRequirement - a.eloRequirement;
-                } else if (sortBy === 'prize') {
-                    return parseFloat(b.prize.replace('$', '')) - parseFloat(a.prize.replace('$', ''));
-                }
-                return 0;
-            });
-        }
-
-        setFilteredTournaments(updatedList);
-    }, [searchTerm, sortBy, filteredTournaments]);
+    // Display the full list of tournaments
+    const tournamentsToDisplay = sortedTournaments || filteredTournaments;
 
     return (
         <div>
@@ -121,11 +106,8 @@ const UserTournaments = ({ currentUserId }) => {
 
             {/* Tournament Content */}
             <div className="tournament-upcoming">
-                {/* Container for Header and Subtask Bar */}
                 <div className="header-subtask-container">
-                    {/* Page Header */}
                     <h1>All Tournaments</h1>
-
                     <div className="subtask-bar">
                         <button
                             className={`subtask-button ${activeTab === 'upcoming' ? 'active' : ''}`}
@@ -150,7 +132,6 @@ const UserTournaments = ({ currentUserId }) => {
 
                 {/* Search and Filter Controls */}
                 <div className="controls-container">
-                    {/* Search Bar */}
                     <div className="search-bar">
                         <input
                             type="text"
@@ -161,34 +142,31 @@ const UserTournaments = ({ currentUserId }) => {
                         <img src={searchIcon} alt="Search Icon" className="search-icon" />
                     </div>
 
-                    {/* Buttons Container */}
                     <div className="buttons-container">
-                        {/* Filter Button */}
                         <button className="filter-button">
                             <img src={filterIcon} alt="Filter Icon" className="filter-icon" />
                             Filter
                         </button>
 
-                        {/* Order By Dropdown Button */}
                         <div className="dropdown">
                             <button className="order-button" onClick={toggleDropdown}>
-                                Order By
+                                Order By {sortBy && `(${sortBy})`}
                             </button>
                             {isDropdownVisible && (
-                                <div className="dropdown-content show">
-                                    <div className="dropdown-item" onClick={() => handleSortChange('name')}>
+                                <div className="dropdown-content">
+                                    <div className="dropdown-item" onClick={() => handleSortChange('Name')}>
                                         Name
                                     </div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('date')}>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('Date')}>
                                         Date
                                     </div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('slots')}>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('Slots')}>
                                         Slots
                                     </div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('eloRequirement')}>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('EloRequirement')}>
                                         ELO Requirement
                                     </div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('prize')}>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('Prize')}>
                                         Prize
                                     </div>
                                 </div>
@@ -213,7 +191,7 @@ const UserTournaments = ({ currentUserId }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredTournaments.map((tournament, index) => (
+                            {tournamentsToDisplay.map((tournament, index) => (
                                 <tr key={tournament.tid}>
                                     <td>{index + 1}</td>
                                     <td>{tournament.name}</td>
