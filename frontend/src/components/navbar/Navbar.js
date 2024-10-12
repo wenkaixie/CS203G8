@@ -55,6 +55,10 @@ function Navbar() {
     navigate('/user/calendar');
   }
 
+  const handleGoToProfile = () => {
+    navigate('/user/profile');
+  }
+
   const handleLogout = async () => {
     try {
         await signOut(auth); // Signing out the user from Firebase
@@ -186,6 +190,10 @@ function Navbar() {
               {settings.map((setting) =>
                 setting === 'Logout' ? (
                   <MenuItem key={setting} onClick={handleLogout}>
+                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  </MenuItem>
+                ) : setting === 'Profile' ? (
+                  <MenuItem key={setting} onClick={handleGoToProfile}>
                     <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                   </MenuItem>
                 ) : (

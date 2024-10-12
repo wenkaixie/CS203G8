@@ -111,7 +111,6 @@ const Login = () => {
     const handleLogin = async (event) => {
         event.preventDefault();
         setError(null);  // Clear any previous error
-
         try {
             await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
