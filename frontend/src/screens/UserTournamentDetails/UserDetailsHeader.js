@@ -95,7 +95,7 @@ const UserDetailsHeader = ({ userElo }) => {
     };
 
     const handleTabNavigation = (tab) => {
-        navigate(`/tournament/${tournamentId}/${tab}`);
+        navigate(`/user/tournament/${tournamentId}/${tab}`);
     };
 
     return (
