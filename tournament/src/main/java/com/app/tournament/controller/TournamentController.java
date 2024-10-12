@@ -106,6 +106,39 @@ public class TournamentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    // Get upcoming tournaments
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Tournament>> getUpcomingTournaments() {
+        try {
+            List<Tournament> tournaments = tournamentService.getUpcomingTournaments();
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Get past tournaments
+    @GetMapping("/past")
+    public ResponseEntity<List<Tournament>> getPastTournaments() {
+        try {
+            List<Tournament> tournaments = tournamentService.getPastTournaments();
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Get ongoing tournaments
+    @GetMapping("/ongoing")
+    public ResponseEntity<List<Tournament>> getOngoingTournaments() {
+        try {
+            List<Tournament> tournaments = tournamentService.getOngoingTournaments();
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
     
     // Add player to tournament
     @PostMapping("/{tournamentID}/players")

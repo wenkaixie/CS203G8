@@ -135,6 +135,75 @@ public class TournamentService {
         }
         return tournaments;
     }
+
+    // Method to get upcoming tournaments
+    public List<Tournament> getUpcomingTournaments() throws InterruptedException, ExecutionException {
+        Instant currentTimestamp = Instant.now();
+
+        ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments")
+                .whereGreaterThan("endDatetime", currentTimestamp).get();
+
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+        if (documents.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Tournament> tournaments = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            tournaments.add(document.toObject(Tournament.class));
+        }
+        return tournaments;
+    }
+
+    // Method to get past tournaments
+    public List<Tournament> getPastTournaments() throws InterruptedException, ExecutionException {
+        Instant currentTimestamp = Instant.now();
+
+        ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments")
+                .whereLessThan("endDatetime", currentTimestamp).get();
+
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+        if (documents.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Tournament> tournaments = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            tournaments.add(document.toObject(Tournament.class));
+        }
+        return tournaments;
+    }
+
+    // Method to get ongoing tournaments
+    public List<Tournament> getOngoingTournaments() throws InterruptedException, ExecutionException {
+        Instant currentTimestamp = Instant.now();
+    
+        // Fetch tournaments where the endDatetime is greater than the current timestamp
+        ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments")
+                .whereGreaterThan("endDatetime", currentTimestamp).get();
+    
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        List<Tournament> tournaments = new ArrayList<>();
+    
+        if (documents.isEmpty()) {
+            return tournaments; 
+        }
+    
+        // Filter documents based on the startDatetime
+        for (DocumentSnapshot document : documents) {
+            Instant startDatetime = document.get("startDatetime", Instant.class);
+    
+            // Check if the startDatetime is before or equal to the current timestamp
+            if (startDatetime != null && startDatetime.isBefore(currentTimestamp)) {
+                tournaments.add(document.toObject(Tournament.class));
+            }
+        }
+    
+        return tournaments;
+    }
+    
    
     // Method to add a player to a tournament
     public String addPlayerToTournament(String tournamentID, String playerID)
