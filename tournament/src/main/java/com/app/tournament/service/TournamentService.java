@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.Date;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.Instant;
+import java.time.ZoneId;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -142,7 +147,7 @@ public class TournamentService {
     // Method to get upcoming tournaments
     public List<Tournament> getUpcomingTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
         CollectionReference usersCollection = firestore.collection("Users");
-        Query query = usersCollection.whereEqualTo("authID", userID);
+        Query query = usersCollection.whereEqualTo("authId", userID);
         ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
         QuerySnapshot querySnapshot = futureQuerySnapshot.get();
     
@@ -184,7 +189,7 @@ public class TournamentService {
     // Method to get past tournaments
     public List<Tournament> getPastTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
         CollectionReference usersCollection = firestore.collection("Users");
-        Query query = usersCollection.whereEqualTo("authID", userID);
+        Query query = usersCollection.whereEqualTo("authId", userID);
         ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
         QuerySnapshot querySnapshot = futureQuerySnapshot.get();
     
@@ -227,7 +232,7 @@ public class TournamentService {
     // Method to get ongoing tournaments
     public List<Tournament> getOngoingTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
         CollectionReference usersCollection = firestore.collection("Users");
-        Query query = usersCollection.whereEqualTo("authID", userID);
+        Query query = usersCollection.whereEqualTo("authId", userID);
         ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
         QuerySnapshot querySnapshot = futureQuerySnapshot.get();
 
@@ -270,6 +275,77 @@ public class TournamentService {
         return ongoingTournaments; // Return the list of ongoing tournaments
     }
 
+    // Method to fetch eligible tournaments
+    public List<Tournament> getEligibleTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
+        // Query the Users collection where the authID field matches the provided userID
+        CollectionReference usersCollection = firestore.collection("Users");
+        Query query = usersCollection.whereEqualTo("authId", userID);
+        ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
+        QuerySnapshot querySnapshot = futureQuerySnapshot.get();
+        
+        if (querySnapshot.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if no user with matching authID is found
+        }
+        
+        DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0); // Assuming authID is unique, get the first document
+        Long userElo = userDoc.getLong("elo"); // Fetch user's Elo once for later comparisons
+        Instant userDob = userDoc.get("dateOfBirth", Instant.class); // Fetch user's date of birth as an Instant
+    
+        if (userElo == null || userDob == null) {
+            return new ArrayList<>(); // If user elo or DOB is missing, return empty list
+        }
+        
+        Instant currentTimestamp = Instant.now();
+        
+        // Query all the tournaments in the Tournaments collection
+        CollectionReference tournamentsCollection = firestore.collection("Tournaments");
+        ApiFuture<QuerySnapshot> futureTournamentsQuery = tournamentsCollection.get();
+        QuerySnapshot tournamentsSnapshot = futureTournamentsQuery.get();
+    
+        List<Tournament> eligibleTournaments = new ArrayList<>();
+    
+        for (DocumentSnapshot tournamentDoc : tournamentsSnapshot.getDocuments()) {
+            if (tournamentDoc.exists()) {
+                // Check if the tournament is an upcoming tournament
+                Instant startDatetime = tournamentDoc.get("startDatetime", Instant.class);
+                if (startDatetime != null && startDatetime.isAfter(currentTimestamp)) {
+                    // Rule 1: Check if the number of users in the "users" array is less than the "capacity"
+                    List<String> users = (List<String>) tournamentDoc.get("users");
+                    Long capacity = tournamentDoc.getLong("capacity");
+                    if (users == null || capacity == null || users.size() >= capacity) {
+                        continue; // Tournament is not eligible if capacity is full
+                    }
+    
+                    // Rule 2: Check if the user's Elo is >= the tournament's Elo requirement
+                    Long eloRequirement = tournamentDoc.getLong("eloRequirement");
+                    if (eloRequirement != null && userElo < eloRequirement) {
+                        continue; // Tournament is not eligible if user's Elo is less than the requirement
+                    }
+    
+                    // Rule 3: Check if the user's age is >= the tournament's age limit
+                    Long ageLimit = tournamentDoc.getLong("ageLimit");
+                    if (ageLimit != null) {
+                        int userAge = calculateAge(userDob); // Pass userDob as Instant to calculateAge helper method
+                        if (userAge < ageLimit) {
+                            continue; // Tournament is not eligible if user's age is less than the limit
+                        }
+                    }
+    
+                    // Add the tournament to the eligible list if all conditions are satisfied
+                    eligibleTournaments.add(tournamentDoc.toObject(Tournament.class));
+                }
+            }
+        }
+    
+        return eligibleTournaments; // Return the list of eligible tournaments
+    }
+    
+    // Helper function to calculate the age from the date of birth (using Instant)
+    private int calculateAge(Instant birthDate) {
+        LocalDate birthLocalDate = birthDate.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate currentDate = LocalDate.now();
+        return Period.between(birthLocalDate, currentDate).getYears();
+    }
 
    
     // Method to add a player to a tournament

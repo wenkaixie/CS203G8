@@ -136,13 +136,13 @@ public class UserService {
         System.out.println("Received updated user:" + updatedUser);
         
         CollectionReference usersRef = firestore.collection("Users");
-        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authID", userId).get();
+        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userId).get();
         
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
         System.out.println(userDocuments);
         
         if (userDocuments.isEmpty()) {
-            throw new RuntimeException("No user found with the provided authID.");
+            throw new RuntimeException("No user found with the provided authId.");
         }
         
         DocumentSnapshot userSnapshot = userDocuments.get(0);
@@ -227,7 +227,7 @@ public class UserService {
         }
         
         Map<String, Object> response = new HashMap<>();
-        response.put("authID", fullUpdatedUser.getAuthID());
+        response.put("authId", fullUpdatedUser.getAuthId());
         
         // To reformat the dateOfBirth back to "yyyy/MM/dd"
         if (fullUpdatedUser.getDateOfBirth() != null) {
@@ -308,12 +308,12 @@ public class UserService {
     public User getUserbyId(String userId) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
         
-        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authID", userId).get();
+        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userId).get();
     
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
     
         if (userDocuments.isEmpty()) {
-            throw new RuntimeException("No user found with the provided authID.");
+            throw new RuntimeException("No user found with the provided authId.");
         }
     
         DocumentSnapshot userSnapshot = userDocuments.get(0);
