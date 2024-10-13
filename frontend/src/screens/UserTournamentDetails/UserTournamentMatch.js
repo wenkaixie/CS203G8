@@ -25,7 +25,7 @@ const UserTournamentMatch = () => {
                 );
                 const tournamentData = response.data;
                 setTournamentTitle(tournamentData.name || 'Tournament');
-                setPlayerCount(tournamentData.participants?.length || 0);
+                setPlayerCount(tournamentData.users?.length || 0);
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
             }

@@ -20,7 +20,7 @@ const UserTournamentParticipants = () => {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
 
-                const participantIds = tournamentData.participants || [];
+                const participantIds = tournamentData.users || [];
 
                 // Fetch user details for each participant 
                 const participantDetails = await Promise.all(

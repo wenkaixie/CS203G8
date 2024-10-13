@@ -64,9 +64,9 @@ const UserDetailsHeader = () => {
             console.log('Tournament Data:', data);
 
             setTournamentData(data);
-            setNumberOfPlayers(data.participants ? data.participants.length : 0);
+            setNumberOfPlayers(data.users ? data.users.length : 0);
 
-            const isCapacityAvailable = data.capacity > (data.participants ? data.participants.length : 0);
+            const isCapacityAvailable = data.capacity > (data.users ? data.users.length : 0);
             const isEloEligible = userElo >= data.eloRequirement;
             const isRegistrationOpen = new Date() < new Date(data.startDatetime);
 
