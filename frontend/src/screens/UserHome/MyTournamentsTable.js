@@ -46,6 +46,7 @@ const MyTournamentsTable = () => {
     const handleOngoingUpcomingButtonChange = (type) => {
         setSortBy('');
         setSortedTournaments(null);
+        setCurrentPage(1);
         if (type === 'ongoing') {
             setOngoingButton(true);
             setUpcomingButton(false);
