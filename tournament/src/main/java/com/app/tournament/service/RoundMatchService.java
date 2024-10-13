@@ -16,6 +16,9 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.Query.Direction;
+import com.google.cloud.firestore.Query;
+
 
 @Service
 public class RoundMatchService {
@@ -78,6 +81,67 @@ public class RoundMatchService {
         }
         return matches;
     }
+
+    // Method to get latest match by user id
+    public RoundMatch getLatestMatchByUserId(String userID) throws InterruptedException, ExecutionException {
+        try {
+            // Log the userID
+            System.out.println("UserID: " + userID);
+    
+            // Fetch matches where the user is either uid1 or uid2
+            ApiFuture<QuerySnapshot> future1 = firestore.collection("RoundMatches")
+                .whereEqualTo("uid1", userID)
+                .orderBy("matchDate", Query.Direction.DESCENDING)
+                .limit(1)
+                .get();
+    
+            ApiFuture<QuerySnapshot> future2 = firestore.collection("RoundMatches")
+                .whereEqualTo("uid2", userID)
+                .orderBy("matchDate", Query.Direction.DESCENDING)
+                .limit(1)
+                .get();
+    
+            // Fetch the documents from both queries
+            List<QueryDocumentSnapshot> documents1 = future1.get().getDocuments();
+            List<QueryDocumentSnapshot> documents2 = future2.get().getDocuments();
+    
+            // Print the document contents for debugging
+            System.out.println("Documents1: " + documents1.size());
+            for (QueryDocumentSnapshot doc : documents1) {
+                System.out.println("Document1 data: " + doc.getData());
+            }
+    
+            System.out.println("Documents2: " + documents2.size());
+            for (QueryDocumentSnapshot doc : documents2) {
+                System.out.println("Document2 data: " + doc.getData());
+            }
+    
+            // If no documents are found, return an empty RoundMatch
+            if (documents1.isEmpty() && documents2.isEmpty()) {
+                return new RoundMatch();
+            }
+    
+            // Find the latest match based on matchDate
+            RoundMatch latestMatch1 = documents1.isEmpty() ? null : documents1.get(0).toObject(RoundMatch.class);
+            RoundMatch latestMatch2 = documents2.isEmpty() ? null : documents2.get(0).toObject(RoundMatch.class);
+    
+            if (latestMatch1 == null) {
+                return latestMatch2 != null ? latestMatch2 : new RoundMatch();
+            } else if (latestMatch2 == null) {
+                return latestMatch1;
+            } else {
+                if (latestMatch1.getMatchDate().isAfter(latestMatch2.getMatchDate())) {
+                    return latestMatch1;
+                } else {
+                    return latestMatch2;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching matches: " + e.getMessage());
+            e.printStackTrace(); // Print stack trace for debugging
+            return new RoundMatch(); // Return empty match in case of error
+        }
+    }    
 
     // Method to update match details
     public String updateMatch(String matchID, RoundMatchDTO updatedMatch)
