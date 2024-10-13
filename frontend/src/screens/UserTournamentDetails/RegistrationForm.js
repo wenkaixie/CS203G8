@@ -68,7 +68,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
             );
 
             alert(response.data);
-            onSubmit({ authId }); // Trigger the onSubmit callback with authId only
+            onSubmit({ authId }); 
             closeForm(); // Close the form after submission
         } catch (error) {
             console.error('Error registering user:', error);
