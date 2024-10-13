@@ -68,6 +68,7 @@ public class UserService {
         }
     
         List<String> tournamentUsers = tournament.getUsers();
+        System.out.println("Tournament size: " + tournamentUsers.size());
 
         Long capacityCountLong = tournamentSnapshot.getLong("capacity");
         int capacityCount = (capacityCountLong != null) ? capacityCountLong.intValue() : 0;
@@ -102,8 +103,12 @@ public class UserService {
         if (user == null) {
             return "Error retrieving user data.";
         }
+
+        // Print user's registration history to the logs
+        List<String> registrationHistory = user.getRegistrationHistory();
+        System.out.println("User's Registration History: " + registrationHistory);
     
-        if (tournamentUsers.contains(user.getAuthId())) {
+        if (tournamentUsers.contains(user.getAuthId()) || registrationHistory.contains(tournamentId)) {
             return "User already registered for this tournament.";
         }
     
@@ -138,7 +143,6 @@ public class UserService {
     
         // If all checks pass, register the user
         tournamentUsers.add(user.getAuthId());
-        List<String> registrationHistory = user.getRegistrationHistory();
         registrationHistory.add(tournamentId);
     
         ApiFuture<WriteResult> tournamentUpdate = tournamentRef.update("users", tournamentUsers);
