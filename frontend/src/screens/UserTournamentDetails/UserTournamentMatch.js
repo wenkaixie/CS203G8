@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import './UserTournamentMatch.css';
 import Header from './UserDetailsHeader';
 import { useParams } from 'react-router-dom';
-import UserTournamentMatchDiagram from './UserTournamentMatchDiagram';
+import UserTournamentMatchDiagram from './UserTournamentMatchDiagram'; 
 
 const UserTournamentMatch = () => {
-    const { tournamentId } = useParams(); // Get the tournamentId from the URL
+    const { tournamentId } = useParams(); 
     const [matches, setMatches] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredMatches, setFilteredMatches] = useState([]);
     const [sortBy, setSortBy] = useState('');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [selectedRound, setSelectedRound] = useState(''); // Initially, empty to display "All rounds"
+    const [selectedRound, setSelectedRound] = useState('');
     const [availableRounds, setAvailableRounds] = useState([]);
     const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
-    const [activeView, setActiveView] = useState('diagram'); // State to control active view
+    const [activeView, setActiveView] = useState('diagram'); 
 
-    // Fetch tournament details including the number of players and title
     useEffect(() => {
         const fetchTournamentDetails = async () => {
             try {
@@ -31,26 +30,22 @@ const UserTournamentMatch = () => {
                 console.error('Error fetching tournament details:', error);
             }
         };
-
         fetchTournamentDetails();
     }, [tournamentId]);
 
-    // Fetch rounds for the tournament
     useEffect(() => {
         const fetchRounds = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/rounds`);
+                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/allRounds`);
                 const data = await response.json();
                 setAvailableRounds(data);
             } catch (error) {
                 console.error('Error fetching rounds:', error);
             }
         };
-
         fetchRounds();
     }, [tournamentId]);
 
-    // Fetch matches for the selected round
     useEffect(() => {
         const fetchMatches = async () => {
             try {
@@ -58,38 +53,22 @@ const UserTournamentMatch = () => {
                 const response = await fetch(`http://localhost:8080/api/rounds/${roundId}/matches`);
                 const matchesData = await response.json();
 
-                const enhancedMatches = await Promise.all(
-                    matchesData.map(async (match) => {
-                        const player1Response = await fetch(`http://localhost:9090/api/Users/${match.uid1}`);
-                        const player2Response = await fetch(`http://localhost:9090/api/Users/${match.uid2}`);
-
-                        const player1Data = await player1Response.json();
-                        const player2Data = await player2Response.json();
-
-                        return {
-                            ...match,
-                            player1: player1Data.name || 'Player 1',
-                            rating1: player1Data.elo || 'N/A',
-                            nationality1: player1Data.nationality || 'N/A',
-                            player2: player2Data.name || 'Player 2',
-                            rating2: player2Data.elo || 'N/A',
-                            nationality2: player2Data.nationality || 'N/A',
-                        };
-                    })
-                );
-
-                setMatches(enhancedMatches);
-                setFilteredMatches(enhancedMatches);
+                if (Array.isArray(matchesData)) {
+                    setMatches(matchesData);
+                    setFilteredMatches(matchesData);
+                } else {
+                    setMatches([]);
+                    setFilteredMatches([]);
+                }
             } catch (error) {
                 console.error('Error fetching matches:', error);
+                setMatches([]);
+                setFilteredMatches([]);
             }
         };
-
         fetchMatches();
     }, [selectedRound]);
 
-    const handleListButtonClick = () => setActiveView('list');
-    const handleDiagramButtonClick = () => setActiveView('diagram');
     const handleSearch = (e) => setSearchTerm(e.target.value);
     const toggleDropdown = () => setIsDropdownVisible(!isDropdownVisible);
 
@@ -98,15 +77,11 @@ const UserTournamentMatch = () => {
         setIsDropdownVisible(false);
     };
 
-    const handleSortChange = (criteria) => {
-        setSortBy(criteria);
-        setIsDropdownVisible(false);
-    };
+    const handleListViewClick = () => setActiveView('list');
+    const handleDiagramViewClick = () => setActiveView('diagram');
 
-    // Filter and sort matches based on search term and sorting criteria
     useEffect(() => {
         let updatedList = matches;
-
         if (searchTerm) {
             updatedList = updatedList.filter(
                 (match) =>
@@ -116,34 +91,39 @@ const UserTournamentMatch = () => {
                     match.location.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
-
         if (sortBy) {
-            updatedList = updatedList.sort((a, b) => 
+            updatedList = updatedList.sort((a, b) =>
                 sortBy === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)
             );
         }
-
         setFilteredMatches(updatedList);
     }, [searchTerm, matches, sortBy]);
 
     return (
         <div>
             <Header tournamentTitle={tournamentTitle} playerCount={playerCount} />
-
             <div className="user-tournament-match">
                 <div className="controls-container">
-                    <div className="user-diagram-header-buttons">
+                    <div className="view-buttons">
                         <button
-                            onClick={handleDiagramButtonClick}
-                            className={`user-diagram-header-button ${activeView === 'diagram' ? 'active' : ''}`}
+                            className={`list-view-button ${activeView === 'list' ? 'active' : ''}`}
+                            onClick={handleListViewClick}
                         >
-                            Diagram
+                            <img
+                                src={require('../../assets/images/List-view.png')}
+                                alt="List View"
+                                className="view-icon"
+                            />
                         </button>
                         <button
-                            onClick={handleListButtonClick}
-                            className={`user-diagram-header-button ${activeView === 'list' ? 'active' : ''}`}
+                            className={`image-view-button ${activeView === 'diagram' ? 'active pink' : ''}`}
+                            onClick={handleDiagramViewClick}
                         >
-                            List
+                            <img
+                                src={require('../../assets/images/Image-view.png')}
+                                alt="Image View"
+                                className="view-icon"
+                            />
                         </button>
                     </div>
 
@@ -176,10 +156,7 @@ const UserTournamentMatch = () => {
                         </button>
                         {isDropdownVisible && (
                             <div className="dropdown-content">
-                                <div
-                                    className="dropdown-item"
-                                    onClick={() => handleRoundSelection('')}
-                                >
+                                <div className="dropdown-item" onClick={() => handleRoundSelection('')}>
                                     All rounds
                                 </div>
                                 {availableRounds.map((round, index) => (
@@ -197,47 +174,51 @@ const UserTournamentMatch = () => {
                 </div>
 
                 {activeView === 'list' ? (
-                    <div className="match-list">
-                        {filteredMatches.map((match, index) => (
-                            <div key={index}>
-                                <div className="round-title">Round {match.roundNumber}</div>
-                                <table className="matches-table">
-                                    <thead>
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Date</th>
-                                            <th>Location</th>
-                                            <th>Player 1</th>
-                                            <th>Rating</th>
-                                            <th>Nationality</th>
-                                            <th>Result</th>
-                                            <th></th>
-                                            <th>Result</th>
-                                            <th>Player 2</th>
-                                            <th>Rating</th>
-                                            <th>Nationality</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{index + 1}</td>
-                                            <td>{match.matchDate}</td>
-                                            <td>{match.location}</td>
-                                            <td>{match.player1}</td>
-                                            <td>{match.rating1}</td>
-                                            <td>{match.nationality1}</td>
-                                            <td>{match.user1Score}</td>
-                                            <td className="vs-text">VS</td>
-                                            <td>{match.user2Score}</td>
-                                            <td>{match.player2}</td>
-                                            <td>{match.rating2}</td>
-                                            <td>{match.nationality2}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        ))}
-                    </div>
+                    Array.isArray(filteredMatches) && filteredMatches.length > 0 ? (
+                        <div className="match-list">
+                            {filteredMatches.map((match, index) => (
+                                <div key={index}>
+                                    <div className="round-title">Round {match.roundNumber}</div>
+                                    <table className="matches-table">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Date</th>
+                                                <th>Location</th>
+                                                <th>Player 1</th>
+                                                <th>Rating</th>
+                                                <th>Nationality</th>
+                                                <th>Result</th>
+                                                <th></th>
+                                                <th>Result</th>
+                                                <th>Player 2</th>
+                                                <th>Rating</th>
+                                                <th>Nationality</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{index + 1}</td>
+                                                <td>{match.matchDate}</td>
+                                                <td>{match.location}</td>
+                                                <td>{match.player1}</td>
+                                                <td>{match.rating1}</td>
+                                                <td>{match.nationality1}</td>
+                                                <td>{match.user1Score}</td>
+                                                <td className="vs-text">VS</td>
+                                                <td>{match.user2Score}</td>
+                                                <td>{match.player2}</td>
+                                                <td>{match.rating2}</td>
+                                                <td>{match.nationality2}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p>No matches found.</p>
+                    )
                 ) : (
                     <UserTournamentMatchDiagram />
                 )}

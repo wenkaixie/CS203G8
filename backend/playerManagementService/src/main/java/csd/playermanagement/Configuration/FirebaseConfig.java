@@ -22,9 +22,9 @@ public class FirebaseConfig {
     @PostConstruct
     public void initialize() {
         try {
-            // Hardcoded path to Firebase service account key file
+            // Updated path to Firebase service account key file
             FileInputStream serviceAccount = 
-                new FileInputStream("/Users/gohrayjiet/Documents/CSD/serviceAccountKey.json");
+                new FileInputStream("C:\\CS203G8\\serviceAccountKey.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
