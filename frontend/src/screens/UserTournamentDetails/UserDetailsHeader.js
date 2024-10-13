@@ -93,7 +93,7 @@ const UserDetailsHeader = () => {
         setRegistrationError('');
     };
 
-    const handleFormSubmit = (userDetails) => {
+    const handleFormSubmit = (authId) => {
         setIsRegistered(true);
         setNumberOfPlayers((prev) => prev + 1);
         setShowRegistrationForm(false);

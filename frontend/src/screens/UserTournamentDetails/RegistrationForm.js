@@ -16,8 +16,8 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
         const user = auth.currentUser;
 
         if (user) {
-            const uid = user.uid; 
-            fetchUserDetails(uid); 
+            const uid = user.uid;
+            fetchUserDetails(uid);
         } else {
             console.error('No user is signed in.');
         }
@@ -26,7 +26,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
     const fetchUserDetails = async (uid) => {
         try {
             const response = await axios.get(
-                `http://localhost:9090/user/getUser/${uid}` 
+                `http://localhost:9090/user/getUser/${uid}`
             );
             const userData = response.data;
 
@@ -60,22 +60,15 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
     };
 
     const handleSubmit = async () => {
-        const userDetails = {
-            authId, // Store `authId` in the tournament database
-            name: fullName,
-            dateOfBirth: age,
-            nationality,
-            email,
-        };
-
         try {
+            // Send only authId to the API
             const response = await axios.post(
                 `http://localhost:9090/user/registerTournament/${tournamentID}`,
-                userDetails
+                { authId }  // Only send authId
             );
 
             alert(response.data);
-            onSubmit(userDetails); // Trigger the onSubmit callback with user details
+            onSubmit({ authId }); // Trigger the onSubmit callback with authId only
             closeForm(); // Close the form after submission
         } catch (error) {
             console.error('Error registering user:', error);
