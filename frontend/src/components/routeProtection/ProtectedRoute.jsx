@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
                         // Check if the user exists in the 'User' collection
                         const userQuery = query(collection(FirestoreDB, 'Users'), where('authId', '==', user.uid));
                         const userSnapshot = await getDocs(userQuery);
-            
+                        
                         if (!userSnapshot.empty) {
                             userRole = 'Users';
                             console.log("User role: ", userRole);

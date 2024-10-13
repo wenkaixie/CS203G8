@@ -33,7 +33,8 @@ const Login = () => {
                     setLoading(true);
                     //console.log("User logged in:", user.email);
                     const role = await getUserRole(user.email); // Await role checking
-                    //console.log("User role:", role);   
+                    
+                    // console.log("User role:", role);   
 
                     // Redirect user to the appropriate home page based on the collection they belong to
                     if (role === 'Users') {

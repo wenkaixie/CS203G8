@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import axios from 'axios';
+import { getAuth } from "firebase/auth";
 
 const UpcomingTournamentsTable = () => {
     const [eligibleButton, setEligibleButton] = useState(true);
@@ -16,11 +17,12 @@ const UpcomingTournamentsTable = () => {
     const [tournaments, setTournaments] = useState([]);
 
     const navigate = useNavigate();
+    const auth = getAuth();
 
     // Fetch eligible upcoming tournaments
     const fetchEligibleUpcomingTournaments = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/tournaments/ongoing');
+            const response = await axios.get(`http://localhost:8080/api/tournaments/eligible/${auth.currentUser.uid}`);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching eligible tournaments:', error);
@@ -30,7 +32,7 @@ const UpcomingTournamentsTable = () => {
     // Fetch all upcoming tournaments
     const fetchAllUpcomingTournaments = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/tournaments/upcoming'); // TODO replace with eligible
+            const response = await axios.get(`http://localhost:8080/api/tournaments`);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching all tournaments:', error);
@@ -44,6 +46,7 @@ const UpcomingTournamentsTable = () => {
     const handleEligibleAllButtonChange = (type) => {
         setSortBy('');
         setSortedTournaments(null);
+        setCurrentPage(1);
         if (type === 'eligible') {
             setEligibleButton(true);
             setAllButton(false);
