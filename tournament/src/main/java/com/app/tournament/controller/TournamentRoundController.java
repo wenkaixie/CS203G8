@@ -56,7 +56,7 @@ public class TournamentRoundController {
     }
 
     // Get all rounds of a specific tournament
-    @GetMapping("/{tournamentId}/rounds")
+    @GetMapping("/{tournamentId}/allRounds")
     public ResponseEntity<List<TournamentRound>> getRoundsByTournamentId(
             @PathVariable String tournamentId) {
         try {

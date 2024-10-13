@@ -1,63 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom'; 
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
+import axios from 'axios';
 import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
 import RegistrationForm from './RegistrationForm';
 
-const UserDetailsHeader = ({ userElo }) => {
-    const { tournamentId } = useParams(); // Dynamically get tournamentId from URL parameters
-    const location = useLocation(); // Track the current route
-    const navigate = useNavigate(); // Hook to handle navigation
+const UserDetailsHeader = () => {
+    const { tournamentId } = useParams();
+    const location = useLocation();
+    const navigate = useNavigate();
 
-    const [activeTab, setActiveTab] = useState('overview'); // Track active tab
-    const [isRegistered, setIsRegistered] = useState(false); 
-    const [showRegistrationForm, setShowRegistrationForm] = useState(false); 
+    const [activeTab, setActiveTab] = useState('overview');
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [showRegistrationForm, setShowRegistrationForm] = useState(false);
     const [tournamentData, setTournamentData] = useState({});
     const [numberOfPlayers, setNumberOfPlayers] = useState(0);
-    const [isEligible, setIsEligible] = useState(false); 
-    const [registrationError, setRegistrationError] = useState(''); 
-    const [userUid, setUserUid] = useState(null); 
+    const [isEligible, setIsEligible] = useState(false);
+    const [registrationError, setRegistrationError] = useState('');
+    const [userUid, setUserUid] = useState(null);
+    const [userElo, setUserElo] = useState(null); // State to store user's Elo rating
 
-    // Update activeTab based on the current URL path
     useEffect(() => {
-        const path = location.pathname.split('/').pop(); // Get the current tab from the URL
-        setActiveTab(path); // Set it as the active tab
+        const path = location.pathname.split('/').pop();
+        setActiveTab(path);
     }, [location.pathname]);
 
-    // Fetch tournament details and current user UID
     useEffect(() => {
         const auth = getAuth();
         const user = auth.currentUser;
 
         if (user) {
-            setUserUid(user.uid); 
-
-            const fetchTournamentData = async () => {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                    if (!response.ok) throw new Error('Failed to fetch tournament data');
-
-                    const data = await response.json();
-                    setTournamentData(data);
-                    setNumberOfPlayers(data.users ? data.users.length : 0); 
-
-                    if (userElo >= data.eloRequirement) {
-                        setIsEligible(true);
-                    }
-                } catch (error) {
-                    console.error("Failed to fetch tournament data:", error);
-                }
-            };
-            fetchTournamentData();
+            const uid = user.uid;
+            setUserUid(uid);
+            fetchUserDetails(uid); // Fetch user Elo and details
         } else {
             console.error('No user is signed in');
         }
-    }, [tournamentId, userElo]);
+    }, [tournamentId]);
 
-    const availableSlots = tournamentData.capacity 
-        ? tournamentData.capacity - numberOfPlayers 
-        : 0;
+    // Fetch the user's Elo from the backend or Firebase
+    const fetchUserDetails = async (uid) => {
+        try {
+            const response = await axios.get(`http://localhost:9090/user/getUser/${uid}`);
+            const userData = response.data;
+
+            console.log('User Data:', userData);
+
+            setUserElo(userData.elo || 0); // Store user's Elo rating
+            fetchTournamentData(userData.elo); // Pass Elo to the tournament eligibility function
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
+        }
+    };
+
+    const fetchTournamentData = async (userElo) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:8080/api/tournaments/${tournamentId}`
+            );
+            const data = response.data;
+            
+            console.log('Tournament Data:', data);
+
+            setTournamentData(data);
+            setNumberOfPlayers(data.participants ? data.participants.length : 0);
+
+            const isCapacityAvailable = data.capacity > (data.participants ? data.participants.length : 0);
+            const isEloEligible = userElo >= data.eloRequirement;
+            const isRegistrationOpen = new Date() < new Date(data.startDatetime);
+
+            console.log('Eligibility Conditions:', {
+                isCapacityAvailable,
+                isEloEligible,
+                isRegistrationOpen,
+            });
+
+            setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
+        } catch (error) {
+            console.error('Failed to fetch tournament data:', error);
+        }
+    };
 
     const handleRegisterClick = () => {
         if (isEligible && !isRegistered) {
@@ -70,47 +93,77 @@ const UserDetailsHeader = ({ userElo }) => {
         setRegistrationError('');
     };
 
-    const handleFormSubmit = async (userDetails) => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    uid: userUid,
-                    fullName: userDetails.fullName,
-                    age: userDetails.age,
-                    location: userDetails.location,
-                }),
-            });
-
-            if (!response.ok) throw new Error('Failed to register. Please try again.');
-
-            setIsRegistered(true);
-            setNumberOfPlayers((prev) => prev + 1);
-            setShowRegistrationForm(false);
-        } catch (error) {
-            setRegistrationError(error.message);
-            setIsRegistered(false);
-        }
+    const handleFormSubmit = (authId) => {
+        setIsRegistered(true);
+        setNumberOfPlayers((prev) => prev + 1);
+        setShowRegistrationForm(false);
     };
 
     const handleTabNavigation = (tab) => {
         navigate(`/user/tournament/${tournamentId}/${tab}`);
     };
 
+    const availableSlots = tournamentData.capacity
+        ? tournamentData.capacity - numberOfPlayers
+        : 0;
+
     return (
         <div className="header-wrapper">
             <Navbar />
 
             <div className="header-container">
-                <div className="header-left">
-                    <button className="back-button" onClick={() => navigate('/user/home')}>
-                        {'<'}
-                    </button>
-                    <h1 className="tournament-title">
-                        {tournamentData.name || 'Tournament'}
-                    </h1>
+                <div className="title-info-wrapper">
+                    <div className="header-left">
+                        <button className="back-button" onClick={() => navigate('/user/home')}>
+                            {'<'}
+                        </button>
+                        <h1 className="tournament-title">{tournamentData.name || 'Tournament'}</h1>
+                    </div>
+
+                    <div className="info-container">
+                        <div className="info-box">
+                            <span className="icon">🕒</span>
+                            <div>
+                                <span className="info-text">
+                                    {tournamentData.startDatetime
+                                        ? new Date(tournamentData.startDatetime).toLocaleDateString('en-US', {
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric',
+                                          })
+                                        : 'N/A'}
+                                    {' - '}
+                                    {tournamentData.endDatetime
+                                        ? new Date(tournamentData.endDatetime).toLocaleDateString('en-US', {
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric',
+                                          })
+                                        : 'N/A'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="info-box">
+                            <span className="icon">💰</span>
+                            <div>
+                                <span className="info-text">${tournamentData.prize || 'N/A'}</span>
+                                <span className="sub-text">Total prize pool</span>
+                            </div>
+                        </div>
+
+                        <div className="info-box">
+                            <span className="icon">✔️</span>
+                            <div>
+                                <span className="info-text">
+                                    {availableSlots >= 0 ? availableSlots : 'N/A'}
+                                </span>
+                                <span className="sub-text">Available slots</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div className="registration-container">
                     <button
                         className={isRegistered ? 'registered-button' : 'register-button'}
@@ -119,49 +172,7 @@ const UserDetailsHeader = ({ userElo }) => {
                     >
                         {isRegistered ? 'Registered' : isEligible ? 'Register' : 'Not Eligible'}
                     </button>
-                    <div className="players-count">
-                        <span>Players:</span>
-                        <span>{numberOfPlayers}</span>
-                    </div>
-                </div>
-            </div>
-
-            {registrationError && <p className="error-message">{registrationError}</p>}
-
-            <div className="tournament-info">
-                <div className="info-box">
-                    <span className="icon">🕒</span>
-                    <div>
-                        <span className="info-text">
-                            {tournamentData.startDatetime 
-                                ? new Date(tournamentData.startDatetime).toLocaleDateString('en-US', {
-                                      year: 'numeric', month: 'short', day: 'numeric',
-                                  }) 
-                                : 'N/A'}
-                            {' - '}
-                            {tournamentData.endDatetime 
-                                ? new Date(tournamentData.endDatetime).toLocaleDateString('en-US', {
-                                      year: 'numeric', month: 'short', day: 'numeric',
-                                  }) 
-                                : 'N/A'}
-                        </span>
-                    </div>
-                </div>
-                <div className="info-box">
-                    <span className="icon">💰</span>
-                    <div>
-                        <span className="info-text">${tournamentData.prize || 'N/A'}</span>
-                        <span className="sub-text">Total prize pool</span>
-                    </div>
-                </div>
-                <div className="info-box">
-                    <span className="icon">✔️</span>
-                    <div>
-                        <span className="info-text">
-                            {availableSlots >= 0 ? availableSlots : 'N/A'}
-                        </span>
-                        <span className="sub-text">Available slots</span>
-                    </div>
+                    <div className="players-count">Players: {numberOfPlayers}</div>
                 </div>
             </div>
 
@@ -178,6 +189,8 @@ const UserDetailsHeader = ({ userElo }) => {
                     ))}
                 </ul>
             </div>
+
+            {registrationError && <p className="error-message">{registrationError}</p>}
 
             {showRegistrationForm && (
                 <RegistrationForm

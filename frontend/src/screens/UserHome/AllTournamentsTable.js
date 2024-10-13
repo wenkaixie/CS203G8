@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import './UpcomingTournamentsTable.css';
+import './AllTournamentsTable.css';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import axios from 'axios';
+import { getAuth } from "firebase/auth";
 
-const UpcomingTournamentsTable = () => {
+const AllTournamentsTable = () => {
     const [eligibleButton, setEligibleButton] = useState(true);
     const [allButton, setAllButton] = useState(false);
     const [sortedTournaments, setSortedTournaments] = useState(null); // Initially null
@@ -16,11 +17,12 @@ const UpcomingTournamentsTable = () => {
     const [tournaments, setTournaments] = useState([]);
 
     const navigate = useNavigate();
+    const auth = getAuth();
 
     // Fetch eligible upcoming tournaments
     const fetchEligibleUpcomingTournaments = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/tournaments/ongoing');
+            const response = await axios.get(`http://localhost:8080/api/tournaments/eligible/${auth.currentUser.uid}`);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching eligible tournaments:', error);
@@ -30,7 +32,7 @@ const UpcomingTournamentsTable = () => {
     // Fetch all upcoming tournaments
     const fetchAllUpcomingTournaments = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/tournaments/upcoming'); // TODO replace with eligible
+            const response = await axios.get(`http://localhost:8080/api/tournaments`);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching all tournaments:', error);
@@ -44,6 +46,7 @@ const UpcomingTournamentsTable = () => {
     const handleEligibleAllButtonChange = (type) => {
         setSortBy('');
         setSortedTournaments(null);
+        setCurrentPage(1);
         if (type === 'eligible') {
             setEligibleButton(true);
             setAllButton(false);
@@ -79,7 +82,7 @@ const UpcomingTournamentsTable = () => {
         } else if (criteria === 'Slots') {
             sortedList.sort((a, b) => a.capacity - b.capacity);
         } else if (criteria === 'Prize') {
-            sortedList.sort((a, b) => a.prizePool - b.prizePool);
+            sortedList.sort((a, b) => a.prize - b.prize);
         }
         setSortedTournaments(sortedList); // Set the sorted tournaments
         setSortBy(criteria);
@@ -174,7 +177,7 @@ const UpcomingTournamentsTable = () => {
                             <td>{tournament.location}</td>
                             <td>{tournament.capacity}</td>
                             <td>{tournament.status || 'empty'}</td>
-                            <td>{tournament.prizePool}</td>
+                            <td>${tournament.prize}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -212,4 +215,4 @@ const UpcomingTournamentsTable = () => {
     );
 };
 
-export default UpcomingTournamentsTable;
+export default AllTournamentsTable;

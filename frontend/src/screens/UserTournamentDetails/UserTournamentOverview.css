@@ -3,16 +3,21 @@ body {
     font-family: 'Josefin Sans', sans-serif;
     margin: 0;
     padding: 0;
+    height: 100vh; /* Ensure the body takes up the full viewport height */
 }
 
 /* Tournament Overview Container */
 .tournament-overview {
-    padding: 50px 100px; /* Reduced padding for better height adjustment */
+    min-height: 100vh; /* Ensure full height coverage */
+    padding: 50px 100px;
     width: 100%;
     background-color: #F5F5EF;
     margin: 20px auto;
-    margin-top: 270px;
-    margin-bottom: -30px;
+    margin-top: 230px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribute content evenly */
+    box-sizing: border-box;
 }
 
 /* Tournament Description */
@@ -27,11 +32,11 @@ body {
 .tournament-details {
     font-size: 1rem;
     color: #333;
-    margin-bottom: 20px; /* Add bottom margin to ensure spacing */
+    margin-bottom: 20px;
 }
 
 .detail-row {
-    margin-bottom: 15px; /* Adjusted to control spacing between rows */
+    margin-bottom: 15px;
 }
 
 .detail-row strong {
@@ -44,7 +49,7 @@ body {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    margin-bottom: 20px; /* Spacing below the prizes section */
+    margin-bottom: 20px;
 }
 
 .prize-total-box,
@@ -93,8 +98,8 @@ body {
 
 /* Organizer and Official Partners Styling */
 .organizer-container {
-    margin-top: 30px; /* Reduced top margin for better fit */
-    margin-bottom: 0; /* Remove bottom margin */
+    margin-top: 30px;
+    margin-bottom: 0;
 }
 
 .organizer-container strong {
@@ -106,6 +111,18 @@ body {
     font-size: 1rem;
     color: #333;
     margin-top: 5px;
+}
+
+/* Ensure Full Bottom Coverage */
+html, body {
+    height: 100%; /* Ensure the HTML and body elements cover the full height */
+}
+
+.tournament-overview::after {
+    content: '';
+    display: block;
+    height: 50px; /* Extra height to ensure full coverage */
+    background-color: #F5F5EF;
 }
 
 /* Responsive Design */
@@ -126,6 +143,6 @@ body {
     .prize-breakdown-box,
     .prize-table td {
         width: 100%;
-        text-align: center; /* Center text on smaller screens */
+        text-align: center;
     }
 }

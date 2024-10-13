@@ -18,20 +18,17 @@ import com.google.firebase.cloud.FirestoreClient;
 @Configuration
 public class FirebaseConfig {
 
-    
-
     @PostConstruct
     public void initialize() {
         try {
-            // Firebase SDK credential file
+            // Firebase SDK credential file (Updated file path)
             FileInputStream serviceAccount = 
-            // correct one
-            new FileInputStream("C:\\\\Users\\\\xwkof\\\\Documents\\\\SMU CS\\\\CS203 WK\\\\CS203G8\\\\CS203G8\\\\backend\\\\serviceAccountKey.json");
+                new FileInputStream("C:\\CS203G8\\serviceAccountKey.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
                 .build();
-                
+
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
             }
@@ -46,4 +43,3 @@ public class FirebaseConfig {
         return FirestoreClient.getFirestore(defaultApp);
     }
 }
-

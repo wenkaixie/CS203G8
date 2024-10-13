@@ -46,6 +46,7 @@ const MyTournamentsTable = () => {
     const handleOngoingUpcomingButtonChange = (type) => {
         setSortBy('');
         setSortedTournaments(null);
+        setCurrentPage(1);
         if (type === 'ongoing') {
             setOngoingButton(true);
             setUpcomingButton(false);
@@ -81,7 +82,7 @@ const MyTournamentsTable = () => {
         } else if (criteria === 'Slots') {
             sortedList.sort((a, b) => a.capacity - b.capacity);
         } else if (criteria === 'Prize') {
-            sortedList.sort((a, b) => a.prizePool - b.prizePool);
+            sortedList.sort((a, b) => a.prize - b.prize);
         }
         setSortedTournaments(sortedList); // Set the sorted tournaments
         setSortBy(criteria);
@@ -176,7 +177,7 @@ const MyTournamentsTable = () => {
                             <td>{tournament.location}</td>
                             <td>{tournament.capacity}</td>
                             <td>{tournament.status || 'empty'}</td>
-                            <td>{tournament.prizePool}</td>
+                            <td>${tournament.prize}</td>
                         </tr>
                     ))}
                 </tbody>

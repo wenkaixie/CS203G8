@@ -5,24 +5,29 @@ body {
     font-family: 'Josefin Sans', sans-serif;
     margin: 0;
     padding: 0;
+    height: 100vh; /* Ensures the body takes the full height of the viewport */
 }
 
 /* User Tournament Container */
 .user-tournament-participants {
+    min-height: 100vh; /* Ensures the section covers the full height of the viewport */
     padding: 300px 40px;
     width: 100%;
-    margin-top: -25px;
+    margin-top: -70px;
     background-color: #F5F5EF;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures content spreads evenly */
 }
 
 /* Controls Container for Search and Filters */
 .user-tournament-participants .controls-container {
     display: flex;
-    justify-content: space-between; /* Adjust to space-between */
+    justify-content: space-between; 
     align-items: center;
     width: 100%;
-    max-width: 1450px; /* Adjusted to match UserTournamentMatch */
+    max-width: 1450px;
     margin: 25px auto 30px;
     padding: 0 20px;
     box-sizing: border-box;
@@ -123,7 +128,7 @@ body {
 /* Tournament Table Container */
 .user-tournament-participants .participants-list {
     width: 100%;
-    max-width: 1450px; /* Adjusted to match UserTournamentMatch */
+    max-width: 1450px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -160,6 +165,18 @@ body {
 
 .user-tournament-participants .participants-table tr:hover {
     background-color: #f0f0f0;
+}
+
+/* Ensure Full Coverage of the Bottom */
+html, body {
+    height: 100%; /* Ensure that the HTML and body elements cover the full height of the viewport */
+}
+
+.user-tournament-participants::after {
+    content: '';
+    display: block;
+    height: 100px; /* Extra space to ensure full coverage */
+    background-color: #F5F5EF;
 }
 
 /* Responsive Adjustments */

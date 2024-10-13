@@ -17,8 +17,8 @@ public class EloUpdateRequest {
     // private Double Elo2;
 
     @JsonProperty("AS1")
-    private int AS1;
+    private double AS1;
 
     @JsonProperty("AS2")
-    private int AS2;
+    private double AS2;
 }
