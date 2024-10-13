@@ -3,7 +3,7 @@ import './UserHome.css';
 import Navbar from '../../components/navbar/Navbar';
 import MatchCard from './MatchCard';
 import MyTournamentsTable from './MyTournamentsTable';
-import UpcomingTournamentsTable from './UpcomingTournamentsTable';
+import AllTournamentsTable from './AllTournamentsTable';
 import { useNavigate } from 'react-router-dom';
 import TournamentCarousel from './TournamentCarousel';
 import Divider from '@mui/material/Divider';
@@ -38,7 +38,7 @@ const Dashboard = () => {
         <div className='dashboard-col-inner'>
           <MyTournamentsTable />
           <Divider sx={{ my: 0.5 }} />
-          <UpcomingTournamentsTable />
+          <AllTournamentsTable />
         </div>
       </div>
     </div>
