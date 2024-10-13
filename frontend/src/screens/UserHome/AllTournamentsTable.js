@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import './UpcomingTournamentsTable.css';
+import './AllTournamentsTable.css';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
 
-const UpcomingTournamentsTable = () => {
+const AllTournamentsTable = () => {
     const [eligibleButton, setEligibleButton] = useState(true);
     const [allButton, setAllButton] = useState(false);
     const [sortedTournaments, setSortedTournaments] = useState(null); // Initially null
@@ -82,7 +82,7 @@ const UpcomingTournamentsTable = () => {
         } else if (criteria === 'Slots') {
             sortedList.sort((a, b) => a.capacity - b.capacity);
         } else if (criteria === 'Prize') {
-            sortedList.sort((a, b) => a.prizePool - b.prizePool);
+            sortedList.sort((a, b) => a.prize - b.prize);
         }
         setSortedTournaments(sortedList); // Set the sorted tournaments
         setSortBy(criteria);
@@ -177,7 +177,7 @@ const UpcomingTournamentsTable = () => {
                             <td>{tournament.location}</td>
                             <td>{tournament.capacity}</td>
                             <td>{tournament.status || 'empty'}</td>
-                            <td>{tournament.prizePool}</td>
+                            <td>${tournament.prize}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -215,4 +215,4 @@ const UpcomingTournamentsTable = () => {
     );
 };
 
-export default UpcomingTournamentsTable;
+export default AllTournamentsTable;
