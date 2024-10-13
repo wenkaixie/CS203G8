@@ -35,8 +35,10 @@ public class EloController {
         // Initialize variables to store the Elo ratings
         Double elo1;
         Double elo2;
-
-        logger.info("Received updateElo request: request={}", request);
+        
+        if (userId1 == null || userId1.isEmpty() || userId2 == null || userId2.isEmpty()) {
+            return createErrorResponse("userId1 and userId2 are required.", HttpStatus.BAD_REQUEST);
+        }
 
         try {
             // Retrieve userId1's document from Firebase and get Elo1
@@ -60,25 +62,26 @@ public class EloController {
             if (elo2 == null) {
                 return createErrorResponse("User 2's Elo rating is not found.", HttpStatus.BAD_REQUEST);
             }
-
-            logger.debug("user1 Elo: {}, user2 Elo: {}", elo1, elo2);
     
         } catch (ExecutionException | InterruptedException e) {
             logger.error("Error retrieving users from Firebase: {}", e.getMessage(), e);
             return createErrorResponse("Error retrieving users from Firebase: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
-
-        if (userId1 == null || userId1.isEmpty() || userId2 == null || userId2.isEmpty()) {
-            return createErrorResponse("userId1 and userId2 are required.", HttpStatus.BAD_REQUEST);
-        }
 
         logger.info("Received updateElo request: userId1={}, userId2={}, request={}", userId1, userId2, request);
 
-        int AS1 = request.getAS1();
-        int AS2 = request.getAS2();
+        double AS1 = request.getAS1();
+        double AS2 = request.getAS2();
         if (!(AS1 == 0 || AS1 == 0.5 || AS1 == 1) || !(AS2 == 0 || AS2 == 0.5 || AS2 == 1)) {
             return createErrorResponse("AS1 and AS2 must be 0, 0.5, or 1.", HttpStatus.BAD_REQUEST);
+        }
+        
+        if (AS1 == AS2 && AS1 != 0.5) {
+            return createErrorResponse("AS1 and AS2 must be different or 0.5 each.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (elo1 < 0 || elo2 < 0) {
+            return createErrorResponse("Elo1 and Elo2 must be non-negative.", HttpStatus.BAD_REQUEST);
         }
 
         try {
