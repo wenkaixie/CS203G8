@@ -4,6 +4,7 @@ import filterIcon from '../../assets/images/Adjust.png';
 import searchIcon from '../../assets/images/Search.png';
 import Navbar from '../../components/navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const UserTournaments = ({ currentUserId }) => {
     const [activeTab, setActiveTab] = useState('upcoming');
@@ -20,13 +21,8 @@ const UserTournaments = ({ currentUserId }) => {
     useEffect(() => {
         const fetchTournaments = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/tournaments');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const tournamentList = await response.json();
-                setTournaments(tournamentList);
+                const response = await axios.get('http://localhost:8080/api/tournaments');
+                setTournaments(response.data);
             } catch (error) {
                 console.error("Error fetching tournaments:", error);
             }
@@ -52,7 +48,7 @@ const UserTournaments = ({ currentUserId }) => {
 
     // Check if the current user is registered for a tournament
     const isPlayerRegistered = (tournament) => {
-        return tournament.users && tournament.users.includes(currentUserId);
+        return tournament.participants && tournament.participants.includes(currentUserId);
     };
 
     const handleRowClick = (tournamentId) => {

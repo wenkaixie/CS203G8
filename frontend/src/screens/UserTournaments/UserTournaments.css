@@ -114,7 +114,7 @@ body {
 /* Order Button */
 .order-button {
   height: 45px;
-  width: 180px;
+  min-width: 180px;
   background-color: #ffffff;
   border: 1px solid #d1d1d1;
   border-radius: 10px;
