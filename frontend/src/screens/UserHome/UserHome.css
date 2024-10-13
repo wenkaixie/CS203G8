@@ -136,13 +136,3 @@ body {
   gap: 12px;
   height: 70%;
 }
-
-.games-history {
-  display: flex;
-  cursor: pointer;
-  color: #8F3013;
-}
-
-.games-history:hover {
-  text-decoration: underline;
-}
