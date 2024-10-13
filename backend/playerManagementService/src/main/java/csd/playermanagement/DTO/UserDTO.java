@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor // Generates a no-argument constructor
 @AllArgsConstructor // Generates an all-arguments constructor
 public class UserDTO {
-    private String authID;
+    private String authId;
     private String dateOfBirth; 
     private int elo;
     private String email;

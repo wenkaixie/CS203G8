@@ -8,7 +8,8 @@ import axios from 'axios';
 import { getAuth } from "firebase/auth";
 
 const TournamentCarousel = () => {
-  const [tournaments, setTournaments] = useState([]);
+  const [ongoingTournaments, setOngoingTournaments] = useState([]);
+  const [upcomingTournaments, setUpcomingTournaments] = useState([]);
 
   const navigate = useNavigate(); // Use the navigate hook
 
@@ -20,26 +21,39 @@ const TournamentCarousel = () => {
   const auth = getAuth();
 
   useEffect(() => {
-    const fetchUpcomingTournaments = async () => {
+    const fetchOngoingTournaments = async () => {
       try {
         const response = await axios.get(`http://localhost:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
-        setTournaments(response.data);
+        setOngoingTournaments(response.data);
       } catch (error) {
-        console.error('Error fetching tournaments:', error);
+        console.error('Error fetching ongoing tournaments:', error);
+      }
+    };
+
+    fetchOngoingTournaments();
+  }, []);
+
+  useEffect(() => {
+    const fetchUpcomingTournaments = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/tournaments/upcoming/${auth.currentUser.uid}`);
+        setUpcomingTournaments(response.data);
+      } catch (error) {
+        console.error('Error fetching upcoming tournaments:', error);
       }
     };
 
     fetchUpcomingTournaments();
   }, []);
 
-  if (!tournaments || tournaments.length === 0) {
+  if ((!ongoingTournaments && !upcomingTournaments) || (ongoingTournaments.length === 0 && upcomingTournaments.length === 0)) {
     return(
       <Container fluid>
         <Carousel data-bs-theme="dark">
             <Carousel.Item>
               <Carousel.Caption>
                 <p> </p>
-                <h2>You have no Ongoing Tournaments</h2>
+                <h2>You have no Upcoming Tournaments</h2>
                 <h3>Join a Tournament to get started!</h3>
               </Carousel.Caption>
             </Carousel.Item>
@@ -51,10 +65,20 @@ const TournamentCarousel = () => {
   return (
     <Container fluid>
       <Carousel data-bs-theme="dark">
-        {tournaments.map((tournament, index) => (
+        {ongoingTournaments.map((tournament, index) => (
           <Carousel.Item key={index} onClick={() => handleTournamentClick(tournament.tid)} style={{ cursor: 'pointer' }} >
             <Carousel.Caption>
-              <p>My Tournaments</p>
+              <p>My Ongoing Tournaments</p>
+              <h2>{tournament.name}</h2>
+              <h3>Round 1</h3>
+              <CountdownTimer targetDate={tournament.startDatetime} />
+            </Carousel.Caption>
+          </Carousel.Item>
+        ))}
+        {upcomingTournaments.map((tournament, index) => (
+          <Carousel.Item key={index} onClick={() => handleTournamentClick(tournament.tid)} style={{ cursor: 'pointer' }} >
+            <Carousel.Caption>
+              <p>My Upcoming Tournaments</p>
               <h2>{tournament.name}</h2>
               <h3>Round 1</h3>
               <CountdownTimer targetDate={tournament.startDatetime} />

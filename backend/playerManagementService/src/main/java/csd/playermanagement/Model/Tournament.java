@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor // Generates a no-argument constructor
 @AllArgsConstructor // Generates an all-arguments constructor
 public class Tournament {
+    private int ageLimit;
     private int capacity;
     private Timestamp createdTimestamp;
     private String description;

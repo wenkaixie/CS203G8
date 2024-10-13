@@ -21,14 +21,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
                         let userRole = null;
 
                         // Check if the user exists in the 'User' collection
-                        const userQuery = query(collection(FirestoreDB, 'User'), where('uid', '==', user.uid));
+                        const userQuery = query(collection(FirestoreDB, 'Users'), where('authId', '==', user.uid));
                         const userSnapshot = await getDocs(userQuery);
-            
+                        
                         if (!userSnapshot.empty) {
-                            userRole = 'User';
+                            userRole = 'Users';
+                            console.log("User role: ", userRole);
                         } else {
                             // If not found in 'User', check the 'Admin' collection
-                            const userQuery = query(collection(FirestoreDB, 'Admin'), where('uid', '==', user.uid));
+                            const userQuery = query(collection(FirestoreDB, 'Admin'), where('authId', '==', user.uid));
                             const userSnapshot = await getDocs(userQuery);
                 
                             if (!userSnapshot.empty) {
