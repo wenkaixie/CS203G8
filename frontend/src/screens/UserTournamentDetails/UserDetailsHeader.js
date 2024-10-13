@@ -6,7 +6,7 @@ import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
 import RegistrationForm from './RegistrationForm';
 
-const UserDetailsHeader = ({ userElo }) => {
+const UserDetailsHeader = () => {
     const { tournamentId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
@@ -19,6 +19,7 @@ const UserDetailsHeader = ({ userElo }) => {
     const [isEligible, setIsEligible] = useState(false);
     const [registrationError, setRegistrationError] = useState('');
     const [userUid, setUserUid] = useState(null);
+    const [userElo, setUserElo] = useState(null); // State to store user's Elo rating
 
     useEffect(() => {
         const path = location.pathname.split('/').pop();
@@ -30,30 +31,56 @@ const UserDetailsHeader = ({ userElo }) => {
         const user = auth.currentUser;
 
         if (user) {
-            setUserUid(user.uid);
-
-            const fetchTournamentData = async () => {
-                try {
-                    const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                    const data = response.data;
-                    setTournamentData(data);
-                    setNumberOfPlayers(data.users ? data.users.length : 0);
-
-                    const isCapacityAvailable = data.capacity > data.users.length;
-                    const isEloEligible = userElo >= data.eloRequirement;
-                    const isRegistrationOpen = new Date() < new Date(data.startDatetime);
-
-                    setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
-                } catch (error) {
-                    console.error('Failed to fetch tournament data:', error);
-                }
-            };
-
-            fetchTournamentData();
+            const uid = user.uid;
+            setUserUid(uid);
+            fetchUserDetails(uid); // Fetch user Elo and details
         } else {
             console.error('No user is signed in');
         }
-    }, [tournamentId, userElo]);
+    }, [tournamentId]);
+
+    // Fetch the user's Elo from the backend or Firebase
+    const fetchUserDetails = async (uid) => {
+        try {
+            const response = await axios.get(`http://localhost:9090/user/getUser/${uid}`);
+            const userData = response.data;
+
+            console.log('User Data:', userData);
+
+            setUserElo(userData.elo || 0); // Store user's Elo rating
+            fetchTournamentData(userData.elo); // Pass Elo to the tournament eligibility function
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
+        }
+    };
+
+    const fetchTournamentData = async (userElo) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:8080/api/tournaments/${tournamentId}`
+            );
+            const data = response.data;
+            
+            console.log('Tournament Data:', data);
+
+            setTournamentData(data);
+            setNumberOfPlayers(data.participants ? data.participants.length : 0);
+
+            const isCapacityAvailable = data.capacity > (data.participants ? data.participants.length : 0);
+            const isEloEligible = userElo >= data.eloRequirement;
+            const isRegistrationOpen = new Date() < new Date(data.startDatetime);
+
+            console.log('Eligibility Conditions:', {
+                isCapacityAvailable,
+                isEloEligible,
+                isRegistrationOpen,
+            });
+
+            setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
+        } catch (error) {
+            console.error('Failed to fetch tournament data:', error);
+        }
+    };
 
     const handleRegisterClick = () => {
         if (isEligible && !isRegistered) {
@@ -100,18 +127,18 @@ const UserDetailsHeader = ({ userElo }) => {
                                 <span className="info-text">
                                     {tournamentData.startDatetime
                                         ? new Date(tournamentData.startDatetime).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric',
-                                        })
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric',
+                                          })
                                         : 'N/A'}
                                     {' - '}
                                     {tournamentData.endDatetime
                                         ? new Date(tournamentData.endDatetime).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric',
-                                        })
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric',
+                                          })
                                         : 'N/A'}
                                 </span>
                             </div>
@@ -148,7 +175,6 @@ const UserDetailsHeader = ({ userElo }) => {
                     <div className="players-count">Players: {numberOfPlayers}</div>
                 </div>
             </div>
-
 
             <div className="banner">
                 <ul className="subtabs">

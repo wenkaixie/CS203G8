@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './UserTournamentMatch.css';
 import Header from './UserDetailsHeader';
 import { useParams } from 'react-router-dom';
-import UserTournamentMatchDiagram from './UserTournamentMatchDiagram'; 
+import UserTournamentMatchDiagram from './UserTournamentMatchDiagram';
 
 const UserTournamentMatch = () => {
-    const { tournamentId } = useParams(); 
+    const { tournamentId } = useParams();
     const [matches, setMatches] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredMatches, setFilteredMatches] = useState([]);
     const [sortBy, setSortBy] = useState('');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [selectedRound, setSelectedRound] = useState('');
+    const [selectedRound, setSelectedRound] = useState(''); // Default: empty string
     const [availableRounds, setAvailableRounds] = useState([]);
     const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
-    const [activeView, setActiveView] = useState('diagram'); 
+    const [activeView, setActiveView] = useState('diagram');
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                if (!response.ok) throw new Error('Failed to fetch tournament details');
-
-                const tournamentData = await response.json();
+                const response = await axios.get(
+                    `http://localhost:8080/api/tournaments/${tournamentId}`
+                );
+                const tournamentData = response.data;
                 setTournamentTitle(tournamentData.name || 'Tournament');
-                setPlayerCount(tournamentData.users ? tournamentData.users.length : 0);
+                setPlayerCount(tournamentData.participants?.length || 0);
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
             }
@@ -36,9 +36,10 @@ const UserTournamentMatch = () => {
     useEffect(() => {
         const fetchRounds = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/tournaments/${tournamentId}/allRounds`);
-                const data = await response.json();
-                setAvailableRounds(data);
+                const response = await axios.get(
+                    `http://localhost:8080/api/tournaments/${tournamentId}/allRounds`
+                );
+                setAvailableRounds(response.data);
             } catch (error) {
                 console.error('Error fetching rounds:', error);
             }
@@ -49,21 +50,41 @@ const UserTournamentMatch = () => {
     useEffect(() => {
         const fetchMatches = async () => {
             try {
-                const roundId = selectedRound || '';
-                const response = await fetch(`http://localhost:8080/api/rounds/${roundId}/matches`);
-                const matchesData = await response.json();
+                if (selectedRound) {
+                    const response = await axios.get(
+                        `http://localhost:8080/api/rounds/${selectedRound}/matches`
+                    );
+                    const matchesData = response.data;
 
-                if (Array.isArray(matchesData)) {
-                    setMatches(matchesData);
-                    setFilteredMatches(matchesData);
+                    const enhancedMatches = await Promise.all(
+                        matchesData.map(async (match) => {
+                            const [player1Response, player2Response] = await Promise.all([
+                                axios.get(`http://localhost:9090/user/getUser/${match.uid1}`),
+                                axios.get(`http://localhost:9090/user/getUser/${match.uid2}`),
+                            ]);
+
+                            const player1Data = player1Response.data;
+                            const player2Data = player2Response.data;
+
+                            return {
+                                ...match,
+                                player1: player1Data.name || 'Player 1',
+                                rating1: player1Data.elo || 'N/A',
+                                nationality1: player1Data.nationality || 'N/A',
+                                player2: player2Data.name || 'Player 2',
+                                rating2: player2Data.elo || 'N/A',
+                                nationality2: player2Data.nationality || 'N/A',
+                            };
+                        })
+                    );
+
+                    setMatches(enhancedMatches);
                 } else {
-                    setMatches([]);
-                    setFilteredMatches([]);
+                    setMatches([]); // Clear matches if no round is selected
                 }
             } catch (error) {
                 console.error('Error fetching matches:', error);
                 setMatches([]);
-                setFilteredMatches([]);
             }
         };
         fetchMatches();
@@ -79,25 +100,6 @@ const UserTournamentMatch = () => {
 
     const handleListViewClick = () => setActiveView('list');
     const handleDiagramViewClick = () => setActiveView('diagram');
-
-    useEffect(() => {
-        let updatedList = matches;
-        if (searchTerm) {
-            updatedList = updatedList.filter(
-                (match) =>
-                    match.player1.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    match.player2.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    match.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    match.location.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-        if (sortBy) {
-            updatedList = updatedList.sort((a, b) =>
-                sortBy === 'newest' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)
-            );
-        }
-        setFilteredMatches(updatedList);
-    }, [searchTerm, matches, sortBy]);
 
     return (
         <div>
@@ -159,10 +161,10 @@ const UserTournamentMatch = () => {
                                 <div className="dropdown-item" onClick={() => handleRoundSelection('')}>
                                     All rounds
                                 </div>
-                                {availableRounds.map((round, index) => (
+                                {availableRounds.map((round) => (
                                     <div
                                         className="dropdown-item"
-                                        key={index}
+                                        key={round.trid}
                                         onClick={() => handleRoundSelection(round.trid)}
                                     >
                                         Round {round.roundNumber}
@@ -174,51 +176,55 @@ const UserTournamentMatch = () => {
                 </div>
 
                 {activeView === 'list' ? (
-                    Array.isArray(filteredMatches) && filteredMatches.length > 0 ? (
-                        <div className="match-list">
-                            {filteredMatches.map((match, index) => (
-                                <div key={index}>
-                                    <div className="round-title">Round {match.roundNumber}</div>
-                                    <table className="matches-table">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Date</th>
-                                                <th>Location</th>
-                                                <th>Player 1</th>
-                                                <th>Rating</th>
-                                                <th>Nationality</th>
-                                                <th>Result</th>
-                                                <th></th>
-                                                <th>Result</th>
-                                                <th>Player 2</th>
-                                                <th>Rating</th>
-                                                <th>Nationality</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>{index + 1}</td>
-                                                <td>{match.matchDate}</td>
-                                                <td>{match.location}</td>
-                                                <td>{match.player1}</td>
-                                                <td>{match.rating1}</td>
-                                                <td>{match.nationality1}</td>
-                                                <td>{match.user1Score}</td>
-                                                <td className="vs-text">VS</td>
-                                                <td>{match.user2Score}</td>
-                                                <td>{match.player2}</td>
-                                                <td>{match.rating2}</td>
-                                                <td>{match.nationality2}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ))}
+                    availableRounds.map((round) => (
+                        <div key={round.trid}>
+                            <h2 className="round-title">Round {round.roundNumber}</h2>
+                            <table className="matches-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Date</th>
+                                        <th>Location</th>
+                                        <th>Player 1</th>
+                                        <th>Rating</th>
+                                        <th>Nationality</th>
+                                        <th>Result</th>
+                                        <th></th>
+                                        <th>Result</th>
+                                        <th>Player 2</th>
+                                        <th>Rating</th>
+                                        <th>Nationality</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {matches.filter((match) => match.rid === round.trid).length > 0 ? (
+                                        matches
+                                            .filter((match) => match.rid === round.trid)
+                                            .map((match, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{new Date(match.matchDate).toLocaleDateString()}</td>
+                                                    <td>{match.location || 'N/A'}</td>
+                                                    <td>{match.player1}</td>
+                                                    <td>{match.rating1}</td>
+                                                    <td>{match.nationality1}</td>
+                                                    <td>{match.user1Score}</td>
+                                                    <td className="vs-text">VS</td>
+                                                    <td>{match.user2Score}</td>
+                                                    <td>{match.player2}</td>
+                                                    <td>{match.rating2}</td>
+                                                    <td>{match.nationality2}</td>
+                                                </tr>
+                                            ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="12">No matches for this round.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-                    ) : (
-                        <p>No matches found.</p>
-                    )
+                    ))
                 ) : (
                     <UserTournamentMatchDiagram />
                 )}

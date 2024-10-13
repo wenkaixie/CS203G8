@@ -9,39 +9,64 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
     const [age, setAge] = useState('');
     const [nationality, setNationality] = useState('');
     const [email, setEmail] = useState('');
-    const [uid, setUid] = useState(null);
-    const [authId, setAuthId] = useState(null);
+    const [authId, setAuthId] = useState(null); // Store the participant's authId
 
     useEffect(() => {
         const auth = getAuth();
         const user = auth.currentUser;
 
         if (user) {
-            setUid(user.uid);
-            setAuthId(user.uid);
-
-            const fetchUserDetails = async () => {
-                try {
-                    const response = await axios.get(`http://localhost:9090/user/getUser/${user.uid}`);
-                    const userData = response.data;
-
-                    setFullName(userData.name || '');
-                    setAge(userData.age || '');
-                    setNationality(userData.nationality || '');
-                    setEmail(userData.email || '');
-                } catch (error) {
-                    console.error('Error fetching user details:', error);
-                }
-            };
-
-            fetchUserDetails();
+            const uid = user.uid; 
+            fetchUserDetails(uid); 
         } else {
             console.error('No user is signed in.');
         }
     }, []);
 
+    const fetchUserDetails = async (uid) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:9090/user/getUser/${uid}` 
+            );
+            const userData = response.data;
+
+            // Store the user's authId in the component state
+            setAuthId(userData.authId);
+            console.log('authId:', userData.authId); 
+
+            // Populate input fields with user data
+            setFullName(userData.name || '');
+            setEmail(userData.email || '');
+            setNationality(userData.nationality || '');
+
+            // Convert dateOfBirth to age
+            const birthDate = new Date(userData.dateOfBirth.seconds * 1000);
+            const currentAge = calculateAge(birthDate);
+            setAge(currentAge);
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+        }
+    };
+
+    // Helper function to calculate age from date of birth
+    const calculateAge = (birthDate) => {
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
     const handleSubmit = async () => {
-        const userDetails = { authId, uid, name: fullName, dateOfBirth: age, nationality, email };
+        const userDetails = {
+            authId, // Store `authId` in the tournament database
+            name: fullName,
+            dateOfBirth: age,
+            nationality,
+            email,
+        };
 
         try {
             const response = await axios.post(
@@ -50,8 +75,8 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
             );
 
             alert(response.data);
-            onSubmit(userDetails);
-            closeForm();
+            onSubmit(userDetails); // Trigger the onSubmit callback with user details
+            closeForm(); // Close the form after submission
         } catch (error) {
             console.error('Error registering user:', error);
             alert('Failed to register. Please try again.');
@@ -61,37 +86,62 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
     return (
         <div className="registration-overlay" onClick={closeForm}>
             <div className="registration-modal" onClick={(e) => e.stopPropagation()}>
-                <h2>Registration</h2>
-                <div>
-                    <label>Full Name</label>
-                    <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                    />
+                <div className="registration-header">
+                    <h2>Registration</h2>
+                    <button className="close-button" onClick={closeForm}>
+                        &times;
+                    </button>
                 </div>
-                <div>
-                    <label>Age</label>
-                    <input
-                        type="number"
-                        value={age}
-                        onChange={(e) => setAge(e.target.value)}
-                    />
+
+                <div className="registration-body">
+                    <div className="form-group">
+                        <label className="verify-label">Verify your personal details</label>
+
+                        <div className="input-with-icon">
+                            <label>Full Name</label>
+                            <input
+                                type="text"
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                            />
+                            <span className="edit-icon">✏️</span>
+                        </div>
+
+                        <div className="input-row">
+                            <div className="input-with-icon">
+                                <label>Age</label>
+                                <input
+                                    type="number"
+                                    value={age}
+                                    onChange={(e) => setAge(e.target.value)}
+                                />
+                                <span className="edit-icon">✏️</span>
+                            </div>
+
+                            <div className="input-with-icon">
+                                <label>Nationality</label>
+                                <input
+                                    type="text"
+                                    value={nationality}
+                                    onChange={(e) => setNationality(e.target.value)}
+                                />
+                                <span className="edit-icon">✏️</span>
+                            </div>
+                        </div>
+
+                        <div className="input-with-icon">
+                            <label>Email</label>
+                            <input type="email" value={email} readOnly />
+                            <img src={LockIcon} alt="Lock Icon" className="lock-icon" />
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label>Nationality</label>
-                    <input
-                        type="text"
-                        value={nationality}
-                        onChange={(e) => setNationality(e.target.value)}
-                    />
+
+                <div className="registration-footer">
+                    <button className="registration-button" onClick={handleSubmit}>
+                        Register
+                    </button>
                 </div>
-                <div>
-                    <label>Email</label>
-                    <input type="email" value={email} readOnly />
-                    <img src={LockIcon} alt="Lock Icon" />
-                </div>
-                <button onClick={handleSubmit}>Register</button>
             </div>
         </div>
     );
