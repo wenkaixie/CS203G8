@@ -92,13 +92,13 @@ public class RoundMatchService {
             ApiFuture<QuerySnapshot> future1 = firestore.collection("RoundMatches")
                 .whereEqualTo("uid1", userID)
                 .orderBy("matchDate", Query.Direction.DESCENDING)
-                .limit(1)
+                // .limit(1)
                 .get();
     
             ApiFuture<QuerySnapshot> future2 = firestore.collection("RoundMatches")
                 .whereEqualTo("uid2", userID)
                 .orderBy("matchDate", Query.Direction.DESCENDING)
-                .limit(1)
+                // .limit(1)
                 .get();
     
             // Fetch the documents from both queries
