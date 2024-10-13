@@ -76,3 +76,13 @@
     font-size: 14px;
     color: #666;
   }
+
+.games-history {
+  display: flex;
+  cursor: pointer;
+  color: #8F3013;
+}
+
+.games-history:hover {
+  text-decoration: underline;
+}
