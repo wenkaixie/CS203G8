@@ -67,6 +67,22 @@
   cursor: pointer;
 }
 
+/* Different status colors for table rows */
+.tournament-table td.status-registered {
+  color: #007bff; /* Blue for registered */
+  font-weight: 500;
+}
+
+.tournament-table td.status-open {
+  color: #28a745; /* Green for open registration */
+  font-weight: 500;
+}
+
+.tournament-table td.status-closed {
+  color: #6c757d; /* Grey for published */
+  font-weight: 500;
+}
+
 .clickable-row:hover {
   background-color: #F5F5EF;
   cursor: pointer;
