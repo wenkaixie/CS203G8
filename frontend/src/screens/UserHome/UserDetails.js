@@ -9,13 +9,12 @@ import { Img } from 'react-image';
 const UserDetails = () => {
     const auth = getAuth();
     const [userDetails, setUserDetails] = useState(null);
-
+    const [userRank, setUserRank] = useState('');
 
     useEffect(() => {
         const fetchUserDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:9090/user/getUser/${auth.currentUser.uid}`);
-                console.log(response.data);
                 setUserDetails(response.data);
             } catch (error) {
                 console.error('Error fetching user details:', error);
@@ -24,6 +23,19 @@ const UserDetails = () => {
 
         fetchUserDetails();
     }, []);
+
+    useEffect(() => {
+      const fetchUserRank = async () => {
+          try {
+              const response = await axios.get(`http://localhost:9090/user/getUserRank/${auth.currentUser.uid}`);
+              setUserRank(response.data);
+          } catch (error) {
+              console.error('Error fetching user rank:', error);
+          }
+      };
+
+      fetchUserRank();
+  }, []);
 
     if (!userDetails) {
         return <div>Loading User Details...</div>; 
@@ -55,7 +67,7 @@ const UserDetails = () => {
                   height={'30%'}
                   width={'30%'}
                 />
-                <h2 style={{margin:'0px'}}>#45</h2>
+                <h2 style={{margin:'0px'}}>#{userRank}</h2>
               </div>
             </div>
           </div>
