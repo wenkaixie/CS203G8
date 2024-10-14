@@ -2,9 +2,17 @@ package com.app.tournament.DTO;
 
 import java.time.Instant;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RoundMatchDTO {
 
     private String rid; // ID of the round this match belongs to

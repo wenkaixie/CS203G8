@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.tournament.DTO.TournamentDTO;
+import com.app.tournament.DTO.TournamentRoundDTO;
 import com.app.tournament.model.Tournament;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
@@ -29,15 +30,17 @@ public class TournamentService {
     @Autowired
     private Firestore firestore;
 
-    // Method to create a tournament
+    @Autowired
+    private TournamentRoundService roundService; // Inject the TournamentRoundService
+
     public String createTournament(TournamentDTO tournamentDTO) throws Exception {
         try {
-            // Create a reference to a new document in the "Tournaments" collection with a generated ID
+            // Create a reference to a new tournament document
             DocumentReference newTournamentRef = firestore.collection("Tournaments").document();
 
-            // Create a new Tournament object and populate it using the TournamentDTO data
+            // Populate the Tournament object
             Tournament tournament = new Tournament();
-            tournament.setTid(newTournamentRef.getId()); // Set the generated document ID as the tournament ID
+            tournament.setTid(newTournamentRef.getId());
             tournament.setName(tournamentDTO.getName());
             tournament.setDescription(tournamentDTO.getDescription());
             tournament.setEloRequirement(tournamentDTO.getEloRequirement());
@@ -45,19 +48,45 @@ public class TournamentService {
             tournament.setStartDatetime(tournamentDTO.getStartDatetime());
             tournament.setEndDatetime(tournamentDTO.getEndDatetime());
             tournament.setCapacity(tournamentDTO.getCapacity());
-            tournament.setCreatedTimestamp(Instant.now()); // Set the creation timestamp
+            tournament.setCreatedTimestamp(Instant.now());
 
-            // Write the Tournament object to Firestore and block until the write operation is complete
+            // Save the tournament to Firestore
             ApiFuture<WriteResult> futureTournament = newTournamentRef.set(tournament);
-            WriteResult result = futureTournament.get(); // Blocks until the write is complete
+            WriteResult result = futureTournament.get();
 
-            System.out.println("Tournament created at: " + result.getUpdateTime()); // Log the time of creation
+            System.out.println("Tournament created at: " + result.getUpdateTime());
 
-            // Return the ID of the newly created tournament
+            // Automatically calculate the number of rounds and create them
+            int numberOfRounds = calculateRounds(tournament.getCapacity());
+            createTournamentRounds(tournament.getTid(), numberOfRounds);
+
             return tournament.getTid();
 
         } catch (InterruptedException | ExecutionException e) {
             throw new Exception("Error creating the tournament: " + e.getMessage(), e);
+        }
+    }
+
+    // Method to calculate the number of rounds needed
+    private int calculateRounds(int n) {
+        int rounds = 0;
+        while (n > 1) {
+            n /= 2;
+            rounds++;
+        }
+        return rounds;
+    }
+
+    // Method to create the rounds for a tournament
+    private void createTournamentRounds(String tournamentId, int numberOfRounds) throws Exception {
+        for (int i = 1; i <= numberOfRounds; i++) {
+            TournamentRoundDTO roundDTO = new TournamentRoundDTO();
+            roundDTO.setTid(tournamentId);
+            roundDTO.setRoundNumber(i);
+            roundDTO.setMids(new ArrayList<>()); // Initialize empty match list
+
+            // Use the TournamentRoundService to create each round
+            roundService.createTournamentRound(roundDTO);
         }
     }
 
@@ -137,21 +166,21 @@ public class TournamentService {
     }
    
     // Method to add a player to a tournament
-    public String addPlayerToTournament(String tournamentID, String playerID)
+    public String addUserToTournament(String tournamentID, String userID)
             throws InterruptedException, ExecutionException {
         // Reference the tournament document in Firestore
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
 
-        // Add the playerID directly to the players array field in the tournament document
-        tournamentRef.update("players", FieldValue.arrayUnion(playerID)).get();
+        // Add the userID directly to the players array field in the tournament document
+        tournamentRef.update("users", FieldValue.arrayUnion(userID)).get();
 
         return "Player added successfully to the tournament.";
     }
     
-    public String removePlayerFromTournament(String tournamentID, String playerID)
+    public String removeUserFromTournament(String tournamentID, String userID)
         throws InterruptedException, ExecutionException {
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
-        tournamentRef.update("players", FieldValue.arrayRemove(playerID)).get();
+        tournamentRef.update("users", FieldValue.arrayRemove(userID)).get();
         return "Player removed successfully from the tournament.";
     }
 }

@@ -18,5 +18,7 @@ public class UserInfo {
     private int score;
 
     private int whiteGamesCount;
+
+   
     
 }
