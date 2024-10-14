@@ -103,6 +103,8 @@ const UserDetailsHeader = () => {
         navigate(`/user/tournament/${tournamentId}/${tab}`);
     };
 
+    console.log(tournamentData.capacity, " + ", numberOfPlayers)
+
     const availableSlots = tournamentData.capacity
         ? tournamentData.capacity - numberOfPlayers
         : 0;

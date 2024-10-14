@@ -26,6 +26,7 @@ const UserTournamentParticipants = () => {
                 const participantDetails = await Promise.all(
                     participantIds.map(async (userID) => {
                         const sanitizedUserID = userID.replace(/['"]/g, ''); // Remove quotes if present
+                        console.log('sanitizedUserID:', sanitizedUserID);
                         const userResponse = await axios.get(`http://localhost:9090/user/getUser/${sanitizedUserID}`);
                         return userResponse.data;
                     })

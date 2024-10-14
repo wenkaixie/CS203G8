@@ -81,12 +81,13 @@ const Signup = () => {
             console.log('User created:', user.uid);
         
             // Step 2: Store user info in Firestore under the 'User' collection
-            const userDocRef = doc(FirestoreDB, 'User', user.uid); // Using uid as document ID
+            const userDocRef = doc(FirestoreDB, 'Users', user.uid); // Using uid as document ID
 
             await setDoc(userDocRef, {
                 authId: user.uid,  // Storing the authentication ID
-                Email: user.email, // Storing email
-                uid: userDocRef.id // Storing the document ID
+                email: user.email, // Storing email
+                uid: userDocRef.id, // Storing the document ID
+                registrationHistory: [] // Storing registration history
             });
 
             // onAuthStateChanged will handle the redirection
@@ -108,10 +109,14 @@ const Signup = () => {
             const user = result.user;
             console.log('Google sign up success:', user);
 
+            const userDocRef = doc(FirestoreDB, 'Users', user.uid); // Using uid as document ID
+
             // Store user info in Firestore under the 'User' collection
-            await setDoc(doc(FirestoreDB, 'User', user.uid), {
-                uid: user.uid,  // Storing UID
-                Email: user.email // Storing email
+            await setDoc(doc(FirestoreDB, 'Users', user.uid), {
+                authId: user.uid,  // Storing the authentication ID
+                email: user.email, // Storing email
+                uid: userDocRef.id, // Storing the document ID
+                registrationHistory: [] // Storing registration history
             });
 
             // onAuthStateChanged will handle the redirection
