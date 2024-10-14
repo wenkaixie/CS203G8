@@ -65,8 +65,6 @@ public class TournamentService {
 
             System.out.println("Tournament created at: " + result.getUpdateTime()); // Log the time of creation
 
-            scheduleCloseRegistration(tournament);
-
             // Return the ID of the newly created tournament
             return tournament.getTid();
 
@@ -374,24 +372,5 @@ public class TournamentService {
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
         tournamentRef.update("players", FieldValue.arrayRemove(playerID)).get();
         return "Player removed successfully from the tournament.";
-    }
-
-    @Autowired
-    private TaskScheduler taskScheduler;
-
-    // Method to schedule a task for each tournament
-    public void scheduleCloseRegistration(Tournament tournament) {
-        Instant startDatetime = tournament.getStartDatetime();
-        Instant closeRegistrationTime = startDatetime.minus(Duration.ofHours(24)); 
-        taskScheduler.schedule(() -> closeRegistration(tournament.getTid()), closeRegistrationTime);
-
-    }
-
-    // This method will be triggered at the scheduled time to close registration
-    private void closeRegistration(String tournamentID) {
-        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
-        tournamentRef.update("status", "Registration Closed").addListener(() -> {
-            System.out.println("Tournament registration closed for: " + tournamentID);
-        }, Runnable::run);
     }
 }

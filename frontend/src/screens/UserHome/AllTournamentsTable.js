@@ -74,11 +74,11 @@ const AllTournamentsTable = () => {
     
         // If more than 1 day is remaining before the tournament starts
         if (timeDiff > oneDayInMilliseconds) {
-            return 'Open';
+            return 'Registration Open';
         }
     
         // If less than 1 day is remaining or the tournament has already started
-        return 'Closed';
+        return 'Registration Closed';
     };
 
     const handleRowClick = (tournamentId) => {
