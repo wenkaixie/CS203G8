@@ -1,7 +1,11 @@
 package csd.playermanagement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,26 +61,26 @@ public class UserServiceUpdateTest {
     @Test
     void updateUser_Success() throws InterruptedException, ExecutionException {
         // Arrange
-        String userId = "userAuthId123";
+        String userAuthId = "userAuthId123";
         String userUid = "userUid123";
     
         // Existing user data
         User existingUser = new User();
         existingUser.setUid(userUid);
-        existingUser.setAuthId(userId);
+        existingUser.setAuthId(userAuthId);
         existingUser.setEmail("oldemail@example.com");
         existingUser.setElo(1200);
     
         // Updated user data
         UserDTO updatedUserDto = new UserDTO();
         updatedUserDto.setUid(userUid);
-        updatedUserDto.setAuthId(userId);
+        updatedUserDto.setAuthId(userAuthId);
         updatedUserDto.setEmail("newemail@example.com");
         updatedUserDto.setElo(1300);
     
-        // Mock existing user retrieval
+        // Mock Firestore interactions
         when(firestore.collection("Users")).thenReturn(usersCollection);
-        when(usersCollection.whereEqualTo("authID", userId)).thenReturn(usersQuery);
+        when(usersCollection.whereEqualTo("authId", userAuthId)).thenReturn(usersQuery);
         when(usersQuery.get()).thenReturn(userQueryFuture);
         when(userQueryFuture.get()).thenReturn(userQuerySnapshot);
         when(userQuerySnapshot.isEmpty()).thenReturn(false);
@@ -85,15 +89,8 @@ public class UserServiceUpdateTest {
         when(userSnapshot.toObject(User.class)).thenReturn(existingUser);
         when(userSnapshot.getReference()).thenReturn(userDocRef);
     
-        // Mock userRef.get()
-        ApiFuture<DocumentSnapshot> userRefGetFuture = Mockito.mock(ApiFuture.class);
-        DocumentSnapshot updatedUserSnapshot = Mockito.mock(DocumentSnapshot.class);
-    
-        when(userDocRef.get()).thenReturn(userRefGetFuture);
-        when(userRefGetFuture.get()).thenReturn(updatedUserSnapshot);
-        when(updatedUserSnapshot.toObject(User.class)).thenReturn(existingUser);
-    
-        // Mock user update
+        // Mock userDocRef.get() and update() calls
+        when(userDocRef.get()).thenReturn(ApiFutures.immediateFuture(userSnapshot));
         when(userDocRef.update(anyMap())).thenReturn(ApiFutures.immediateFuture(null));
     
         // Update the existingUser object to reflect the changes
@@ -101,7 +98,7 @@ public class UserServiceUpdateTest {
         existingUser.setElo(updatedUserDto.getElo());
     
         // Act
-        Map<String, Object> result = userService.updateUserProfile(userId, updatedUserDto);
+        Map<String, Object> result = userService.updateUserProfile(userAuthId, updatedUserDto);
     
         // Assert
         assertEquals("newemail@example.com", result.get("email"));
@@ -112,13 +109,13 @@ public class UserServiceUpdateTest {
     @Test
     void updateUser_PartialUpdate() throws InterruptedException, ExecutionException {
         // Arrange
-        String userId = "userAuthId123";
+        String userAuthId = "userAuthId123";
         String userUid = "userUid123";
 
         // Existing user data
         User existingUser = new User();
         existingUser.setUid(userUid);
-        existingUser.setAuthId(userId);
+        existingUser.setAuthId(userAuthId);
         existingUser.setName("Old Name");
         existingUser.setPhoneNumber(12345678);
         existingUser.setNationality("Old Country");
@@ -126,13 +123,13 @@ public class UserServiceUpdateTest {
         // Updated user data with only phoneNumber and nationality updated
         UserDTO updatedUserDto = new UserDTO();
         updatedUserDto.setUid(userUid);
-        updatedUserDto.setAuthId(userId);
+        updatedUserDto.setAuthId(userAuthId);
         updatedUserDto.setPhoneNumber(87654321);
         updatedUserDto.setNationality("New Country");
 
-        // Mock existing user retrieval
+        // Mock Firestore interactions
         when(firestore.collection("Users")).thenReturn(usersCollection);
-        when(usersCollection.whereEqualTo("authID", userId)).thenReturn(usersQuery);
+        when(usersCollection.whereEqualTo("authId", userAuthId)).thenReturn(usersQuery);
         when(usersQuery.get()).thenReturn(userQueryFuture);
         when(userQueryFuture.get()).thenReturn(userQuerySnapshot);
         when(userQuerySnapshot.isEmpty()).thenReturn(false);
@@ -141,15 +138,8 @@ public class UserServiceUpdateTest {
         when(userSnapshot.toObject(User.class)).thenReturn(existingUser);
         when(userSnapshot.getReference()).thenReturn(userDocRef);
 
-        // Mock userRef.get()
-        ApiFuture<DocumentSnapshot> userRefGetFuture = Mockito.mock(ApiFuture.class);
-        DocumentSnapshot updatedUserSnapshot = Mockito.mock(DocumentSnapshot.class);
-
-        when(userDocRef.get()).thenReturn(userRefGetFuture);
-        when(userRefGetFuture.get()).thenReturn(updatedUserSnapshot);
-        when(updatedUserSnapshot.toObject(User.class)).thenReturn(existingUser);
-
-        // Mock user update
+        // Mock userRef.get() and update() calls
+        when(userDocRef.get()).thenReturn(ApiFutures.immediateFuture(userSnapshot));
         when(userDocRef.update(anyMap())).thenReturn(ApiFutures.immediateFuture(null));
 
         // Update the existingUser object to reflect the changes
@@ -157,7 +147,7 @@ public class UserServiceUpdateTest {
         existingUser.setNationality(updatedUserDto.getNationality());
 
         // Act
-        Map<String, Object> result = userService.updateUserProfile(userId, updatedUserDto);
+        Map<String, Object> result = userService.updateUserProfile(userAuthId, updatedUserDto);
 
         // Assert
         assertEquals("Old Name", result.get("name")); // Name remains unchanged
@@ -165,4 +155,82 @@ public class UserServiceUpdateTest {
         assertEquals("New Country", result.get("nationality")); // Updated
         verify(userDocRef).update(anyMap());
     }
+
+    @Test  
+    void updateUser_UserNotFound() throws InterruptedException, ExecutionException {
+        // Arrange
+        String userAuthId = "auth123";
+        UserDTO userDto = new UserDTO();
+
+        userDto.setUsername("testuser");
+        userDto.setEmail("wajnwf@gmail.com");
+        userDto.setName("Test User");
+        userDto.setPhoneNumber(12345678);
+        userDto.setNationality("Singapore");
+        userDto.setChessUsername("chessuser");
+        userDto.setDateOfBirth("1999-01-01");
+
+        // Mock the user data retrieval
+        when(firestore.collection("Users")).thenReturn(usersCollection);
+        when(usersCollection.whereEqualTo("authId", userAuthId)).thenReturn(usersQuery);
+        when(usersQuery.get()).thenReturn(userQueryFuture);
+        when(userQueryFuture.get()).thenReturn(userQuerySnapshot);
+        when(userQuerySnapshot.isEmpty()).thenReturn(true);
+
+        // Act
+        Exception exception =  assertThrows(RuntimeException.class, () -> {
+            userService.updateUserProfile(userAuthId, userDto);
+        });
+
+       
+        // assert
+        assertEquals("No user found with the provided authId.", exception.getMessage());
+        verify(userDocRef, Mockito.never()).update(anyMap());
+        verify(userDocRef, Mockito.never()).set(anyMap());
+
+    }
+
+    @Test
+    void updateUserProfile_InvalidDateFormat_LogsErrorAndSkipsUpdate() throws InterruptedException, ExecutionException {
+        // Arrange
+        String userAuthId = "userAuthId123";
+        String userUid = "userUid123";
+
+        // Existing user data
+        User existingUser = new User();
+        existingUser.setUid(userUid);
+        existingUser.setAuthId(userAuthId);
+
+        // UserDTO with invalid date format
+        UserDTO updatedUserDto = new UserDTO();
+        updatedUserDto.setUid(userUid);
+        updatedUserDto.setAuthId(userAuthId);
+        updatedUserDto.setDateOfBirth("1999-13-32"); // Invalid date
+
+        // Mock Firestore interactions
+        when(firestore.collection("Users")).thenReturn(usersCollection);
+        when(usersCollection.whereEqualTo("authId", userAuthId)).thenReturn(usersQuery);
+        when(usersQuery.get()).thenReturn(userQueryFuture);
+        when(userQueryFuture.get()).thenReturn(userQuerySnapshot);
+        when(userQuerySnapshot.isEmpty()).thenReturn(false);
+        when(userQuerySnapshot.getDocuments()).thenReturn(Collections.singletonList(userSnapshot));
+        when(userSnapshot.exists()).thenReturn(true);
+        when(userSnapshot.toObject(User.class)).thenReturn(existingUser);
+        when(userSnapshot.getReference()).thenReturn(userDocRef);
+
+        // Correctly mock userDocRef.get()
+        when(userDocRef.get()).thenReturn(ApiFutures.immediateFuture(userSnapshot));
+
+        // Correctly mock userDocRef.update() to prevent NPE
+        when(userDocRef.update(anyMap())).thenReturn(ApiFutures.immediateFuture(Mockito.mock(WriteResult.class)));
+
+        // Act
+        Map<String, Object> result = userService.updateUserProfile(userAuthId, updatedUserDto);
+
+        // Assert
+        assertFalse(result.containsKey("dateOfBirth")); // Date not added to result
+        verify(userDocRef, never()).update(argThat(map -> map.containsKey("dateOfBirth")));
+    }
+
+
 }
