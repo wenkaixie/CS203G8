@@ -9,7 +9,7 @@ import Form from 'react-bootstrap/Form';
 import { FaGoogle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
-import { setDoc, doc } from 'firebase/firestore';
+import { setDoc, doc, getDoc } from 'firebase/firestore';
 import { FirestoreDB } from '../../firebase/firebase_config';
 
 const Signup = () => {
@@ -72,21 +72,30 @@ const Signup = () => {
             setError("Passwords do not match!");
             return;
         }
-
+    
         try {
             setLoading(true);
-            // Step 1: Create user in Firebase Authentication
             const userSignup = await createUserWithEmailAndPassword(auth, email, password);
             const user = userSignup.user;
-            console.log('User created:', user.uid);
-        
-            // Step 2: Store user info in Firestore under the 'User' collection
-            await setDoc(doc(FirestoreDB, 'User', user.uid), {
-                uid: user.uid,  // Storing UID
-                Email: user.email // Storing email
-            });
-
-            // onAuthStateChanged will handle the redirection
+            console.log('Google sign-up success:', user);
+            
+            const userDocRef = doc(FirestoreDB, 'Users');
+            const userDocSnapshot = await getDoc(userDocRef);
+            
+            if (userDocSnapshot.exists()) {
+                console.log('User already exists in Firestore:', user.uid);
+            } else {
+                await setDoc(userDocRef, {
+                    authId: user.uid,
+                    email: user.email,
+                    uid: userDocRef.id,
+                    registrationHistory: []
+                });
+            
+                console.log('User document created with Firestore ID matching Firebase UID:', user.uid);
+            }
+            
+            setLoading(false);
         } catch (error) {
             console.error('Error creating user:', error.message);
             setError(`Sign-up failed: ${error.message}`);
@@ -102,22 +111,34 @@ const Signup = () => {
             setLoading(true);
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
-            console.log('Google sign up success:', user);
-
-            // Store user info in Firestore under the 'User' collection
-            await setDoc(doc(FirestoreDB, 'User', user.uid), {
-                uid: user.uid,  // Storing UID
-                Email: user.email // Storing email
-            });
-
-            // onAuthStateChanged will handle the redirection
+            console.log('Google sign-up success:', user);
+            
+            const userDocRef = doc(FirestoreDB, 'Users');
+            const userDocSnapshot = await getDoc(userDocRef);
+            
+            if (userDocSnapshot.exists()) {
+                console.log('User already exists in Firestore:', user.uid);
+            } else {
+                await setDoc(userDocRef, {
+                    authId: user.uid,
+                    email: user.email,
+                    uid: userDocRef.id,
+                    registrationHistory: []
+                });
+            
+                console.log('User document created with Firestore ID matching Firebase UID:', user.uid);
+            }
+            
+            setLoading(false);
+            
         } catch (error) {
-            console.error('Google sign up error:', error.message);
+            console.error('Google sign-up error:', error.message);
             setError(`Google sign-up failed: ${error.message}`);
         } finally {
             setLoading(false);
         }
     };
+    
 
     return (
         <Container fluid className="signup">

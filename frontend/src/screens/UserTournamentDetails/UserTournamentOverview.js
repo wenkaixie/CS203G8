@@ -1,118 +1,142 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import './UserTournamentOverview.css';
 import UserDetailsHeader from './UserDetailsHeader';
 
 const UserTournamentOverview = () => {
-    // State for total participants and current number of registered players
-    const [numberOfPlayers, setNumberOfPlayers] = useState(0);  // State to hold the current number of registered players
-    const [tournamentData, setTournamentData] = useState({
-        title: "Tournament 1",
-        dateRange: "June 21, 2024 to July 01, 2024",
-        type: "Swiss",
-        totalParticipants: 30,  
-        location: "Budapest, Hungary. Activities will take place at the Hungarian National Gallery and the Intercontinental Budapest.",
-        format: [
-            "Teams compete in an 11-round Swiss",
-            "Teams assign players to boards one, two, three, and four",
-            "Matches consist of players from each board of one nation playing against the corresponding board of the opponent nation",
-            "Time control: 90+30, with 30 minutes added after move 40",
-            "Players cannot draw by agreement before move 30"
-        ],
-        prizes: {
-            total: "$175,000",
-            breakdown: [
-                { place: "1st", amount: "$70,000" },
-                { place: "2nd", amount: "$45,000" },
-                { place: "3rd", amount: "$30,000" },
-                { place: "4th", amount: "$20,000" },
-                { place: "5th", amount: "$10,000" },
-            ]
-        },
-        organizer: "World Chess Organization",
-        partners: "Vestibulum vulputate, justo a pellentesque feugiat"
-    });
+    const { tournamentId } = useParams();
+    const [numberOfPlayers, setNumberOfPlayers] = useState(0);
+    const [tournamentData, setTournamentData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Fetch the current number of players from the database
     useEffect(() => {
-        const fetchNumberOfPlayers = async () => {
+        const fetchTournamentData = async () => {
             try {
-                // Replace with your API call
-                // Example: const response = await fetch('/api/tournament/1/playersCount');
-                // const data = await response.json();
-                // setNumberOfPlayers(data.numberOfPlayers);
+                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                setTournamentData(response.data);
 
-                // Simulating an API response
-                const simulatedPlayersCount = 5;  // Replace this with the actual API response
-                setNumberOfPlayers(simulatedPlayersCount);
+                const usersArray = (response.data.users || []).filter(user => user.trim() !== "");
+                setNumberOfPlayers(usersArray.length);
+
+                setLoading(false);
             } catch (error) {
-                console.error("Failed to fetch number of players:", error);
+                setError(error.message);
+                setLoading(false);
             }
         };
 
-        fetchNumberOfPlayers();
-    }, []);
+        fetchTournamentData();
+
+        const handleRegistrationSuccess = () => fetchTournamentData();
+        window.addEventListener('registrationSuccess', handleRegistrationSuccess);
+
+        // Cleanup listener on unmount
+        return () => {
+            window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
+        };
+    }, [tournamentId]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    // Tournament format string
+    const tournamentFormat = `${tournamentData?.name || "This tournament"} is a ${tournamentData?.capacity || numberOfPlayers}-player single-elimination knockout tournament. Players compete head-to-head in a series of matches, with the winner advancing to the next round, and the loser being eliminated. The tournament follows standard chess rules, with time controls of 90 minutes for the first 40 moves, followed by 30 minutes for the remainder of the game, with an additional 30 seconds per move starting from move one. The ultimate goal is to determine the champion through progressive elimination of participants.`;
+
+    // Calculate prize breakdown based on total prize
+    const calculatePrizeBreakdown = (totalPrize) => {
+        let total = 0;
+
+        if (typeof totalPrize === 'string') {
+            total = parseFloat(totalPrize.replace(/[^0-9.-]+/g, ''));
+        } else if (typeof totalPrize === 'number') {
+            total = totalPrize;
+        }
+
+        return [
+            { place: "1st", amount: `$${(total * 0.40).toLocaleString()}` },
+            { place: "2nd", amount: `$${(total * 0.25).toLocaleString()}` },
+            { place: "3rd", amount: `$${(total * 0.15).toLocaleString()}` },
+            { place: "4th", amount: `$${(total * 0.10).toLocaleString()}` },
+            { place: "5th", amount: `$${(total * 0.05).toLocaleString()}` },
+        ];
+    };
+
+    // Calculate the breakdown or use default if not provided
+    const prizeBreakdown = tournamentData?.prize ? calculatePrizeBreakdown(tournamentData.prize) : [];
 
     return (
         <div>
-            {/* Header with registration details */}
-            <UserDetailsHeader 
+            <UserDetailsHeader
                 activeTab="overview"
-                tournamentTitle={tournamentData.title}
-                playerCount={numberOfPlayers} 
+                tournamentTitle={tournamentData?.name || "Tournament Overview"}
+                playerCount={numberOfPlayers}
             />
 
-            {/* Tournament Overview Content */}
             <div className="tournament-overview">
                 <div className="tournament-description">
-                    <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at rhoncus nibh.
-                        Sed sed urna felis. Curabitur mollis blandit egestas. Ut viverra tincidunt elementum.
-                        Pellentesque maximus ante id augue iaculis eleifend. Phasellus aliquam non pharetra ligula.
-                        Maecenas tristique nulla mattis iaculis semper. Nullam dignissim sed nibh eget dictum.
-                        Ut bibendum nisi ullamcorper vestibulum facilisis.
-                    </p>
+                    <p>{tournamentData?.description || "No description available for this tournament."}</p>
                 </div>
+
+                {/* Tournament Format Section */}
                 <div className="tournament-details">
                     <div className="detail-row">
-                        <strong>Dates:</strong> {tournamentData.dateRange}
+                        <strong>Dates:</strong>
+
+                        {new Date(tournamentData?.startDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} —
+                        {' '}
+                        {new Date(tournamentData?.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+
                     </div>
                     <div className="detail-row">
-                        <strong>Tournament type:</strong> {tournamentData.type}
+                        <strong>Tournament type:</strong> {tournamentData?.type || "Swiss"}
                     </div>
                     <div className="detail-row">
-                        <strong>Total Participants:</strong> {tournamentData.totalParticipants} {/* Total slots available */}
+                        <strong>ELO requirement:</strong> {tournamentData?.eloRequirement || "0"}
                     </div>
                     <div className="detail-row">
-                        <strong>Current Number of Players:</strong> {numberOfPlayers} {/* Dynamic number of players */}
+                        <strong>Total Participants:</strong> {tournamentData?.capacity || "N/A"}
                     </div>
                     <div className="detail-row">
-                        <strong>Location:</strong> {tournamentData.location}
+                        <strong>Current Number of Players:</strong> {numberOfPlayers}
+                    </div>
+                    <div className="detail-row">
+                        <strong>Location:</strong> {tournamentData?.location || "Budapest, Hungary"}
                     </div>
                     <div className="detail-row">
                         <strong>Format:</strong>
-                        <ul>
-                            {tournamentData.format.map((item, index) => (
-                                <li key={index}>{item}</li>
-                            ))}
-                        </ul>
+                        <p>{tournamentFormat}</p>
                     </div>
+
                     <div className="detail-row">
                         <strong>Prizes:</strong>
                         <div className="prizes">
                             <div className="prize-total-box">
                                 <div className="prize-icon">💰</div>
-                                <div className="prize-amount">{tournamentData.prizes.total}</div>
+                                <div className="prize-amount">${tournamentData?.prize || "$0"}</div>
                                 <div className="prize-label">Total prize pool</div>
                             </div>
                             <div className="prize-breakdown-box">
                                 <table className="prize-table">
                                     <tbody>
-                                        {tournamentData.prizes.breakdown.map((prize, index) => (
-                                            <tr key={index}>
-                                                <td className="prize-place">{prize.place}</td>
-                                                <td className="prize-amount-text">{prize.amount}</td>
+                                        {prizeBreakdown.length > 0 ? (
+                                            prizeBreakdown.map((prize, index) => (
+                                                <tr key={index}>
+                                                    <td className="prize-place">{prize.place}</td>
+                                                    <td className="prize-amount-text">{prize.amount}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="2">No prize breakdown available</td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -120,15 +144,12 @@ const UserTournamentOverview = () => {
                     </div>
                     <div className="organizer-container">
                         <div className="detail-row">
-                            <strong>Organizer:</strong> {tournamentData.organizer}
-                        </div>
-                        <div className="detail-row">
-                            <strong>Official partners:</strong> {tournamentData.partners}
+                            <strong>Organizer:</strong> {tournamentData?.organizer || "World Chess Organization"}
                         </div>
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

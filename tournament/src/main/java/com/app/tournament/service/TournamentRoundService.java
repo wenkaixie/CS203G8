@@ -212,7 +212,7 @@ public class TournamentRoundService {
     public List<TournamentRound> getRoundsByTournamentId(String tournamentID)
             throws InterruptedException, ExecutionException {
         ApiFuture<QuerySnapshot> future = firestore.collection("TournamentRounds")
-                .whereEqualTo("tournamentId", tournamentID)
+                .whereEqualTo("tid", tournamentID)
                 .get();
 
         List<QueryDocumentSnapshot> documents = future.get().getDocuments();

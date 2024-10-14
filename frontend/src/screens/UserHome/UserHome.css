@@ -108,7 +108,7 @@ body {
   padding: 5%;
   border: '1px solid rgba(0, 0, 0, 0.1)';
   border-radius: 10px;
-  box-shadow: '0px 4px 10px rgba(0, 0, 0, 0.2)';
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -135,14 +135,4 @@ body {
   justify-content: center;
   gap: 12px;
   height: 70%;
-}
-
-.games-history {
-  display: flex;
-  cursor: pointer;
-  color: #8F3013;
-}
-
-.games-history:hover {
-  text-decoration: underline;
 }

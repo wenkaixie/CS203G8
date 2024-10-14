@@ -1,139 +1,146 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './UserTournamentMatch.css';
 import Header from './UserDetailsHeader';
+import { useParams } from 'react-router-dom';
+import UserTournamentMatchDiagram from './UserTournamentMatchDiagram';
 
 const UserTournamentMatch = () => {
+    const { tournamentId } = useParams();
     const [matches, setMatches] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredMatches, setFilteredMatches] = useState([]);
     const [sortBy, setSortBy] = useState('');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const [selectedRound, setSelectedRound] = useState(''); // Default: empty string
+    const [availableRounds, setAvailableRounds] = useState([]);
+    const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
-    const [selectedRound, setSelectedRound] = useState('All rounds'); // Initialize selectedRound state here
-
-    // Dummy data with player scores and results (Win/Lost/Draw)
-    const dummyData = [
-        {
-            round: 1,
-            matches: [
-                {
-                    no: 1, date: 'Jun 21, 2024 08:40am', location: 'City Hall, Table 5',
-                    player1: 'Hikaru Nakamura', rating1: 2000, nationality1: 'Japan', score1: 1,
-                    player2: 'Vincent Keymer', rating2: 2100, nationality2: 'Germany', score2: 0
-                },
-                {
-                    no: 2, date: 'Jun 21, 2024 09:45am', location: 'City Hall, Table 5',
-                    player1: 'Hikaru Nakamura', rating1: 2000, nationality1: 'Japan', score1: 0.5,
-                    player2: 'Vincent Keymer', rating2: 2100, nationality2: 'Germany', score2: 0.5
-                }
-            ]
-        },
-        {
-            round: 2,
-            matches: [
-                {
-                    no: 1, date: 'Jun 21, 2024 08:40am', location: 'City Hall, Table 5',
-                    player1: 'Hikaru Nakamura', rating1: 2000, nationality1: 'Japan', score1: 1,
-                    player2: 'Vincent Keymer', rating2: 2100, nationality2: 'Germany', score2: 0
-                },
-                {
-                    no: 2, date: 'Jun 21, 2024 09:45am', location: 'City Hall, Table 5',
-                    player1: 'Hikaru Nakamura', rating1: 2000, nationality1: 'Japan', score1: 0.5,
-                    player2: 'Vincent Keymer', rating2: 2100, nationality2: 'Germany', score2: 0.5
-                }
-            ]
-        }
-    ];
+    const [activeView, setActiveView] = useState('diagram');
 
     useEffect(() => {
-        setMatches(dummyData);
-        const allMatches = dummyData.flatMap(roundData => roundData.matches);
-        setFilteredMatches(allMatches);
-    }, [dummyData]);
+        const fetchTournamentDetails = async () => {
+            try {
+                const response = await axios.get(
+                    `http://localhost:8080/api/tournaments/${tournamentId}`
+                );
+                const tournamentData = response.data;
+                setTournamentTitle(tournamentData.name || 'Tournament');
+                setPlayerCount(tournamentData.users?.length || 0);
+            } catch (error) {
+                console.error('Error fetching tournament details:', error);
+            }
+        };
+        fetchTournamentDetails();
 
-    const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
-    };
+        const handleRegistrationSuccess = () => fetchTournamentDetails();
+        window.addEventListener('registrationSuccess', handleRegistrationSuccess);
 
-    // Handle round selection from the dropdown (without changing display yet)
+        // Cleanup listener on unmount
+        return () => {
+            window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
+        };
+    }, [tournamentId]);
+
+    useEffect(() => {
+        const fetchRounds = async () => {
+            try {
+                const response = await axios.get(
+                    `http://localhost:8080/api/tournaments/${tournamentId}/allRounds`
+                );
+                setAvailableRounds(response.data);
+            } catch (error) {
+                console.error('Error fetching rounds:', error);
+            }
+        };
+        fetchRounds();
+    }, [tournamentId]);
+
+    useEffect(() => {
+        const fetchMatches = async () => {
+            try {
+                if (selectedRound) {
+                    const response = await axios.get(
+                        `http://localhost:8080/api/rounds/${selectedRound}/matches`
+                    );
+                    const matchesData = response.data;
+
+                    const enhancedMatches = await Promise.all(
+                        matchesData.map(async (match) => {
+                            const [player1Response, player2Response] = await Promise.all([
+                                axios.get(`http://localhost:9090/user/getUser/${match.uid1}`),
+                                axios.get(`http://localhost:9090/user/getUser/${match.uid2}`),
+                            ]);
+
+                            const player1Data = player1Response.data;
+                            const player2Data = player2Response.data;
+
+                            return {
+                                ...match,
+                                player1: player1Data.name || 'Player 1',
+                                rating1: player1Data.elo || 'N/A',
+                                nationality1: player1Data.nationality || 'N/A',
+                                player2: player2Data.name || 'Player 2',
+                                rating2: player2Data.elo || 'N/A',
+                                nationality2: player2Data.nationality || 'N/A',
+                            };
+                        })
+                    );
+
+                    setMatches(enhancedMatches);
+                } else {
+                    setMatches([]); // Clear matches if no round is selected
+                }
+            } catch (error) {
+                console.error('Error fetching matches:', error);
+                setMatches([]);
+            }
+        };
+        fetchMatches();
+    }, [selectedRound]);
+
+    const handleSearch = (e) => setSearchTerm(e.target.value);
+    const toggleDropdown = () => setIsDropdownVisible(!isDropdownVisible);
+
     const handleRoundSelection = (round) => {
         setSelectedRound(round);
-        // Filtering logic will be added here later if needed
+        setIsDropdownVisible(false);
     };
 
-    const handleImageViewClick = () => {
-        const tournamentId = 1; // Replace with the actual tournament ID
-        window.location.href = `/tournament/${tournamentId}/matchtree`;
-    };
-
-    const toggleDropdown = () => {
-        setIsDropdownVisible(!isDropdownVisible);
-    };
-
-    const handleSortChange = (criteria) => {
-        setSortBy(criteria);
-        setIsDropdownVisible(false); // Hide dropdown after selection
-    };
-
-    const getResult = (score1, score2) => {
-        if (score1 > score2) return 'Won';
-        if (score1 < score2) return 'Lost';
-        return 'Draw';
-    };
-
-    // Filter and sort matches based on search term and sorting criteria
-    useEffect(() => {
-        let updatedList = matches.flatMap(roundData => roundData.matches); // Flatten all rounds into a single array
-
-        // Filter by search term
-        if (searchTerm) {
-            updatedList = updatedList.filter(
-                (match) =>
-                    match.player1.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    match.player2.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    match.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    match.location.toLowerCase().includes(searchTerm.toLowerCase()) // Filter by location
-            );
-        }
-
-        // Sort the list
-        if (sortBy) {
-            updatedList = updatedList.sort((a, b) => {
-                if (sortBy === 'newest') {
-                    return new Date(b.date) - new Date(a.date); // Sort by newest date first
-                } else if (sortBy === 'oldest') {
-                    return new Date(a.date) - new Date(b.date); // Sort by oldest date first
-                }
-                return 0;
-            });
-        }
-
-        setFilteredMatches(updatedList);
-    }, [searchTerm, matches, sortBy]);
+    const handleListViewClick = () => setActiveView('list');
+    const handleDiagramViewClick = () => setActiveView('diagram');
 
     return (
         <div>
-            <Header
-                tournamentTitle="Tournament 1"
-                playerCount={playerCount} // Replace with actual count from database
-            />
-
+            <Header tournamentTitle={tournamentTitle} playerCount={playerCount} />
             <div className="user-tournament-match">
-                {/* Search and Sort Controls */}
                 <div className="controls-container">
                     <div className="view-buttons">
-                        <button className="list-view-button">
-                            <img src={require('../../assets/images/List-view.png')} alt="List View" />
+                        <button
+                            className={`list-view-button ${activeView === 'list' ? 'active' : ''}`}
+                            onClick={handleListViewClick}
+                        >
+                            <img
+                                src={require('../../assets/images/List-view.png')}
+                                alt="List View"
+                                className="view-icon"
+                            />
                         </button>
-                        <button className="image-view-button" onClick={handleImageViewClick}>
-                            <img src={require('../../assets/images/Image-view.png')} alt="Image View" />
+                        <button
+                            className={`image-view-button ${activeView === 'diagram' ? 'active pink' : ''}`}
+                            onClick={handleDiagramViewClick}
+                        >
+                            <img
+                                src={require('../../assets/images/Image-view.png')}
+                                alt="Image View"
+                                className="view-icon"
+                            />
                         </button>
                     </div>
 
                     <div className="search-bar">
                         <input
                             type="text"
-                            placeholder="Search for a round/participant/date"
+                            placeholder="Search for a round/participant"
                             value={searchTerm}
                             onChange={handleSearch}
                         />
@@ -145,34 +152,41 @@ const UserTournamentMatch = () => {
                     </div>
 
                     <button className="filter-button">
-                        <img src={require('../../assets/images/Adjust.png')} alt="Filter Icon" className="filter-icon" />
+                        <img
+                            src={require('../../assets/images/Adjust.png')}
+                            alt="Filter Icon"
+                            className="filter-icon"
+                        />
                         <span>Filter</span>
                     </button>
 
-                    {/* Order By Dropdown */}
                     <div className="dropdown">
                         <button className="order-button" onClick={toggleDropdown}>
-                            All rounds
+                            {selectedRound === '' ? 'All rounds' : `Round ${selectedRound}`}
                         </button>
                         {isDropdownVisible && (
                             <div className="dropdown-content">
-                                <div className="dropdown-item" onClick={() => handleRoundSelection('round1')}>
-                                    Round 1
+                                <div className="dropdown-item" onClick={() => handleRoundSelection('')}>
+                                    All rounds
                                 </div>
-                                <div className="dropdown-item" onClick={() => handleRoundSelection('round2')}>
-                                    Round 2
-                                </div>
+                                {availableRounds.map((round) => (
+                                    <div
+                                        className="dropdown-item"
+                                        key={round.trid}
+                                        onClick={() => handleRoundSelection(round.trid)}
+                                    >
+                                        Round {round.roundNumber}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
-
                 </div>
 
-                {/* Matches List */}
-                <div className="match-list">
-                    {matches.map((roundData, roundIndex) => (
-                        <div key={roundIndex}>
-                            <div className="round-title">Round {roundData.round}</div>
+                {activeView === 'list' ? (
+                    availableRounds.map((round) => (
+                        <div key={round.trid}>
+                            <h2 className="round-title">Round {round.roundNumber}</h2>
                             <table className="matches-table">
                                 <thead>
                                     <tr>
@@ -191,41 +205,39 @@ const UserTournamentMatch = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {roundData.matches.map((match, matchIndex) => (
-                                        <tr key={matchIndex}>
-                                            <td>{match.no}</td>
-                                            <td>{match.date}</td>
-                                            <td>{match.location}</td>
-                                            <td>{match.player1}</td>
-                                            <td>{match.rating1}</td>
-                                            <td>{match.nationality1}</td>
-                                            <td className="result-column">
-                                                <span className={`result-gap ${getResult(match.score1, match.score2).toLowerCase()}`}>
-                                                    {getResult(match.score1, match.score2)}
-                                                </span>
-
-                                                <span className="score">{match.score1}</span>
-                                            </td>
-                                            <td className="vs-text">VS</td>
-                                            <td className="result-column">
-                                                <span className="score">{match.score2}</span>
-                                                <span className={`result-gap ${getResult(match.score2, match.score1).toLowerCase()}`}>
-                                                    {getResult(match.score2, match.score1)}
-                                                </span>
-
-                                            </td>
-                                            <td>{match.player2}</td>
-                                            <td>{match.rating2}</td>
-                                            <td>{match.nationality2}</td>
+                                    {matches.filter((match) => match.rid === round.trid).length > 0 ? (
+                                        matches
+                                            .filter((match) => match.rid === round.trid)
+                                            .map((match, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{new Date(match.matchDate).toLocaleDateString()}</td>
+                                                    <td>{match.location || 'N/A'}</td>
+                                                    <td>{match.player1}</td>
+                                                    <td>{match.rating1}</td>
+                                                    <td>{match.nationality1}</td>
+                                                    <td>{match.user1Score}</td>
+                                                    <td className="vs-text">VS</td>
+                                                    <td>{match.user2Score}</td>
+                                                    <td>{match.player2}</td>
+                                                    <td>{match.rating2}</td>
+                                                    <td>{match.nationality2}</td>
+                                                </tr>
+                                            ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="12">No matches for this round.</td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>
-                    ))}
-                </div>
+                    ))
+                ) : (
+                    <UserTournamentMatchDiagram />
+                )}
             </div>
-        </div >
+        </div>
     );
 };
 

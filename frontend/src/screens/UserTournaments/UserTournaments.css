@@ -1,0 +1,312 @@
+/* General Styles */
+body {
+  font-family: 'Josefin Sans', sans-serif !important;
+}
+
+.tournament-upcoming {
+  padding: 40px 10%;
+}
+
+/* Controls Container (Search, Filter, and Order By) */
+.controls-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 25px auto;
+  margin-bottom: 30px;
+}
+
+/* Search Bar */
+.search-bar {
+  position: relative;
+  flex-grow: 1;
+  margin-right: 5px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 50px 10px 20px;
+  border: 1px solid #d1d1d1;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  height: 45px;
+  color: #333;
+}
+
+.search-bar input::placeholder {
+  color: #a1a1a1;
+}
+
+.search-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 20px;
+}
+
+/* Buttons Container (Filter and Order By) */
+.buttons-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Filter Button */
+.filter-button {
+  height: 45px;
+  width: 120px;
+  background-color: #ffffff;
+  border: 1px solid #d1d1d1;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #333333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.filter-button img {
+  width: 20px;
+  height: 20px;
+}
+
+.filter-button:hover {
+  background-color: #e0e0e0;
+}
+
+/* Order By Dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  background-color: #ffffff;
+  min-width: 180px;
+  border: 1px solid #d1d1d1;
+  border-radius: 5px;
+  z-index: 1;
+  margin-top: 5px;
+}
+
+.dropdown-item {
+  color: #333;
+  padding: 10px 15px !important;
+  margin: 0px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.dropdown-item:active {
+  background-color: #e0e0e0;
+}
+
+/* Order Button */
+.order-button {
+  height: 45px;
+  min-width: 180px;
+  background-color: #ffffff;
+  border: 1px solid #d1d1d1;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #333333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.order-button::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #333333;
+}
+
+.order-button:hover {
+  background-color: #e0e0e0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .controls-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .search-bar {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .buttons-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .filter-button,
+  .order-button {
+    width: 48%;
+  }
+}
+
+/* Tournament List and Table */
+.tournament-list {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.tournament-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 20px;
+}
+
+/* Table Header */
+.tournament-table th {
+  font-weight: 600;
+  color: #333333;
+  padding: 10px 20px;
+  border-bottom: 2px solid #e0e0e0;
+  text-align: left;
+  background-color: #f5f5f5;
+}
+
+/* Table Rows */
+.tournament-table tr {
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.tournament-table td {
+  font-weight: 500;
+  color: #555555;
+  padding: 15px 20px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Different status colors for table rows */
+.tournament-table td.status-registered {
+  color: #007bff; /* Blue for registered */
+  font-weight: 500;
+  text-align: left;
+}
+
+.tournament-table td.status-open {
+  color: #28a745; /* Green for open registration */
+  font-weight: 500;
+  text-align: left;
+}
+
+.tournament-table td.status-closed {
+  color: #6c757d; /* Grey for published */
+  font-weight: 500;
+  text-align: left;
+}
+
+/* Hover Row Style */
+.tournament-table tr:hover {
+  background-color: #F5F5EF;
+}
+
+/* Button States Transition */
+.button,
+.subtask-button,
+.filter-button,
+.order-button {
+  transition: 0.2s;
+}
+
+/* Container for Header and Subtask Bar */
+.header-subtask-container {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: center; /* Center everything horizontally */
+  margin-bottom: 20px; /* Space below the subtask bar */
+  width: 100%; /* Full width */
+}
+
+/* Tournament Header */
+.header-subtask-container h1 {
+  flex: 0 0 auto; /* Prevent the header from growing/shrinking */
+  margin: 0; /* Remove default margin */
+  font-size: 2rem; 
+  width: auto; /* Adjust width to fit content */
+  margin-right: 20px; /* Space between header and subtask bar */
+}
+
+/* Subtask Bar */
+.subtask-bar {
+  display: flex;
+  background-color: #f5f5f5; 
+  border-radius: 50%; 
+  width: 40%; /* Adjust width for centering */
+  height: 45px; 
+  margin-left: auto;
+}
+
+/* Each subtask button */
+.subtask-button {
+  flex: 1; /* Each button takes up equal space */
+  padding: 0 20px; /* Remove vertical padding, keep horizontal padding */
+  background-color: #F5F5EF;
+  border-radius: 25px;
+  border: none; 
+  font-size: 1rem; 
+  font-weight: 500; 
+  cursor: pointer; /* Pointer cursor on hover */
+  display: flex; /* Use flex to align text */
+  align-items: center; /* Vertically center text */
+  justify-content: center; /* Center text horizontally */
+}
+
+/* Hover state for buttons */
+.subtask-button:hover {
+  background-color: #f5f5ef; 
+  color: #333333; 
+}
+
+/* Active button style */
+.subtask-button.active {
+  background-color: #8f3013; 
+  color: #ffffff; 
+  transition: 0.2s;
+}
+
+/* Save button styles */
+.save-icon {
+  text-align: center;
+}
+
+.save-icon button {
+  background-color: #8f3013;
+  color: #ffffff; 
+  border: none;
+  padding: 8px 12px; /* Padding inside the button */
+  border-radius: 5px; 
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.save-icon button:hover {
+  background-color: #a5421d; 
+}

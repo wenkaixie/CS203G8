@@ -33,10 +33,11 @@ const Login = () => {
                     setLoading(true);
                     //console.log("User logged in:", user.email);
                     const role = await getUserRole(user.email); // Await role checking
-                    //console.log("User role:", role);   
+                    
+                    // console.log("User role:", role);   
 
                     // Redirect user to the appropriate home page based on the collection they belong to
-                    if (role === 'User') {
+                    if (role === 'Users') {
                         navigate('/user/home');
                     } else if (role === 'Admin') {
                         navigate('/admin/home');
@@ -66,11 +67,12 @@ const Login = () => {
         try {
             // Check the 'User' collection
             console.log("Checking user role for email:", email);
-            const userQuery = query(collection(FirestoreDB, 'User'), where('email', '==', email));
+            const userQuery = query(collection(FirestoreDB, 'Users'), where('email', '==', email));
             const userSnapshot = await getDocs(userQuery);
+            console.log("User snapshot:", userSnapshot);
 
             if (!userSnapshot.empty) {
-                return 'User'; // User found in 'User' collection
+                return 'Users'; // User found in 'User' collection
             }
 
             // Check the 'Admin' collection
@@ -111,12 +113,11 @@ const Login = () => {
     const handleLogin = async (event) => {
         event.preventDefault();
         setError(null);  // Clear any previous error
-
         try {
             await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
             console.error("Login error:", error.message);
-            setError(`Login failed: ${error.message}`);
+            setError(`Login failed. Please try again.`);
             setLoading(false);
         }
     };
@@ -133,7 +134,7 @@ const Login = () => {
             } 
         } catch (error) {
             console.error("Google login error:", error.message);
-            setError(`Google login failed: ${error.message}`);
+            setError(`Login failed. Please try again.`);
             setLoading(false);
         }
     };
@@ -234,7 +235,7 @@ const Login = () => {
             {!loading && error && (
                 <div className="popup">
                     <div className="popup-content">
-                        <h2>Error</h2>
+                        <h2>Authentication Error</h2>
                         <p>{error}</p>
                         <Button variant="secondary" onClick={handleClosePopup}>Close</Button>
                     </div>

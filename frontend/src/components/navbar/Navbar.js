@@ -17,7 +17,7 @@ import { signOut } from 'firebase/auth';
 import FBInstanceAuth from '../../firebase/firebase_auth'; // Assuming this is where Firebase auth is managed
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const pages = ['Home', 'Performance', 'Tournament', 'Calendar'];
+const pages = ['Home', 'Tournaments', 'My Calendar', 'My Performance'];
 const settings = ['Profile', 'Logout'];
 
 function Navbar() {
@@ -47,8 +47,16 @@ function Navbar() {
     navigate('/user/home');
   }
 
+  const handleGoToTournaments = () => {
+    navigate('/user/tournaments');
+  }
+
   const handleGoToCalendar = () => {
     navigate('/user/calendar');
+  }
+
+  const handleGoToProfile = () => {
+    navigate('/user/profile');
   }
 
   const handleLogout = async () => {
@@ -100,8 +108,12 @@ function Navbar() {
                   <MenuItem key={page} onClick={handleGoToHome}>
                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                   </MenuItem>
-                ) : page === 'Calendar' ? (
+                ) : page === 'My Calendar' ? (
                   <MenuItem key={page} onClick={handleGoToCalendar}>
+                    <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                  </MenuItem>
+                ) : page === 'Tournaments' ? (
+                  <MenuItem key={page} onClick={handleGoToTournaments}>
                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                   </MenuItem>
                 ) : (
@@ -123,7 +135,16 @@ function Navbar() {
                 >
                   {page}
                 </Button>
-                ) : page === 'Calendar' ? (
+                ) : page === 'Tournaments' ? (
+                  <Button
+                    key={page}
+                    onClick={handleGoToTournaments}
+                    style={{ cursor: 'pointer' }}
+                    sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
+                  >
+                    {page}
+                  </Button>
+                ) : page === 'My Calendar' ? (
                   <Button
                     key={page}
                     onClick={handleGoToCalendar}
@@ -132,7 +153,7 @@ function Navbar() {
                   >
                     {page}
                   </Button>
-                  ) : (
+                ) : (
                   <Button
                     key={page}
                     onClick={handleCloseNavMenu}
@@ -169,6 +190,10 @@ function Navbar() {
               {settings.map((setting) =>
                 setting === 'Logout' ? (
                   <MenuItem key={setting} onClick={handleLogout}>
+                    <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  </MenuItem>
+                ) : setting === 'Profile' ? (
+                  <MenuItem key={setting} onClick={handleGoToProfile}>
                     <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                   </MenuItem>
                 ) : (

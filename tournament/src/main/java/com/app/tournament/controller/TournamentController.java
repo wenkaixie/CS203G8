@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,10 @@ import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.model.Tournament;
 import com.app.tournament.service.TournamentService;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/tournaments") 
 public class TournamentController {
@@ -50,7 +55,7 @@ public class TournamentController {
         }
     }
 
-    @GetMapping
+    @GetMapping 
     public ResponseEntity<List<Tournament>> getAllTournaments() {
         try {
             List<Tournament> tournaments = tournamentService.getAllTournaments();
@@ -106,6 +111,51 @@ public class TournamentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    // Get upcoming tournaments
+    @GetMapping("/upcoming/{userID}")
+    public ResponseEntity<List<Tournament>> getUpcomingTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getUpcomingTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Get past tournaments
+    @GetMapping("/past/{userID}")
+    public ResponseEntity<List<Tournament>> getPastTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getPastTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Get ongoing tournaments of user
+    @GetMapping("/ongoing/{userID}")
+    public ResponseEntity<List<Tournament>> getOngoingTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getOngoingTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // Get eligible tournaments of user
+    @GetMapping("/eligible/{userID}")
+    public ResponseEntity<List<Tournament>> getEligibleTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getEligibleTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
     
     // Add player to tournament
     @PostMapping("/{tournamentID}/players")

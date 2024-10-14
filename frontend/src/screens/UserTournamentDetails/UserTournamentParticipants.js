@@ -1,51 +1,92 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import './UserTournamentParticipants.css';
 import Header from './UserDetailsHeader';
 
 const UserTournamentParticipants = () => {
+    const { tournamentId } = useParams();
     const [participants, setParticipants] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filteredParticipants, setFilteredParticipants] = useState([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [playerCount, setPlayerCount] = useState(0); // Add player count state
+    const [playerCount, setPlayerCount] = useState(0);
 
-    // Fetch tournament details and participants from API
+    // Helper function to convert Firestore timestamp to JavaScript Date and calculate age
+    const calculateAge = (dateOfBirth) => {
+        const birthDate = new Date(dateOfBirth.seconds * 1000);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        // Adjust for players born this year
+        if (age === 0 && (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()))) {
+            return 0;
+        }
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+
+
     useEffect(() => {
-        const fetchParticipants = async () => {
-            // Replace with your API call to fetch participants and player count
-            const data = [
-                { id: 1, name: 'Hikaru Nakamura', nationality: 'Japan', age: 30, worldRank: 3252, rating: 2860, gamesPlayed: 7 },
-                { id: 2, name: 'Vincent Keymer', nationality: 'Germany', age: 24, worldRank: 3254, rating: 2850, gamesPlayed: 2 },
-                { id: 3, name: 'Wei Yi', nationality: 'China', age: 43, worldRank: 2789, rating: 3060, gamesPlayed: 13 },
-                { id: 4, name: 'John Tan', nationality: 'Singapore', age: 36, worldRank: 3198, rating: 2760, gamesPlayed: 23 },
-                { id: 5, name: 'Player 5', nationality: 'United Kingdom', age: 17, worldRank: 1897, rating: 4860, gamesPlayed: 11 },
-            ];
-            setParticipants(data);
-            setPlayerCount(data.length); // Set player count based on participants length
-        };
-        fetchParticipants();
-    }, []);
+        const fetchTournamentData = async () => {
+            try {
+                // Fetch tournament data
+                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                const tournamentData = response.data;
 
-    // Handle search input
+                const participantIds = tournamentData.users || [];
+                console.log("HELP" + participantIds)
+
+                // Fetch user details for each participant and calculate age
+                const participantDetails = await Promise.all(
+                    participantIds.map(async (userID) => {
+                        const sanitizedUserID = userID.replace(/['"]/g, ''); // Remove quotes if present
+                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${sanitizedUserID}`);
+                        const userData = userResponse.data;
+                        const age = calculateAge(userData.dateOfBirth);
+                        return { ...userData, age };
+                    })
+                );
+
+                setParticipants(participantDetails);
+                setPlayerCount(participantDetails.length);
+            } catch (error) {
+                console.error('Error fetching participants:', error);
+            }
+        };
+
+        fetchTournamentData();
+
+        const handleRegistrationSuccess = () => fetchTournamentData();
+        window.addEventListener('registrationSuccess', handleRegistrationSuccess);
+
+        // Cleanup listener on unmount
+        return () => {
+            window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
+        };
+    }, [tournamentId]);
+
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
     };
 
-    // Toggle dropdown visibility
     const toggleDropdown = () => {
-        setIsDropdownVisible(!isDropdownVisible);
+        setIsDropdownVisible(!isDropdownVisible); // Toggle dropdown visibility
     };
 
-    // Handle selection from dropdown
     const handleSortChange = (criteria) => {
         setSortBy(criteria);
-        setIsDropdownVisible(false); // Hide dropdown after selection
+        setIsDropdownVisible(false); // Hide dropdown after selecting
     };
 
-    // Filter and sort the participants list based on user inputs
     useEffect(() => {
-        let updatedList = participants;
+        let updatedList = [...participants]; // Make a shallow copy of participants
 
         // Filter by search term
         if (searchTerm) {
@@ -59,12 +100,10 @@ const UserTournamentParticipants = () => {
             updatedList = updatedList.sort((a, b) => {
                 if (sortBy === 'name') {
                     return a.name.localeCompare(b.name);
-                }
-                else if (sortBy === 'age') {
+                } else if (sortBy === 'age') {
                     return b.age - a.age;
-                }
-                else if (sortBy === 'worldRank') {
-                    return a.worldRank - b.worldRank;
+                } else if (sortBy === 'rating') {
+                    return b.elo - a.elo;
                 }
                 return 0;
             });
@@ -75,14 +114,9 @@ const UserTournamentParticipants = () => {
 
     return (
         <div>
-            <Header
-                activetab="participants"
-                tournamentTitle="Tournament 1"
-                playerCount={playerCount} // Use the centralized player count state
-            />
+            <Header activetab="participants" tournamentTitle={tournamentId} playerCount={playerCount} />
 
             <div className="user-tournament-participants">
-                {/* Search and Sort Controls */}
                 <div className="controls-container">
                     <div className="search-bar">
                         <input
@@ -91,47 +125,26 @@ const UserTournamentParticipants = () => {
                             value={searchTerm}
                             onChange={handleSearch}
                         />
-                        {/* Search Icon */}
-                        <img
-                            src={require('../../assets/images/Search.png')}
-                            alt="Search Icon"
-                            className="search-icon"
-                        />
+                        <img src={require('../../assets/images/Search.png')} alt="Search Icon" className="search-icon" />
                     </div>
                     <div className="buttons-container">
-                        {/* Filter Button */}
                         <button className="filter-button">
-                            <img
-                                src={require('../../assets/images/Adjust.png')}
-                                alt="Filter Icon"
-                                className="filter-icon"
-                            />
+                            <img src={require('../../assets/images/Adjust.png')} alt="Filter Icon" className="filter-icon" />
                             <span>Filter</span>
                         </button>
-
-                        {/* Order By Dropdown Button */}
                         <div className="dropdown">
-                            <button className="order-button" onClick={toggleDropdown}>
-                                Order By
-                            </button>
+                            <button className="order-button" onClick={toggleDropdown}>Order By</button>
                             {isDropdownVisible && (
                                 <div className="dropdown-content">
-                                    <div className="dropdown-item" onClick={() => handleSortChange('name')}>
-                                        Name
-                                    </div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('age')}>
-                                        Age
-                                    </div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('worldRank')}>
-                                        World Rank
-                                    </div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('name')}>Name</div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('age')}>Age</div>
+                                    <div className="dropdown-item" onClick={() => handleSortChange('rating')}>Rating</div>
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Participants Table */}
                 <div className="participants-list">
                     <table className="participants-table">
                         <thead>
@@ -141,28 +154,33 @@ const UserTournamentParticipants = () => {
                                 <th>Nationality</th>
                                 <th>Age</th>
                                 <th>World rank</th>
-                                <th>Rating</th>
+                                <th>ELO Rating</th>
                                 <th>Games played this season</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredParticipants.map((participant, index) => (
-                                <tr key={participant.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{participant.name}</td>
-                                    <td>{participant.nationality}</td>
-                                    <td>{participant.age}</td>
-                                    <td>{participant.worldRank}</td>
-                                    <td>{participant.rating}</td>
-                                    <td>{participant.gamesPlayed}</td>
+                            {filteredParticipants.length > 0 ? (
+                                filteredParticipants.map((participant, index) => (
+                                    <tr key={participant.uid || index}>
+                                        <td>{index + 1}</td>
+                                        <td>{participant.name || 'null'}</td>
+                                        <td>{participant.nationality || 'null'}</td>
+                                        <td>{participant.age !== null && participant.age !== undefined ? participant.age : '0'}</td>
+                                        <td>{participant.worldRank || 'null'}</td>
+                                        <td>{participant.elo !== null && participant.elo !== undefined ? participant.elo : '0'}</td>
+                                        <td>{participant.registrationHistory.length || '0'}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="7">No participants available</td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
-
             </div>
-        </div >
+        </div>
     );
 };
 

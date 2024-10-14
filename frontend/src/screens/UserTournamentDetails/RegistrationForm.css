@@ -16,11 +16,12 @@
 .registration-modal {
     background-color: #fff;
     border-radius: 10px;
-    width: 650px; 
+    width: 600px; 
     max-width: 90%;
     display: flex;
     flex-direction: column;
     padding: 20px;
+    height: 85%; 
 }
 
 /* Registration Header */
@@ -51,38 +52,34 @@
     transform: scale(2.0);
 }
 
-
 /* Registration Body */
 .registration-body {
-    padding: 20px;
-    margin-top: 10px;
+    padding: 30px;
 }
 
-
+/* Form Labels */
 .form-group label {
     display: block;
     font-size: 1rem;
     font-weight: 500;
     color: #333;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
+    margin-top: 20px;
 }
 
-/* Add this CSS to target the specific label */
+/* Control the gap below the verification label */
 .form-group .verify-label {
-    margin-bottom: 20px; /* Control the gap */
+    margin-bottom: 30px;
+    margin-top: -10px;
 }
 
-
-.input-group {
-    margin-bottom: 25px;
-}
-
+/* Input Fields */
 .input-group input {
     width: 100%;
     padding: 10px 0 10px 12px;
     font-size: 1rem;
     border: 1px solid #d1d1d1;
-    border-radius: 10px !important;;
+    border-radius: 10px !important;
     outline: none;
     box-sizing: border-box;
 }
@@ -92,28 +89,42 @@
     gap: 15px; /* Space between input fields */
 }
 
+/* Input with Icon (Edit Button Inside) */
+.input-with-icon {
+    position: relative;
+    width: 100%;
+}
 
 .input-with-icon input {
     width: 100%;
-    padding-right: 50px; 
-    padding: 10px 0 10px 12px; /* Move the text */
+    padding: 15px 70px 15px 15px; /* Adjust padding for icon */
     font-size: 1rem;
     border: 1px solid #d1d1d1;
     border-radius: 10px;
+    background-color: #f9f9f9;
     outline: none;
     box-sizing: border-box;
-    background-color: #f9f9f9; 
-    cursor: not-allowed; /* Change cursor to indicate it's not editable */
 }
 
-.input-with-icon .lock-icon {
+/* Grey Edit Icon Inside Field */
+.input-with-icon .edit-icon {
     position: absolute;
-    right: 15px; /* Hhorizontal positioning */
-    top: 70%;
-    transform: translateY(-50%); /* Vertically center the icon */
+    right: 12px;
+    top: 60%; 
     font-size: 1.0rem; 
     color: #8c8c8c;
-    cursor: not-allowed; 
+    cursor: pointer;
+}
+
+/* Lock Icon for Read-only Email */
+.input-with-icon .lock-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%; 
+    transform: translateY(20%);
+    font-size: 1.2rem; 
+    color: #8c8c8c;
+    cursor: not-allowed;
 }
 
 /* Registration Footer */
@@ -125,18 +136,18 @@
 
 /* Registration Button */
 .registration-button {
-    background-color: #8F3013; 
+    background-color: #8F3013;
     border: none;
-    color: #ffffff; 
+    color: #ffffff;
     cursor: pointer;
-    font-size: 1.2rem; 
-    padding: 12px 0; 
-    width: 100%; 
+    font-size: 1.1rem;
+    padding: 12px 0;
+    width: 100%;
     max-width: 600px;
-    text-align: center; /* Center text inside the button */
-    border-radius: 10px; 
-    margin: 20px auto 0; /* Center the button horizontally and add space above */
-    display: block; /* Button takes up the full width */
+    text-align: center;
+    border-radius: 10px;
+
+    display: block;
 }
 
 .registration-button:hover {
@@ -144,10 +155,10 @@
 }
 
 .registration-button:disabled {
-    background-color: #d1d1d1; 
-    cursor: not-allowed; /* Show not-allowed cursor when button is disabled */
+    background-color: #d1d1d1;
+    cursor: not-allowed;
 }
 
 .registration-button:hover:not(:disabled) {
-    background-color: #73270e; 
+    background-color: #73270e;
 }

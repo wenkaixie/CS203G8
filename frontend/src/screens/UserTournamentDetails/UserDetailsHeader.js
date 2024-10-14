@@ -1,131 +1,212 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useParams, useLocation } from 'react-router-dom'; 
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
+import axios from 'axios';
 import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
 import RegistrationForm from './RegistrationForm';
 
-const UserDetailsHeader = ({ tournamentTitle = "Tournament 1" }) => {
-    const { tournamentId } = useParams(); // Dynamically get tournamentId from URL parameters
-    const location = useLocation(); // Get the current location (URL)
+const UserDetailsHeader = () => {
+    const { tournamentId } = useParams();
+    const location = useLocation();
+    const navigate = useNavigate();
 
-    const [isRegistered, setIsRegistered] = useState(false); 
-    const [showRegistrationForm, setShowRegistrationForm] = useState(false); 
-    const [totalParticipants, setTotalParticipants] = useState(30); 
-    const [numberOfPlayers, setNumberOfPlayers] = useState(5); 
+    const [activeTab, setActiveTab] = useState('overview');
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+    const [tournamentData, setTournamentData] = useState({});
+    const [numberOfPlayers, setNumberOfPlayers] = useState(0);
+    const [isEligible, setIsEligible] = useState(false);
+    const [registrationError, setRegistrationError] = useState('');
+    const [userUid, setUserUid] = useState(null);
+    const [userElo, setUserElo] = useState(null);
+    const [authId, setAuthId] = useState(null); 
 
-    // Define activeTab based on the last part of the current URL
-    const activeTab = location.pathname.split('/').pop(); // Get the last part of the URL (e.g., 'overview', 'participants')
 
     useEffect(() => {
-        // Simulated API response for total participants and registered players
-        const fetchTournamentData = async () => {
-            try {
-                const totalSlots = 30; // Replace with real API call
-                const registeredPlayers = 5; // Replace with real API call
-                setTotalParticipants(totalSlots);
-                setNumberOfPlayers(registeredPlayers);
-            } catch (error) {
-                console.error("Failed to fetch tournament data:", error);
-            }
-        };
-        fetchTournamentData();
-    }, []);
-
-    const availableSlots = totalParticipants - numberOfPlayers;
+        const path = location.pathname.split('/').pop();
+        setActiveTab(path);
+    }, [location.pathname]);
+    
+    useEffect(() => {
+        const auth = getAuth();
+        const user = auth.currentUser;
+    
+        if (user) {
+            const uid = user.uid;
+            setUserUid(uid);
+            fetchUserDetails(uid);
+        } else {
+            console.error('No user is signed in');
+        }
+    }, [tournamentId]);
+    
+    // Fetch user details and set authId
+    const fetchUserDetails = async (uid) => {
+        try {
+            const response = await axios.get(`http://localhost:9090/user/getUser/${uid}`);
+            const userData = response.data;
+    
+            setUserElo(userData.elo || 0);
+            setAuthId(userData.authId); // Set authId here
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
+        }
+    };
+    
+    // Trigger fetchTournamentData only when authId is set
+    useEffect(() => {
+        if (authId !== null) {
+            fetchTournamentData(userElo);
+        }
+    }, [authId, userElo, tournamentId]); // Dependencies include authId, userElo, and tournamentId
+    
+    const fetchTournamentData = async (userElo) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:8080/api/tournaments/${tournamentId}`
+            );
+            const data = response.data;
+            console.log("Data" + data)
+    
+            setTournamentData(data);
+    
+            const usersArray = (data.users || []).filter(user => user.trim() !== "");
+    
+            // Check if the user's authId matches any of the registered users
+            const isUserRegistered = usersArray.includes(authId);
+            setIsRegistered(isUserRegistered);
+    
+            setNumberOfPlayers(usersArray.length);
+    
+            const isCapacityAvailable = data.capacity > usersArray.length;
+            const isEloEligible = userElo >= data.eloRequirement;
+            const isRegistrationOpen = new Date() < new Date(data.startDatetime);
+    
+            setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
+        } catch (error) {
+            console.error('Failed to fetch tournament data:', error);
+        }
+    };
 
     const handleRegisterClick = () => {
-        if (!isRegistered) {
+        if (isEligible && !isRegistered) {
             setShowRegistrationForm(true);
         }
     };
 
     const closeForm = () => {
         setShowRegistrationForm(false);
+        setRegistrationError('');
     };
 
-    const handleFormSubmit = (data) => {
+    const handleFormSubmit = (authId) => {
         setIsRegistered(true);
-        setNumberOfPlayers(numberOfPlayers + 1);
+        localStorage.setItem(`isRegistered_${tournamentId}`, 'true'); 
+        setNumberOfPlayers((prev) => prev + 1);
         setShowRegistrationForm(false);
     };
+
+    const handleTabNavigation = (tab) => {
+        navigate(`/user/tournament/${tournamentId}/${tab}`);
+    };
+
+    console.log(tournamentData.capacity, " + ", numberOfPlayers);
+
+    const availableSlots = tournamentData.capacity
+        ? tournamentData.capacity - numberOfPlayers
+        : 0;
 
     return (
         <div className="header-wrapper">
             <Navbar />
 
             <div className="header-container">
-                <div className="header-left">
-                    <button className="back-button" onClick={() => window.history.back()}>{'<'}</button>
-                    <h1 className="tournament-title">{tournamentTitle}</h1>
+                <div className="title-info-wrapper">
+                    <div className="header-left">
+                        <button className="back-button" onClick={() => navigate('/user/home')}>
+                            {'<'}
+                        </button>
+                        <h1 className="tournament-title">{tournamentData.name || 'Tournament'}</h1>
+                    </div>
+
+                    <div className="info-container">
+                        <div className="info-box">
+                            <span className="icon">🕒</span>
+                            <div>
+                                <span className="info-text">
+                                    {tournamentData.startDatetime
+                                        ? new Date(tournamentData.startDatetime).toLocaleDateString('en-US', {
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric',
+                                          })
+                                        : 'N/A'}
+                                    {' - '}
+                                    {tournamentData.endDatetime
+                                        ? new Date(tournamentData.endDatetime).toLocaleDateString('en-US', {
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric',
+                                          })
+                                        : 'N/A'}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="info-box">
+                            <span className="icon">💰</span>
+                            <div>
+                                <span className="info-text">${tournamentData.prize || 'N/A'}</span>
+                                <span className="sub-text">Total prize pool</span>
+                            </div>
+                        </div>
+
+                        <div className="info-box">
+                            <span className="icon">✔️</span>
+                            <div>
+                                <span className="info-text">
+                                    {availableSlots >= 0 ? availableSlots : 'N/A'}
+                                </span>
+                                <span className="sub-text">Available slots</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div className="registration-container">
                     <button
                         className={isRegistered ? 'registered-button' : 'register-button'}
                         onClick={handleRegisterClick}
-                        disabled={isRegistered}
+                        disabled={!isEligible || isRegistered}
                     >
-                        {isRegistered ? 'Registered' : 'Register'}
+                        {isRegistered ? 'Registered' : isEligible ? 'Register' : 'Not Eligible'}
                     </button>
-                    <div className="players-count">
-                        <span>Players:</span>
-                        <span>{numberOfPlayers}</span>
-                    </div>
+                    <div className="players-count">Players: {numberOfPlayers}</div>
                 </div>
             </div>
 
-            <div className="tournament-info">
-                <div className="info-box">
-                    <span className="icon">🕒</span>
-                    <div>
-                        <span className="info-text">Jul 21 - Jul 28</span>
-                    </div>
-                </div>
-                <div className="info-box">
-                    <span className="icon">💰</span>
-                    <div>
-                        <span className="info-text">$50,000</span>
-                        <span className="sub-text">Total prize pool</span>
-                    </div>
-                </div>
-                <div className="info-box">
-                    <span className="icon">✔️</span>
-                    <div>
-                        <span className="info-text">{availableSlots}</span>
-                        <span className="sub-text">Available slots</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Updated Banner */}
             <div className="banner">
                 <ul className="subtabs">
-                    <li className={`subtab-item ${activeTab === 'overview' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/overview`}>
-                            Overview
-                        </NavLink>
-                    </li>
-                    <li className={`subtab-item ${activeTab === 'participants' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/participants`}>
-                            Participants
-                        </NavLink>
-                    </li>
-                    <li className={`subtab-item ${activeTab === 'games' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/games`}>
-                            Games
-                        </NavLink>
-                    </li>
-                    <li className={`subtab-item ${activeTab === 'discussion' ? 'active' : ''}`}>
-                        <NavLink to={`/tournament/${tournamentId}/discussion`}>
-                            Discussion
-                        </NavLink>
-                    </li>
+                    {['overview', 'participants', 'games', 'discussion'].map((tab) => (
+                        <li
+                            key={tab}
+                            className={`subtab-item ${activeTab === tab ? 'active' : ''}`}
+                            onClick={() => handleTabNavigation(tab)}
+                        >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </li>
+                    ))}
                 </ul>
             </div>
+
+            {registrationError && <p className="error-message">{registrationError}</p>}
 
             {showRegistrationForm && (
                 <RegistrationForm
                     closeForm={closeForm}
                     onSubmit={handleFormSubmit}
+                    tournamentID={tournamentId}
                 />
             )}
         </div>
