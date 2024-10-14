@@ -27,14 +27,21 @@ const MatchCard = () => {
         navigate('/user/home');
     };
 
+    if (!match) {
+        return (
+            <div>
+                <h2>Recent Match</h2>
+                <h5>You have no recent match</h5>
+            </div>
+        );
+    }
+
     return (
         <div>
-            <div>
-                <h2>Recent games</h2>
-                <h5>14 May</h5>
-            </div>
+            <h2>Recent Match</h2>
             <div className="match-card">
                 <h2 className="match-title">Summer cup (Round 1)</h2>
+                <h5>14 May</h5>
                 <div className="match-details">
                     <div className="player">
                     <div className="player-icon"></div>
