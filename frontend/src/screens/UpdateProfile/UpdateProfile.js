@@ -65,7 +65,7 @@ const UpdateProfile = () => {
 
             if (response.status === 200) {
                 alert('Profile updated successfully!');
-                handleReturn();
+                handleHome();
             }
         } catch (error) {
             console.error('Error updating profile:', error);
