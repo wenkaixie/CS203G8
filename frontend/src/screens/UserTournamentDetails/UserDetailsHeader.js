@@ -39,6 +39,35 @@ const UserDetailsHeader = () => {
         }
     }, [tournamentId]);
 
+    useEffect(() => {
+        const checkUserRegistration = async () => {
+            if (userUid && tournamentId) {
+                try {
+                    const response = await axios.get(
+                        `http://localhost:9090/user/getUser/${userUid}`
+                    );
+                    const data = response.data;
+    
+                    const check = data.registrationHistory;
+    
+                    // Use for loop to break early
+                    for (let tid of check) {
+                        if (tid === tournamentId) {
+                            setIsRegistered(true);
+                            break;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking registration:', error);
+                    setRegistrationError('Error checking registration status');
+                }
+            }
+        };
+    
+        checkUserRegistration();
+    }, [userUid, tournamentId]); 
+    
+
     // Fetch the user's Elo from the backend or Firebase
     const fetchUserDetails = async (uid) => {
         try {
