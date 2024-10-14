@@ -6,16 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CrossOrigin;
-
+import org.springframework.web.bind.annotation.*;
 
 import com.app.tournament.DTO.TournamentRoundDTO;
 import com.app.tournament.model.TournamentRound;
@@ -29,20 +20,22 @@ public class TournamentRoundController {
     @Autowired
     private TournamentRoundService tournamentRoundService;
 
-    // Create a new round in a tournament
+    // Create a new round in a specific tournament
     @PostMapping("/{tournamentId}/rounds")
     public ResponseEntity<String> createTournamentRound(
+            @PathVariable String tournamentId, 
             @RequestBody TournamentRoundDTO roundDTO) {
         try {
+            roundDTO.setTid(tournamentId); // Set the tournament ID
             String roundId = tournamentRoundService.createTournamentRound(roundDTO);
-            return ResponseEntity.ok(roundId); // Return the new round ID
+            return ResponseEntity.ok("Round created with ID: " + roundId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating round: " + e.getMessage());
         }
     }
 
-    // Retrieve a round by its ID
+    // Retrieve a specific round by its ID
     @GetMapping("/rounds/{roundId}")
     public ResponseEntity<TournamentRound> getTournamentRoundById(
             @PathVariable String roundId) {
@@ -56,7 +49,7 @@ public class TournamentRoundController {
     }
 
     // Get all rounds of a specific tournament
-    @GetMapping("/{tournamentId}/allRounds")
+    @GetMapping("/{tournamentId}/rounds")
     public ResponseEntity<List<TournamentRound>> getRoundsByTournamentId(
             @PathVariable String tournamentId) {
         try {
@@ -68,10 +61,10 @@ public class TournamentRoundController {
         }
     }
 
-    // Update a specific round
+    // Update a specific round by its ID
     @PutMapping("/rounds/{roundId}")
     public ResponseEntity<String> updateTournamentRound(
-            @PathVariable String roundId,
+            @PathVariable String roundId, 
             @RequestBody TournamentRoundDTO updatedRound) {
         try {
             String result = tournamentRoundService.updateTournamentRound(roundId, updatedRound);
@@ -82,9 +75,10 @@ public class TournamentRoundController {
         }
     }
 
-    // Delete a specific round
+    // Delete a specific round by its ID
     @DeleteMapping("/rounds/{roundId}")
-    public ResponseEntity<Void> deleteTournamentRound(@PathVariable String roundId) {
+    public ResponseEntity<Void> deleteTournamentRound(
+            @PathVariable String roundId) {
         try {
             tournamentRoundService.deleteTournamentRound(roundId);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // No content on success
@@ -93,3 +87,4 @@ public class TournamentRoundController {
         }
     }
 }
+

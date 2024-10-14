@@ -58,6 +58,15 @@ public class RoundMatchService {
         }
     }
 
+    public String updateMatchPointer(String matchId, String nextMatchId) throws Exception {
+        DocumentReference matchRef = firestore.collection("RoundMatches").document(matchId);
+
+        // Update the match with the next match pointer
+        matchRef.update("nextMatchId", nextMatchId).get(); // Block until the update completes
+
+        return "Match pointer updated successfully.";
+    }
+
     // Method to retrieve a match by its ID
     public RoundMatch getMatchById(String matchID) throws Exception {
         DocumentReference matchRef = firestore.collection("RoundMatches").document(matchID);

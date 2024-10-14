@@ -159,10 +159,10 @@ public class TournamentController {
     
     // Add player to tournament
     @PostMapping("/{tournamentID}/players")
-    public ResponseEntity<String> addPlayerToTournament(@PathVariable String tournamentID,
-            @RequestBody String playerID) {
+    public ResponseEntity<String> addUserToTournament(@PathVariable String tournamentID,
+            @RequestBody String userID) {
         try {
-            String response = tournamentService.addPlayerToTournament(tournamentID, playerID);
+            String response = tournamentService.addUserToTournament(tournamentID, userID);
             return ResponseEntity.ok(response);
         } catch (ExecutionException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -174,11 +174,11 @@ public class TournamentController {
     }
 
     @DeleteMapping("/{tournamentID}/players/{playerID}")
-    public ResponseEntity<String> removePlayerFromTournament(
+    public ResponseEntity<String> removeUserFromTournament(
             @PathVariable String tournamentID, 
-            @PathVariable String playerID) {
+            @PathVariable String userID) {
         try {
-            String response = tournamentService.removePlayerFromTournament(tournamentID, playerID);
+            String response = tournamentService.removeUserFromTournament(tournamentID, userID);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

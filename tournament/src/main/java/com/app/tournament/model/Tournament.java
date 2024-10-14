@@ -43,5 +43,6 @@ public class Tournament {
     
     // List to store players in the tournament
     private List<String> users; // store players uid's
+
 }
 
