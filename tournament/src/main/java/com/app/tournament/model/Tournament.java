@@ -38,10 +38,8 @@ public class Tournament {
 
     private String trid; // need to
     private int prize;
-
-    
     
     // List to store players in the tournament
-    private List<String> participants; // store players uid's
+    private List<String> users; // store players uid's
 }
 

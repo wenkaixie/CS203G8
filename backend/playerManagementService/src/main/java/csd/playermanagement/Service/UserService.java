@@ -18,6 +18,7 @@ import java.time.format.DateTimeParseException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
+import com.google.cloud.firestore.Query;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -349,6 +350,26 @@ public class UserService {
         System.out.println(userSnapshot.toObject(User.class));
     
         return userSnapshot.toObject(User.class);
+    }
+
+    // Method to get user's rank based on elo
+    public int getUserRank(String userId) throws InterruptedException, ExecutionException {
+        CollectionReference usersRef = firestore.collection("Users");
+        ApiFuture<QuerySnapshot> querySnapshot = usersRef.orderBy("elo", Query.Direction.DESCENDING).get();
+    
+        List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
+        int rank = 1;
+    
+        for (QueryDocumentSnapshot document : userDocuments) {
+            User user = document.toObject(User.class);
+            if (user.getAuthId().equals(userId)) {
+                return rank;
+            }
+            rank++;
+        }
+    
+        // if no elo found
+        return -1;
     }
 
     // NOT USED
