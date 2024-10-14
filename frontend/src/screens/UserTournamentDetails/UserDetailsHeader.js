@@ -41,31 +41,34 @@ const UserDetailsHeader = () => {
 
     useEffect(() => {
         const checkUserRegistration = async () => {
-            if (userUid && tournamentId) {
-                try {
-                    const response = await axios.get(
-                        `http://localhost:9090/user/getUser/${userUid}`
-                    );
-                    const data = response.data;
+            if (!userUid || !tournamentId) return; // Avoid unnecessary execution if data is missing
     
-                    const check = data.registrationHistory;
+            // Check if we already know the registration status for this tournament
+            if (isRegistered) {
+                return; // No need to check again if already registered
+            }
     
-                    // Use for loop to break early
-                    for (let tid of check) {
-                        if (tid === tournamentId) {
-                            setIsRegistered(true);
-                            break;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error checking registration:', error);
-                    setRegistrationError('Error checking registration status');
+            try {
+                // Fetch user data from backend
+                const response = await axios.get(
+                    `http://localhost:9090/user/getUser/${userUid}`
+                );
+                const data = response.data;
+    
+                const check = data.registrationHistory || [];
+    
+                // Check if the user is already registered for this tournament
+                if (check.includes(tournamentId)) {
+                    setIsRegistered(true);
                 }
+            } catch (error) {
+                console.error('Error checking registration:', error);
+                setRegistrationError('Error checking registration status');
             }
         };
     
         checkUserRegistration();
-    }, [userUid, tournamentId]); 
+    }, [userUid, tournamentId, isRegistered]);  // Add isRegistered to dependencies
     
 
     // Fetch the user's Elo from the backend or Firebase

@@ -14,7 +14,6 @@ import java.time.ZoneId;
 import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import com.app.tournament.DTO.TournamentDTO;
@@ -336,6 +335,18 @@ public class TournamentService {
                         if (userAge < ageLimit) {
                             continue; // Tournament is not eligible if user's age is less than the limit
                         }
+                    }
+
+                    // Rule 4: Check if registration is not open
+                    String status = tournamentDoc.getString("status");
+                    if (status == null || !status.equals("Registration Open")) {
+                        continue;
+                    }
+
+                    // Rule 5: Check if registered
+                    List<String> registered = (List<String>) userDoc.get("registrationHistory");
+                    if (registered != null && registered.contains(tournamentDoc.getId())) {
+                        continue; // Tournament is not eligible if the user is already registered
                     }
     
                     // Add the tournament to the eligible list if all conditions are satisfied
