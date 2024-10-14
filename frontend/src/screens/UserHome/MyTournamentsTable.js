@@ -24,7 +24,6 @@ const MyTournamentsTable = () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
             setTournaments(response.data);
-            console.log(response.data);
         } catch (error) {
             console.error('Error fetching ongoing tournaments:', error);
         }
@@ -124,7 +123,17 @@ const MyTournamentsTable = () => {
     if (!tournamentsToDisplay || tournamentsToDisplay.length === 0) {
         return (
             <div className="tournament-container">
-                <h3 className="tournament-title">My Tournaments</h3>
+                <h2 className="tournament-title">My Tournaments</h2>
+                <div className="filter-tabs">
+                    <div className='ongoing-upcoming-buttons'>
+                        <button onClick={() => handleOngoingUpcomingButtonChange('ongoing')} className={`ongoing-upcoming-button tab ${ongoingButton ? 'active' : ''}`}>
+                            Ongoing
+                        </button>
+                        <button onClick={() => handleOngoingUpcomingButtonChange('upcoming')} className={`ongoing-upcoming-button tab ${upcomingButton ? 'active' : ''}`}>
+                            Upcoming
+                        </button>
+                    </div>
+                </div>
                 <div className="no-tournaments">No Tournaments Available</div>
             </div>
         );

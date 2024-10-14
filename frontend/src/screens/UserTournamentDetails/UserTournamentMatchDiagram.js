@@ -36,14 +36,14 @@ export const WhiteThemeBracket = () => {
   const simpleSmallBracket = [
     // Quarterfinals
     {
-      id: 1,
-      name: "Quarterfinal - Match 1",
-      nextMatchId: 5,
-      tournamentRoundText: "1",
-      startTime: "2021-05-30",
-      state: "DONE",
+      id: 1, // matchID
+      name: "Quarterfinal - Match 1", // Round Name/Number & Match Number
+      nextMatchId: 5, // next matchID
+      tournamentRoundText: "1", // Round Number
+      startTime: "2021-05-30", // DateTime of the match
+      state: "DONE", // Whether the match has concluded or not
       participants: [
-        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true },
+        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true }, // Participant no., Participant name, Participant Score, who won
         { id: "2", name: "John Charge", resultText: "0", isWinner: false }
       ]
     },

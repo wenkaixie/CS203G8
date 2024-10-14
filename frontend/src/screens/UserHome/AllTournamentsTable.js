@@ -124,6 +124,16 @@ const AllTournamentsTable = () => {
         return (
             <div className="tournament-container">
                 <h2 className="tournament-title">All Tournaments</h2>
+                <div className="filter-tabs">
+                    <div className='eligible-all-buttons'>
+                        <button onClick={() => handleEligibleAllButtonChange('eligible')} className={`eligible-all-button tab ${eligibleButton ? 'active' : ''}`}>
+                            Eligible
+                        </button>
+                        <button onClick={() => handleEligibleAllButtonChange('all')} className={`eligible-all-button tab ${allButton ? 'active' : ''}`}>
+                            All
+                        </button>
+                    </div>
+                </div>
                 <div className="no-tournaments">No Tournaments Available</div>
             </div>
         );
@@ -143,7 +153,7 @@ const AllTournamentsTable = () => {
 
     return (
         <div className="tournament-container">
-            <h3 className="tournament-title">All Tournaments</h3>
+            <h2 className="tournament-title">All Tournaments</h2>
             <div className="filter-tabs">
                 <div className='eligible-all-buttons'>
                     <button onClick={() => handleEligibleAllButtonChange('eligible')} className={`eligible-all-button tab ${eligibleButton ? 'active' : ''}`}>

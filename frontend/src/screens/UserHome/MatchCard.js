@@ -13,6 +13,9 @@ const MatchCard = () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/rounds/latest/${auth.currentUser.uid}`);
             setMatch(response.data);
+            if (Object.keys(response.data).length === 0) {
+                setMatch(null);
+            }
         } catch (error) {
             console.error('Error fetching match:', error);
         }
