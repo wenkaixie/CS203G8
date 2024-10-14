@@ -1,6 +1,8 @@
 package com.app.tournament.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,9 +69,9 @@ public class RoundMatchController {
 
     // Get latest match played by a user
     @GetMapping("/latest/{userId}")
-    public ResponseEntity<RoundMatch> getLatestMatchByUserId(@PathVariable String userId) {
+    public ResponseEntity<HashMap<String, Object>> getLatestMatchByUserId(@PathVariable String userId) {
         try {
-            RoundMatch match = roundMatchService.getLatestMatchByUserId(userId);
+            HashMap<String, Object> match = roundMatchService.getLatestMatchByUserId(userId);
             return ResponseEntity.ok(match); // Return the latest match
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
