@@ -11,8 +11,10 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import com.app.tournament.DTO.TournamentDTO;
@@ -53,12 +55,15 @@ public class TournamentService {
             tournament.setCapacity(tournamentDTO.getCapacity());
             tournament.setCreatedTimestamp(Instant.now()); // Set the creation timestamp
             tournament.setPrize(tournamentDTO.getPrize());
+            tournament.setStatus("Open Registration");
 
             // Write the Tournament object to Firestore and block until the write operation is complete
             ApiFuture<WriteResult> futureTournament = newTournamentRef.set(tournament);
             WriteResult result = futureTournament.get(); // Blocks until the write is complete
 
             System.out.println("Tournament created at: " + result.getUpdateTime()); // Log the time of creation
+
+            scheduleCloseRegistration(tournament);
 
             // Return the ID of the newly created tournament
             return tournament.getTid();
@@ -367,5 +372,24 @@ public class TournamentService {
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
         tournamentRef.update("players", FieldValue.arrayRemove(playerID)).get();
         return "Player removed successfully from the tournament.";
+    }
+
+    @Autowired
+    private TaskScheduler taskScheduler;
+
+    // Method to schedule a task for each tournament
+    public void scheduleCloseRegistration(Tournament tournament) {
+        Instant startDatetime = tournament.getStartDatetime();
+        Instant closeRegistrationTime = startDatetime.minus(Duration.ofHours(24)); 
+        taskScheduler.schedule(() -> closeRegistration(tournament.getTid()), closeRegistrationTime);
+
+    }
+
+    // This method will be triggered at the scheduled time to close registration
+    private void closeRegistration(String tournamentID) {
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
+        tournamentRef.update("status", "Closed Registration").addListener(() -> {
+            System.out.println("Tournament registration closed for: " + tournamentID);
+        }, Runnable::run);
     }
 }

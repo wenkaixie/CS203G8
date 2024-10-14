@@ -38,6 +38,11 @@ public class Tournament {
 
     private String trid; // need to
     private int prize;
+<<<<<<< Updated upstream
+=======
+
+    private String status;
+>>>>>>> Stashed changes
     
     // List to store players in the tournament
     private List<String> users; // store players uid's
