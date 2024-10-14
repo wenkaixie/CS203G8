@@ -143,7 +143,7 @@ const AllTournamentsTable = () => {
 
     return (
         <div className="tournament-container">
-            <h2 className="tournament-title">All Tournaments</h2>
+            <h3 className="tournament-title">All Tournaments</h3>
             <div className="filter-tabs">
                 <div className='eligible-all-buttons'>
                     <button onClick={() => handleEligibleAllButtonChange('eligible')} className={`eligible-all-button tab ${eligibleButton ? 'active' : ''}`}>

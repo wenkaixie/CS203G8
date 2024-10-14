@@ -44,7 +44,7 @@ const UserDetails = () => {
     return(
         <div>
           <div className='welcome-back'>
-            <h2>Welcome Back, {userDetails.username}!</h2>
+            <h4>Welcome Back, {userDetails.username}!</h4>
           </div>
           <div className='rating-and-rank'>
             <div className='rating-and-rank-section'>

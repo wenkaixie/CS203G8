@@ -52,10 +52,10 @@ const MatchCard = () => {
 
     return (
         <div>
-            <h2>Recent Match</h2>
+            <h3>Recent Match</h3>
             <div className="match-card">
-                <h2 className="match-title">Summer cup (Round 1)</h2>
-                <h5>{formatDateTime(match.matchDate)}</h5>
+                <h4 className="match-title">Summer cup (Round 1)</h4>
+                <h6>{formatDateTime(match.matchDate)}</h6>
                 <br></br>
                 <div className="match-details">
                     <div className="player">

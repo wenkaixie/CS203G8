@@ -19,63 +19,69 @@ const UserDetailsHeader = () => {
     const [isEligible, setIsEligible] = useState(false);
     const [registrationError, setRegistrationError] = useState('');
     const [userUid, setUserUid] = useState(null);
-    const [userElo, setUserElo] = useState(null); // State to store user's Elo rating
+    const [userElo, setUserElo] = useState(null);
+    const [authId, setAuthId] = useState(null); 
+
 
     useEffect(() => {
         const path = location.pathname.split('/').pop();
         setActiveTab(path);
     }, [location.pathname]);
-
+    
     useEffect(() => {
         const auth = getAuth();
         const user = auth.currentUser;
-
+    
         if (user) {
             const uid = user.uid;
             setUserUid(uid);
-            fetchUserDetails(uid); // Fetch user Elo and details
+            fetchUserDetails(uid);
         } else {
             console.error('No user is signed in');
         }
     }, [tournamentId]);
-
-    // Fetch the user's Elo from the backend or Firebase
+    
+    // Fetch user details and set authId
     const fetchUserDetails = async (uid) => {
         try {
             const response = await axios.get(`http://localhost:9090/user/getUser/${uid}`);
             const userData = response.data;
-
-            console.log('User Data:', userData);
-
-            setUserElo(userData.elo || 0); // Store user's Elo rating
-            fetchTournamentData(userData.elo); // Pass Elo to the tournament eligibility function
+    
+            setUserElo(userData.elo || 0);
+            setAuthId(userData.authId); // Set authId here
         } catch (error) {
             console.error('Failed to fetch user data:', error);
         }
     };
-
+    
+    // Trigger fetchTournamentData only when authId is set
+    useEffect(() => {
+        if (authId !== null) {
+            fetchTournamentData(userElo);
+        }
+    }, [authId, userElo, tournamentId]); // Dependencies include authId, userElo, and tournamentId
+    
     const fetchTournamentData = async (userElo) => {
         try {
             const response = await axios.get(
                 `http://localhost:8080/api/tournaments/${tournamentId}`
             );
             const data = response.data;
-            
-            console.log('Tournament Data:', data);
-
+    
             setTournamentData(data);
-            setNumberOfPlayers(data.users ? data.users.length : 0);
-
-            const isCapacityAvailable = data.capacity > (data.users ? data.users.length : 0);
+    
+            const usersArray = (data.users || []).filter(user => user.trim() !== "");
+    
+            // Check if the user's authId matches any of the registered users
+            const isUserRegistered = usersArray.includes(authId);
+            setIsRegistered(isUserRegistered);
+    
+            setNumberOfPlayers(usersArray.length);
+    
+            const isCapacityAvailable = data.capacity > usersArray.length;
             const isEloEligible = userElo >= data.eloRequirement;
             const isRegistrationOpen = new Date() < new Date(data.startDatetime);
-
-            console.log('Eligibility Conditions:', {
-                isCapacityAvailable,
-                isEloEligible,
-                isRegistrationOpen,
-            });
-
+    
             setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
         } catch (error) {
             console.error('Failed to fetch tournament data:', error);
@@ -95,6 +101,7 @@ const UserDetailsHeader = () => {
 
     const handleFormSubmit = (authId) => {
         setIsRegistered(true);
+        localStorage.setItem(`isRegistered_${tournamentId}`, 'true'); 
         setNumberOfPlayers((prev) => prev + 1);
         setShowRegistrationForm(false);
     };
@@ -103,7 +110,7 @@ const UserDetailsHeader = () => {
         navigate(`/user/tournament/${tournamentId}/${tab}`);
     };
 
-    console.log(tournamentData.capacity, " + ", numberOfPlayers)
+    console.log(tournamentData.capacity, " + ", numberOfPlayers);
 
     const availableSlots = tournamentData.capacity
         ? tournamentData.capacity - numberOfPlayers

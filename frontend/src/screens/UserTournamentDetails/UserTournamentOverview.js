@@ -16,7 +16,10 @@ const UserTournamentOverview = () => {
             try {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 setTournamentData(response.data);
-                setNumberOfPlayers(response.data.users ? response.data.users.length : 0);
+
+                const usersArray = (response.data.users || []).filter(user => user.trim() !== "");
+                setNumberOfPlayers(usersArray.length);
+
                 setLoading(false);
             } catch (error) {
                 setError(error.message);
@@ -25,6 +28,14 @@ const UserTournamentOverview = () => {
         };
 
         fetchTournamentData();
+
+        const handleRegistrationSuccess = () => fetchTournamentData();
+        window.addEventListener('registrationSuccess', handleRegistrationSuccess);
+
+        // Cleanup listener on unmount
+        return () => {
+            window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
+        };
     }, [tournamentId]);
 
     if (loading) {
@@ -43,9 +54,9 @@ const UserTournamentOverview = () => {
         let total = 0;
 
         if (typeof totalPrize === 'string') {
-            total = parseFloat(totalPrize.replace(/[^0-9.-]+/g, '')); 
+            total = parseFloat(totalPrize.replace(/[^0-9.-]+/g, ''));
         } else if (typeof totalPrize === 'number') {
-            total = totalPrize; 
+            total = totalPrize;
         }
 
         return [
@@ -72,19 +83,22 @@ const UserTournamentOverview = () => {
                 <div className="tournament-description">
                     <p>{tournamentData?.description || "No description available for this tournament."}</p>
                 </div>
-                
+
                 {/* Tournament Format Section */}
                 <div className="tournament-details">
                     <div className="detail-row">
-                        <strong>Dates:</strong> 
-                 
-                            {new Date(tournamentData?.startDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} —  
-                            {' '}
-                            {new Date(tournamentData?.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-              
+                        <strong>Dates:</strong>
+
+                        {new Date(tournamentData?.startDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} —
+                        {' '}
+                        {new Date(tournamentData?.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+
                     </div>
                     <div className="detail-row">
                         <strong>Tournament type:</strong> {tournamentData?.type || "Swiss"}
+                    </div>
+                    <div className="detail-row">
+                        <strong>ELO requirement:</strong> {tournamentData?.eloRequirement || "0"}
                     </div>
                     <div className="detail-row">
                         <strong>Total Participants:</strong> {tournamentData?.capacity || "N/A"}
@@ -96,10 +110,10 @@ const UserTournamentOverview = () => {
                         <strong>Location:</strong> {tournamentData?.location || "Budapest, Hungary"}
                     </div>
                     <div className="detail-row">
-                        <strong>Format:</strong> 
+                        <strong>Format:</strong>
                         <p>{tournamentFormat}</p>
                     </div>
-                    
+
                     <div className="detail-row">
                         <strong>Prizes:</strong>
                         <div className="prizes">
