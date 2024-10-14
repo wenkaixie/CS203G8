@@ -84,4 +84,14 @@ public class UserController {
         }
     }
     
+    @GetMapping("/getUserRank/{userID}")
+    public ResponseEntity<Integer> getUserRank(@PathVariable String userID) {
+        try {
+            int rank = userService.getUserRank(userID);
+            return ResponseEntity.ok(rank);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
 }
