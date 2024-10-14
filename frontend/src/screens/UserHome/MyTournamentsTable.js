@@ -24,6 +24,7 @@ const MyTournamentsTable = () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
             setTournaments(response.data);
+            console.log(response.data);
         } catch (error) {
             console.error('Error fetching ongoing tournaments:', error);
         }

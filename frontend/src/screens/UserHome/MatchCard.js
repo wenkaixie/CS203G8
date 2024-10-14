@@ -13,7 +13,6 @@ const MatchCard = () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/rounds/latest/${auth.currentUser.uid}`);
             setMatch(response.data);
-            console.log(response.data);
         } catch (error) {
             console.error('Error fetching match:', error);
         }
@@ -23,18 +22,16 @@ const MatchCard = () => {
         fetchMatch();
     }, []);
 
-    const handleViewGamesHistory = () => {
-        navigate('/user/home');
+    const handleViewTournament = (tournamentId) => {
+        navigate(`/user/tournament/${tournamentId}/games`);
     };
 
     const formatDateTime = (dateString) => {
         const date = new Date(dateString);
     
-        // Format the date
         const dateOptions = { month: 'short', day: 'numeric' };
         const formattedDate = date.toLocaleDateString('en-US', dateOptions);
     
-        // Format the time
         const timeOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
         const formattedTime = date.toLocaleTimeString('en-US', timeOptions).toLowerCase();
     
@@ -54,29 +51,43 @@ const MatchCard = () => {
         <div>
             <h3>Recent Match</h3>
             <div className="match-card">
-                <h4 className="match-title">Summer cup (Round 1)</h4>
-                <h6>{formatDateTime(match.matchDate)}</h6>
-                <br></br>
+                <h2 className="match-title">{match.tournamentName} (Round {match.roundName})</h2>
+                <h5>{formatDateTime(match.matchDate)}</h5>
+                <br />
                 <div className="match-details">
                     <div className="player">
-                    <div className="player-icon"></div>
-                    <p className="player-name">John</p>
-                    <p className="player-country">USA</p>
+                        <div className="player-icon"></div>
+                        <div className='games-name'>
+                            {match.user1isWhite ? (
+                                <div className="black-square"></div>
+                            ) : (
+                                <div className="white-square"></div>
+                            )}
+                            <p className="player-name">{match.uid1Name}</p>
+                        </div>
+                        <p className="player-country">{match.uid1Nationality}</p>
                     </div>
                     <div className="match-score">
-                    <span className="score">1</span>
-                    <span className="dash">-</span>
-                    <span className="score">0</span>
+                        <span className="score">{match.user1Score}</span>
+                        <span className="dash">-</span>
+                        <span className="score">{match.user2Score}</span>
                     </div>
                     <div className="player">
-                    <div className="player-icon"></div>
-                    <p className="player-name">Mak</p>
-                    <p className="player-country">SIN</p>
+                        <div className="player-icon"></div>
+                        <div className='games-name'>
+                            {match.user1isWhite ? (
+                                <div className="white-square"></div>
+                            ) : (
+                                <div className="black-square"></div>
+                            )}
+                            <p className="player-name">{match.uid2Name}</p>
+                        </div>
+                        <p className="player-country">{match.uid2Nationality}</p>
                     </div>
                 </div>
             </div>
-            <br></br>
-            <div onClick={ handleViewGamesHistory } className='games-history'>
+            <br />
+            <div onClick={() => handleViewTournament(match.tournamentId)} className='games-history'>
                 <h6>View Tournament Details</h6>
             </div>
         </div>
