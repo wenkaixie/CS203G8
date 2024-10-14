@@ -32,7 +32,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
 
             // Store the user's authId in the component state
             setAuthId(userData.authId);
-            console.log('authId:', userData.authId); 
+            console.log('authId:', userData.authId);
 
             // Populate input fields with user data
             setFullName(userData.name || '');
@@ -68,7 +68,12 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
             );
 
             alert(response.data);
-            onSubmit({ authId }); 
+            onSubmit({ authId });
+
+            //refresh
+            const event = new Event('registrationSuccess');
+            window.dispatchEvent(event);
+
             closeForm(); // Close the form after submission
         } catch (error) {
             console.error('Error registering user:', error);
@@ -88,44 +93,29 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
 
                 <div className="registration-body">
                     <div className="form-group">
-                        <label className="verify-label">Verify your personal details</label>
+                        <label className="verify-label">Verify your personal details.</label>
+                        <label className="verify-label">If you wish to change any information, please proceed to your profile page to do so.</label>
 
                         <div className="input-with-icon">
                             <label>Full Name</label>
-                            <input
-                                type="text"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                            />
-                            <span className="edit-icon">✏️</span>
+                            <input type="fullName" value={fullName} readOnly />
                         </div>
 
                         <div className="input-row">
                             <div className="input-with-icon">
                                 <label>Age</label>
-                                <input
-                                    type="number"
-                                    value={age}
-                                    onChange={(e) => setAge(e.target.value)}
-                                />
-                                <span className="edit-icon">✏️</span>
+                                <input type="age" value={age} readOnly />
                             </div>
 
                             <div className="input-with-icon">
                                 <label>Nationality</label>
-                                <input
-                                    type="text"
-                                    value={nationality}
-                                    onChange={(e) => setNationality(e.target.value)}
-                                />
-                                <span className="edit-icon">✏️</span>
+                                <input type="nationality" value={nationality} readOnly />
                             </div>
                         </div>
 
                         <div className="input-with-icon">
                             <label>Email</label>
                             <input type="email" value={email} readOnly />
-                            <img src={LockIcon} alt="Lock Icon" className="lock-icon" />
                         </div>
                     </div>
                 </div>

@@ -124,7 +124,7 @@ const MyTournamentsTable = () => {
     if (!tournamentsToDisplay || tournamentsToDisplay.length === 0) {
         return (
             <div className="tournament-container">
-                <h2 className="tournament-title">My Tournaments</h2>
+                <h3 className="tournament-title">My Tournaments</h3>
                 <div className="no-tournaments">No Tournaments Available</div>
             </div>
         );

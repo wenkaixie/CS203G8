@@ -117,7 +117,7 @@ const Login = () => {
             await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
             console.error("Login error:", error.message);
-            setError(`Login failed: ${error.message}`);
+            setError(`Login failed. Please try again.`);
             setLoading(false);
         }
     };
@@ -134,7 +134,7 @@ const Login = () => {
             } 
         } catch (error) {
             console.error("Google login error:", error.message);
-            setError(`Google login failed: ${error.message}`);
+            setError(`Login failed. Please try again.`);
             setLoading(false);
         }
     };
@@ -235,7 +235,7 @@ const Login = () => {
             {!loading && error && (
                 <div className="popup">
                     <div className="popup-content">
-                        <h2>Error</h2>
+                        <h2>Authentication Error</h2>
                         <p>{error}</p>
                         <Button variant="secondary" onClick={handleClosePopup}>Close</Button>
                     </div>

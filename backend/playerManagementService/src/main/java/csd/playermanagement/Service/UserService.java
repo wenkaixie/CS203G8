@@ -59,13 +59,20 @@ public class UserService {
             throw new RuntimeException("Error retrieving tournament data.");
         }
     
-        Timestamp startTimestamp = tournament.getStartDatetime();
-        Date startDate = (startTimestamp != null) ? startTimestamp.toDate() : null;
-        Date currentDate = new Date();
+        // Timestamp startTimestamp = tournament.getStartDatetime();
+        // Date startDate = (startTimestamp != null) ? startTimestamp.toDate() : null;
+        // Date currentDate = new Date();
     
         // Check if the tournament has already started
-        if (currentDate.after(startDate)) {
-            return "Cannot register: The tournament has already started.";
+        // if (currentDate.after(startDate)) {
+        //     return "Cannot register: The tournament has already started.";
+        // }
+
+        String status = tournamentSnapshot.getString("status");
+        if (status == null) {
+            return "Error retrieving tournament status.";
+        }else if (status.equals("Registration Closed")) {
+            return "Cannot register: The tournament registration is closed.";
         }
     
         List<String> tournamentUsers = tournament.getUsers();

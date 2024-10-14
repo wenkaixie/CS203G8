@@ -49,7 +49,7 @@ const MatchCard = () => {
 
     return (
         <div>
-            <h2>Recent Match</h2>
+            <h3>Recent Match</h3>
             <div className="match-card">
                 <h2 className="match-title">{match.tournamentName} (Round {match.roundName})</h2>
                 <h5>{formatDateTime(match.matchDate)}</h5>

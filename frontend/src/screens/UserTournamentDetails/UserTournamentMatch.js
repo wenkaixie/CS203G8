@@ -31,6 +31,14 @@ const UserTournamentMatch = () => {
             }
         };
         fetchTournamentDetails();
+
+        const handleRegistrationSuccess = () => fetchTournamentDetails();
+        window.addEventListener('registrationSuccess', handleRegistrationSuccess);
+
+        // Cleanup listener on unmount
+        return () => {
+            window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
+        };
     }, [tournamentId]);
 
     useEffect(() => {
