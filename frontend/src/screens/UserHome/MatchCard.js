@@ -27,14 +27,36 @@ const MatchCard = () => {
         navigate('/user/home');
     };
 
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+    
+        // Format the date
+        const dateOptions = { month: 'short', day: 'numeric' };
+        const formattedDate = date.toLocaleDateString('en-US', dateOptions);
+    
+        // Format the time
+        const timeOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
+        const formattedTime = date.toLocaleTimeString('en-US', timeOptions).toLowerCase();
+    
+        return `${formattedDate}, ${formattedTime}`;
+    };
+
+    if (!match) {
+        return (
+            <div>
+                <h2>Recent Match</h2>
+                <h5>You have no recent match</h5>
+            </div>
+        );
+    }
+
     return (
         <div>
-            <div>
-                <h2>Recent games</h2>
-                <h5>14 May</h5>
-            </div>
+            <h2>Recent Match</h2>
             <div className="match-card">
                 <h2 className="match-title">Summer cup (Round 1)</h2>
+                <h5>{formatDateTime(match.matchDate)}</h5>
+                <br></br>
                 <div className="match-details">
                     <div className="player">
                     <div className="player-icon"></div>
@@ -42,9 +64,9 @@ const MatchCard = () => {
                     <p className="player-country">USA</p>
                     </div>
                     <div className="match-score">
-                    <span className="score">5</span>
+                    <span className="score">1</span>
                     <span className="dash">-</span>
-                    <span className="score">2</span>
+                    <span className="score">0</span>
                     </div>
                     <div className="player">
                     <div className="player-icon"></div>
@@ -52,7 +74,6 @@ const MatchCard = () => {
                     <p className="player-country">SIN</p>
                     </div>
                 </div>
-                <div className="match-time">7.30pm</div>
             </div>
             <br></br>
             <div onClick={ handleViewGamesHistory } className='games-history'>

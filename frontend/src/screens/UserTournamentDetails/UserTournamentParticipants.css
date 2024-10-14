@@ -10,7 +10,6 @@ body {
 
 /* User Tournament Container */
 .user-tournament-participants {
-    min-height: 100vh; /* Ensures the section covers the full height of the viewport */
     padding: 300px 40px;
     width: 100%;
     margin-top: -70px;

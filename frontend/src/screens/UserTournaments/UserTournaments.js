@@ -5,8 +5,9 @@ import searchIcon from '../../assets/images/Search.png';
 import Navbar from '../../components/navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { getAuth } from "firebase/auth";
 
-const UserTournaments = ({ currentUserId }) => {
+const UserTournaments = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [tournaments, setTournaments] = useState([]);
@@ -16,6 +17,7 @@ const UserTournaments = ({ currentUserId }) => {
     const [filteredTournaments, setFilteredTournaments] = useState([]);
 
     const navigate = useNavigate();
+    const auth = getAuth();
 
     // Fetch tournaments from the API
     useEffect(() => {
@@ -48,7 +50,26 @@ const UserTournaments = ({ currentUserId }) => {
 
     // Check if the current user is registered for a tournament
     const isPlayerRegistered = (tournament) => {
-        return tournament.participants && tournament.participants.includes(currentUserId);
+        // Check if current user is in the users list
+        if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
+            return 'Registered';
+        }
+    
+        // Get the current time and tournament start time
+        const currentTime = new Date();
+        const startTime = new Date(tournament.startDatetime);
+    
+        // Calculate the difference in time between now and the tournament start time
+        const timeDiff = startTime - currentTime; // Time difference in milliseconds
+        const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+    
+        // If more than 1 day is remaining before the tournament starts
+        if (timeDiff > oneDayInMilliseconds) {
+            return 'Open';
+        }
+    
+        // If less than 1 day is remaining or the tournament has already started
+        return 'Closed';
     };
 
     const handleRowClick = (tournamentId) => {
@@ -156,10 +177,10 @@ const UserTournaments = ({ currentUserId }) => {
                     </div>
 
                     <div className="buttons-container">
-                        <button className="filter-button">
+                        {/* <button className="filter-button">
                             <img src={filterIcon} alt="Filter Icon" className="filter-icon" />
                             Filter
-                        </button>
+                        </button> */}
 
                         <div className="dropdown">
                             <button className="order-button" onClick={toggleDropdown}>
@@ -204,7 +225,10 @@ const UserTournaments = ({ currentUserId }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {tournamentsToDisplay.map((tournament, index) => (
+                        {tournamentsToDisplay.map((tournament, index) => {
+                            const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
+
+                            return (
                                 <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)}>
                                     <td>{index + 1}</td>
                                     <td>{tournament.name}</td>
@@ -217,11 +241,12 @@ const UserTournaments = ({ currentUserId }) => {
                                     <td>{tournament.capacity}</td>
                                     <td>{tournament.eloRequirement}</td>
                                     <td>${tournament.prize}</td>
-                                    <td className={`status-${isPlayerRegistered(tournament) ? 'registered' : ''}`}>
-                                        {isPlayerRegistered(tournament) ? 'Registered' : (tournament.status || 'null')}
+                                    <td className={`status-${registrationStatus.toLowerCase()}`}>
+                                        {registrationStatus}
                                     </td>
                                 </tr>
-                            ))}
+                            );
+                        })}
                         </tbody>
                     </table>
                 </div>

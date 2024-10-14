@@ -58,6 +58,29 @@ const AllTournamentsTable = () => {
         }
     };
 
+    const isPlayerRegistered = (tournament, ) => {
+        // Check if current user is in the users list
+        if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
+            return 'Registered';
+        }
+    
+        // Get the current time and tournament start time
+        const currentTime = new Date();
+        const startTime = new Date(tournament.startDatetime);
+    
+        // Calculate the difference in time between now and the tournament start time
+        const timeDiff = startTime - currentTime; // Time difference in milliseconds
+        const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+    
+        // If more than 1 day is remaining before the tournament starts
+        if (timeDiff > oneDayInMilliseconds) {
+            return 'Open';
+        }
+    
+        // If less than 1 day is remaining or the tournament has already started
+        return 'Closed';
+    };
+
     const handleRowClick = (tournamentId) => {
         navigate(`/user/tournament/${tournamentId}/overview`);
     };
@@ -169,17 +192,21 @@ const AllTournamentsTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentTournaments.map((tournament, index) => (
-                        <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className='clickable-row'>
-                            <td>{indexOfFirstTournament + index + 1}</td> {/* Display correct numbering */}
-                            <td>{tournament.name}</td>
-                            <td>{formatDate(tournament.startDatetime)} - {formatDate(tournament.endDatetime)}</td>
-                            <td>{tournament.location}</td>
-                            <td>{tournament.capacity}</td>
-                            <td>{tournament.status || 'empty'}</td>
-                            <td>${tournament.prize}</td>
-                        </tr>
-                    ))}
+                    {currentTournaments.map((tournament, index) => {
+                        const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
+
+                        return (
+                            <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className="clickable-row">
+                                <td>{indexOfFirstTournament + index + 1}</td> {/* Display correct numbering */}
+                                <td>{tournament.name}</td>
+                                <td>{formatDate(tournament.startDatetime)} - {formatDate(tournament.endDatetime)}</td>
+                                <td>{tournament.location}</td>
+                                <td>{tournament.capacity}</td>
+                                <td className={`status-${registrationStatus.toLowerCase()}`}>{registrationStatus}</td>
+                                <td>${tournament.prize}</td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
 
