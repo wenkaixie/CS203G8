@@ -46,6 +46,7 @@ public class TournamentService {
             // Create a new Tournament object and populate it using the TournamentDTO data
             Tournament tournament = new Tournament();
             tournament.setTid(newTournamentRef.getId()); // Set the generated document ID as the tournament ID
+            tournament.setAgeLimit(tournamentDTO.getAgeLimit());
             tournament.setName(tournamentDTO.getName());
             tournament.setDescription(tournamentDTO.getDescription());
             tournament.setEloRequirement(tournamentDTO.getEloRequirement());
@@ -55,7 +56,8 @@ public class TournamentService {
             tournament.setCapacity(tournamentDTO.getCapacity());
             tournament.setCreatedTimestamp(Instant.now()); // Set the creation timestamp
             tournament.setPrize(tournamentDTO.getPrize());
-            tournament.setStatus("Open Registration");
+            tournament.setStatus("Registration Open");
+            tournament.setUsers(tournamentDTO.getUsers());
 
             // Write the Tournament object to Firestore and block until the write operation is complete
             ApiFuture<WriteResult> futureTournament = newTournamentRef.set(tournament);
@@ -388,7 +390,7 @@ public class TournamentService {
     // This method will be triggered at the scheduled time to close registration
     private void closeRegistration(String tournamentID) {
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
-        tournamentRef.update("status", "Closed Registration").addListener(() -> {
+        tournamentRef.update("status", "Registration Closed").addListener(() -> {
             System.out.println("Tournament registration closed for: " + tournamentID);
         }, Runnable::run);
     }
