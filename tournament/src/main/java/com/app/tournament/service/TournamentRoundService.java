@@ -65,7 +65,7 @@ public class TournamentRoundService {
     }
     
     // Create a tournament round and return its ID
-    private String createTournamentRound(TournamentRoundDTO roundDTO) throws Exception {
+    public String createTournamentRound(TournamentRoundDTO roundDTO) throws Exception {
         try {
             // Create a new round document reference with an auto-generated ID
             DocumentReference newRoundRef = firestore.collection("TournamentRounds").document();
@@ -91,7 +91,7 @@ public class TournamentRoundService {
     }
 
     // Create matches for Round 1 and return their IDs
-    private List<String> createRoundMatches(String roundId, List<String> playerIds, int roundNumber, List<Map<String, Object>> allMatches) throws Exception {
+    public List<String> createRoundMatches(String roundId, List<String> playerIds, int roundNumber, List<Map<String, Object>> allMatches) throws Exception {
         List<String> matchIds = new ArrayList<>();
 
         for (int i = 0; i < playerIds.size(); i += 2) {
@@ -116,7 +116,7 @@ public class TournamentRoundService {
     }
 
     // Create empty matches for later rounds
-    private List<String> createEmptyMatches(String roundId, int matchesToCreate, int roundNumber, List<Map<String, Object>> allMatches) throws Exception {
+    public List<String> createEmptyMatches(String roundId, int matchesToCreate, int roundNumber, List<Map<String, Object>> allMatches) throws Exception {
         List<String> matchIds = new ArrayList<>();
 
         for (int i = 0; i < matchesToCreate; i++) {
@@ -138,7 +138,7 @@ public class TournamentRoundService {
     }
 
     // Set pointers between matches in different rounds
-    private void setMatchPointers(List<String> previousRoundMatches, List<String> currentRoundMatches) throws Exception {
+    public void setMatchPointers(List<String> previousRoundMatches, List<String> currentRoundMatches) throws Exception {
         int matchIndex = 0;
 
         for (int i = 0; i < previousRoundMatches.size(); i += 2) {
@@ -153,7 +153,7 @@ public class TournamentRoundService {
     }
 
     // Build a match object in the expected format
-    private Map<String, Object> buildMatchObject(String matchId, int roundNumber, String player1, String player2, String nextMatchId) {
+    public Map<String, Object> buildMatchObject(String matchId, int roundNumber, String player1, String player2, String nextMatchId) {
         Map<String, Object> matchObject = new HashMap<>();
         matchObject.put("id", matchId);
         matchObject.put("name", "Round " + roundNumber + " - Match " + matchId);
@@ -175,7 +175,7 @@ public class TournamentRoundService {
     }
 
     // Build a participant object
-    private Map<String, Object> buildParticipantObject(String playerId, boolean isWinner) {
+    public Map<String, Object> buildParticipantObject(String playerId, boolean isWinner) {
         Map<String, Object> participant = new HashMap<>();
         participant.put("id", playerId);
         participant.put("name", "Player " + playerId); // Placeholder name
@@ -185,7 +185,7 @@ public class TournamentRoundService {
     }
 
     // Calculate the total number of rounds needed
-    private int calculateRounds(int n) {
+    public int calculateRounds(int n) {
         int rounds = 0;
         while (n > 1) {
             n /= 2;

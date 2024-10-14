@@ -15,10 +15,17 @@ public class UserInfo {
     private String name; // Name of the player
     private int elo; // Player's Elo rating at the tournament start
 
-    private int score;
+    // private int score;
 
-    private int whiteGamesCount;
+    // private int whiteGamesCount;
 
-   
+
+    // private String id; // Unique ID of the participant
+    // private String name; // Name of the participant
+    // private String resultText; // Match result as text (e.g., "6")
+    // private boolean isWinner; // Indicates if the participant is the winner
+    // private int elo;
+
+ 
     
 }
