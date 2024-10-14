@@ -67,6 +67,7 @@ const UserDetailsHeader = () => {
                 `http://localhost:8080/api/tournaments/${tournamentId}`
             );
             const data = response.data;
+            console.log("Data" + data)
     
             setTournamentData(data);
     

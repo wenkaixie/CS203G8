@@ -23,7 +23,7 @@ public class Tournament {
 
 
 
-
+    private int ageLimit;
     private String name;
     private String description;   
     private int eloRequirement;
