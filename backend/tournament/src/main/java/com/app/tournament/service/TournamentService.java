@@ -79,7 +79,7 @@ public class TournamentService {
         tournament.setCapacity(dto.getCapacity());
         tournament.setPrize(dto.getPrize());
         tournament.setStatus("Registration Open");
-        tournament.setCreatedTimestamp(Timestamp.now());
+        tournament.setCreatedTimestamp(Instant.now());
         tournament.setAgeLimit(dto.getAgeLimit());
         tournament.setUsers(new ArrayList<>());
         return tournament;
