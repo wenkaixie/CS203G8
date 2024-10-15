@@ -1,3 +1,4 @@
+package com.app.tournamentV2;
 // package com.app.tournament;
 
 // import org.springframework.context.annotation.Bean;

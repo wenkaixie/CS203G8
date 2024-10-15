@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.tournamentV2.DTO.TournamentDTO;
+import com.app.tournamentV2.model.Match;
 import com.app.tournamentV2.model.Tournament;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
@@ -135,4 +137,36 @@ public class TournamentService {
                 new ArrayList<>() // Initialize empty rounds
         );
     }
+
+    // Method to retrieve all matches from a specific tournament
+    public List<Match> getAllMatchesFromTournament(String tournamentID)
+            throws ExecutionException, InterruptedException {
+
+        List<Match> allMatches = new ArrayList<>();
+
+        // Get reference to the rounds collection of the tournament
+        CollectionReference roundsCollection = firestore.collection("Tournaments")
+                .document(tournamentID)
+                .collection("Rounds");
+
+        // Convert Iterable<DocumentReference> to a List
+        List<DocumentReference> roundDocs = new ArrayList<>();
+        roundsCollection.listDocuments().forEach(roundDocs::add);
+
+        // Iterate through each round and fetch matches
+        for (DocumentReference roundDoc : roundDocs) {
+            CollectionReference matchesCollection = roundDoc.collection("Matches");
+
+            // Fetch all match documents within the current round
+            List<Match> matches = matchesCollection.get().get().getDocuments().stream()
+                    .map(doc -> doc.toObject(Match.class))
+                    .toList();
+
+            // Add the matches to the allMatches list
+            allMatches.addAll(matches);
+        }
+
+        return allMatches;
+    }
+
 }

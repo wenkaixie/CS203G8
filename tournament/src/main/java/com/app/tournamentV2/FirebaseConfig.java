@@ -1,4 +1,4 @@
-package com.app.tournament;
+package com.app.tournamentV2;
 
 // Spring imports
 import java.io.FileInputStream;
