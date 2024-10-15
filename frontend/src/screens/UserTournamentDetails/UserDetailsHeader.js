@@ -124,7 +124,7 @@ const UserDetailsHeader = () => {
             <div className="header-container">
                 <div className="title-info-wrapper">
                     <div className="header-left">
-                        <button className="back-button" onClick={() => navigate('/user/home')}>
+                        <button className="back-button" onClick={() => navigate(-1)}>
                             {'<'}
                         </button>
                         <h1 className="tournament-title">{tournamentData.name || 'Tournament'}</h1>

@@ -101,6 +101,9 @@ const UserTournamentOverview = () => {
                         <strong>ELO requirement:</strong> {tournamentData?.eloRequirement || "0"}
                     </div>
                     <div className="detail-row">
+                    <strong>Age requirement:</strong> {tournamentData?.ageLimit === 0 ? "No limit" : tournamentData?.ageLimit || "N/A"}
+                    </div>
+                    <div className="detail-row">
                         <strong>Total Participants:</strong> {tournamentData?.capacity || "N/A"}
                     </div>
                     <div className="detail-row">
