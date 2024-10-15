@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.tournament.DTO.TournamentDTO;
-import com.app.tournament.model.Tournament;
-import com.app.tournament.service.TournamentService;
+import com.app.tournamentV2.DTO.TournamentDTO;
+import com.app.tournamentV2.model.Match;
+import com.app.tournamentV2.model.Tournament;
+import com.app.tournamentV2.service.EliminationService;
+import com.app.tournamentV2.service.TournamentService;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -28,6 +30,9 @@ public class TournamentController {
 
     @Autowired
     private TournamentService tournamentService;
+
+    @Autowired
+    private EliminationService eliminationService;
 
     // Create tournament endpoint
     @PostMapping
@@ -191,6 +196,72 @@ public class TournamentController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    // 1. Generate rounds and matches for the tournament
+    @PostMapping("/{tournamentID}/generateRounds")
+    public ResponseEntity<String> generateRoundsForTournament(@PathVariable String tournamentID) {
+        try {
+            eliminationService.generateRoundsForTournament(tournamentID);
+            return ResponseEntity.ok("Rounds and matches generated successfully.");
+        } catch (ExecutionException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating rounds: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    // 2. Update the winner of a specific match
+    @PutMapping("/{tournamentID}/rounds/{roundNumber}/matches/{matchId}/winner")
+    public ResponseEntity<String> updateMatchWinner(
+            @PathVariable String tournamentID,
+            @PathVariable int roundNumber,
+            @PathVariable int matchId,
+            @RequestBody String winnerName) {
+        try {
+            eliminationService.updateMatchWinner(tournamentID, roundNumber, matchId, winnerName);
+            return ResponseEntity.ok("Winner updated successfully.");
+        } catch (ExecutionException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating match winner: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    // 3. Populate the next round's matches with winners
+    @PostMapping("/{tournamentID}/rounds/{currentRoundNumber}/populateNextRound")
+    public ResponseEntity<String> populateNextRoundMatches(
+            @PathVariable String tournamentID,
+            @PathVariable int currentRoundNumber) {
+        try {
+            eliminationService.populateNextRoundMatches(tournamentID, currentRoundNumber);
+            return ResponseEntity.ok("Next round populated with winners.");
+        } catch (ExecutionException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error populating next round: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    // 4. Retrieve all matches from a specific tournament
+    @GetMapping("/{tournamentID}/matches")
+    public ResponseEntity<List<Match>> getAllMatchesFromTournament(@PathVariable String tournamentID) {
+        try {
+            List<Match> matches = tournamentService.getAllMatchesFromTournament(tournamentID);
+            return ResponseEntity.ok(matches);
+        } catch (ExecutionException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 }

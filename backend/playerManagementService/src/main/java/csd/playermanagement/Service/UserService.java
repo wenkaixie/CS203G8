@@ -218,7 +218,7 @@ public class UserService {
         return "User successfully unregistered from the tournament.";
     }
 
-    public Map<String, Object> updateUserProfile(String userId, UserDTO updatedUser) throws InterruptedException, ExecutionException {
+    public UserDTO updateUserProfile(String userId, UserDTO updatedUser) throws InterruptedException, ExecutionException {
         System.out.println("Updating User profile for user ID: " + userId);
         System.out.println("Received updated user:" + updatedUser);
         
@@ -313,28 +313,24 @@ public class UserService {
             throw new RuntimeException("Error retrieving updated user data.");
         }
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("authId", fullUpdatedUser.getAuthId());
-        
-        // To reformat the dateOfBirth back to "yyyy/MM/dd"
+        // Create a new UserDTO for the response
+        UserDTO responseDTO = new UserDTO();
+        responseDTO.setAuthId(fullUpdatedUser.getAuthId());
+        responseDTO.setUsername(fullUpdatedUser.getUsername());
+        responseDTO.setEmail(fullUpdatedUser.getEmail());
+        responseDTO.setName(fullUpdatedUser.getName());
+        responseDTO.setElo(fullUpdatedUser.getElo());
+        responseDTO.setChessUsername(fullUpdatedUser.getChessUsername());
+        responseDTO.setNationality(fullUpdatedUser.getNationality());
+        responseDTO.setPhoneNumber(fullUpdatedUser.getPhoneNumber());
+
         if (fullUpdatedUser.getDateOfBirth() != null) {
-            // Create a DateTimeFormatter with the desired format
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd").withZone(ZoneId.systemDefault());
-            // Convert the Timestamp to Instant and format it
             String formattedDate = formatter.format(fullUpdatedUser.getDateOfBirth().toDate().toInstant());
-            // Add the formatted date to the response
-            response.put("dateOfBirth", formattedDate);
+            responseDTO.setDateOfBirth(formattedDate);
         }
-        
-        response.put("elo", fullUpdatedUser.getElo());
-        response.put("email", fullUpdatedUser.getEmail());
-        response.put("name", fullUpdatedUser.getName());
-        response.put("nationality", fullUpdatedUser.getNationality());
-        response.put("phoneNumber", fullUpdatedUser.getPhoneNumber());
-        response.put("uid", fullUpdatedUser.getUid());
-        response.put("username", fullUpdatedUser.getUsername());
-        
-        return response;
+
+        return responseDTO;  
     }
     
     // New method to fetch chess Elo from Chess.com API

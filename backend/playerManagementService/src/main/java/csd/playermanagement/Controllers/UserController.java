@@ -52,10 +52,10 @@ public class UserController {
     }
 
     @PutMapping("/updateUser/{userID}")
-    public ResponseEntity<Map<String, Object>> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) {
+    public ResponseEntity<UserDTO> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) {
         try {
             // Call the service to update the user and get the updated User object
-            Map<String, Object> updatedUserProfile = userService.updateUserProfile(userID, updatedUser);
+            UserDTO updatedUserProfile = userService.updateUserProfile(userID, updatedUser);
             return ResponseEntity.ok(updatedUserProfile);  // Return the updated User object
         } catch (Exception e) {
             // Return 500 status with null if an exception occurs
