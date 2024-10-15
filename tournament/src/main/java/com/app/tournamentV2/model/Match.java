@@ -1,9 +1,9 @@
 package com.app.tournamentV2.model;
 
+import java.time.Instant;
 import java.util.List;
 
 import com.app.tournamentV2.DTO.ParticipantDTO;
-import com.google.cloud.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class Match {
     private String name;
     private int nextMatchId; // pointer to next match
     private int tournamentRoundText;
-    private Timestamp startTime;
+    private Instant startTime;
     private String state;
     private List<ParticipantDTO> participants; // List of participants
 

@@ -1,9 +1,8 @@
 package com.app.tournamentV2.DTO;
 
 
+import java.time.Instant;
 import java.util.List;
-
-import com.google.cloud.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,8 +23,8 @@ public class TournamentDTO {
     private int capacity;
     private int prize;
 
-    private Timestamp startDatetime; // Field for start datetime of the tournament
-    private Timestamp endDatetime; // Field for end datetime of the tournament
+    private Instant startDatetime; // Field for start datetime of the tournament
+    private Instant endDatetime; // Field for end datetime of the tournament
 
     private List<String> users;
 

@@ -1,8 +1,7 @@
 package com.app.tournamentV2.model;
 
+import java.time.Instant;
 import java.util.List;
-
-import com.google.cloud.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,11 +30,11 @@ public class Tournament {
     private String location;
     private int capacity;
     
-    private Timestamp startDatetime;   // Field for start datetime of the tournament
-    private Timestamp endDatetime; // Field for end datetime of the tournament
+    private Instant startDatetime;   // Field for start datetime of the tournament
+    private Instant endDatetime; // Field for end datetime of the tournament
     
     private String tid; // tournamentID
-    private Timestamp createdTimestamp;
+    private Instant createdTimestamp;
     private int prize;
 
     private String status;

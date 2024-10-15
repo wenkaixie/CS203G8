@@ -1,5 +1,6 @@
 package com.app.tournamentV2.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -13,7 +14,6 @@ import com.app.tournamentV2.model.Match;
 import com.app.tournamentV2.model.Round;
 import com.app.tournamentV2.model.Tournament;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -137,13 +137,13 @@ public class TournamentService {
         }
     }
 
-    // Get eligible tournaments for a user based on userID
+    // Get eligible tournaments for a user
     public List<Tournament> getEligibleTournamentsOfUser(String userID)
             throws ExecutionException, InterruptedException {
         QuerySnapshot snapshot = firestore.collection("Tournaments").get().get();
         return snapshot.getDocuments().stream()
                 .map(doc -> doc.toObject(Tournament.class))
-                .filter(tournament -> !tournament.getUsers().contains(userID)) // Eligibility condition
+                .filter(tournament -> !tournament.getUsers().contains(userID))
                 .collect(Collectors.toList());
     }
 
@@ -157,10 +157,10 @@ public class TournamentService {
                 dto.getEloRequirement(),
                 dto.getLocation(),
                 dto.getCapacity(),
-                dto.getStartDatetime(),
+                dto.getStartDatetime(), // Use toInstant() from Firestore Timestamp
                 dto.getEndDatetime(),
                 tid,
-                Timestamp.now(),
+                Instant.now(), // Use Instant for the created timestamp
                 dto.getPrize(),
                 "OPEN",
                 dto.getUsers(),
@@ -168,35 +168,29 @@ public class TournamentService {
     }
 
     // Retrieve all matches from a specific tournament
-public List<Match> getAllMatchesFromTournament(String tournamentID) 
-        throws ExecutionException, InterruptedException {
-    
-    log.info("Fetching all matches from tournament {}.", tournamentID);
-    List<Match> allMatches = new ArrayList<>();
+    public List<Match> getAllMatchesFromTournament(String tournamentID)
+            throws ExecutionException, InterruptedException {
+        log.info("Fetching all matches from tournament {}.", tournamentID);
+        List<Match> allMatches = new ArrayList<>();
 
-    // Get reference to the rounds collection of the tournament
-    CollectionReference roundsCollection = firestore.collection("Tournaments")
-            .document(tournamentID)
-            .collection("Rounds");
+        CollectionReference roundsCollection = firestore.collection("Tournaments")
+                .document(tournamentID)
+                .collection("Rounds");
 
-    // Convert Iterable<DocumentReference> to List
-    List<DocumentReference> roundDocs = new ArrayList<>();
-    roundsCollection.listDocuments().forEach(roundDocs::add);
+        List<DocumentReference> roundDocs = new ArrayList<>();
+        roundsCollection.listDocuments().forEach(roundDocs::add);
 
-    // Iterate over each round document
-    for (DocumentReference roundDoc : roundDocs) {
-        // Fetch the round document and convert it to a Round object
-        Round round = roundDoc.get().get().toObject(Round.class);
-        if (round != null && round.getMatches() != null) {
-            log.info("Fetched {} matches from round {}.", round.getMatches().size(), round.getRid());
-            allMatches.addAll(round.getMatches()); // Add matches to the list
-        } else {
-            log.warn("Round {} in tournament {} has no matches.", roundDoc.getId(), tournamentID);
+        for (DocumentReference roundDoc : roundDocs) {
+            Round round = roundDoc.get().get().toObject(Round.class);
+            if (round != null && round.getMatches() != null) {
+                log.info("Fetched {} matches from round {}.", round.getMatches().size(), round.getRid());
+                allMatches.addAll(round.getMatches());
+            } else {
+                log.warn("Round {} in tournament {} has no matches.", roundDoc.getId(), tournamentID);
+            }
         }
+
+        log.info("Fetched a total of {} matches from tournament {}.", allMatches.size(), tournamentID);
+        return allMatches;
     }
-
-    log.info("Fetched a total of {} matches from tournament {}.", allMatches.size(), tournamentID);
-    return allMatches;
-}
-
 }
