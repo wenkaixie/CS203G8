@@ -8,12 +8,15 @@ import com.google.cloud.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-
-@Data // Generates getters, setters, toString, equals, and hashCode methods
-@NoArgsConstructor // Generates a no-argument constructor
-@AllArgsConstructor // Generates an all-arguments constructor
+@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     private String authId;
     private Timestamp dateOfBirth;

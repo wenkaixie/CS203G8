@@ -1,4 +1,4 @@
-package com.app.tournament.model;
+package com.app.tournamentV2.model;
 
 import java.util.List;
 
@@ -36,14 +36,13 @@ public class Tournament {
     
     private String tid; // tournamentID
     private Timestamp createdTimestamp;
-
-    private String trid; // need to
     private int prize;
 
     private String status;
     
     // List to store players in the tournament
     private List<String> users; // store players uid's
+    private List<Round> rounds; 
 
 }
 
