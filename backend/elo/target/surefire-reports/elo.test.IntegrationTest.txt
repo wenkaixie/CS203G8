@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: elo.test.IntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.359 s -- in elo.test.IntegrationTest
