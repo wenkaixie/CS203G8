@@ -374,7 +374,7 @@ public class EliminationService {
 
             List<Match> matches = (roundNumber == 1)
                     ? createFirstRoundMatches(users, matchCounter)
-                    : createEmptyMatches(numMatches, roundNumber, matchCounter, previousRoundMatches);
+                    : createEmptyMatches(tournamentID, numMatches, roundNumber, matchCounter, previousRoundMatches);
 
             matchCounter += numMatches;
 
@@ -417,30 +417,71 @@ public class EliminationService {
         return matches;
     }
 
-    private List<Match> createEmptyMatches(int numMatches, int roundNumber, int startCounter,
-            List<Match> previousRoundMatches) {
+    private List<Match> createEmptyMatches(String tournamentID, int numMatches, int roundNumber, int startCounter,
+            List<Match> previousRoundMatches) throws ExecutionException, InterruptedException {
+
         List<Match> matches = new ArrayList<>();
 
         for (int i = 0; i < numMatches; i++) {
             int matchId = startCounter + i;
 
+            // Create the match
             Match match = new Match(
                     matchId,
-                    "Match " + matchId,
-                    0,
-                    roundNumber,
-                    Instant.now(),
-                    "PENDING",
-                    new ArrayList<>());
+                    "Match " + matchId, // Name of the match
+                    0, // Placeholder for nextMatchId
+                    roundNumber, // Round number text
+                    Instant.now(), // Start time of the match
+                    "PENDING", // Initial state of the match
+                    new ArrayList<>() // No participants initially
+            );
 
             matches.add(match);
 
+            // Link two matches from the previous round to this match
             if (previousRoundMatches != null && i * 2 < previousRoundMatches.size()) {
-                previousRoundMatches.get(i * 2).setNextMatchId(matchId);
-                previousRoundMatches.get(i * 2 + 1).setNextMatchId(matchId);
+                int parent1Id = previousRoundMatches.get(i * 2).getId();
+                int parent2Id = previousRoundMatches.get(i * 2 + 1).getId();
+
+                // Call updateNextMatchId to save the nextMatchId in Firestore
+                updateNextMatchId(tournamentID, roundNumber - 1, parent1Id, matchId);
+                updateNextMatchId(tournamentID, roundNumber - 1, parent2Id, matchId);
             }
         }
         return matches;
+    }
+
+    public void updateNextMatchId(String tournamentID, int roundNumber, int matchId, int nextMatchId)
+            throws ExecutionException, InterruptedException {
+
+        log.info("Updating nextMatchId for Match {} in Round {} of Tournament {} to {}",
+                matchId, roundNumber, tournamentID, nextMatchId);
+
+        // Reference the specific match within a round
+        DocumentReference roundDocRef = firestore.collection("Tournaments")
+                .document(tournamentID)
+                .collection("Rounds")
+                .document(String.valueOf(roundNumber));
+
+        // Fetch the round document
+        Round round = roundDocRef.get().get().toObject(Round.class);
+        if (round == null) {
+            throw new RuntimeException("Round " + roundNumber + " not found for tournament " + tournamentID);
+        }
+
+        // Find the target match in the round
+        List<Match> matches = round.getMatches();
+        Match targetMatch = matches.stream()
+                .filter(match -> match.getId() == matchId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Match " + matchId + " not found in round " + roundNumber));
+
+        // Update the nextMatchId
+        targetMatch.setNextMatchId(nextMatchId);
+
+        // Save the updated round back to Firestore
+        roundDocRef.set(round).get();
+        log.info("Successfully updated nextMatchId to {} for Match {}.", nextMatchId, matchId);
     }
 
     public void updateMatchWinner(String tournamentID, int roundNumber, int matchId, String winnerName)
