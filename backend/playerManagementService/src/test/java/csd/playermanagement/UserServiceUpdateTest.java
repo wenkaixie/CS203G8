@@ -101,11 +101,11 @@ public class UserServiceUpdateTest {
         existingUser.setElo(updatedUserDto.getElo());
     
         // Act
-        Map<String, Object> result = userService.updateUserProfile(userId, updatedUserDto);
+        UserDTO result = userService.updateUserProfile(userId, updatedUserDto);
     
         // Assert
-        assertEquals("newemail@example.com", result.get("email"));
-        assertEquals(1300, result.get("elo"));
+        assertEquals("newemail@example.com", result.getEmail());
+        assertEquals(1300, result.getElo());
         verify(userDocRef).update(anyMap());
     }
 
@@ -157,12 +157,12 @@ public class UserServiceUpdateTest {
         existingUser.setNationality(updatedUserDto.getNationality());
 
         // Act
-        Map<String, Object> result = userService.updateUserProfile(userId, updatedUserDto);
+        UserDTO result = userService.updateUserProfile(userId, updatedUserDto);
 
         // Assert
-        assertEquals("Old Name", result.get("name")); // Name remains unchanged
-        assertEquals("87654321", result.get("phoneNumber").toString()); // Updated
-        assertEquals("New Country", result.get("nationality")); // Updated
+        assertEquals("Old Name", result.getName()); // Name remains unchanged
+        assertEquals("87654321", result.getPhoneNumber().toString()); // Updated
+        assertEquals("New Country", result.getNationality()); // Updated
         verify(userDocRef).update(anyMap());
     }
 }
