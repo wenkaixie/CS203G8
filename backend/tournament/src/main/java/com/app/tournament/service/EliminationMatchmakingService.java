@@ -13,7 +13,7 @@ import com.app.tournament.model.RoundMatch;
 import com.app.tournament.model.UserInfo;
 import com.google.cloud.Timestamp;
 
-@Service
+@Service("eliminationMatchmakingService1")
 public class EliminationMatchmakingService {
 
     @Autowired

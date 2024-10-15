@@ -32,7 +32,7 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 
-@Service
+@Service("tournamentService1")
 public class TournamentService {
 
     @Autowired
