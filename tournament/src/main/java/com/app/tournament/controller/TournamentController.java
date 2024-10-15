@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.tournament.DTO.TournamentDTO;
@@ -87,60 +88,60 @@ public class TournamentController {
         }
     }
 
-    // @GetMapping("/search")
-    // public ResponseEntity<List<Tournament>> getTournamentsByLocation(@RequestParam String location) {
-    //     try {
-    //         List<Tournament> tournaments = tournamentService.getTournamentsByLocation(location);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    //     }
-    // }
+    @GetMapping("/search")
+    public ResponseEntity<List<Tournament>> getTournamentsByLocation(@RequestParam String location) {
+        try {
+            List<Tournament> tournaments = tournamentService.getTournamentsByLocation(location);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
     
-    // @GetMapping("/paginated")
-    // public ResponseEntity<List<Tournament>> getTournamentsWithPagination(
-    //         @RequestParam int limit, 
-    //         @RequestParam(required = false) String lastTournamentID) {
-    //     try {
-    //         List<Tournament> tournaments = tournamentService.getTournamentsWithPagination(limit, lastTournamentID);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    //     }
-    // }
+    @GetMapping("/paginated")
+    public ResponseEntity<List<Tournament>> getTournamentsWithPagination(
+            @RequestParam int limit, 
+            @RequestParam(required = false) String lastTournamentID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getTournamentsWithPagination(limit, lastTournamentID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
-    // // Get upcoming tournaments
-    // @GetMapping("/upcoming/{userID}")
-    // public ResponseEntity<List<Tournament>> getUpcomingTournamentsOfUser(@PathVariable String userID) {
-    //     try {
-    //         List<Tournament> tournaments = tournamentService.getUpcomingTournamentsOfUser(userID);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    //     }
-    // }
+    // Get upcoming tournaments
+    @GetMapping("/upcoming/{userID}")
+    public ResponseEntity<List<Tournament>> getUpcomingTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getUpcomingTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
-    // // Get past tournaments
-    // @GetMapping("/past/{userID}")
-    // public ResponseEntity<List<Tournament>> getPastTournamentsOfUser(@PathVariable String userID) {
-    //     try {
-    //         List<Tournament> tournaments = tournamentService.getPastTournamentsOfUser(userID);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    //     }
-    // }
+    // Get past tournaments
+    @GetMapping("/past/{userID}")
+    public ResponseEntity<List<Tournament>> getPastTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getPastTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
-    // // Get ongoing tournaments of user
-    // @GetMapping("/ongoing/{userID}")
-    // public ResponseEntity<List<Tournament>> getOngoingTournamentsOfUser(@PathVariable String userID) {
-    //     try {
-    //         List<Tournament> tournaments = tournamentService.getOngoingTournamentsOfUser(userID);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    //     }
-    // }
+    // Get ongoing tournaments of user
+    @GetMapping("/ongoing/{userID}")
+    public ResponseEntity<List<Tournament>> getOngoingTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getOngoingTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     // Get eligible tournaments of user
     @GetMapping("/eligible/{userID}")

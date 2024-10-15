@@ -22,6 +22,7 @@ import com.app.tournament.model.Tournament;
 import com.app.tournament.model.User;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
@@ -167,6 +168,16 @@ public class TournamentService {
         return "Player removed successfully.";
     }
 
+    // // Get eligible tournaments for a user based on userID
+    // public List<Tournament> getEligibleTournamentsOfUser(String userID)
+    //         throws ExecutionException, InterruptedException {
+    //     QuerySnapshot snapshot = firestore.collection("Tournaments").get().get();
+    //     return snapshot.getDocuments().stream()
+    //             .map(doc -> doc.toObject(Tournament.class))
+    //             .filter(tournament -> !tournament.getUsers().contains(userID)) // Eligibility condition
+    //             .collect(Collectors.toList());
+    // }
+
     // Get eligible tournaments for a user
     public List<Tournament> getEligibleTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
         // Query the Users collection where the authID field matches the provided userID
@@ -272,9 +283,8 @@ public class TournamentService {
         tournamentRef.update("players", FieldValue.arrayRemove(playerID)).get();
         return "Player removed successfully from the tournament.";
     }
-}
 
-
+    
     // Calculate age from birth date
     public int calculateAge(Timestamp birthDate) {
         LocalDate birthLocalDate = birthDate.toDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -288,6 +298,168 @@ public class TournamentService {
         if (snapshot.isEmpty()) return null;
         return snapshot.getDocuments().get(0).toObject(User.class);
     }
+
+    public List<Tournament> getTournamentsByLocation(String location) throws InterruptedException, ExecutionException {
+        ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments").whereEqualTo("location", location).get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+        List<Tournament> tournaments = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            tournaments.add(document.toObject(Tournament.class));
+        }
+        return tournaments;
+    }
+    
+    public List<Tournament> getTournamentsWithPagination(int limit, String lastTournamentID) throws InterruptedException, ExecutionException {
+        Query query = firestore.collection("Tournaments").limit(limit);
+        
+        if (lastTournamentID != null) {
+            DocumentSnapshot lastTournament = firestore.collection("Tournaments").document(lastTournamentID).get().get();
+            query = query.startAfter(lastTournament);
+        }
+        
+        ApiFuture<QuerySnapshot> future = query.get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        
+        List<Tournament> tournaments = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            tournaments.add(document.toObject(Tournament.class));
+        }
+        return tournaments;
+    }
+
+    // Method to get upcoming tournaments
+    public List<Tournament> getUpcomingTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
+        CollectionReference usersCollection = firestore.collection("Users");
+        Query query = usersCollection.whereEqualTo("authId", userID);
+        ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
+        QuerySnapshot querySnapshot = futureQuerySnapshot.get();
+    
+        if (querySnapshot.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if no user with matching authID is found
+        }
+        
+        DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0); // Assuming authID is unique, get the first document
+        
+        List<String> registrationHistory = (List<String>) userDoc.get("registrationHistory");
+        
+        if (registrationHistory == null || registrationHistory.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if registrationHistory is empty or null
+        }
+    
+        Instant currentTimestamp = Instant.now();
+        List<Tournament> upcomingtTournaments = new ArrayList<>();
+    
+        for (String tournamentId : registrationHistory) {
+            System.out.println("Tournament ID: " + tournamentId);
+            // Retrieve each tournament document
+            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+            ApiFuture<DocumentSnapshot> futureTournamentDoc = tournamentRef.get();
+            DocumentSnapshot tournamentDoc = futureTournamentDoc.get();
+    
+            if (tournamentDoc.exists()) {
+                // Check if the tournament is in the future
+                Instant startDatetime = tournamentDoc.get("startDatetime", Instant.class);
+                if (startDatetime != null && startDatetime.isAfter(currentTimestamp)) {
+                    // Convert the document to a Tournament object and add it to the list
+                    upcomingtTournaments.add(tournamentDoc.toObject(Tournament.class));
+                }
+            }
+        }
+    
+        return upcomingtTournaments; // Return the list of past tournaments
+    }    
+
+    // Method to get past tournaments
+    public List<Tournament> getPastTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
+        CollectionReference usersCollection = firestore.collection("Users");
+        Query query = usersCollection.whereEqualTo("authId", userID);
+        ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
+        QuerySnapshot querySnapshot = futureQuerySnapshot.get();
+    
+        if (querySnapshot.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if no user with matching authID is found
+        }
+        
+        DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0); // Assuming authID is unique, get the first document
+        
+        List<String> registrationHistory = (List<String>) userDoc.get("registrationHistory");
+        
+        if (registrationHistory == null || registrationHistory.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if registrationHistory is empty or null
+        }
+    
+        Instant currentTimestamp = Instant.now();
+        List<Tournament> pastTournaments = new ArrayList<>();
+    
+        for (String tournamentId : registrationHistory) {
+            System.out.println("Tournament ID: " + tournamentId);
+            // Retrieve each tournament document
+            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+            ApiFuture<DocumentSnapshot> futureTournamentDoc = tournamentRef.get();
+            DocumentSnapshot tournamentDoc = futureTournamentDoc.get();
+    
+            if (tournamentDoc.exists()) {
+                // Check if the tournament is in the future
+                Instant endDatetime = tournamentDoc.get("endDatetime", Instant.class);
+                if (endDatetime != null && endDatetime.isBefore(currentTimestamp)) {
+                    // Convert the document to a Tournament object and add it to the list
+                    pastTournaments.add(tournamentDoc.toObject(Tournament.class));
+                }
+            }
+        }
+    
+        return pastTournaments; // Return the list of past tournaments
+    }    
+
+    
+    // Method to get ongoing tournaments
+    public List<Tournament> getOngoingTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
+        CollectionReference usersCollection = firestore.collection("Users");
+        Query query = usersCollection.whereEqualTo("authId", userID);
+        ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
+        QuerySnapshot querySnapshot = futureQuerySnapshot.get();
+
+        if (querySnapshot.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if no user with matching authID is found
+        }
+        
+        DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0); // Assuming authID is unique, get the first document
+        
+        List<String> registrationHistory = (List<String>) userDoc.get("registrationHistory");
+        
+        if (registrationHistory == null || registrationHistory.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if registrationHistory is empty or null
+        }
+
+        Instant currentTimestamp = Instant.now();
+        List<Tournament> ongoingTournaments = new ArrayList<>();
+
+        for (String tournamentId : registrationHistory) {
+            System.out.println("Tournament ID: " + tournamentId);
+            // Retrieve each tournament document
+            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+            ApiFuture<DocumentSnapshot> futureTournamentDoc = tournamentRef.get();
+            DocumentSnapshot tournamentDoc = futureTournamentDoc.get();
+
+            if (tournamentDoc.exists()) {
+                // Retrieve startDatetime and endDatetime
+                Instant startDatetime = tournamentDoc.get("startDatetime", Instant.class);
+                Instant endDatetime = tournamentDoc.get("endDatetime", Instant.class);
+
+                // Check if the tournament is ongoing (current time is between startDatetime and endDatetime)
+                if (startDatetime != null && endDatetime != null && 
+                    currentTimestamp.isAfter(startDatetime) && currentTimestamp.isBefore(endDatetime)) {
+                    // Convert the document to a Tournament object and add it to the list
+                    ongoingTournaments.add(tournamentDoc.toObject(Tournament.class));
+                }
+            }
+        }
+
+        return ongoingTournaments; // Return the list of ongoing tournaments
+    }
+}
+
 
 
 
@@ -311,5 +483,3 @@ public class TournamentService {
     //         System.out.println("Tournament registration closed for: " + tournamentID);
     //     }, Runnable::run);
     // }
-
-}
