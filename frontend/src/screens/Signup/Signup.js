@@ -27,6 +27,7 @@ const Signup = () => {
         // Listen for authentication state changes
         // Only user accounts created through signup
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true);
             if (user) {
                 try {
                     setLoading(true);
@@ -36,9 +37,10 @@ const Signup = () => {
                 } finally {
                     setLoading(false);
                 }
+            } else {
+                setLoading(false);
             }
         });
-
         // Clean up the listener on component unmount
         return () => unsubscribe();
     }, [auth, navigate]);
@@ -77,24 +79,17 @@ const Signup = () => {
             setLoading(true);
             const userSignup = await createUserWithEmailAndPassword(auth, email, password);
             const user = userSignup.user;
-            console.log('Google sign-up success:', user);
+            console.log('Signup success:', user);
             
-            const userDocRef = doc(FirestoreDB, 'Users');
-            const userDocSnapshot = await getDoc(userDocRef);
-            
-            if (userDocSnapshot.exists()) {
-                console.log('User already exists in Firestore:', user.uid);
-            } else {
-                await setDoc(userDocRef, {
-                    authId: user.uid,
-                    email: user.email,
-                    uid: userDocRef.id,
-                    registrationHistory: []
-                });
-            
-                console.log('User document created with Firestore ID matching Firebase UID:', user.uid);
-            }
-            
+            const userDocRef = doc(FirestoreDB, 'Users', user.uid);
+            await setDoc(userDocRef, {
+                authId: user.uid,
+                email: user.email,
+                uid: user.uid,
+                registrationHistory: [],
+            });
+    
+            console.log('User document created/updated in Firestore:', user.uid);    
             setLoading(false);
         } catch (error) {
             console.error('Error creating user:', error.message);
@@ -113,24 +108,16 @@ const Signup = () => {
             const user = result.user;
             console.log('Google sign-up success:', user);
             
-            const userDocRef = doc(FirestoreDB, 'Users');
-            const userDocSnapshot = await getDoc(userDocRef);
-            
-            if (userDocSnapshot.exists()) {
-                console.log('User already exists in Firestore:', user.uid);
-            } else {
-                await setDoc(userDocRef, {
-                    authId: user.uid,
-                    email: user.email,
-                    uid: userDocRef.id,
-                    registrationHistory: []
-                });
-            
-                console.log('User document created with Firestore ID matching Firebase UID:', user.uid);
-            }
-            
+            const userDocRef = doc(FirestoreDB, 'Users', user.uid);
+            await setDoc(userDocRef, {
+                authId: user.uid,
+                email: user.email,
+                uid: user.uid,
+                registrationHistory: [],
+            });
+    
+            console.log('User document created/updated in Firestore:', user.uid);    
             setLoading(false);
-            
         } catch (error) {
             console.error('Google sign-up error:', error.message);
             setError(`Google sign-up failed: ${error.message}`);
@@ -207,7 +194,7 @@ const Signup = () => {
                     width={'321px'}
                 />
             </Container>
-            {error && (
+            {!loading && error && (
                 <div className="popup">
                     <div className="popup-content">
                         <h2>Error</h2>
