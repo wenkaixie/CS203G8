@@ -55,6 +55,7 @@ public class TournamentService {
             int numberOfRounds = calculateRounds(tournament.getCapacity());
             createTournamentRounds(tournament.getTid(), numberOfRounds);
 
+            // Return the ID of the newly created tournament
             return tournament.getTid();
 
         } catch (InterruptedException | ExecutionException e) {
@@ -168,25 +169,109 @@ public class TournamentService {
 
     // Get eligible tournaments for a user
     public List<Tournament> getEligibleTournamentsOfUser(String userID) throws InterruptedException, ExecutionException {
-        User user = getUserInfo(userID);
-        if (user == null) return new ArrayList<>();
+        // Query the Users collection where the authID field matches the provided userID
+        CollectionReference usersCollection = firestore.collection("Users");
+        Query query = usersCollection.whereEqualTo("authId", userID);
+        ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
+        QuerySnapshot querySnapshot = futureQuerySnapshot.get();
+        
+        if (querySnapshot.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if no user with matching authID is found
+        }
+        
+        DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0); // Assuming authID is unique, get the first document
+        Long userElo = userDoc.getLong("elo"); // Fetch user's Elo once for later comparisons
+        Instant userDob = userDoc.get("dateOfBirth", Instant.class); // Fetch user's date of birth as an Instant
+    
+        if (userElo == null || userDob == null) {
+            return new ArrayList<>(); // If user elo or DOB is missing, return empty list
+        }
+        
+        Instant currentTimestamp = Instant.now();
+        
+        // Query all the tournaments in the Tournaments collection
+        CollectionReference tournamentsCollection = firestore.collection("Tournaments");
+        ApiFuture<QuerySnapshot> futureTournamentsQuery = tournamentsCollection.get();
+        QuerySnapshot tournamentsSnapshot = futureTournamentsQuery.get();
+        System.out.println("Tournaments count: " + tournamentsSnapshot.size());
+    
+        List<Tournament> eligibleTournaments = new ArrayList<>();
+    
+        for (DocumentSnapshot tournamentDoc : tournamentsSnapshot.getDocuments()) {
+            System.out.println("Tournament ID: " + tournamentDoc.getId());
+            if (tournamentDoc.exists()) {
+                // Check if the tournament is an upcoming tournament
+                Instant startDatetime = tournamentDoc.get("startDatetime", Instant.class);
+                if (startDatetime != null && startDatetime.isAfter(currentTimestamp)) {
+                    // Rule 1: Check if the number of users in the "users" array is less than the "capacity"
+                    List<String> users = (List<String>) tournamentDoc.get("users");
+                    Long capacity = tournamentDoc.getLong("capacity");
+                    if (users == null || capacity == null || users.size() >= capacity) {
+                        continue; // Tournament is not eligible if capacity is full
+                    }
+    
+                    // Rule 2: Check if the user's Elo is >= the tournament's Elo requirement
+                    Long eloRequirement = tournamentDoc.getLong("eloRequirement");
+                    if (eloRequirement != null && userElo < eloRequirement) {
+                        continue; // Tournament is not eligible if user's Elo is less than the requirement
+                    }
+    
+                    // Rule 3: Check if the user's age is >= the tournament's age limit
+                    Long ageLimit = tournamentDoc.getLong("ageLimit");
+                    if (ageLimit != null) {
+                        int userAge = calculateAge(userDob); // Pass userDob as Instant to calculateAge helper method
+                        if (userAge < ageLimit) {
+                            continue; // Tournament is not eligible if user's age is less than the limit
+                        }
+                    }
 
-        Timestamp now = Timestamp.now();
-        List<QueryDocumentSnapshot> documents = firestore.collection("Tournaments").get().get().getDocuments();
+                    // Rule 4: Check if registration is not open
+                    String status = tournamentDoc.getString("status");
+                    if (status == null || !status.equals("Registration Open")) {
+                        continue;
+                    }
 
-        return documents.stream()
-                .map(doc -> doc.toObject(Tournament.class))
-                .filter(tournament -> isEligible(user, tournament, now))
-                .collect(Collectors.toList());
+                    // Rule 5: Check if registered
+                    List<String> registered = (List<String>) userDoc.get("registrationHistory");
+                    if (registered != null && registered.contains(tournamentDoc.getId())) {
+                        continue; // Tournament is not eligible if the user is already registered
+                    }
+    
+                    // Add the tournament to the eligible list if all conditions are satisfied
+                    eligibleTournaments.add(tournamentDoc.toObject(Tournament.class));
+                }
+            }
+        }
+    
+        return eligibleTournaments; // Return the list of eligible tournaments
+    }
+    
+    // Helper function to calculate the age from the date of birth (using Instant)
+    private int calculateAge(Instant birthDate) {
+        LocalDate birthLocalDate = birthDate.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate currentDate = LocalDate.now();
+        return Period.between(birthLocalDate, currentDate).getYears();
     }
 
-    // Check if user is eligible for a tournament
-   public boolean isEligible(User user, Tournament tournament, Timestamp now) {
-    if (now.compareTo(tournament.getStartDatetime()) >= 0) return false;  // Now is after or equal to start time
-    if (tournament.getUsers().size() >= tournament.getCapacity()) return false;
-    if (user.getElo() < tournament.getEloRequirement()) return false;
-    int userAge = calculateAge(user.getDateOfBirth());
-    return userAge >= tournament.getAgeLimit();
+   
+    // Method to add a player to a tournament
+    public String addPlayerToTournament(String tournamentID, String playerID)
+            throws InterruptedException, ExecutionException {
+        // Reference the tournament document in Firestore
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
+
+        // Add the playerID directly to the players array field in the tournament document
+        tournamentRef.update("players", FieldValue.arrayUnion(playerID)).get();
+
+        return "Player added successfully to the tournament.";
+    }
+    
+    public String removePlayerFromTournament(String tournamentID, String playerID)
+        throws InterruptedException, ExecutionException {
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
+        tournamentRef.update("players", FieldValue.arrayRemove(playerID)).get();
+        return "Player removed successfully from the tournament.";
+    }
 }
 
 

@@ -125,7 +125,7 @@ body {
     border-radius: 30px;
 }
 
-.header-wrapper .registered-button {
+.header-wrapper .unregister-button {
     background-color: #F5F5EF;
     border: none;
     padding: 8px 30px;
