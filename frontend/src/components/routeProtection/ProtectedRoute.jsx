@@ -26,19 +26,19 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
                         
                         if (!userSnapshot.empty) {
                             userRole = 'Users';
-                            // console.log("User role: ", userRole);
                         } else {
                             // If not found in 'User', check the 'Admin' collection
-                            const userQuery = query(collection(FirestoreDB, 'Admin'), where('authId', '==', user.uid));
-                            const userSnapshot = await getDocs(userQuery);
+                            const adminQuery = query(collection(FirestoreDB, 'Admin'), where('authId', '==', user.uid));
+                            const adminSnapshot = await getDocs(adminQuery);
                 
-                            if (!userSnapshot.empty) {
+                            if (!adminSnapshot.empty) {
                                 userRole = 'Admin';
                             }
                         }
 
                         if (!userRole || !allowedRoles.includes(userRole)) {
                             // User is authenticated but doesn't have the required role
+                            console.error("User doesn't have the required role.");
                             setAccessDenied(true);
                         } else {
                             // User is authenticated and has the required role
@@ -47,14 +47,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
                     } catch (error) {
                         console.error("Error fetching user role: ", error);
                         setAccessDenied(true); // Deny access if any error occurs
+                    } finally {
+                        setLoading(false);
                     }
                 } else {
                     // User is not authenticated, redirect to login
                     navigate('/');
                     setAccessDenied(true);
+                    setLoading(false);
                 }
-
-                setLoading(false);
             });
 
             return () => unsubscribe();
@@ -75,7 +76,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
     return (
         <>
-            {accessDenied ? (
+            {!loading && accessDenied ? (
                 <div className="popup">
                     <div className="popup-content">
                         <h2>Access Denied</h2>
@@ -84,7 +85,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
                     </div>
                 </div>
             ) : (
-                children // Render children only if access is not denied
+                children // Render children only if access is allowed and loading is false
             )}
         </>
     );
