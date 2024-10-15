@@ -159,32 +159,74 @@ public class EliminationService {
         return matches;
     }
 
-    // 1. Update the winner of a specific match
     public void updateMatchWinner(String tournamentID, int roundNumber, int matchId, String winnerName)
             throws ExecutionException, InterruptedException {
 
-        // Get the match document from Firestore
-        DocumentReference matchDocRef = firestore.collection("Tournaments")
-                .document(tournamentID)
-                .collection("Rounds")
-                .document(String.valueOf(roundNumber))
-                .collection("Matches")
-                .document(String.valueOf(matchId));
+        log.info("Updating winner for match {} in round {} of tournament {}.", matchId, roundNumber, tournamentID);
 
-        // Fetch the match document
-        Match match = matchDocRef.get().get().toObject(Match.class);
-        if (match == null) {
-            throw new RuntimeException("Match not found: " + matchId);
+        try {
+            // Get the Round document from Firestore
+            DocumentReference roundDocRef = firestore.collection("Tournaments")
+                    .document(tournamentID)
+                    .collection("Rounds")
+                    .document(String.valueOf(roundNumber));
+
+            // Fetch the Round document
+            Round round = roundDocRef.get().get().toObject(Round.class);
+            if (round == null) {
+                log.error("Round {} not found in tournament {}.", roundNumber, tournamentID);
+                throw new RuntimeException("Round not found: " + roundNumber);
+            }
+
+            log.info("Fetched round {}. Searching for match {}.", roundNumber, matchId);
+
+            // Find the match in the matches array by matchId
+            List<Match> matches = round.getMatches();
+            Match targetMatch = matches.stream()
+                    .filter(match -> match.getId() == matchId)
+                    .findFirst()
+                    .orElseThrow(() -> {
+                        log.error("Match {} not found in round {} of tournament {}.", matchId, roundNumber,
+                                tournamentID);
+                        return new RuntimeException("Match not found: " + matchId);
+                    });
+
+            // Log the current participants in the match
+            log.info("Participants in match {}: {}", matchId,
+                    targetMatch.getParticipants().stream()
+                            .map(ParticipantDTO::getName)
+                            .toList());
+
+            log.info("Updating winner to {} in match {}.", winnerName, matchId);
+
+            // Update the winner within the match participants
+            boolean winnerSet = false;
+            for (ParticipantDTO participant : targetMatch.getParticipants()) {
+                boolean isWinner = participant.getName().equals(winnerName);
+                participant.setWinner(isWinner);
+                if (isWinner) {
+                    winnerSet = true;
+                    log.info("Participant {} set as the winner for match {}.", participant.getName(), matchId);
+                }
+            }
+
+            if (!winnerSet) {
+                log.warn("No participant matched the name '{}' in match {}.", winnerName, matchId);
+                throw new RuntimeException("No participant found with name: " + winnerName);
+            }
+
+            // Save the updated Round back to Firestore
+            roundDocRef.set(round).get(); // This will overwrite the existing Round document
+            log.info("Successfully updated winner for match {} in round {} of tournament {}.", matchId, roundNumber,
+                    tournamentID);
+
+        } catch (RuntimeException e) {
+            log.error("Failed to update match winner: {}", e.getMessage());
+            throw e; // Rethrow the exception to propagate it to the calling code
+        } catch (ExecutionException | InterruptedException e) {
+            log.error("Firestore operation failed: {}", e.getMessage());
+            throw e; // Rethrow the exception for proper error handling
         }
-
-        // Update the winner within the match participants
-        for (ParticipantDTO participant : match.getParticipants()) {
-            participant.setWinner(participant.getName().equals(winnerName));
-        }
-
-        // Update the match document in Firestore
-        matchDocRef.set(match).get();
-        log.info("Updated winner for match {} in round {}: {}", matchId, roundNumber, winnerName);
     }
 
     // 2. Populate next round's matches with winners

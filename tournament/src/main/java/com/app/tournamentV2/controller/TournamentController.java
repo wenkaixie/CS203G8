@@ -222,6 +222,7 @@ public class TournamentController {
             @PathVariable int matchId,
             @RequestBody String winnerName) {
         try {
+            
             eliminationService.updateMatchWinner(tournamentID, roundNumber, matchId, winnerName);
             return ResponseEntity.ok("Winner updated successfully.");
         } catch (ExecutionException | InterruptedException e) {
