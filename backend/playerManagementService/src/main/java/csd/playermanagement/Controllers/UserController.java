@@ -41,6 +41,15 @@ public class UserController {
         }
     }
 
+    @PutMapping("/unregisterTournament/{tournamentId}")
+    public ResponseEntity<String> unregisterUserFromTournament(@PathVariable String tournamentId, @RequestBody UserDTO userDto) {
+        try {
+            String response = userService.unregisterUserFromTournament(tournamentId, userDto);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     @PutMapping("/updateUser/{userID}")
     public ResponseEntity<UserDTO> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) {

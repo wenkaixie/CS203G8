@@ -137,18 +137,14 @@ public class TournamentService {
         }
     }
 
-    // Get eligible tournaments for a user
+    // Get eligible tournaments for a user based on userID
     public List<Tournament> getEligibleTournamentsOfUser(String userID)
             throws ExecutionException, InterruptedException {
-        log.info("Fetching eligible tournaments for user {}.", userID);
         QuerySnapshot snapshot = firestore.collection("Tournaments").get().get();
-        List<Tournament> eligibleTournaments = snapshot.getDocuments().stream()
+        return snapshot.getDocuments().stream()
                 .map(doc -> doc.toObject(Tournament.class))
-                .filter(tournament -> !tournament.getUsers().contains(userID))
+                .filter(tournament -> !tournament.getUsers().contains(userID)) // Eligibility condition
                 .collect(Collectors.toList());
-
-        log.info("User {} is eligible for {} tournaments.", userID, eligibleTournaments.size());
-        return eligibleTournaments;
     }
 
     // Convert TournamentDTO to Tournament entity
