@@ -40,8 +40,40 @@ const UserDetailsHeader = () => {
             console.error('No user is signed in');
         }
     }, [tournamentId]);
+
+    useEffect(() => {
+        const checkUserRegistration = async () => {
+            if (!userUid || !tournamentId) return; // Avoid unnecessary execution if data is missing
     
-    // Fetch user details and set authId
+            // Check if we already know the registration status for this tournament
+            if (isRegistered) {
+                return; // No need to check again if already registered
+            }
+    
+            try {
+                // Fetch user data from backend
+                const response = await axios.get(
+                    `http://localhost:9090/user/getUser/${userUid}`
+                );
+                const data = response.data;
+    
+                const check = data.registrationHistory || [];
+    
+                // Check if the user is already registered for this tournament
+                if (check.includes(tournamentId)) {
+                    setIsRegistered(true);
+                }
+            } catch (error) {
+                console.error('Error checking registration:', error);
+                setRegistrationError('Error checking registration status');
+            }
+        };
+    
+        checkUserRegistration();
+    }, [userUid, tournamentId, isRegistered]);  // Add isRegistered to dependencies
+    
+
+    // Fetch the user's Elo from the backend or Firebase
     const fetchUserDetails = async (uid) => {
         try {
             const response = await axios.get(`http://localhost:9090/user/getUser/${uid}`);
@@ -81,19 +113,61 @@ const UserDetailsHeader = () => {
     
             const isCapacityAvailable = data.capacity > usersArray.length;
             const isEloEligible = userElo >= data.eloRequirement;
-            const isRegistrationOpen = new Date() < new Date(data.startDatetime);
-    
+            const isRegistrationOpen = data.status === "Registration Open";
+
+            console.log('Eligibility Conditions:', {
+                isCapacityAvailable,
+                isEloEligible,
+                isRegistrationOpen,
+            });
+
             setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
         } catch (error) {
             console.error('Failed to fetch tournament data:', error);
         }
     };
 
-    const handleRegisterClick = () => {
+    const handleRegisterClick = async () => {
         if (isEligible && !isRegistered) {
+            // Show registration form if user is eligible and not registered
             setShowRegistrationForm(true);
+        } else if (isRegistered) {
+            // Attempt unregistration if already registered
+            try {
+                // Get user data first to retrieve the authId
+                const responsetemp = await axios.get(`http://localhost:9090/user/getUser/${userUid}`);
+                const userData = responsetemp.data;
+                
+                if (!userData || !userData.authId) {
+                    throw new Error("User data not found or authId missing.");
+                }
+    
+                // Make sure the backend is expecting 'authId' in this format
+                const response = await axios.put(
+                    `http://localhost:9090/user/unregisterTournament/${tournamentId}`, 
+                    {
+                        authId: userData.authId // Correctly passing the authId
+                    }
+                );
+    
+                if (response.status !== 200) {
+                    throw new Error("Failed to unregister from the tournament");
+                }
+    
+                // Only update the state after successful unregistration
+                console.log(response.data.message); // Assuming the API returns a message
+    
+                // Update state only after successful unregistration
+                setIsRegistered(false);
+                setNumberOfPlayers((prev) => prev - 1); // Decrement the number of players
+    
+            } catch (error) {
+                console.error("Error unregistering user:", error);
+                setRegistrationError("Failed to unregister. Please try again.");
+            }
         }
     };
+     
 
     const closeForm = () => {
         setShowRegistrationForm(false);
@@ -176,11 +250,11 @@ const UserDetailsHeader = () => {
 
                 <div className="registration-container">
                     <button
-                        className={isRegistered ? 'registered-button' : 'register-button'}
+                        className={isRegistered ? 'unregister-button' : 'register-button'}
                         onClick={handleRegisterClick}
-                        disabled={!isEligible || isRegistered}
+                        disabled={!isEligible}
                     >
-                        {isRegistered ? 'Registered' : isEligible ? 'Register' : 'Not Eligible'}
+                        {isRegistered ? 'Unregister' : isEligible ? 'Register' : 'Not Eligible'}
                     </button>
                     <div className="players-count">Players: {numberOfPlayers}</div>
                 </div>
