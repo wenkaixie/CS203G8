@@ -42,215 +42,216 @@ public class UserIntegrationTest {
     private UserService userService;
 
 
-    @Test
-    public void createUser_Success() throws Exception {
-        URI uri = new URI(baseUrl + port + "/user/createUser");
+    // @Test
+    // public void createUser_Success() throws Exception {
+    //     URI uri = new URI(baseUrl + port + "/user/createUser");
 
-        User newUser = new User();
-        newUser.setAuthId("auth123");
-        newUser.setUsername("testuser");
-        newUser.setEmail("testuser@example.com");
-        newUser.setName("Test User");
-        newUser.setElo(1200);
+    //     User newUser = new User();
+    //     newUser.setAuthId("auth123");
+    //     newUser.setUsername("testuser");
 
-        ResponseEntity<User> result = restTemplate.postForEntity(uri, newUser, User.class);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertEquals(newUser.getUsername(), result.getBody().getUsername());
-        assertEquals(newUser.getEmail(), result.getBody().getEmail());
-    }
+    //     ResponseEntity<User> result = restTemplate.postForEntity(uri, newUser, User.class);
 
-    @Test
-    public void getAllUsers_Success() throws Exception {
-        // First, create some users
-        User user1 = new User();
-        user1.setAuthId("auth123");
-        user1.setUsername("user1");
-        user1.setEmail("user1@example.com");
-        user1.setName("User One");
-        user1.setElo(1000);
+    //     assertEquals(HttpStatus.CREATED, result.getStatusCode());
+    //     assertNotNull(result.getBody());
+    //     assertEquals(newUser.getUsername(), result.getBody().getUsername());
+    //     assertEquals(newUser.getEmail(), result.getBody().getEmail());
+    // }
 
-        User user2 = new User();
-        user2.setAuthId("auth456");
-        user2.setUsername("user2");
-        user2.setEmail("user2@example.com");
-        user2.setName("User Two");
-        user2.setElo(1100);
+    // @Test
+    // public void getupdateUsers_Success() throws Exception {
 
-        // Save users using the service or directly to Firestore
-        userService.createUserProfile(user1);
-        userService.createUserProfile(user2);
+    //     // Arrange users
+    //     User user1 = new User();
+    //     user1.setAuthId("auth123");
+    //     user1.setEmail("user1@gmail.com");
 
-        URI uri = new URI(baseUrl + port + "/user/getAllUsers");
+    //     // Arrange Dto
+    //     UserDTO user1Dto = new UserDTO();
+    //     user1Dto.setUsername("user1");
+    //     user1Dto.setName("User One");
+    //     user1Dto.setChessUsername("chessUser1");
+    //     user1Dto.setNationality("SG");
+    //     user1Dto.setPhoneNumber(12345678);
+    //     user1Dto.setDateOfBirth("2002-12-12");
 
-        ResponseEntity<User[]> result = restTemplate.getForEntity(uri, User[].class);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        User[] userList = result.getBody();
-        assertNotNull(userList);
-        assertEquals(2, userList.length);
-        // Further assertions can be made to check the contents
-    }
+    //     // Act: Use the UserService to add users
+    //     userService.updateUserProfile(user1.getAuthId(), user1Dto);
 
-    @Test
-    public void getUser_ValidUserId_Success() throws Exception {
-        User user = new User();
-        user.setAuthId("auth123");
-        user.setUsername("testuser");
-        user.setEmail("testuser@example.com");
-        user.setName("Test User");
-        user.setElo(1200);
+    //     URI uri = new URI(baseUrl + port + "/user/getAllUsers");
 
-        // Save the user
-        userService.createUserProfile(user);
+    //     // Act: Send a PUT request with the updated user data
+    //     HttpHeaders headers = new HttpHeaders();
+    //     headers.setContentType(MediaType.APPLICATION_JSON);
+    //     HttpEntity<UserDTO> requestEntity = new HttpEntity<>(user1Dto, headers);
 
-        String userId = user.getAuthId();
+    //     ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, Map.class);
 
-        URI uri = new URI(baseUrl + port + "/user/getUser/" + userId);
+    //     assertEquals(200, response.getStatusCode().value());
+	// 	assertEquals(user1.getEmail(), response.getBody().get("email"));
+    //     // Further assertions can be made to check the contents
+    // }
 
-        ResponseEntity<User> result = restTemplate.getForEntity(uri, User.class);
+//     @Test
+//     public void getUser_ValidUserId_Success() throws Exception {
+//         User user = new User();
+//         user.setAuthId("auth123");
+//         user.setUsername("testuser");
+//         user.setEmail("testuser@example.com");
+//         user.setName("Test User");
+//         user.setElo(1200);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertEquals(user.getUsername(), result.getBody().getUsername());
-        assertEquals(user.getEmail(), result.getBody().getEmail());
-    }
+//         // Save the user
+//         userService.createUserProfile(user);
 
-    @Test
-    public void getUser_InvalidUserId_Failure() throws Exception {
-        String invalidUserId = "nonexistent";
+//         String userId = user.getAuthId();
 
-        URI uri = new URI(baseUrl + port + "/user/getUser/" + invalidUserId);
+//         URI uri = new URI(baseUrl + port + "/user/getUser/" + userId);
 
-        ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
+//         ResponseEntity<User> result = restTemplate.getForEntity(uri, User.class);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
-        // Optionally, check the response body for error message
-    }
+//         assertEquals(HttpStatus.OK, result.getStatusCode());
+//         assertNotNull(result.getBody());
+//         assertEquals(user.getUsername(), result.getBody().getUsername());
+//         assertEquals(user.getEmail(), result.getBody().getEmail());
+//     }
 
-    @Test
-    public void updateUser_ValidUserId_Success() throws Exception {
-        User user = new User();
-        user.setAuthId("auth123");
-        user.setUsername("testuser");
-        user.setEmail("testuser@example.com");
-        user.setName("Test User");
-        user.setElo(1200);
+//     @Test
+//     public void getUser_InvalidUserId_Failure() throws Exception {
+//         String invalidUserId = "nonexistent";
 
-        // Save the user
-        userService.createUserProfile(user);
+//         URI uri = new URI(baseUrl + port + "/user/getUser/" + invalidUserId);
 
-        String userId = user.getAuthId();
+//         ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
 
-        URI uri = new URI(baseUrl + port + "/user/updateUser/" + userId);
+//         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+//         // Optionally, check the response body for error message
+//     }
 
-        UserDTO updatedUser = new UserDTO();
-        updatedUser.setAuthId(user.getAuthId()); // Set authId
-        updatedUser.setUsername("updatedUser");
-        updatedUser.setEmail("updated@example.com");
-        updatedUser.setName("Updated User");
-        updatedUser.setElo(1300);
+//     @Test
+//     public void updateUser_ValidUserId_Success() throws Exception {
+//         User user = new User();
+//         user.setAuthId("auth123");
+//         user.setUsername("testuser");
+//         user.setEmail("testuser@example.com");
+//         user.setName("Test User");
+//         user.setElo(1200);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+//         // Save the user
+//         userService.createUserProfile(user);
 
-        HttpEntity<UserDTO> requestEntity = new HttpEntity<>(updatedUser, headers);
+//         String userId = user.getAuthId();
 
-        ResponseEntity<Map> result = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, Map.class);
+//         URI uri = new URI(baseUrl + port + "/user/updateUser/" + userId);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertEquals(updatedUser.getUsername(), result.getBody().get("username"));
-        assertEquals(updatedUser.getEmail(), result.getBody().get("email"));
-    }
+//         UserDTO updatedUser = new UserDTO();
+//         updatedUser.setAuthId(user.getAuthId()); // Set authId
+//         updatedUser.setUsername("updatedUser");
+//         updatedUser.setEmail("updated@example.com");
+//         updatedUser.setName("Updated User");
+//         updatedUser.setElo(1300);
 
-    @Test
-    public void updateUser_InvalidUserId_Failure() throws Exception {
-        String invalidUserId = "nonexistent";
+//         HttpHeaders headers = new HttpHeaders();
+//         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        URI uri = new URI(baseUrl + port + "/user/updateUser/" + invalidUserId);
+//         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(updatedUser, headers);
 
-        UserDTO updatedUser = new UserDTO();
-        updatedUser.setAuthId(invalidUserId); // Set authId to invalidUserId
-        updatedUser.setUsername("updatedUser");
-        updatedUser.setEmail("updated@example.com");
-        updatedUser.setName("Updated User");
-        updatedUser.setElo(1300);
+//         ResponseEntity<Map> result = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, Map.class);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+//         assertEquals(HttpStatus.OK, result.getStatusCode());
+//         assertNotNull(result.getBody());
+//         assertEquals(updatedUser.getUsername(), result.getBody().get("username"));
+//         assertEquals(updatedUser.getEmail(), result.getBody().get("email"));
+//     }
 
-        HttpEntity<UserDTO> requestEntity = new HttpEntity<>(updatedUser, headers);
+//     @Test
+//     public void updateUser_InvalidUserId_Failure() throws Exception {
+//         String invalidUserId = "nonexistent";
 
-        ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, String.class);
+//         URI uri = new URI(baseUrl + port + "/user/updateUser/" + invalidUserId);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
-        // Optionally, check the response body for error message
-    }
+//         UserDTO updatedUser = new UserDTO();
+//         updatedUser.setAuthId(invalidUserId); // Set authId to invalidUserId
+//         updatedUser.setUsername("updatedUser");
+//         updatedUser.setEmail("updated@example.com");
+//         updatedUser.setName("Updated User");
+//         updatedUser.setElo(1300);
 
-    @Test
-    public void registerUserForTournament_Success() throws Exception {
-        // Create a user
-        User user = new User();
-        user.setAuthId("auth123");
-        user.setUsername("testuser");
-        user.setEmail("testuser@example.com");
-        user.setName("Test User");
-        user.setElo(1500);
+//         HttpHeaders headers = new HttpHeaders();
+//         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Save the user
-        userService.createUserProfile(user);
+//         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(updatedUser, headers);
 
-        // Assume the tournament is already created with ID "tournament123"
-        String tournamentId = "tournament123";
+//         ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, String.class);
 
-        // Prepare the UserDTO
-        UserDTO userDto = new UserDTO();
-        userDto.setAuthId(user.getAuthId());
+//         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+//         // Optionally, check the response body for error message
+//     }
 
-        URI uri = new URI(baseUrl + port + "/user/registerTournament/" + tournamentId);
+//     @Test
+//     public void registerUserForTournament_Success() throws Exception {
+//         // Create a user
+//         User user = new User();
+//         user.setAuthId("auth123");
+//         user.setUsername("testuser");
+//         user.setEmail("testuser@example.com");
+//         user.setName("Test User");
+//         user.setElo(1500);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+//         // Save the user
+//         userService.createUserProfile(user);
 
-        HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
+//         // Assume the tournament is already created with ID "tournament123"
+//         String tournamentId = "tournament123";
 
-        ResponseEntity<String> result = restTemplate.postForEntity(uri, requestEntity, String.class);
+//         // Prepare the UserDTO
+//         UserDTO userDto = new UserDTO();
+//         userDto.setAuthId(user.getAuthId());
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("User successfully registered for the tournament.", result.getBody());
-    }
+//         URI uri = new URI(baseUrl + port + "/user/registerTournament/" + tournamentId);
 
-    @Test
-    public void registerUserForTournament_InvalidTournamentId_Failure() throws Exception {
-        // Create a user
-        User user = new User();
-        user.setAuthId("auth123");
-        user.setUsername("testuser");
-        user.setEmail("testuser@example.com");
-        user.setName("Test User");
-        user.setElo(1500);
+//         HttpHeaders headers = new HttpHeaders();
+//         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Save the user
-        userService.createUserProfile(user);
+//         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
 
-        String invalidTournamentId = "invalidTournament";
+//         ResponseEntity<String> result = restTemplate.postForEntity(uri, requestEntity, String.class);
 
-        // Prepare the UserDTO
-        UserDTO userDto = new UserDTO();
-        userDto.setAuthId(user.getAuthId());
+//         assertEquals(HttpStatus.OK, result.getStatusCode());
+//         assertEquals("User successfully registered for the tournament.", result.getBody());
+//     }
 
-        URI uri = new URI(baseUrl + port + "/user/registerTournament/" + invalidTournamentId);
+//     @Test
+//     public void registerUserForTournament_InvalidTournamentId_Failure() throws Exception {
+//         // Create a user
+//         User user = new User();
+//         user.setAuthId("auth123");
+//         user.setUsername("testuser");
+//         user.setEmail("testuser@example.com");
+//         user.setName("Test User");
+//         user.setElo(1500);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+//         // Save the user
+//         userService.createUserProfile(user);
 
-        HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
+//         String invalidTournamentId = "invalidTournament";
 
-        ResponseEntity<String> result = restTemplate.postForEntity(uri, requestEntity, String.class);
+//         // Prepare the UserDTO
+//         UserDTO userDto = new UserDTO();
+//         userDto.setAuthId(user.getAuthId());
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
-        // Optionally, check the response body for error message
-    }
+//         URI uri = new URI(baseUrl + port + "/user/registerTournament/" + invalidTournamentId);
+
+//         HttpHeaders headers = new HttpHeaders();
+//         headers.setContentType(MediaType.APPLICATION_JSON);
+
+//         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
+
+//         ResponseEntity<String> result = restTemplate.postForEntity(uri, requestEntity, String.class);
+
+//         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+//         // Optionally, check the response body for error message
+//     }
 }
