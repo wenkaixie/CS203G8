@@ -325,7 +325,7 @@ public class UserService {
         responseDTO.setPhoneNumber(fullUpdatedUser.getPhoneNumber());
 
         if (fullUpdatedUser.getDateOfBirth() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd").withZone(ZoneId.systemDefault());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
             String formattedDate = formatter.format(fullUpdatedUser.getDateOfBirth().toDate().toInstant());
             responseDTO.setDateOfBirth(formattedDate);
         }
