@@ -99,7 +99,6 @@ const UserDetailsHeader = () => {
                 `http://localhost:8080/api/tournaments/${tournamentId}`
             );
             const data = response.data;
-            console.log("Data" + data)
     
             setTournamentData(data);
     
@@ -114,12 +113,6 @@ const UserDetailsHeader = () => {
             const isCapacityAvailable = data.capacity > usersArray.length;
             const isEloEligible = userElo >= data.eloRequirement;
             const isRegistrationOpen = data.status === "Registration Open";
-
-            console.log('Eligibility Conditions:', {
-                isCapacityAvailable,
-                isEloEligible,
-                isRegistrationOpen,
-            });
 
             setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
         } catch (error) {
@@ -155,7 +148,6 @@ const UserDetailsHeader = () => {
                 }
     
                 // Only update the state after successful unregistration
-                console.log(response.data.message); // Assuming the API returns a message
     
                 // Update state only after successful unregistration
                 setIsRegistered(false);
@@ -184,8 +176,6 @@ const UserDetailsHeader = () => {
     const handleTabNavigation = (tab) => {
         navigate(`/user/tournament/${tournamentId}/${tab}`);
     };
-
-    console.log(tournamentData.capacity, " + ", numberOfPlayers);
 
     const availableSlots = tournamentData.capacity
         ? tournamentData.capacity - numberOfPlayers

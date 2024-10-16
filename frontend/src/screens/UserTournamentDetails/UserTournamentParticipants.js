@@ -13,44 +13,40 @@ const UserTournamentParticipants = () => {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [playerCount, setPlayerCount] = useState(0);
 
-    // Helper function to convert Firestore timestamp to JavaScript Date and calculate age
     const calculateAge = (dateOfBirth) => {
         const birthDate = new Date(dateOfBirth.seconds * 1000);
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
 
-        // Adjust for players born this year
         if (age === 0 && (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()))) {
             return 0;
         }
-
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
         return age;
     };
 
-
-
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                // Fetch tournament data
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
-
                 const participantIds = tournamentData.users || [];
-                console.log("HELP" + participantIds);
-
-                // Fetch user details for each participant and calculate age
+                
                 const participantDetails = await Promise.all(
                     participantIds.map(async (userID) => {
-                        const sanitizedUserID = userID.replace(/['"]/g, ''); // Remove quotes if present
+                        const sanitizedUserID = userID.replace(/['"]/g, '');
                         const userResponse = await axios.get(`http://localhost:9090/user/getUser/${sanitizedUserID}`);
                         const userData = userResponse.data;
                         const age = calculateAge(userData.dateOfBirth);
-                        return { ...userData, age };
+
+                        // Fetch userRank for each participant
+                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${sanitizedUserID}`);
+                        const userRank = rankResponse.data;
+
+                        return { ...userData, age, userRank };
                     })
                 );
 
@@ -66,7 +62,6 @@ const UserTournamentParticipants = () => {
         const handleRegistrationSuccess = () => fetchTournamentData();
         window.addEventListener('registrationSuccess', handleRegistrationSuccess);
 
-        // Cleanup listener on unmount
         return () => {
             window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
         };
@@ -77,25 +72,23 @@ const UserTournamentParticipants = () => {
     };
 
     const toggleDropdown = () => {
-        setIsDropdownVisible(!isDropdownVisible); // Toggle dropdown visibility
+        setIsDropdownVisible(!isDropdownVisible);
     };
 
     const handleSortChange = (criteria) => {
         setSortBy(criteria);
-        setIsDropdownVisible(false); // Hide dropdown after selecting
+        setIsDropdownVisible(false);
     };
 
     useEffect(() => {
-        let updatedList = [...participants]; // Make a shallow copy of participants
+        let updatedList = [...participants];
 
-        // Filter by search term
         if (searchTerm) {
             updatedList = updatedList.filter((participant) =>
                 participant.name.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
-        // Sort the list
         if (sortBy) {
             updatedList = updatedList.sort((a, b) => {
                 if (sortBy === 'name') {
@@ -166,7 +159,7 @@ const UserTournamentParticipants = () => {
                                         <td>{participant.name || 'null'}</td>
                                         <td>{participant.nationality || 'null'}</td>
                                         <td>{participant.age !== null && participant.age !== undefined ? participant.age : '0'}</td>
-                                        <td>{participant.worldRank || 'null'}</td>
+                                        <td>{participant.userRank || 'null'}</td>
                                         <td>{participant.elo !== null && participant.elo !== undefined ? participant.elo : '0'}</td>
                                         <td>{participant.registrationHistory.length || '0'}</td>
                                     </tr>
