@@ -164,7 +164,7 @@ export const WhiteThemeBracket = () => {
           className="custom-bracket" 
         />
       ) : (
-        <p>Loading tournament matches...</p> // Show loading message while data is being fetched
+        <p>Tournament has not started.</p> // Show loading message while data is being fetched
       )}
     </>
   );
