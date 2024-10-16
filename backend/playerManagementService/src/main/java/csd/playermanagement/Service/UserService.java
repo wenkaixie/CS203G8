@@ -386,10 +386,14 @@ public class UserService {
         System.out.println("userDocuments " + userDocuments);
 
         for (QueryDocumentSnapshot document : userDocuments) {
-            User user = document.toObject(User.class);
-            
-            if (user != null) {
-                usersList.add(user);
+            try {
+                User user = document.toObject(User.class);
+                if (user != null) {
+                    usersList.add(user);
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing user document: " + document.getId());
+                e.printStackTrace();  // Log the error and continue
             }
         }
         return usersList;
