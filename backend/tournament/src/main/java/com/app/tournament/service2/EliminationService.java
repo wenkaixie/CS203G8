@@ -105,7 +105,7 @@ public class EliminationService {
     
             Match match = new Match(
                     matchId,
-                    "Quarterfinal - Match " + matchId,
+                    "Match " + matchId,
                     nextMatchId,
                     1,
                     Instant.now(),
@@ -234,6 +234,7 @@ public class EliminationService {
 
         log.info("Populating next round matches for tournament {} from round {}.", tournamentID, currentRoundNumber);
 
+        // Fetch the current round's document
         DocumentReference currentRoundDocRef = firestore.collection("Tournaments")
                 .document(tournamentID)
                 .collection("Rounds")
@@ -242,18 +243,6 @@ public class EliminationService {
         Round currentRound = currentRoundDocRef.get().get().toObject(Round.class);
         if (currentRound == null) {
             throw new RuntimeException("Current round not found.");
-        }
-
-        List<String> winners = new ArrayList<>();
-        for (Match match : currentRound.getMatches()) {
-            match.getParticipants().stream()
-                    .filter(ParticipantDTO::getIsWinner)
-                    .findFirst()
-                    .ifPresent(winner -> winners.add(winner.getName()));
-        }
-
-        if (winners.size() < 2) {
-            throw new RuntimeException("Not enough winners to proceed.");
         }
 
         int nextRoundNumber = currentRoundNumber + 1;
@@ -268,16 +257,66 @@ public class EliminationService {
         }
 
         List<Match> nextRoundMatches = new ArrayList<>();
-        for (int i = 0; i < winners.size(); i += 2) {
-            List<ParticipantDTO> participants = List.of(
-                    new ParticipantDTO("1", winners.get(i), "", false),
-                    i + 1 < winners.size() ? new ParticipantDTO("2", winners.get(i + 1), "", false) : null);
 
-            nextRoundMatches.add(new Match(
-                    (i / 2) + 1, "Match", 0, nextRoundNumber, Instant.now(), "PENDING", participants));
+        // Iterate over each match in the next round
+        for (int i = 0; i < nextRound.getMatches().size(); i++) {
+            Match nextMatch = nextRound.getMatches().get(i);
+            int matchId = nextMatch.getId();
+
+            // Find the two matches from the current round where nextMatchId matches the
+            // matchId of the next round match
+            List<Match> parentMatches = new ArrayList<>();
+            for (Match currentMatch : currentRound.getMatches()) {
+                if (currentMatch.getNextMatchId() == matchId) {
+                    parentMatches.add(currentMatch);
+                }
+            }
+
+            if (parentMatches.size() != 2) {
+                log.warn("Match {} in round {} has incorrect number of parent matches: {}.",
+                        matchId, nextRoundNumber, parentMatches.size());
+                continue;
+            }
+
+            // Extract winners from the parent matches
+            List<ParticipantDTO> participants = new ArrayList<>();
+            for (Match parentMatch : parentMatches) {
+                parentMatch.getParticipants().stream()
+                        .filter(ParticipantDTO::getIsWinner)
+                        .findFirst()
+                        .ifPresent(winner -> participants.add(new ParticipantDTO(
+                                String.valueOf(participants.size() + 1),
+                                winner.getName(),
+                                "",
+                                false)));
+            }
+
+            if (participants.size() < 2) {
+                log.warn("Not enough winners found for match {} in round {}.", matchId, nextRoundNumber);
+                continue;
+            }
+
+            // Create a new match with the participants
+            Match updatedMatch = new Match(
+                    matchId,
+                    nextMatch.getName(),
+                    nextMatch.getNextMatchId(),
+                    nextRoundNumber,
+                    Instant.now(),
+                    "PENDING",
+                    participants);
+
+            nextRoundMatches.add(updatedMatch);
+
+            log.info("Updated match {} for round {} with participants: {}",
+                    matchId, nextRoundNumber, participants.stream().map(ParticipantDTO::getName).toList());
         }
 
+        // Save the updated next round matches to Firestore
         nextRound.setMatches(nextRoundMatches);
         nextRoundDocRef.set(nextRound).get();
+
+        log.info("Successfully populated round {} with {} matches.", nextRoundNumber, nextRoundMatches.size());
     }
+
 }
