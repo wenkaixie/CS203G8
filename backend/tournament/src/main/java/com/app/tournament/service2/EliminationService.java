@@ -392,26 +392,30 @@ public class EliminationService {
 
     private List<Match> createFirstRoundMatches(List<String> users, int startCounter) {
         List<Match> matches = new ArrayList<>();
-
+    
         for (int i = 0; i < users.size(); i += 2) {
             int matchId = startCounter + (i / 2);
-
+    
+            // Correct nextMatchId calculation: Group every two matches (i / 4 to group matches in pairs of 2)
+            int nextMatchId = startCounter + (users.size() / 2) + ((i / 2) / 2);
+    
             List<ParticipantDTO> participants = new ArrayList<>();
             participants.add(new ParticipantDTO("1", users.get(i), "", false));
-
+    
             if (i + 1 < users.size()) {
                 participants.add(new ParticipantDTO("2", users.get(i + 1), "", false));
             }
-
+    
             Match match = new Match(
                     matchId,
                     "Quarterfinal - Match " + matchId,
-                    0,
+                    nextMatchId,
                     1,
                     Instant.now(),
                     "PENDING",
-                    participants);
-
+                    participants
+            );
+    
             matches.add(match);
         }
         return matches;

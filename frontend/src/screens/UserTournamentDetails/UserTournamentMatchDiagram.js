@@ -1,4 +1,6 @@
 import { SingleEliminationBracket, Match, createTheme } from '@g-loot/react-tournament-brackets';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const WhiteTheme = createTheme({
   textColor: { 
@@ -29,122 +31,53 @@ const WhiteTheme = createTheme({
   },
   connectorColor: '#E0E0E0', // Light gray for connectors between matches
   connectorColorHighlight: '#8F3013', // Highlight connectors with brownish red color
+  // theme configuration
+  
 });
 
 export const WhiteThemeBracket = () => {
+  const [matches, setMatches] = useState([]);
 
-  const simpleSmallBracket = [
-    // Quarterfinals
-    {
-      id: 1, // matchID
-      name: "Quarterfinal - Match 1", // Round Name/Number & Match Number
-      nextMatchId: 5, // next matchID
-      tournamentRoundText: "1", // Round Number
-      startTime: "2021-05-30", // DateTime of the match
-      state: "DONE", // Whether the match has concluded or not
-      participants: [
-        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true }, // Participant no., Participant name, Participant Score, who won
-        { id: "2", name: "John Charge", resultText: "0", isWinner: false }
-      ]
-    },
-    {
-      id: 2,
-      name: "Quarterfinal - Match 2",
-      nextMatchId: 5,
-      tournamentRoundText: "1",
-      startTime: "2021-05-30",
-      state: "DONE",
-      participants: [
-        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true },
-        { id: "2", name: "John Charge", resultText: "0", isWinner: false }
-      ]
-    },
-    {
-      id: 3,
-      name: "Quarterfinal - Match 3",
-      nextMatchId: 6,
-      tournamentRoundText: "1",
-      startTime: "2021-05-30",
-      state: "DONE",
-      participants: [
-        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true },
-        { id: "2", name: "John Charge", resultText: "0", isWinner: false }
-      ]
-    },
-    {
-      id: 4,
-      name: "Quarterfinal - Match 4",
-      nextMatchId: 6,
-      tournamentRoundText: "1",
-      startTime: "2021-05-30",
-      state: "DONE",
-      participants: [
-        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true },
-        { id: "2", name: "John Charge", resultText: "0", isWinner: false }
-      ]
-    },
+  const fetchTournamentMatches = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/tournaments2/6fwyQnStRoJhhuXvu9cp/matches`);
+      setMatches(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error fetching tournament matches:', error);
+    }
+  };
 
-    // Semifinals
-    {
-      id: 5,
-      name: "Semifinal - Match 1",
-      nextMatchId: 7,
-      tournamentRoundText: "2",
-      startTime: "2021-06-01",
-      state: "DONE",
-      participants: [
-        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true },
-        { id: "2", name: "John Charge", resultText: "0", isWinner: false }
-      ]
-    },
-    {
-      id: 6,
-      name: "Semifinal - Match 2",
-      nextMatchId: 7,
-      tournamentRoundText: "2",
-      startTime: "2021-06-01",
-      state: "DONE",
-      participants: [
-        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true },
-        { id: "2", name: "John Charge", resultText: "0", isWinner: false }
-      ]
-    },
+  useEffect(() => {
+    fetchTournamentMatches();
+  }, []);
 
-    // Semifinals
-    {
-      id: 7,
-      name: "Finals",
-      nextMatchId: null,
-      tournamentRoundText: "3",
-      startTime: "2021-06-05",
-      state: "DONE",
-      participants: [
-        { id: "1", name: "Hikaru Nakamura", resultText: "6", isWinner: true },
-        { id: "2", name: "John Charge", resultText: "0", isWinner: false }
-      ]
-    },
-
-  ];
-
+  // Conditionally render the SingleEliminationBracket when matches are available
   return (
-    <SingleEliminationBracket
-      matches={simpleSmallBracket}
-      matchComponent={Match}
-      theme={WhiteTheme}
-      options={{
-        style: {
-          roundHeader: WhiteTheme.roundHeaders,
-          connectorColor: WhiteTheme.connectorColor,
-          connectorColorHighlight: WhiteTheme.connectorColorHighlight,
-        },
-      }}
-    />
+    <>
+      {matches.length > 0 ? (
+        <SingleEliminationBracket
+          matches={matches}
+          matchComponent={Match}
+          theme={WhiteTheme}
+          options={{
+            style: {
+              roundHeader: WhiteTheme.roundHeaders,
+              connectorColor: WhiteTheme.connectorColor,
+              connectorColorHighlight: WhiteTheme.connectorColorHighlight,
+            },
+          }}
+        />
+      ) : (
+        <p>Loading tournament matches...</p> // Show loading message while data is being fetched
+      )}
+    </>
   );
 };
 
 const UserTournamentMatchDiagram = () => {
   return (
-    <div style={{display: "flex", alignItems:"center", justifyContent:"center"}}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
       <WhiteThemeBracket />
     </div>
   );
