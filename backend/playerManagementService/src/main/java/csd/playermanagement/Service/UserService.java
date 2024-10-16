@@ -1,37 +1,37 @@
 package csd.playermanagement.Service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.time.Period;
-
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.time.format.DateTimeParseException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Scanner;
-import com.google.cloud.firestore.Query;
+import java.util.concurrent.ExecutionException;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import csd.playermanagement.DTO.UserDTO;
 import csd.playermanagement.Model.Tournament;
@@ -435,7 +435,7 @@ public class UserService {
     // NOT USED
     public User createUserProfile(User newUser) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
-    
+
         Map<String, Object> newUserProfile = new HashMap<>();
         newUserProfile.put("username", newUser.getUsername());
         newUserProfile.put("phoneNumber", newUser.getPhoneNumber());
@@ -443,19 +443,22 @@ public class UserService {
         newUserProfile.put("email", newUser.getEmail());
         newUserProfile.put("name", newUser.getName());
         newUserProfile.put("elo", newUser.getElo());
-    
+
         ApiFuture<DocumentReference> writeResult = usersRef.add(newUserProfile);
         DocumentReference documentReference = writeResult.get();
-    
+
         String generatedUid = documentReference.getId();
         newUser.setUid(generatedUid);
-    
+
         newUserProfile.put("uid", generatedUid);
         documentReference.set(newUserProfile, SetOptions.merge());
-    
+
         DocumentSnapshot userSnapshot = documentReference.get().get();
         User createdUser = userSnapshot.toObject(User.class);
-    
+
         return createdUser;
     }
+    
+    
+
 }
