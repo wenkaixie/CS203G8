@@ -41,7 +41,7 @@ const UserTournamentParticipants = () => {
                 const tournamentData = response.data;
 
                 const participantIds = tournamentData.users || [];
-                console.log("HELP" + participantIds)
+                console.log("HELP" + participantIds);
 
                 // Fetch user details for each participant and calculate age
                 const participantDetails = await Promise.all(

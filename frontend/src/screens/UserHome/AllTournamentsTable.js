@@ -33,6 +33,7 @@ const AllTournamentsTable = () => {
     const fetchAllUpcomingTournaments = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/tournaments`);
+            console.log(response.data);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching all tournaments:', error);
@@ -58,27 +59,13 @@ const AllTournamentsTable = () => {
         }
     };
 
-    const isPlayerRegistered = (tournament, ) => {
+    const isPlayerRegistered = (tournament) => {
         // Check if current user is in the users list
         if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
             return 'Registered';
         }
     
-        // Get the current time and tournament start time
-        const currentTime = new Date();
-        const startTime = new Date(tournament.startDatetime);
-    
-        // Calculate the difference in time between now and the tournament start time
-        const timeDiff = startTime - currentTime; // Time difference in milliseconds
-        const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
-    
-        // If more than 1 day is remaining before the tournament starts
-        if (timeDiff > oneDayInMilliseconds) {
-            return 'Registration Open';
-        }
-    
-        // If less than 1 day is remaining or the tournament has already started
-        return 'Registration Closed';
+        return tournament.status;
     };
 
     const handleRowClick = (tournamentId) => {

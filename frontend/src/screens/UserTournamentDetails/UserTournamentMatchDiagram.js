@@ -1,4 +1,5 @@
 import { SingleEliminationBracket, Match, createTheme } from '@g-loot/react-tournament-brackets';
+import './UserTournamentMatchDiagram.css';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -31,7 +32,8 @@ const WhiteTheme = createTheme({
     background: '#8F3013'
   },
   connectorColor: '#E0E0E0',
-  connectorColorHighlight: '#8F3013'
+  connectorColorHighlight: '#8F3013',
+  fontFamily: 'Josefin Sans'
 });
 
 export const WhiteThemeBracket = () => {
@@ -159,6 +161,7 @@ export const WhiteThemeBracket = () => {
               connectorColorHighlight: WhiteTheme.connectorColorHighlight,
             },
           }}
+          className="custom-bracket" 
         />
       ) : (
         <p>Loading tournament matches...</p> // Show loading message while data is being fetched

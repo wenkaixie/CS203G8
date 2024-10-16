@@ -64,21 +64,7 @@ const MyTournamentsTable = () => {
             return 'Registered';
         }
     
-        // Get the current time and tournament start time
-        const currentTime = new Date();
-        const startTime = new Date(tournament.startDatetime);
-    
-        // Calculate the difference in time between now and the tournament start time
-        const timeDiff = startTime - currentTime; // Time difference in milliseconds
-        const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
-    
-        // If more than 1 day is remaining before the tournament starts
-        if (timeDiff > oneDayInMilliseconds) {
-            return 'Open';
-        }
-    
-        // If less than 1 day is remaining or the tournament has already started
-        return 'Closed';
+        return tournament.status;
     };
 
     const handleRowClick = (tournamentId) => {
