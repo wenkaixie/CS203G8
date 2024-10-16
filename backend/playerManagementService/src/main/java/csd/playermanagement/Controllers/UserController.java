@@ -58,7 +58,7 @@ public class UserController {
     public ResponseEntity<User> createUser(@RequestBody User newUser) {
         try {
             User response = userService.createUserProfile(newUser);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutionException;
 import com.google.cloud.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceRegisterTest {
@@ -72,7 +71,8 @@ public class UserServiceRegisterTest {
         userDto.setAuthId("user123");
 
         Tournament tournament = new Tournament();
-        tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        // tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        tournament.setStatus("Registration Open");
         tournament.setUsers(new ArrayList<>());
         tournament.setCapacity(5);
         tournament.setEloRequirement(1000);
@@ -96,6 +96,7 @@ public class UserServiceRegisterTest {
         when(tournamentSnapshot.exists()).thenReturn(true);
         when(tournamentSnapshot.toObject(Tournament.class)).thenReturn(tournament);
 
+        when(tournamentSnapshot.getString("status")).thenReturn("Registration Open");
         when(tournamentSnapshot.getLong("capacity")).thenReturn(5L);
         when(tournamentSnapshot.getLong("eloRequirement")).thenReturn(1000L);
 
@@ -146,27 +147,32 @@ public class UserServiceRegisterTest {
     }
 
     @Test
-    void registerUserForTournament_TournamentAlreadyStarted_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
-        String tournamentId = "tournamentPast";
+    void registerUserForTournament_TournamentClosed_ReturnsError() throws InterruptedException, ExecutionException {
+        // Arrange: Prepare the tournament and user data
+        String tournamentId = "tournamentClosed";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
 
         Tournament tournament = new Tournament();
-        tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() - 3600000))); // Started in past
+        tournament.setStatus("Registration Closed");  // Use status to indicate the tournament is closed
 
-        // mock ***
+        // Mock Firestore interactions for the tournament
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
         when(tournamentSnapshot.exists()).thenReturn(true);
         when(tournamentSnapshot.toObject(Tournament.class)).thenReturn(tournament);
 
-        // act
+        // Mock the status field to simulate a closed registration
+        when(tournamentSnapshot.getString("status")).thenReturn("Registration Closed");
+
+        // Act: Call the service method
         String result = userService.registerUserForTournament(tournamentId, userDto);
 
-        // assert
-        assertEquals("Cannot register: The tournament has already started.", result);
+        // Assert: Verify the expected error message is returned
+        assertEquals("Cannot register: The tournament registration is closed.", result);
+
+        // Verify that the tournament document was fetched from Firestore
         verify(tournamentRef).get();
     }
 
@@ -178,7 +184,8 @@ public class UserServiceRegisterTest {
         userDto.setAuthId("userNotFound");
 
         Tournament tournament = new Tournament();
-        tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        // tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        tournament.setStatus("Registration Open");
         tournament.setUsers(new ArrayList<>());
         tournament.setCapacity(5);
         tournament.setEloRequirement(1000);
@@ -190,6 +197,7 @@ public class UserServiceRegisterTest {
         when(tournamentSnapshot.exists()).thenReturn(true);
         when(tournamentSnapshot.toObject(Tournament.class)).thenReturn(tournament);
 
+        when(tournamentSnapshot.getString("status")).thenReturn("Registration Open");
         when(tournamentSnapshot.getLong("capacity")).thenReturn(5L);
         when(tournamentSnapshot.getLong("eloRequirement")).thenReturn(1000L);
 
@@ -216,7 +224,8 @@ public class UserServiceRegisterTest {
         userDto.setAuthId("user123");
 
         Tournament tournament = new Tournament();
-        tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        // tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        tournament.setStatus("Registration Open");
         tournament.setUsers(new ArrayList<>(Arrays.asList("user123")));
         tournament.setCapacity(5);
         tournament.setEloRequirement(1000);
@@ -234,6 +243,7 @@ public class UserServiceRegisterTest {
         when(tournamentSnapshot.exists()).thenReturn(true);
         when(tournamentSnapshot.toObject(Tournament.class)).thenReturn(tournament);
 
+        when(tournamentSnapshot.getString("status")).thenReturn("Registration Open");
         when(tournamentSnapshot.getLong("capacity")).thenReturn(5L);
         when(tournamentSnapshot.getLong("eloRequirement")).thenReturn(1000L);
 
@@ -261,7 +271,8 @@ public class UserServiceRegisterTest {
         userDto.setAuthId("user123");
 
         Tournament tournament = new Tournament();
-        tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        // tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        tournament.setStatus("Registration Open");
         tournament.setUsers(new ArrayList<>());
         tournament.setCapacity(5);
         tournament.setEloRequirement(1300); // Elo requirement higher than user's elo
@@ -279,6 +290,7 @@ public class UserServiceRegisterTest {
         when(tournamentSnapshot.exists()).thenReturn(true);
         when(tournamentSnapshot.toObject(Tournament.class)).thenReturn(tournament);
 
+        when(tournamentSnapshot.getString("status")).thenReturn("Registration Open");
         when(tournamentSnapshot.getLong("capacity")).thenReturn(5L);
         when(tournamentSnapshot.getLong("eloRequirement")).thenReturn(1300L);
 
@@ -307,7 +319,8 @@ public class UserServiceRegisterTest {
 
         // Tournament is full (capacity reached)
         Tournament tournament = new Tournament();
-        tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        // tournament.setStartDatetime(Timestamp.of(new Date(System.currentTimeMillis() + 3600000))); // Start in future
+        tournament.setStatus("Registration Open");
         tournament.setUsers(Arrays.asList("user1", "user2", "user3", "user4", "user5"));
         tournament.setCapacity(5);
         tournament.setEloRequirement(1000);
@@ -325,6 +338,7 @@ public class UserServiceRegisterTest {
         when(tournamentSnapshot.exists()).thenReturn(true);
         when(tournamentSnapshot.toObject(Tournament.class)).thenReturn(tournament);
 
+        when(tournamentSnapshot.getString("status")).thenReturn("Registration Open");
         when(tournamentSnapshot.getLong("capacity")).thenReturn(5L);
         when(tournamentSnapshot.getLong("eloRequirement")).thenReturn(1000L);
 
