@@ -400,10 +400,10 @@ public class EliminationService {
             int nextMatchId = startCounter + (users.size() / 2) + ((i / 2) / 2);
     
             List<ParticipantDTO> participants = new ArrayList<>();
-            participants.add(new ParticipantDTO("1", users.get(i), "", false));
+            participants.add(new ParticipantDTO("1", users.get(i), "W", false));
     
             if (i + 1 < users.size()) {
-                participants.add(new ParticipantDTO("2", users.get(i + 1), "", false));
+                participants.add(new ParticipantDTO("2", users.get(i + 1), "B", false));
             }
     
             Match match = new Match(
