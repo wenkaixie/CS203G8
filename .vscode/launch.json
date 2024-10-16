@@ -2,6 +2,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "PlayerManagementApplication",
+            "request": "launch",
+            "mainClass": "csd.playermanagement.PlayerManagementApplication",
+            "projectName": "playerManagementService"
+        },
+        {
+            "type": "java",
+            "name": "PlayerManagementApplication",
+            "request": "launch",
+            "mainClass": "csd.matchresult.PlayerManagementApplication",
+            "projectName": "matchResultService"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "src.main.java.com.app.tournament.TournamentMicroservice",
+            "projectName": "CS203G8_c0ed0e50"
+        },
+        {
+            "type": "java",
             "name": "TournamentMicroservice",
             "request": "launch",
             "mainClass": "TournamentMicroservice",
