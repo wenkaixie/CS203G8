@@ -1,5 +1,6 @@
 import { SingleEliminationBracket, Match, createTheme } from '@g-loot/react-tournament-brackets';
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const WhiteTheme = createTheme({
@@ -37,10 +38,11 @@ const WhiteTheme = createTheme({
 
 export const WhiteThemeBracket = () => {
   const [matches, setMatches] = useState([]);
+  const { tournamentId } = useParams();
 
   const fetchTournamentMatches = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/tournaments2/6fwyQnStRoJhhuXvu9cp/matches`);
+      const response = await axios.get(`http://localhost:8080/api/tournaments2/${tournamentId}/matches`);
       setMatches(response.data);
       console.log(response.data);
     } catch (error) {
