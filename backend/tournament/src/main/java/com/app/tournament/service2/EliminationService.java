@@ -516,7 +516,7 @@ public class EliminationService {
         boolean winnerSet = false;
         for (ParticipantDTO participant : targetMatch.getParticipants()) {
             boolean isWinner = participant.getName().equals(winnerName);
-            participant.setWinner(isWinner);
+            participant.setIsWinner(isWinner);
             if (isWinner) {
                 winnerSet = true;
                 log.info("Participant {} set as the winner for match {}.", participant.getName(), matchId);
@@ -550,7 +550,7 @@ public class EliminationService {
         List<String> winners = new ArrayList<>();
         for (Match match : currentRound.getMatches()) {
             match.getParticipants().stream()
-                    .filter(ParticipantDTO::isWinner)
+                    .filter(ParticipantDTO::getIsWinner)
                     .findFirst()
                     .ifPresent(winner -> winners.add(winner.getName()));
         }
