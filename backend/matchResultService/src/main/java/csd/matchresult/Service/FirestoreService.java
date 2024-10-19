@@ -1,4 +1,4 @@
-package csd.rankingdashboard.Service;
+package csd.matchresult.Service;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentSnapshot;

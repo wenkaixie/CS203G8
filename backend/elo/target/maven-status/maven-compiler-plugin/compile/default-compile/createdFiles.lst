@@ -1,6 +1,0 @@
-elo\EloApplication.class
-elo\service\EloService.class
-elo\Configuration\FirebaseConfig.class
-elo\model\EloUpdateRequest.class
-elo\controller\EloController.class
-elo\Configuration\RestTemplateConfig.class

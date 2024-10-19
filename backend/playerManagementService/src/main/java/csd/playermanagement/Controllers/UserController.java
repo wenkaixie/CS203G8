@@ -41,12 +41,21 @@ public class UserController {
         }
     }
 
+    @PutMapping("/unregisterTournament/{tournamentId}")
+    public ResponseEntity<String> unregisterUserFromTournament(@PathVariable String tournamentId, @RequestBody UserDTO userDto) {
+        try {
+            String response = userService.unregisterUserFromTournament(tournamentId, userDto);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     @PutMapping("/updateUser/{userID}")
-    public ResponseEntity<Map<String, Object>> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) {
+    public ResponseEntity<UserDTO> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) {
         try {
             // Call the service to update the user and get the updated User object
-            Map<String, Object> updatedUserProfile = userService.updateUserProfile(userID, updatedUser);
+            UserDTO updatedUserProfile = userService.updateUserProfile(userID, updatedUser);
             return ResponseEntity.ok(updatedUserProfile);  // Return the updated User object
         } catch (Exception e) {
             // Return 500 status with null if an exception occurs
@@ -58,7 +67,7 @@ public class UserController {
     public ResponseEntity<User> createUser(@RequestBody User newUser) {
         try {
             User response = userService.createUserProfile(newUser);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }

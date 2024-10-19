@@ -24,6 +24,7 @@ public class Tournament {
     private String name;
     private int prize;
     private Timestamp startDatetime;
+    private String status;
     private String tid;
     private String trid;
     private List<String> users;

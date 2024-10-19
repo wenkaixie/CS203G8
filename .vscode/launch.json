@@ -1,0 +1,55 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "PlayerManagementApplication",
+            "request": "launch",
+            "mainClass": "csd.playermanagement.PlayerManagementApplication",
+            "projectName": "playerManagementService"
+        },
+        {
+            "type": "java",
+            "name": "PlayerManagementApplication",
+            "request": "launch",
+            "mainClass": "csd.matchresult.PlayerManagementApplication",
+            "projectName": "matchResultService"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "src.main.java.com.app.tournament.TournamentMicroservice",
+            "projectName": "CS203G8_c0ed0e50"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "TournamentMicroservice",
+            "projectName": "CS203G8_e208e993"
+        },
+        {
+            "type": "java",
+            "name": "TournamentV2Microservice",
+            "request": "launch",
+            "mainClass": "com.app.tournamentV2.TournamentV2Microservice",
+            "projectName": "com.app-tournament"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "com.app.tournament.TournamentMicroservice"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-TournamentMicroservice<tournament>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.app.tournament.TournamentMicroservice",
+            "projectName": "tournament",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

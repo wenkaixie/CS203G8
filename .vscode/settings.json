@@ -1,5 +1,10 @@
 {
   "java.debug.settings.onBuildFailureProceed": true,
   "java.compile.nullAnalysis.mode": "automatic",
-  "java.configuration.updateBuildConfiguration": "interactive"
+"java.configuration.updateBuildConfiguration": "automatic",
+"java.project.sourcePaths": [
+    "backend/tournamentV2/src/main/java/com/app/tournament"
+],
+"java.dependency.packagePresentation": "hierarchical"
+
 }

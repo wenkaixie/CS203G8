@@ -64,21 +64,7 @@ const MyTournamentsTable = () => {
             return 'Registered';
         }
     
-        // Get the current time and tournament start time
-        const currentTime = new Date();
-        const startTime = new Date(tournament.startDatetime);
-    
-        // Calculate the difference in time between now and the tournament start time
-        const timeDiff = startTime - currentTime; // Time difference in milliseconds
-        const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
-    
-        // If more than 1 day is remaining before the tournament starts
-        if (timeDiff > oneDayInMilliseconds) {
-            return 'Open';
-        }
-    
-        // If less than 1 day is remaining or the tournament has already started
-        return 'Closed';
+        return tournament.status;
     };
 
     const handleRowClick = (tournamentId) => {
@@ -123,7 +109,17 @@ const MyTournamentsTable = () => {
     if (!tournamentsToDisplay || tournamentsToDisplay.length === 0) {
         return (
             <div className="tournament-container">
-                <h3 className="tournament-title">My Tournaments</h3>
+                <h2 className="tournament-title">My Tournaments</h2>
+                <div className="filter-tabs">
+                    <div className='ongoing-upcoming-buttons'>
+                        <button onClick={() => handleOngoingUpcomingButtonChange('ongoing')} className={`ongoing-upcoming-button tab ${ongoingButton ? 'active' : ''}`}>
+                            Ongoing
+                        </button>
+                        <button onClick={() => handleOngoingUpcomingButtonChange('upcoming')} className={`ongoing-upcoming-button tab ${upcomingButton ? 'active' : ''}`}>
+                            Upcoming
+                        </button>
+                    </div>
+                </div>
                 <div className="no-tournaments">No Tournaments Available</div>
             </div>
         );

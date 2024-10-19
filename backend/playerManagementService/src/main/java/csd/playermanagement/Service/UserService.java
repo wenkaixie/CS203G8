@@ -1,37 +1,37 @@
 package csd.playermanagement.Service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.time.Period;
-
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.time.format.DateTimeParseException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Scanner;
-import com.google.cloud.firestore.Query;
+import java.util.concurrent.ExecutionException;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import csd.playermanagement.DTO.UserDTO;
 import csd.playermanagement.Model.Tournament;
@@ -161,7 +161,64 @@ public class UserService {
         return "User successfully registered for the tournament.";
     }
 
-    public Map<String, Object> updateUserProfile(String userId, UserDTO updatedUser) throws InterruptedException, ExecutionException {
+    public String unregisterUserFromTournament(String tournamentId, UserDTO userDto) throws InterruptedException, ExecutionException {
+        System.out.println("Unregistering user from tournament...");
+        
+        // Fetch the tournament reference and snapshot
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+        DocumentSnapshot tournamentSnapshot = tournamentRef.get().get();
+        
+        if (!tournamentSnapshot.exists()) {
+            throw new RuntimeException("No tournament found with the provided ID.");
+        }
+        
+        Tournament tournament = tournamentSnapshot.toObject(Tournament.class);
+        if (tournament == null) {
+            throw new RuntimeException("Error retrieving tournament data.");
+        }
+        
+        CollectionReference usersRef = firestore.collection("Users");
+        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userDto.getAuthId()).get();
+        
+        if (querySnapshot.get().isEmpty()) {
+            throw new RuntimeException("No user found with the provided authId.");
+        }
+    
+        DocumentSnapshot userSnapshot = querySnapshot.get().getDocuments().get(0);  // First matching user
+        User user = userSnapshot.toObject(User.class);
+    
+        if (user == null) {
+            throw new RuntimeException("Error retrieving user data.");
+        }
+        
+        // Check if the user is registered in the tournament
+        if (!user.getRegistrationHistory().contains(tournamentId)) {
+            throw new RuntimeException("User is not registered for this tournament.");
+        }
+        
+        // Remove tournamentId from the user's registration history
+        List<String> updatedRegistrationHistory = new ArrayList<>(user.getRegistrationHistory());
+        updatedRegistrationHistory.remove(tournamentId);
+        
+        // Update the user's document in Firestore
+        ApiFuture<WriteResult> userUpdateFuture = userSnapshot.getReference().update("registrationHistory", updatedRegistrationHistory);
+        
+        // Remove user from the tournament's users list
+        List<String> updatedTournamentUsers = new ArrayList<>(tournament.getUsers());
+        updatedTournamentUsers.remove(userDto.getAuthId());
+        
+        // Update the tournament's document in Firestore
+        ApiFuture<WriteResult> tournamentUpdateFuture = tournamentRef.update("users", updatedTournamentUsers);
+        
+        // Wait for both updates to complete
+        userUpdateFuture.get();  // handle any potential exceptions here
+        tournamentUpdateFuture.get();  // handle any potential exceptions here
+        
+        System.out.println("User successfully unregistered from the tournament.");
+        return "User successfully unregistered from the tournament.";
+    }
+
+    public UserDTO updateUserProfile(String userId, UserDTO updatedUser) throws InterruptedException, ExecutionException {
         System.out.println("Updating User profile for user ID: " + userId);
         System.out.println("Received updated user:" + updatedUser);
         
@@ -256,28 +313,24 @@ public class UserService {
             throw new RuntimeException("Error retrieving updated user data.");
         }
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("authId", fullUpdatedUser.getAuthId());
-        
-        // To reformat the dateOfBirth back to "yyyy/MM/dd"
+        // Create a new UserDTO for the response
+        UserDTO responseDTO = new UserDTO();
+        responseDTO.setAuthId(fullUpdatedUser.getAuthId());
+        responseDTO.setUsername(fullUpdatedUser.getUsername());
+        responseDTO.setEmail(fullUpdatedUser.getEmail());
+        responseDTO.setName(fullUpdatedUser.getName());
+        responseDTO.setElo(fullUpdatedUser.getElo());
+        responseDTO.setChessUsername(fullUpdatedUser.getChessUsername());
+        responseDTO.setNationality(fullUpdatedUser.getNationality());
+        responseDTO.setPhoneNumber(fullUpdatedUser.getPhoneNumber());
+
         if (fullUpdatedUser.getDateOfBirth() != null) {
-            // Create a DateTimeFormatter with the desired format
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd").withZone(ZoneId.systemDefault());
-            // Convert the Timestamp to Instant and format it
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
             String formattedDate = formatter.format(fullUpdatedUser.getDateOfBirth().toDate().toInstant());
-            // Add the formatted date to the response
-            response.put("dateOfBirth", formattedDate);
+            responseDTO.setDateOfBirth(formattedDate);
         }
-        
-        response.put("elo", fullUpdatedUser.getElo());
-        response.put("email", fullUpdatedUser.getEmail());
-        response.put("name", fullUpdatedUser.getName());
-        response.put("nationality", fullUpdatedUser.getNationality());
-        response.put("phoneNumber", fullUpdatedUser.getPhoneNumber());
-        response.put("uid", fullUpdatedUser.getUid());
-        response.put("username", fullUpdatedUser.getUsername());
-        
-        return response;
+
+        return responseDTO;  
     }
     
     // New method to fetch chess Elo from Chess.com API
@@ -382,7 +435,7 @@ public class UserService {
     // NOT USED
     public User createUserProfile(User newUser) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
-    
+
         Map<String, Object> newUserProfile = new HashMap<>();
         newUserProfile.put("username", newUser.getUsername());
         newUserProfile.put("phoneNumber", newUser.getPhoneNumber());
@@ -390,19 +443,22 @@ public class UserService {
         newUserProfile.put("email", newUser.getEmail());
         newUserProfile.put("name", newUser.getName());
         newUserProfile.put("elo", newUser.getElo());
-    
+
         ApiFuture<DocumentReference> writeResult = usersRef.add(newUserProfile);
         DocumentReference documentReference = writeResult.get();
-    
+
         String generatedUid = documentReference.getId();
         newUser.setUid(generatedUid);
-    
+
         newUserProfile.put("uid", generatedUid);
         documentReference.set(newUserProfile, SetOptions.merge());
-    
+
         DocumentSnapshot userSnapshot = documentReference.get().get();
         User createdUser = userSnapshot.toObject(User.class);
-    
+
         return createdUser;
     }
+    
+    
+
 }

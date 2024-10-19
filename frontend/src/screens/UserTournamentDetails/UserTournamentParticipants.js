@@ -34,7 +34,7 @@ const UserTournamentParticipants = () => {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
                 const participantIds = tournamentData.users || [];
-
+                
                 const participantDetails = await Promise.all(
                     participantIds.map(async (userID) => {
                         const sanitizedUserID = userID.replace(/['"]/g, '');
