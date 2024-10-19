@@ -20,7 +20,7 @@ import lombok.Setter;
 public class User {
     private String authId;
     private Timestamp dateOfBirth;
-    private int elo;
+    private Integer elo;
     private String email;
     private String name;
     private String nationality;
