@@ -158,9 +158,9 @@ const UserTournamentParticipants = () => {
                                         <td>{index + 1}</td>
                                         <td>{participant.name || 'null'}</td>
                                         <td>{participant.nationality || 'null'}</td>
-                                        <td>{participant.age ?? '0'}</td>
+                                        <td>{participant.age !== null && participant.age !== undefined ? participant.age : '0'}</td>
                                         <td>#{participant.userRank || 'null'}</td>
-                                        <td>{participant.elo ?? '0'}</td>
+                                        <td>{participant.elo !== null && participant.elo !== undefined ? participant.elo : '0'}</td>
                                         <td>{participant.registrationHistory.length || '0'}</td>
                                     </tr>
                                 ))
