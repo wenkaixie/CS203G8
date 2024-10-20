@@ -67,7 +67,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_UserSuccessfullyRegistered() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange 
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -91,7 +91,7 @@ public class UserServiceRegisterTest {
         user.setElo(1200);
         user.setRegistrationHistory(new ArrayList<>());
 
-        // mock ***
+        // Mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -126,12 +126,12 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_TournamentNotFound_ReturnsError() throws Exception {
-        // arrange ***
+        // arrange 
         String tournamentId = "invalidTournamentId";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
 
-        // mock ***
+        // mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -150,7 +150,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_TournamentClosed_ReturnsError() throws InterruptedException, ExecutionException {
-        // Arrange: Prepare the tournament and user data
+        // Arrange
         String tournamentId = "tournamentClosed";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -182,7 +182,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_UserNotFound_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange 
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("userNotFound");
@@ -194,7 +194,7 @@ public class UserServiceRegisterTest {
         tournament.setCapacity(5);
         tournament.setEloRequirement(1000);
 
-        // mock ***
+        // mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -226,7 +226,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_UserAlreadyRegistered_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange 
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -244,7 +244,7 @@ public class UserServiceRegisterTest {
         user.setElo(1200);
         user.setRegistrationHistory(new ArrayList<>());
 
-        // mock ***
+        // mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -277,7 +277,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_UserDoesNotMeetEloRequirement_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange 
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -295,7 +295,7 @@ public class UserServiceRegisterTest {
         user.setElo(1200); // User's elo is below requirement
         user.setRegistrationHistory(new ArrayList<>());
 
-        // mock ***
+        // mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -328,7 +328,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_TournamentAtFullCapacity_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -347,7 +347,7 @@ public class UserServiceRegisterTest {
         user.setElo(1200);
         user.setRegistrationHistory(new ArrayList<>());
 
-        // mock ***
+        // Mock
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));

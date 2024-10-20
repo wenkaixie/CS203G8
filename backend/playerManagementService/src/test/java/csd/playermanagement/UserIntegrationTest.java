@@ -145,7 +145,6 @@ public class UserIntegrationTest {
     @Test
     public void getAllUsers_Success() throws Exception {
         // Arrange
-        // Create users
         User user1 = new User();
         user1.setAuthId("auth1");
         user1.setUsername("user1");
@@ -182,7 +181,6 @@ public class UserIntegrationTest {
     @Test
     public void getUser_ValidUserId_Success() throws Exception {
         // Arrange
-        // Create a user directly in Firestore
         User user1 = new User();
         user1.setAuthId("auth1");
         user1.setUsername("testuser");
@@ -233,7 +231,6 @@ public class UserIntegrationTest {
     @Test
     public void updateUser_Success() throws Exception {
         // Arrange
-        // Create a user directly in Firestore
         User user = new User();
         user.setAuthId("auth1");
         user.setEmail("original@example.com");
@@ -311,7 +308,6 @@ public class UserIntegrationTest {
     @Test
     public void registerUserForTournament_Success() throws Exception {
         // Arrange
-        // Step 1: Create a tournament in Firestore
         DocumentReference tournamentRef = firestore.collection("Tournaments").document();
         String tournamentId = tournamentRef.getId();
 
@@ -337,7 +333,7 @@ public class UserIntegrationTest {
         tournamentRef.set(tournament).get();
         createdTournamentIds.add(tournamentId);
 
-        // Step 2: Create a user in Firestore
+        // Create a user in Firestore
         User user = new User();
         user.setAuthId("auth1");
         user.setEmail("testuser@example.com");
@@ -368,7 +364,7 @@ public class UserIntegrationTest {
 
         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
 
-        // Act: Register user for the tournament
+        // Act
         ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
 
         // Assert HTTP Status
@@ -392,7 +388,7 @@ public class UserIntegrationTest {
 
     @Test
     public void registerUserForTournament_Failure_InvalidTournamentId() throws Exception {
-        // Arrange: Create a user in Firestore
+        // Arrange
         User user = new User();
         user.setAuthId("auth1");
         user.setEmail("testuser@example.com");
@@ -427,10 +423,10 @@ public class UserIntegrationTest {
         // Prepare the request entity
         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
 
-        // Act: Make the API request
+        // Act
         ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
 
-        // Assert: Ensure the response is 404 NOT_FOUND
+        // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Expected HTTP 404 Not Found");
 
         // Assert: Ensure the response body contains the correct error message in the Map
@@ -447,7 +443,7 @@ public class UserIntegrationTest {
   
     @Test
     public void unregisterUserFromTournament_Success() throws Exception {
-        // Arrange: Create a tournament in Firestore
+        // Arrange
         DocumentReference tournamentRef = firestore.collection("Tournaments").document();
         String tournamentId = tournamentRef.getId();
     
