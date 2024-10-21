@@ -45,7 +45,7 @@ const UserTournamentMatch = () => {
         const fetchRounds = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:8080/api/tournaments/${tournamentId}/allRounds`
+                    `http://localhost:8080/api/tournaments/${tournamentId}/rounds`
                 );
                 setAvailableRounds(response.data);
             } catch (error) {
