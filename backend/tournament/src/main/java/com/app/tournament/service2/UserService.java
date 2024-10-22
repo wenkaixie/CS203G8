@@ -31,7 +31,7 @@ public class UserService {
 
         // Iterate through the list of user IDs to retrieve each user's name
         for (String userId : userIds) {
-            ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("uid", userId).get();
+            ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userId).get();
 
             List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
             if (!userDocuments.isEmpty()) {

@@ -6,6 +6,7 @@ import Navbar from '../../components/navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
+import { getFirestore, doc, updateDoc } from 'firebase/firestore'; 
 
 const UserTournaments = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
@@ -15,6 +16,8 @@ const UserTournaments = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filteredTournaments, setFilteredTournaments] = useState([]);
+    const [registrationStatuses, setRegistrationStatuses] = useState({}); // Store registration statuses
+    const [loading, setLoading] = useState(true); // Loading state for fetching registration statuses
 
     const navigate = useNavigate();
     const auth = getAuth();
@@ -48,9 +51,11 @@ const UserTournaments = () => {
         }
     };
 
-    // Check if the current user is registered for a tournament
-    const isPlayerRegistered = (tournament) => {
-        // Check if current user is in the users list
+    const isPlayerRegistered = async (tournament) => {
+        const db = getFirestore(); // Initialize Firestore
+        const tournamentRef = doc(db, 'tournaments', tournament.tid); // Get the document reference correctly
+    
+        // Check if the current user is in the users list
         if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
             return 'Registered';
         }
@@ -63,14 +68,36 @@ const UserTournaments = () => {
         const timeDiff = startTime - currentTime; // Time difference in milliseconds
         const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
     
-        // If more than 1 day is remaining before the tournament starts
-        if (timeDiff > oneDayInMilliseconds) {
-            return 'Open';
+        // If less than or equal to 1 day is remaining and the tournament is still open
+        if (timeDiff <= oneDayInMilliseconds && tournament.status === "OPEN") {
+            try {
+                // Update the status to "Closed" in Firebase
+                await updateDoc(tournamentRef, {
+                    status: "CLOSED"
+                });
+            } catch (error) {
+                console.error("Error updating tournament status:", error);
+                return 'Error'; // Handle error accordingly
+            }
         }
-    
-        // If less than 1 day is remaining or the tournament has already started
-        return 'Closed';
+        return tournament.status;
     };
+    
+    useEffect(() => {
+        const fetchStatuses = async () => {
+            const statusMap = {};
+            for (const tournament of tournaments) {
+                const status = await isPlayerRegistered(tournament);
+                statusMap[tournament.tid] = status;
+            }
+            setRegistrationStatuses(statusMap); // Update statuses once fetched
+            setLoading(false);
+        };
+    
+        if (tournaments.length > 0) {
+            fetchStatuses();
+        }
+    }, [tournaments]); // Re-run when tournaments change
 
     const handleRowClick = (tournamentId) => {
         navigate(`/user/tournament/${tournamentId}/overview`);
@@ -225,8 +252,8 @@ const UserTournaments = () => {
                             </tr>
                         </thead>
                         <tbody>
-                        {tournamentsToDisplay.map((tournament, index) => {
-                            const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
+                        {tournamentsToDisplay.map(async (tournament, index) => {
+                            const registrationStatus = await isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
 
                             return (
                                 <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)}>

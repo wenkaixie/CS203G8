@@ -43,7 +43,6 @@ public class EliminationService {
 
             int numPlayers = users.size();
             int numRounds = calculateEliminationRounds(numPlayers);
-
             generateRounds(tournamentID, names, numPlayers, numRounds);
         } catch (Exception e) {
             log.error("Failed to generate rounds for tournament {}: {}", tournamentID, e.getMessage());

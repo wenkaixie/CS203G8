@@ -112,7 +112,7 @@ const UserDetailsHeader = () => {
     
             const isCapacityAvailable = data.capacity > usersArray.length;
             const isEloEligible = userElo >= data.eloRequirement;
-            const isRegistrationOpen = data.status === "Registration Open";
+            const isRegistrationOpen = data.status === "OPEN";
 
             setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
         } catch (error) {

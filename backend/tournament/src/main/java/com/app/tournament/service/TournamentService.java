@@ -14,12 +14,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.DTO.TournamentRoundDTO;
 import com.app.tournament.model.Tournament;
 import com.app.tournament.model.User;
+import com.app.tournament.controller2.*;
+import com.app.tournament.service2.*;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
@@ -41,6 +45,9 @@ public class TournamentService {
     @Autowired
     private TournamentRoundService roundService;
 
+    @Autowired
+    private EliminationService eliminationService;
+
     // Create a new tournament
     public String createTournament(TournamentDTO tournamentDTO) throws Exception {
         try {
@@ -52,9 +59,11 @@ public class TournamentService {
             WriteResult result = futureTournament.get();
             System.out.println("Tournament created at: " + result.getUpdateTime());
 
+            addTournamentStatusListener(newTournamentRef.getId());
+
             // Create rounds based on tournament capacity
-            int numberOfRounds = calculateRounds(tournament.getCapacity());
-            createTournamentRounds(tournament.getTid(), numberOfRounds);
+            // int numberOfRounds = calculateRounds(tournament.getCapacity());
+            // createTournamentRounds(tournament.getTid(), numberOfRounds);
 
             // Return the ID of the newly created tournament
             return tournament.getTid();
@@ -78,7 +87,7 @@ public class TournamentService {
         tournament.setEndDatetime(dto.getEndDatetime());
         tournament.setCapacity(dto.getCapacity());
         tournament.setPrize(dto.getPrize());
-        tournament.setStatus("Registration Open");
+        tournament.setStatus("OPEN");
         tournament.setCreatedTimestamp(Instant.now());
         tournament.setAgeLimit(dto.getAgeLimit());
         tournament.setUsers(new ArrayList<>());
@@ -96,16 +105,16 @@ public class TournamentService {
     }
 
     // Create tournament rounds
-    public void createTournamentRounds(String tournamentId, int numberOfRounds) throws Exception {
-        for (int i = 1; i <= numberOfRounds; i++) {
-            TournamentRoundDTO roundDTO = new TournamentRoundDTO();
-            roundDTO.setTid(tournamentId);
-            roundDTO.setRoundNumber(i);
-            roundDTO.setMids(new ArrayList<>());
+    // public void createTournamentRounds(String tournamentId, int numberOfRounds) throws Exception {
+    //     for (int i = 1; i <= numberOfRounds; i++) {
+    //         TournamentRoundDTO roundDTO = new TournamentRoundDTO();
+    //         roundDTO.setTid(tournamentId);
+    //         roundDTO.setRoundNumber(i);
+    //         roundDTO.setMids(new ArrayList<>());
 
-            roundService.createTournamentRound(roundDTO);
-        }
-    }
+    //         roundService.createTournamentRound(roundDTO);
+    //     }
+    // }
 
     // Retrieve a tournament by ID
     public Tournament getTournamentById(String tournamentID) throws Exception {
@@ -238,7 +247,7 @@ public class TournamentService {
 
                     // Rule 4: Check if registration is not open
                     String status = tournamentDoc.getString("status");
-                    if (status == null || !status.equals("Registration Open")) {
+                    if (status == null || !status.equals("OPEN")) {
                         continue;
                     }
 
@@ -457,6 +466,49 @@ public class TournamentService {
         }
 
         return ongoingTournaments; // Return the list of ongoing tournaments
+    }
+
+    // public String removePlayerFromTournament(String tournamentID, String playerID)
+    //     throws InterruptedException, ExecutionException {
+    //     DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
+    //     tournamentRef.update("players", FieldValue.arrayRemove(playerID)).get();
+    //     return "Player removed successfully from the tournament.";
+    // }
+
+    // This method adds a listener to a tournament's document
+    public void addTournamentStatusListener(String tournamentId) {
+        // Reference the specific tournament document in Firestore by tournamentId
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+
+        // Attach a snapshot listener to detect changes in the tournament document
+        tournamentRef.addSnapshotListener((snapshot, e) -> {
+            if (e != null) {
+                System.err.println("Error listening to tournament status changes: " + e.getMessage());
+                return;
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                // Extract the tournament status (assuming there's a 'status' field)
+                String status = snapshot.getString("status");
+                System.out.println("Tournament status changed: " + status);
+
+                // Add any logic you want to execute on status change here
+                if (status.equals("CLOSED")) {
+                    // Get the tournament ID from Firestore snapshot
+                    String tournamentID = snapshot.getString("tid");
+    
+                    // Directly call the generateRoundsForTournament method in the same service
+                    try {
+                        eliminationService.generateRoundsForTournament(tournamentID); // Direct call to the service method
+                        System.out.println("Successfully triggered round generation for tournament: " + tournamentID);
+                    } catch (Exception f) {
+                        System.err.println("Exception occurred while generating rounds: " + f.getMessage());
+                    }
+                }
+            } else {
+                System.out.println("Tournament document does not exist.");
+            }
+        });
     }
 }
 

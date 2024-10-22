@@ -26,7 +26,7 @@ public class TournamentRoundService {
     @Autowired
     private RoundMatchService roundMatchService;
 
-    // Create all rounds and matches for the tournament
+    //Create all rounds and matches for the tournament
     public List<Map<String, Object>> createAllRoundsAndMatches(String tournamentId, List<String> playerIds)
             throws Exception {
         int totalPlayers = playerIds.size();
@@ -56,17 +56,17 @@ public class TournamentRoundService {
     }
 
     // Create a new tournament round
-    public String createTournamentRound(TournamentRoundDTO roundDTO) throws Exception {
-        DocumentReference newRoundRef = firestore.collection("TournamentRounds").document();
-        TournamentRound round = new TournamentRound(
-                newRoundRef.getId(),
-                roundDTO.getTid(),
-                roundDTO.getRoundNumber(),
-                new ArrayList<>());
+    // public String createTournamentRound(TournamentRoundDTO roundDTO) throws Exception {
+    //     DocumentReference newRoundRef = firestore.collection("TournamentRounds").document();
+    //     TournamentRound round = new TournamentRound(
+    //             newRoundRef.getId(),
+    //             roundDTO.getTid(),
+    //             roundDTO.getRoundNumber(),
+    //             new ArrayList<>());
 
-        newRoundRef.set(round).get(); // Block until the write completes
-        return round.getTrid();
-    }
+    //     newRoundRef.set(round).get(); // Block until the write completes
+    //     return round.getTrid();
+    // }
 
     public List<String> createRoundMatches(String roundId, List<String> playerIds, int roundNumber,
                                        List<Map<String, Object>> allMatches) throws Exception {
@@ -164,35 +164,35 @@ public class TournamentRoundService {
     }
 
     // Retrieve a tournament round by ID
-    public TournamentRound getTournamentRoundById(String roundID) throws Exception {
-        DocumentSnapshot document = firestore.collection("TournamentRounds").document(roundID).get().get();
-        if (!document.exists())
-            throw new Exception("Round not found with ID: " + roundID);
-        return document.toObject(TournamentRound.class);
-    }
+    // public TournamentRound getTournamentRoundById(String roundID) throws Exception {
+    //     DocumentSnapshot document = firestore.collection("TournamentRounds").document(roundID).get().get();
+    //     if (!document.exists())
+    //         throw new Exception("Round not found with ID: " + roundID);
+    //     return document.toObject(TournamentRound.class);
+    // }
 
     // Get all rounds of a specific tournament
-    public List<TournamentRound> getRoundsByTournamentId(String tournamentID)
-            throws InterruptedException, ExecutionException {
-        QuerySnapshot snapshot = firestore.collection("TournamentRounds").whereEqualTo("tid", tournamentID).get().get();
-        List<TournamentRound> rounds = new ArrayList<>();
-        for (DocumentSnapshot document : snapshot.getDocuments()) {
-            rounds.add(document.toObject(TournamentRound.class));
-        }
-        return rounds;
-    }
+    // public List<TournamentRound> getRoundsByTournamentId(String tournamentID)
+    //         throws InterruptedException, ExecutionException {
+    //     QuerySnapshot snapshot = firestore.collection("TournamentRounds").whereEqualTo("tid", tournamentID).get().get();
+    //     List<TournamentRound> rounds = new ArrayList<>();
+    //     for (DocumentSnapshot document : snapshot.getDocuments()) {
+    //         rounds.add(document.toObject(TournamentRound.class));
+    //     }
+    //     return rounds;
+    // }
 
     // Update a tournament round
-    public String updateTournamentRound(String roundID, TournamentRoundDTO updatedRound)
-            throws InterruptedException, ExecutionException {
-        firestore.collection("TournamentRounds").document(roundID).update(
-                "roundNumber", updatedRound.getRoundNumber(),
-                "matchIds", updatedRound.getMids()).get();
-        return "Round updated successfully.";
-    }
+    // public String updateTournamentRound(String roundID, TournamentRoundDTO updatedRound)
+    //         throws InterruptedException, ExecutionException {
+    //     firestore.collection("TournamentRounds").document(roundID).update(
+    //             "roundNumber", updatedRound.getRoundNumber(),
+    //             "matchIds", updatedRound.getMids()).get();
+    //     return "Round updated successfully.";
+    // }
 
     // Delete a tournament round
-    public void deleteTournamentRound(String roundID) throws InterruptedException, ExecutionException {
-        firestore.collection("TournamentRounds").document(roundID).delete().get();
-    }
+    // public void deleteTournamentRound(String roundID) throws InterruptedException, ExecutionException {
+    //     firestore.collection("TournamentRounds").document(roundID).delete().get();
+    // }
 }

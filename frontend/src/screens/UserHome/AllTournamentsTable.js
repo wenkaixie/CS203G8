@@ -5,6 +5,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
+import { getFirestore, doc, updateDoc } from 'firebase/firestore'; // Import Firestore functions
+
 
 const AllTournamentsTable = () => {
     const [eligibleButton, setEligibleButton] = useState(true);
@@ -15,6 +17,8 @@ const AllTournamentsTable = () => {
     const [currentPage, setCurrentPage] = useState(1); // Track the current page
     const tournamentsPerPage = 5; // Define how many tournaments to show per page
     const [tournaments, setTournaments] = useState([]);
+    const [registrationStatuses, setRegistrationStatuses] = useState({}); // Store registration statuses
+    const [loading, setLoading] = useState(true); // Loading state for fetching registration statuses
 
     const navigate = useNavigate();
     const auth = getAuth();
@@ -59,14 +63,55 @@ const AllTournamentsTable = () => {
         }
     };
 
-    const isPlayerRegistered = (tournament) => {
-        // Check if current user is in the users list
+    const isPlayerRegistered = async (tournament) => {
+        const db = getFirestore(); // Initialize Firestore
+        const tournamentRef = doc(db, 'Tournaments', tournament.tid); // Get the document reference correctly
+    
+        // Check if the current user is in the users list
         if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
             return 'Registered';
         }
     
+        // Get the current time and tournament start time
+        const currentTime = new Date();
+        const startTime = new Date(tournament.startDatetime);
+    
+        // Calculate the difference in time between now and the tournament start time
+        const timeDiff = startTime - currentTime; // Time difference in milliseconds
+        const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+    
+        // If less than or equal to 1 day is remaining and the tournament is still open
+        if (timeDiff <= oneDayInMilliseconds && tournament.status === "OPEN") {
+            try {
+                // Update the status to "Closed" in Firebase
+                await updateDoc(tournamentRef, {
+                    status: "CLOSED"
+                });
+            } catch (error) {
+                console.error("Error updating tournament status:", error);
+                return 'Error'; // Handle error accordingly
+            }
+        }
         return tournament.status;
     };
+    
+
+    useEffect(() => {
+        const fetchStatuses = async () => {
+            const statusMap = {};
+            for (const tournament of tournaments) {
+                const status = await isPlayerRegistered(tournament);
+                statusMap[tournament.tid] = status;
+            }
+            setRegistrationStatuses(statusMap); // Update statuses once fetched
+            setLoading(false);
+        };
+    
+        if (tournaments.length > 0) {
+            fetchStatuses();
+        }
+    }, [tournaments]); // Re-run when tournaments change
+    
 
     const handleRowClick = (tournamentId) => {
         navigate(`/user/tournament/${tournamentId}/overview`);
@@ -190,7 +235,7 @@ const AllTournamentsTable = () => {
                 </thead>
                 <tbody>
                     {currentTournaments.map((tournament, index) => {
-                        const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
+                        const registrationStatus = registrationStatuses[tournament.tid] || 'Loading...'; // Show "Loading..." if not available
 
                         return (
                             <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className="clickable-row">
