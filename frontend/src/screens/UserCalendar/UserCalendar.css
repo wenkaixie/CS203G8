@@ -62,35 +62,96 @@ body {
     align-items: center;
 }
 
-.searchbox {
+.search-bar {
+    position: relative;
     flex-grow: 1;
-}
-
-.filter-buttons {
-    display: flex;
-    align-items: center;
-  }
-
-.filter-icon {
-    font-size: 20px;
-    border: none;
-    background-color: #F8F9FA;
-    padding: 10px 20px;
-    border-radius: 25px;
-    padding: 10px;
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+    margin-right: 5px;
   }
   
-  .order-by {
-    border: none;
-    background-color: #F8F9FA;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 16px;
+  .search-bar input {
+    width: 100%;
+    padding: 10px 50px 10px 20px;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    height: 45px;
+    color: #333;
   }
+  
+  .search-bar input::placeholder {
+    color: #a1a1a1;
+  }
+  
+  .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 20px;
+  }
+
+/* Order By Dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdown-content {
+    background-color: #ffffff;
+    min-width: 180px;
+    border: 1px solid #d1d1d1;
+    border-radius: 5px;
+    z-index: 1;
+    margin-top: 5px;
+  }
+  
+  .dropdown-item {
+    color: #333;
+    padding: 10px 15px !important;
+    margin: 0px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f0f0f0 !important;
+  }
+  
+  .dropdown-item:active {
+    background-color: #e0e0e0;
+  }
+  
+  /* Order Button */
+  .order-button {
+    height: 45px;
+    min-width: 180px;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #333333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .order-button::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #333333;
+  }
+  
+  .order-button:hover {
+    background-color: #e0e0e0;
+  }
+  
