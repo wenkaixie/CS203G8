@@ -1,12 +1,11 @@
 package com.app.tournament;
 
-// Spring imports
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import javax.annotation.PostConstruct;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
+// Spring imports
 import org.springframework.context.annotation.Configuration;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -18,28 +17,53 @@ import com.google.firebase.cloud.FirestoreClient;
 @Configuration
 public class FirebaseConfig {
 
-    @PostConstruct
-    public void initialize() {
-        try {
-            // Firebase SDK credential file (Updated file path)
-            FileInputStream serviceAccount = 
-                new FileInputStream("C:\\Users\\ASUS\\Documents\\GitHub\\CS203G8\\serviceAccountKey.json");
+    // @PostConstruct
+    // public void initialize() {
+    //     try {
+    //         // Firebase SDK credential file (Updated file path)
+    //         FileInputStream serviceAccount = 
+    //             new FileInputStream("serviceAccountKey.json");
+
+    //         FirebaseOptions options = FirebaseOptions.builder()
+    //             .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
+    //             .build();
+
+    //         if (FirebaseApp.getApps().isEmpty()) {
+    //             FirebaseApp.initializeApp(options);
+    //         }
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
+
+    // @Bean
+    // public Firestore firestore() {
+    //     FirebaseApp defaultApp = FirebaseApp.getInstance();  // Ensure FirebaseApp is initialized
+    //     return FirestoreClient.getFirestore(defaultApp);
+    // }
+
+    @Bean
+    public FirebaseApp initializeFirebaseApp() throws IOException {
+        List<FirebaseApp> firebaseApps = FirebaseApp.getApps();
+        if (firebaseApps != null && !firebaseApps.isEmpty()) {
+            // Return the existing FirebaseApp instance
+            return firebaseApps.get(0);
+        } else {
+            // Initialize a new FirebaseApp instance
+            String credentialsPath = System.getenv("FIREBASE_CREDENTIALS");
+            FileInputStream serviceAccount = new FileInputStream(credentialsPath);
 
             FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
 
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            return FirebaseApp.initializeApp(options);
         }
     }
 
     @Bean
-    public Firestore firestore() {
-        FirebaseApp defaultApp = FirebaseApp.getInstance();  // Ensure FirebaseApp is initialized
-        return FirestoreClient.getFirestore(defaultApp);
+    public Firestore getFirestore() throws IOException {
+        FirebaseApp firebaseApp = initializeFirebaseApp();
+        return FirestoreClient.getFirestore(firebaseApp);
     }
 }

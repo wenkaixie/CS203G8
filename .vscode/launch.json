@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "EloApplication",
+            "request": "launch",
+            "mainClass": "elo.EloApplication",
+            "projectName": "elo"
+        },
+        {
+            "type": "java",
             "name": "PlayerManagementApplication",
             "request": "launch",
             "mainClass": "csd.playermanagement.PlayerManagementApplication",
