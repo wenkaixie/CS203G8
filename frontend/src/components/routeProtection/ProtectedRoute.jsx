@@ -20,21 +20,23 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
                     try {
                         let userRole = null;
 
-                        // Check if the user exists in the 'User' collection
+                        // Check if the user exists in the 'Users' collection
                         const userQuery = query(collection(FirestoreDB, 'Users'), where('authId', '==', user.uid));
                         const userSnapshot = await getDocs(userQuery);
                         
                         if (!userSnapshot.empty) {
                             userRole = 'Users';
                         } else {
-                            // If not found in 'User', check the 'Admin' collection
-                            const adminQuery = query(collection(FirestoreDB, 'Admin'), where('authId', '==', user.uid));
+                            // If not found in 'User', check the 'Admins' collection
+                            const adminQuery = query(collection(FirestoreDB, 'Admins'), where('authId', '==', user.uid));
                             const adminSnapshot = await getDocs(adminQuery);
                 
                             if (!adminSnapshot.empty) {
-                                userRole = 'Admin';
+                                userRole = 'Admins';
                             }
                         }
+
+                        console.log("User role: ", userRole);
 
                         if (!userRole || !allowedRoles.includes(userRole)) {
                             // User is authenticated but doesn't have the required role
