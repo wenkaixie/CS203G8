@@ -1,6 +1,9 @@
 package com.app.tournament.service;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -8,16 +11,17 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
+// import org.threeten.bp.LocalDate;
+// import org.threeten.bp.Period;
+// import org.threeten.bp.ZoneId;
 
 import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
 import com.app.tournament.model.Tournament;
 import com.app.tournament.model.User;
-import com.app.tournament.service.EliminationService;
+import com.app.tournament.events.TournamentClosedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -26,6 +30,10 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.Query;
+import java.util.Date;
+import java.util.Map;
+
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +43,9 @@ public class TournamentService {
 
     @Autowired
     private Firestore firestore;
+    
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher; // Add event publisher
 
     // Create a new tournament and ensure tid matches the document ID
     public String createTournament(TournamentDTO tournamentDTO) throws ExecutionException, InterruptedException {
@@ -43,7 +54,7 @@ public class TournamentService {
         String generatedId = docRef.getId();
         log.info("Generated tournament ID: {}", generatedId);
 
-        addTournamentStatusListener(newTournamentRef.getId());
+        addTournamentStatusListener(generatedId);
 
         Tournament tournament = convertToEntity(tournamentDTO, generatedId);
         ApiFuture<WriteResult> future = docRef.set(tournament);
@@ -242,7 +253,7 @@ public class TournamentService {
                 tid,
                 Instant.now(), // Use Instant for the created timestamp
                 dto.getPrize(),
-                "OPEN",
+                "Open",
                 dto.getUsers(),
                 new ArrayList<>());
     }
@@ -444,15 +455,9 @@ public class TournamentService {
                 if (status.equals("Closed")) {
                     // Get the tournament ID from Firestore snapshot
                     String tournamentID = snapshot.getString("tid");
-                    System.out.println("TID="+tournamentID);
-    
-                    // Directly call the generateRoundsForTournament method in the same service
-                    try {
-                        eliminationService.generateRoundsForTournament(tournamentID); // Direct call to the service method
-                        System.out.println("Successfully triggered round generation for tournament: " + tournamentID);
-                    } catch (Exception f) {
-                        System.err.println("Exception occurred while generating rounds: " + f.getMessage());
-                    }
+                    log.info("Tournament status changed to Closed. TID={}", tournamentID);
+                    
+                    applicationEventPublisher.publishEvent(new TournamentClosedEvent(this, tournamentID));
                 }
             } else {
                 System.out.println("Tournament document does not exist.");

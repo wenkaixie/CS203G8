@@ -13,6 +13,8 @@ import com.app.tournament.DTO.ParticipantDTO;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
 import com.app.tournament.model.Tournament;
+import com.app.tournament.events.TournamentClosedEvent;
+import org.springframework.context.event.EventListener;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
@@ -32,6 +34,18 @@ public class EliminationService {
     @Autowired
     // @Qualifier("UserServiceV2")
     private UserService userService;
+
+    @EventListener
+    public void handleTournamentClosedEvent(TournamentClosedEvent event) {
+        String tournamentId = event.getTournamentId();
+        log.info("Handling closed tournament with ID: {}", tournamentId);
+
+        try {
+            generateRoundsForTournament(tournamentId);
+        } catch (Exception e) {
+            log.error("Error generating rounds for tournament {}: {}", tournamentId, e.getMessage());
+        }
+    }
 
     // Generate rounds and matches for the tournament
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
@@ -318,5 +332,4 @@ public class EliminationService {
 
         log.info("Successfully populated round {} with {} matches.", nextRoundNumber, nextRoundMatches.size());
     }
-
 }

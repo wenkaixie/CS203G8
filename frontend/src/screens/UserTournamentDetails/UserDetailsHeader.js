@@ -139,7 +139,8 @@ const UserDetailsHeader = () => {
                 const response = await axios.put(
                     `http://localhost:9090/user/unregisterTournament/${tournamentId}`, 
                     {
-                        authId: userData.authId // Correctly passing the authId
+                        authId: userData.authId,
+                        uid: userData.uid,
                     }
                 );
     
