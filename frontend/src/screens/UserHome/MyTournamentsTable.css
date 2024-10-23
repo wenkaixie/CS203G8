@@ -68,20 +68,14 @@
 }
 
 /* Different status colors for table rows */
-.tournament-table td.status-registered {
+.tournament-table td.status-Registered {
   color: #007bff; /* Blue for registered */
   font-weight: 500;
   text-align: left;
 }
 
-.tournament-table td.status-registration.open {
+.tournament-table td.status-Ongoing {
   color: #28a745; /* Green for open registration */
-  font-weight: 500;
-  text-align: left;
-}
-
-.tournament-table td.status-registration.closed {
-  color: #6c757d; /* Grey for published */
   font-weight: 500;
   text-align: left;
 }

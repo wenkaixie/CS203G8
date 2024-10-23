@@ -20,6 +20,7 @@ import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.DTO.TournamentRoundDTO;
 import com.app.tournament.model.Tournament;
 import com.app.tournament.model.User;
+import com.app.tournament.service2.EliminationService;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
@@ -41,6 +42,9 @@ public class TournamentService {
     @Autowired
     private TournamentRoundService roundService;
 
+    @Autowired
+    private EliminationService eliminationService;
+
     // Create a new tournament
     public String createTournament(TournamentDTO tournamentDTO) throws Exception {
         try {
@@ -52,9 +56,7 @@ public class TournamentService {
             WriteResult result = futureTournament.get();
             System.out.println("Tournament created at: " + result.getUpdateTime());
 
-            // Create rounds based on tournament capacity
-            int numberOfRounds = calculateRounds(tournament.getCapacity());
-            createTournamentRounds(tournament.getTid(), numberOfRounds);
+            addTournamentStatusListener(newTournamentRef.getId());
 
             // Return the ID of the newly created tournament
             return tournament.getTid();
@@ -78,7 +80,7 @@ public class TournamentService {
         tournament.setEndDatetime(dto.getEndDatetime());
         tournament.setCapacity(dto.getCapacity());
         tournament.setPrize(dto.getPrize());
-        tournament.setStatus("Registration Open");
+        tournament.setStatus("Open");
         tournament.setCreatedTimestamp(Instant.now());
         tournament.setAgeLimit(dto.getAgeLimit());
         tournament.setUsers(new ArrayList<>());
@@ -121,8 +123,22 @@ public class TournamentService {
 
     // Get all tournaments
     public List<Tournament> getAllTournaments() throws InterruptedException, ExecutionException {
-        List<QueryDocumentSnapshot> documents = firestore.collection("Tournaments").get().get().getDocuments();
-        return documents.stream().map(doc -> doc.toObject(Tournament.class)).collect(Collectors.toList());
+        try{
+            // Fetch all tournament documents
+            ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments").get();
+            QuerySnapshot tournamentsSnapshot = future.get(); // This gets the snapshot
+            
+            // Call checkAndUpdateStatus with the tournamentsSnapshot
+            checkAndUpdateStatus(tournamentsSnapshot);
+
+            // Convert documents to a list of Tournament objects
+            return tournamentsSnapshot.getDocuments().stream()
+                    .map(doc -> doc.toObject(Tournament.class))
+                    .collect(Collectors.toList());
+        }catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     // Update tournament details
@@ -205,55 +221,50 @@ public class TournamentService {
         ApiFuture<QuerySnapshot> futureTournamentsQuery = tournamentsCollection.get();
         QuerySnapshot tournamentsSnapshot = futureTournamentsQuery.get();
         System.out.println("Tournaments count: " + tournamentsSnapshot.size());
+        checkAndUpdateStatus(tournamentsSnapshot);
     
         List<Tournament> eligibleTournaments = new ArrayList<>();
     
         for (DocumentSnapshot tournamentDoc : tournamentsSnapshot.getDocuments()) {
             System.out.println("Tournament ID: " + tournamentDoc.getId());
             if (tournamentDoc.exists()) {
-                // Check if the tournament is an upcoming tournament
-                Instant startDatetime = tournamentDoc.get("startDatetime", Instant.class);
-                if (startDatetime != null && startDatetime.isAfter(currentTimestamp)) {
-                    // Rule 1: Check if the number of users in the "users" array is less than the "capacity"
-                    List<String> users = (List<String>) tournamentDoc.get("users");
-                    Long capacity = tournamentDoc.getLong("capacity");
-                    if (users == null || capacity == null || users.size() >= capacity) {
-                        continue; // Tournament is not eligible if capacity is full
-                    }
-    
-                    // Rule 2: Check if the user's Elo is >= the tournament's Elo requirement
-                    Long eloRequirement = tournamentDoc.getLong("eloRequirement");
-                    if (eloRequirement != null && userElo < eloRequirement) {
-                        continue; // Tournament is not eligible if user's Elo is less than the requirement
-                    }
-    
-                    // Rule 3: Check if the user's age is >= the tournament's age limit
-                    Long ageLimit = tournamentDoc.getLong("ageLimit");
-                    if (ageLimit != null) {
-                        int userAge = calculateAge(userDob); // Pass userDob as Instant to calculateAge helper method
-                        if (userAge < ageLimit) {
-                            continue; // Tournament is not eligible if user's age is less than the limit
-                        }
-                    }
-
-                    // Rule 4: Check if registration is not open
-                    String status = tournamentDoc.getString("status");
-                    if (status == null || !status.equals("Registration Open")) {
-                        continue;
-                    }
-
-                    // Rule 5: Check if registered
-                    List<String> registered = (List<String>) userDoc.get("registrationHistory");
-                    if (registered != null && registered.contains(tournamentDoc.getId())) {
-                        continue; // Tournament is not eligible if the user is already registered
-                    }
-    
-                    // Add the tournament to the eligible list if all conditions are satisfied
-                    eligibleTournaments.add(tournamentDoc.toObject(Tournament.class));
+                //Rule 1: Check if status is open
+                if (tournamentDoc.get("status") == null || !tournamentDoc.get("status").equals("Open")) {
+                    continue;
                 }
+                // Rule 2: Check if the number of users in the "users" array is less than the
+                // "capacity"
+                List<String> users = (List<String>) tournamentDoc.get("users");
+                Long capacity = tournamentDoc.getLong("capacity");
+                if (users == null || capacity == null || users.size() >= capacity) {
+                    continue; // Tournament is not eligible if capacity is full
+                }
+
+                // Rule 3: Check if the user's Elo is >= the tournament's Elo requirement
+                Long eloRequirement = tournamentDoc.getLong("eloRequirement");
+                if (eloRequirement != null && userElo < eloRequirement) {
+                    continue; // Tournament is not eligible if user's Elo is less than the requirement
+                }
+
+                // Rule 4: Check if the user's age is >= the tournament's age limit
+                Long ageLimit = tournamentDoc.getLong("ageLimit");
+                if (ageLimit != null) {
+                    int userAge = calculateAge(userDob); // Pass userDob as Instant to calculateAge helper method
+                    if (userAge < ageLimit) {
+                        continue; // Tournament is not eligible if user's age is less than the limit
+                    }
+                }
+
+                // Rule 5: Check if registered
+                List<String> registered = (List<String>) userDoc.get("registrationHistory");
+                if (registered != null && registered.contains(tournamentDoc.getId())) {
+                    continue; // Tournament is not eligible if the user is already registered
+                }
+
+                // Add the tournament to the eligible list if all conditions are satisfied
+                eligibleTournaments.add(tournamentDoc.toObject(Tournament.class));
             }
         }
-    
         return eligibleTournaments; // Return the list of eligible tournaments
     }
     
@@ -356,6 +367,7 @@ public class TournamentService {
             DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
             ApiFuture<DocumentSnapshot> futureTournamentDoc = tournamentRef.get();
             DocumentSnapshot tournamentDoc = futureTournamentDoc.get();
+
     
             if (tournamentDoc.exists()) {
                 // Check if the tournament is in the future
@@ -458,28 +470,81 @@ public class TournamentService {
 
         return ongoingTournaments; // Return the list of ongoing tournaments
     }
+
+    // This method adds a listener to a tournament's document
+    public void addTournamentStatusListener(String tournamentId) {
+        // Reference the specific tournament document in Firestore by tournamentId
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+
+        // Attach a snapshot listener to detect changes in the tournament document
+        tournamentRef.addSnapshotListener((snapshot, e) -> {
+            if (e != null) {
+                System.err.println("Error listening to tournament status changes: " + e.getMessage());
+                return;
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                // Extract the tournament status (assuming there's a 'status' field)
+                String status = snapshot.getString("status");
+                System.out.println("Tournament status changed: " + status);
+
+                // Add any logic you want to execute on status change here
+                if (status.equals("Closed")) {
+                    // Get the tournament ID from Firestore snapshot
+                    String tournamentID = snapshot.getString("tid");
+                    System.out.println("TID="+tournamentID);
+    
+                    // Directly call the generateRoundsForTournament method in the same service
+                    try {
+                        eliminationService.generateRoundsForTournament(tournamentID); // Direct call to the service method
+                        System.out.println("Successfully triggered round generation for tournament: " + tournamentID);
+                    } catch (Exception f) {
+                        System.err.println("Exception occurred while generating rounds: " + f.getMessage());
+                    }
+                }
+            } else {
+                System.out.println("Tournament document does not exist.");
+            }
+        });
+    }
+
+    private void checkAndUpdateStatus(QuerySnapshot tournamentsSnapshot) {
+        // Get the current time and tournament start time
+        Date currentTime = new Date();
+        // Loop through the tournament documents in the snapshot
+        for (DocumentSnapshot tournamentDoc : tournamentsSnapshot.getDocuments()) {
+            if (tournamentDoc.exists()) {
+                try {
+                    // Get the tournament data
+                    Map<String, Object> tournamentData = tournamentDoc.getData();
+                    String status = (String) tournamentData.get("status");
+                    Date startTime = tournamentDoc.getDate("startDatetime");
+                    Date endTime = tournamentDoc.getDate("endDatetime");
+
+                    if (startTime == null || status == null) {
+                        System.out.println("Invalid tournament data: missing startDatetime or status.");
+                        continue; // Skip if the data is invalid
+                    }
+
+                    // Calculate the time difference between now and the tournament start time
+                    long timeDiff = startTime.getTime() - currentTime.getTime(); // Time difference in milliseconds
+                    long oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+
+                    // If less than or equal to 1 day is remaining and the tournament is still open
+                    if (timeDiff <= oneDayInMilliseconds && "Open".equals(status)) {
+                        // Update the status to "Closed"
+                        tournamentDoc.getReference().update("status", "Closed");
+                    } else if (endTime.getTime() < currentTime.getTime()) {
+                        tournamentDoc.getReference().update("status","Completed");
+                    } else if (timeDiff <= 0 && "Closed".equals(status)) {
+                        tournamentDoc.getReference().update("status","Ongoing");
+                    } else {
+                        System.out.println("No update needed for tournament: " + tournamentDoc.getId());
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error processing tournament: " + e);
+                }
+            }
+        }
+    }
 }
-
-
-
-
-
-
-    // @Autowired
-    // private TaskScheduler taskScheduler;
-
-    // // Method to schedule a task for each tournament
-    // public void scheduleCloseRegistration(Tournament tournament) {
-    //     Instant startDatetime = tournament.getStartDatetime();
-    //     Instant closeRegistrationTime = startDatetime.minus(Duration.ofHours(24)); 
-    //     taskScheduler.schedule(() -> closeRegistration(tournament.getTid()), closeRegistrationTime);
-
-    // }
-
-    // // This method will be triggered at the scheduled time to close registration
-    // private void closeRegistration(String tournamentID) {
-    //     DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
-    //     tournamentRef.update("status", "Registration Closed").addListener(() -> {
-    //         System.out.println("Tournament registration closed for: " + tournamentID);
-    //     }, Runnable::run);
-    // }
