@@ -1,4 +1,4 @@
-package com.app.tournament.service2;
+package com.app.tournament.service;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.app.tournament.DTO2.ParticipantDTO;
-import com.app.tournament.model2.Match;
-import com.app.tournament.model2.Round;
-import com.app.tournament.model2.Tournament;
+import com.app.tournament.DTO.ParticipantDTO;
+import com.app.tournament.model.Match;
+import com.app.tournament.model.Round;
+import com.app.tournament.model.Tournament;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
@@ -30,7 +30,7 @@ public class EliminationService {
     private TournamentService tournamentService;
 
     @Autowired
-    @Qualifier("UserServiceV2")
+    // @Qualifier("UserServiceV2")
     private UserService userService;
 
     // Generate rounds and matches for the tournament

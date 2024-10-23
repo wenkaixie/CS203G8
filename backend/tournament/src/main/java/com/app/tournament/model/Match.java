@@ -1,9 +1,9 @@
-package com.app.tournament.model2;
+package com.app.tournament.model;
 
 import java.time.Instant;
 import java.util.List;
 
-import com.app.tournament.DTO2.ParticipantDTO;
+import com.app.tournament.DTO.ParticipantDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

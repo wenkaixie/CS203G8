@@ -1,8 +1,7 @@
 package com.app.tournament.model;
 
+import java.time.Instant;
 import java.util.List;
-
-import java.time.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,14 +35,13 @@ public class Tournament {
     
     private String tid; // tournamentID
     private Instant createdTimestamp;
-
-    private String trid; // need to
     private int prize;
 
     private String status;
     
     // List to store players in the tournament
     private List<String> users; // store players uid's
+    private List<Round> rounds; 
 
 }
 
