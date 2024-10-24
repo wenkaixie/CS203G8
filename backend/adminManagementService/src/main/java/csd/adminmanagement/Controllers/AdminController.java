@@ -61,12 +61,12 @@ public class AdminController {
         }
     }
 
-    // Get Admin by ID
-    @GetMapping("/getAdmin/{adminID}")
-    public ResponseEntity<Object> getAdmin(@PathVariable String adminID) {
+// Get Admin by ID
+    @GetMapping("/getAdmin/{adminId}")
+    public ResponseEntity<Object> getAdminById(@PathVariable String adminId) {
         try {
-            Admin admin = adminService.getAdminbyId(adminID);
-            return ResponseEntity.ok(admin);  
+            Admin admin = adminService.getAdminById(adminId);
+            return ResponseEntity.ok(admin);
         } catch (AdminNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {

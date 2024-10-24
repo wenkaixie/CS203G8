@@ -1,42 +1,21 @@
 package csd.adminmanagement.Service;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.google.api.core.ApiFuture;
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import csd.adminmanagement.Exception.AdminNotFoundException;
-import csd.adminmanagement.Exception.TournamentNotFoundException;
 import csd.adminmanagement.Model.Admin;
-import csd.adminmanagement.Model.Tournament;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AdminService {
@@ -79,6 +58,7 @@ public class AdminService {
         try {
             QuerySnapshot querySnapshot = future.get();
             for (QueryDocumentSnapshot document : querySnapshot) {
+                System.out.println(document.getId());
                 admins.add(document.toObject(Admin.class));
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -88,20 +68,26 @@ public class AdminService {
     }
 
     // Retrieve Admin by ID
-    public Admin getAdminbyId(String adminID) throws AdminNotFoundException {
-        DocumentReference docRef = firestore.collection("Admins").document(adminID);
-        ApiFuture<DocumentSnapshot> future = docRef.get();
-        DocumentSnapshot document;
+    public Admin getAdminById(String adminId) throws AdminNotFoundException {
+        CollectionReference adminsRef = firestore.collection("Admins");
+        System.out.println("fetching data for" + adminId);
+
         try {
-            document = future.get();
+            ApiFuture<QuerySnapshot> querySnapshot = adminsRef.whereEqualTo("authId", adminId).get();
+            List<QueryDocumentSnapshot> adminDocuments = querySnapshot.get().getDocuments();
+
+            if (adminDocuments.isEmpty()) {
+                throw new AdminNotFoundException("Admin not found for authId: " + adminId);
+            }
+
+            DocumentSnapshot adminSnapshot = adminDocuments.get(0);
+            Admin admin = adminSnapshot.toObject(Admin.class);
+            return admin;
+
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            throw new AdminNotFoundException("Admin not found");
-        }
-        if (document.exists()) {
-            return document.toObject(Admin.class);
-        } else {
-            throw new AdminNotFoundException("Admin not found");
+            throw new RuntimeException("Error fetching admin data from Firestore: " + e.getMessage(), e);
         }
     }
+
+    
 }
