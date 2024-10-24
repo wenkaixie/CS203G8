@@ -59,10 +59,20 @@ public class TournamentController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Tournament>> getAllTournaments() {
         try {
             List<Tournament> tournaments = tournamentService.getAllTournaments();
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/user/{userID}")
+    public ResponseEntity<List<Tournament>> getAllTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

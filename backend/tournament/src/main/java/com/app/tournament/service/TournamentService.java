@@ -71,6 +71,41 @@ public class TournamentService {
         return tournaments;
     }
 
+    // Retrieve all tournaments of a user
+    public List<Tournament> getTournamentsOfUser(String userID) throws ExecutionException, InterruptedException {
+        System.out.println("Fetching tournaments of user with ID: " + userID);
+        log.info("Fetching tournaments of user with ID: {}", userID);
+        CollectionReference usersCollection = firestore.collection("Users");
+        Query query = usersCollection.whereEqualTo("authId", userID);
+        ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
+        QuerySnapshot querySnapshot = futureQuerySnapshot.get();
+        System.out.println("Query snapshot size: " + querySnapshot.size());
+
+        if (querySnapshot.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if no user with matching authID is found
+        }
+        
+        DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0); // Assuming authID is unique, get the first document
+        List<String> registrationHistory = (List<String>) userDoc.get("registrationHistory");
+        
+        if (registrationHistory == null || registrationHistory.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if registrationHistory is empty or null
+        }
+        
+        List<Tournament> tournaments = new ArrayList<>();
+        
+        for (String tournamentId : registrationHistory) {
+            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+            DocumentSnapshot tournamentDoc = tournamentRef.get().get();
+            
+            if (tournamentDoc.exists()) {
+                tournaments.add(tournamentDoc.toObject(Tournament.class));
+            }
+        }
+        
+        return tournaments;
+    }
+
     // Update an existing tournament
     public String updateTournament(String tournamentID, TournamentDTO updatedTournamentDTO)
             throws ExecutionException, InterruptedException {
