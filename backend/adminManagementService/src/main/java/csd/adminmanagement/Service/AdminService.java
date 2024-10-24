@@ -66,7 +66,7 @@ public class AdminService {
     // Create Admin Profile
     public Admin createAdminProfile(Admin newAdmin) {
         DocumentReference docRef = firestore.collection("Admins").document();
-        newAdmin.setAdminID(docRef.getId());
+        newAdmin.setAuthId(docRef.getId());
         ApiFuture<WriteResult> result = docRef.set(newAdmin);
         return newAdmin;
     }

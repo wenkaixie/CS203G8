@@ -24,7 +24,7 @@ public class FirebaseConfig {
         try {
             // Updated path to Firebase service account key file
             FileInputStream serviceAccount = 
-                new FileInputStream("C:\\Users\\xwkof\\Documents\\SMU CS\\CS203 WK\\CS203G8\\CS203G8\\serviceAccountKey.json");
+                new FileInputStream("/Users/gohrayjiet/Documents/CSD/serviceAccountKey.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))   

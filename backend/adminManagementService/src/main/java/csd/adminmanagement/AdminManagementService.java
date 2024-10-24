@@ -1,7 +1,6 @@
 package csd.adminmanagement;
-
-import org.springframework.boot.SpringBootApplication;
-import org.springframework.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class AdminManagementService {
