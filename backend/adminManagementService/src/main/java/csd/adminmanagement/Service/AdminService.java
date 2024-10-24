@@ -33,7 +33,6 @@ import com.google.cloud.firestore.WriteResult;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import csd.adminmanagement.DTO.AdminDTO;
 import csd.adminmanagement.Exception.AdminNotFoundException;
 import csd.adminmanagement.Exception.TournamentNotFoundException;
 import csd.adminmanagement.Model.Admin;
@@ -41,10 +40,12 @@ import csd.adminmanagement.Model.Tournament;
 
 @Service
 public class AdminService {
+
     @Autowired
     private Firestore firestore;
 
-    public AdminDTO updateUserProfile(String adminID, AdminDTO updatedAdmin) throws AdminNotFoundException {
+    // Update Admin Profile
+    public Admin updateAdminProfile(String adminID, Admin updatedAdmin) throws AdminNotFoundException {
         DocumentReference docRef = firestore.collection("Admins").document(adminID);
         ApiFuture<DocumentSnapshot> future = docRef.get();
         DocumentSnapshot document;
@@ -52,17 +53,55 @@ public class AdminService {
             document = future.get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new AdminNotFoundException("Admin not found.");
+            throw new AdminNotFoundException("Admin not found");
         }
         if (document.exists()) {
-            Map<String, Object> data = new HashMap<>();
-            data.put("name", updatedAdmin.getName());
-            data.put("email", updatedAdmin.getEmail());
-            data.put("phoneNumber", updatedAdmin.getPhoneNumber());
-            data.put("dob", updatedAdmin.getDob());
-
+            ApiFuture<WriteResult> result = docRef.set(updatedAdmin, SetOptions.merge());
+            return updatedAdmin;
         } else {
-            throw new AdminNotFoundException("Admin not found.");
+            throw new AdminNotFoundException("Admin not found");
+        }
+    }
+
+    // Create Admin Profile
+    public Admin createAdminProfile(Admin newAdmin) {
+        DocumentReference docRef = firestore.collection("Admins").document();
+        newAdmin.setAdminID(docRef.getId());
+        ApiFuture<WriteResult> result = docRef.set(newAdmin);
+        return newAdmin;
+    }
+
+    // Retrieve all Admins
+    public List<Admin> getAllAdmins() {
+        CollectionReference adminRef = firestore.collection("Admins");
+        ApiFuture<QuerySnapshot> future = adminRef.get();
+        List<Admin> admins = new ArrayList<>();
+        try {
+            QuerySnapshot querySnapshot = future.get();
+            for (QueryDocumentSnapshot document : querySnapshot) {
+                admins.add(document.toObject(Admin.class));
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return admins;
+    }
+
+    // Retrieve Admin by ID
+    public Admin getAdminbyId(String adminID) throws AdminNotFoundException {
+        DocumentReference docRef = firestore.collection("Admins").document(adminID);
+        ApiFuture<DocumentSnapshot> future = docRef.get();
+        DocumentSnapshot document;
+        try {
+            document = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            throw new AdminNotFoundException("Admin not found");
+        }
+        if (document.exists()) {
+            return document.toObject(Admin.class);
+        } else {
+            throw new AdminNotFoundException("Admin not found");
         }
     }
 }

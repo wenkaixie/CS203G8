@@ -1,6 +1,5 @@
 package csd.adminmanagement.Model;
 
-
 import java.util.List;
 
 import com.google.cloud.Timestamp;
