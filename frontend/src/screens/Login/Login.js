@@ -39,7 +39,7 @@ const Login = () => {
                     // Redirect user to the appropriate home page based on the collection they belong to
                     if (role === 'Users') {
                         navigate('/user/home');
-                    } else if (role === 'Admin') {
+                    } else if (role === 'Admins') {
                         navigate('/admin/home');
                     } else if (!initialLoad) {
                         setError('User role not found.');
@@ -65,25 +65,25 @@ const Login = () => {
     //Handler for finding user role in Firebase Firestore
     const getUserRole = async (email) => {
         try {
-            // Check the 'User' collection
+            // Check the 'Users' collection
             console.log("Checking user role for email:", email);
             const userQuery = query(collection(FirestoreDB, 'Users'), where('email', '==', email));
             const userSnapshot = await getDocs(userQuery);
             console.log("User snapshot:", userSnapshot);
 
             if (!userSnapshot.empty) {
-                return 'Users'; // User found in 'User' collection
+                return 'Users';
             }
 
-            // Check the 'Admin' collection
-            const adminQuery = query(collection(FirestoreDB, 'Admin'), where('email', '==', email));
+            // Check the 'Admins' collection
+            const adminQuery = query(collection(FirestoreDB, 'Admins'), where('email', '==', email));
             const adminSnapshot = await getDocs(adminQuery);
 
             if (!adminSnapshot.empty) {
-                return 'Admin'; // User found in 'Admin' collection
+                return 'Admins';
             }
 
-            return null; // User not found in either collection
+            return null;
         } catch (error) {
             console.error('Error checking user role:', error);
             return null;

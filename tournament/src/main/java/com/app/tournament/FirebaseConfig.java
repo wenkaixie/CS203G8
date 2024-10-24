@@ -1,4 +1,4 @@
-package csd.playermanagement.Configuration;
+package com.app.tournament;
 
 // Spring imports
 import java.io.FileInputStream;
@@ -18,19 +18,17 @@ import com.google.firebase.cloud.FirestoreClient;
 @Configuration
 public class FirebaseConfig {
 
-    // Firebase initialization using @PostConstruct
     @PostConstruct
     public void initialize() {
         try {
-            // Updated path to Firebase service account key file
+            // Firebase SDK credential file (Updated file path)
             FileInputStream serviceAccount = 
-                new FileInputStream("C:\\Users\\ASUS\\Documents\\GitHub\\CS203G8\\serviceAccountKey.json");
+                new FileInputStream("C:\\Users\\xwkof\\Downloads\\serviceAccountKey(2).json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
                 .build();
-                
-            // Initialize FirebaseApp only if no other instances exist
+
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
             }
@@ -39,7 +37,6 @@ public class FirebaseConfig {
         }
     }
 
-    // Firestore bean to be used throughout the application
     @Bean
     public Firestore firestore() {
         FirebaseApp defaultApp = FirebaseApp.getInstance();  // Ensure FirebaseApp is initialized

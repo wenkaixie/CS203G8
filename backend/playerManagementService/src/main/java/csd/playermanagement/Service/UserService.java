@@ -34,6 +34,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import csd.playermanagement.DTO.UserDTO;
+import csd.playermanagement.Exception.TournamentNotFoundException;
+import csd.playermanagement.Exception.UserNotFoundException;
+import csd.playermanagement.Exception.UserTournamentException;
 import csd.playermanagement.Model.Tournament;
 import csd.playermanagement.Model.User;
 
@@ -51,7 +54,7 @@ public class UserService {
         DocumentSnapshot tournamentSnapshot = tournamentRef.get().get();
     
         if (!tournamentSnapshot.exists()) {
-            throw new RuntimeException("No tournament found with the provided ID.");
+            throw new TournamentNotFoundException("No tournament found with the provided ID.");
         }
     
         Tournament tournament = tournamentSnapshot.toObject(Tournament.class);
@@ -70,9 +73,9 @@ public class UserService {
 
         String status = tournamentSnapshot.getString("status");
         if (status == null) {
-            return "Error retrieving tournament status.";
+            throw new RuntimeException("Error retrieving tournament status.");
         }else if (status.equals("Registration Closed")) {
-            return "Cannot register: The tournament registration is closed.";
+            throw new RuntimeException("Cannot register: The tournament registration is closed.");
         }
     
         List<String> tournamentUsers = tournament.getUsers();
@@ -94,22 +97,22 @@ public class UserService {
         ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userDto.getAuthId()).get();
     
         if (querySnapshot.get().isEmpty()) {
-            return "User not found.";
+            throw new UserNotFoundException("User not found.");
         }
     
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
         if (userDocuments.isEmpty()) {
-            return "User not found.";
+            throw new RuntimeException("Error retrieving user data.");
         }
     
         DocumentSnapshot userSnapshot = userDocuments.get(0);
         if (userSnapshot == null) {
-            return "Error retrieving user data.";
+            throw new RuntimeException("Error retrieving user data.");
         }
     
         User user = userSnapshot.toObject(User.class);
         if (user == null) {
-            return "Error retrieving user data.";
+            throw new RuntimeException("Error retrieving user data.");
         }
 
         // Print user's registration history to the logs
@@ -117,21 +120,21 @@ public class UserService {
         System.out.println("User's Registration History: " + registrationHistory);
     
         if (tournamentUsers.contains(user.getAuthId()) || registrationHistory.contains(tournamentId)) {
-            return "User already registered for this tournament.";
+            throw new UserTournamentException("User already registered for this tournament.");
         }
     
         if (user.getElo() < eloRequirement) {
-            return "User does not meet the Elo requirement for this tournament.";
+            throw new UserTournamentException("User does not meet the Elo requirement for this tournament.");
         }
     
         if (tournamentUsers.size() >= capacityCount) {
-            return "Tournament is at full capacity.";
+            throw new UserTournamentException("Tournament is at full capacity.");
         }
 
         /// Get user's date of birth
         Timestamp dateOfBirthTimestamp = user.getDateOfBirth();
         if (dateOfBirthTimestamp == null) {
-            return "User's date of birth is not available.";
+            throw new RuntimeException("User's date of birth is not available.");
         }
 
         // Calculate user's age
@@ -146,11 +149,11 @@ public class UserService {
 
         // Check if user's age meets the tournament's age requirements
         if (age < ageLimit) {
-            return "User does not meet the age requirement for this tournament.";
+            throw new UserTournamentException("User does not meet the age requirement for this tournament.");
         }
     
         // If all checks pass, register the user
-        tournamentUsers.add(user.getAuthId());
+        tournamentUsers.add(user.getUid());
         registrationHistory.add(tournamentId);
     
         ApiFuture<WriteResult> tournamentUpdate = tournamentRef.update("users", tournamentUsers);
@@ -169,7 +172,7 @@ public class UserService {
         DocumentSnapshot tournamentSnapshot = tournamentRef.get().get();
         
         if (!tournamentSnapshot.exists()) {
-            throw new RuntimeException("No tournament found with the provided ID.");
+            throw new TournamentNotFoundException("No tournament found with the provided ID.");
         }
         
         Tournament tournament = tournamentSnapshot.toObject(Tournament.class);
@@ -181,7 +184,7 @@ public class UserService {
         ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userDto.getAuthId()).get();
         
         if (querySnapshot.get().isEmpty()) {
-            throw new RuntimeException("No user found with the provided authId.");
+            throw new UserNotFoundException("User not found.");
         }
     
         DocumentSnapshot userSnapshot = querySnapshot.get().getDocuments().get(0);  // First matching user
@@ -193,7 +196,7 @@ public class UserService {
         
         // Check if the user is registered in the tournament
         if (!user.getRegistrationHistory().contains(tournamentId)) {
-            throw new RuntimeException("User is not registered for this tournament.");
+            throw new UserTournamentException("User is not registered for this tournament.");
         }
         
         // Remove tournamentId from the user's registration history
@@ -205,7 +208,7 @@ public class UserService {
         
         // Remove user from the tournament's users list
         List<String> updatedTournamentUsers = new ArrayList<>(tournament.getUsers());
-        updatedTournamentUsers.remove(userDto.getAuthId());
+        updatedTournamentUsers.remove(userDto.getUid());
         
         // Update the tournament's document in Firestore
         ApiFuture<WriteResult> tournamentUpdateFuture = tournamentRef.update("users", updatedTournamentUsers);
@@ -213,7 +216,6 @@ public class UserService {
         // Wait for both updates to complete
         userUpdateFuture.get();  // handle any potential exceptions here
         tournamentUpdateFuture.get();  // handle any potential exceptions here
-        
         System.out.println("User successfully unregistered from the tournament.");
         return "User successfully unregistered from the tournament.";
     }
@@ -229,7 +231,7 @@ public class UserService {
         System.out.println(userDocuments);
         
         if (userDocuments.isEmpty()) {
-            throw new RuntimeException("No user found with the provided authId.");
+            throw new UserNotFoundException("User not found.");
         }
         
         DocumentSnapshot userSnapshot = userDocuments.get(0);
@@ -407,7 +409,7 @@ public class UserService {
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
     
         if (userDocuments.isEmpty()) {
-            throw new RuntimeException("No user found with the provided authId.");
+            throw new UserNotFoundException("User not found.");
         }
     
         DocumentSnapshot userSnapshot = userDocuments.get(0);
@@ -420,20 +422,28 @@ public class UserService {
     public int getUserRank(String userId) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
         ApiFuture<QuerySnapshot> querySnapshot = usersRef.orderBy("elo", Query.Direction.DESCENDING).get();
-    
+        
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
+    
         int rank = 1;
     
         for (QueryDocumentSnapshot document : userDocuments) {
             User user = document.toObject(User.class);
+    
+            // Check if the userId matches
             if (user.getAuthId().equals(userId)) {
-                return rank;
+                // Check if elo exists for the user
+                if (user.getElo() != null) {
+                    return rank;  // Return the rank if elo exists
+                } else {
+                    return -1;  // Return -1 if no elo is found
+                }
             }
             rank++;
         }
     
-        // if no elo found
-        return -1;
+        // If no user with the specified userId is found, throw an exception
+        throw new UserNotFoundException("User not found.");
     }
 
     // NOT USED

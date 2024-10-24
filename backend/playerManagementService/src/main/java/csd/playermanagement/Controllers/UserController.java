@@ -14,12 +14,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import csd.playermanagement.Model.User;
 import csd.playermanagement.DTO.UserDTO;
+import csd.playermanagement.Exception.TournamentNotFoundException;
+import csd.playermanagement.Exception.UserNotFoundException;
+import csd.playermanagement.Exception.UserTournamentException;
 import csd.playermanagement.Model.Tournament;
 import csd.playermanagement.Service.FirestoreService;
 import csd.playermanagement.Service.UserService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,34 +35,48 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/registerTournament/{tournamentId}")
-    public ResponseEntity<String> registerUserForTournament(@PathVariable String tournamentId, @RequestBody UserDTO userDto) {
+    public ResponseEntity<Object> registerUserForTournament(@PathVariable String tournamentId, @RequestBody UserDTO userDto) {
         try {
-            String response = userService.registerUserForTournament(tournamentId, userDto);
-            return ResponseEntity.ok(response);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", userService.registerUserForTournament(tournamentId, userDto));
+            return ResponseEntity.ok(response);  // Will be serialized to JSON
+        } catch (TournamentNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
+        } catch(UserTournamentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
         }
     }
 
     @PutMapping("/unregisterTournament/{tournamentId}")
-    public ResponseEntity<String> unregisterUserFromTournament(@PathVariable String tournamentId, @RequestBody UserDTO userDto) {
+    public ResponseEntity<Object> unregisterUserFromTournament(@PathVariable String tournamentId, @RequestBody UserDTO userDto) {
         try {
-            String response = userService.unregisterUserFromTournament(tournamentId, userDto);
-            return ResponseEntity.ok(response);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", userService.unregisterUserFromTournament(tournamentId, userDto));
+            return ResponseEntity.ok(response); // Will be serialized to JSON
+        } catch (TournamentNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
+        } catch(UserTournamentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
         }
     }
 
     @PutMapping("/updateUser/{userID}")
-    public ResponseEntity<UserDTO> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) {
+    public ResponseEntity<Object> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) {
         try {
-            // Call the service to update the user and get the updated User object
             UserDTO updatedUserProfile = userService.updateUserProfile(userID, updatedUser);
             return ResponseEntity.ok(updatedUserProfile);  // Return the updated User object
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            // Return 500 status with null if an exception occurs
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
         }
     }
     
@@ -84,23 +101,33 @@ public class UserController {
     }
 
     @GetMapping("/getUser/{userID}")
-    public ResponseEntity<User> getUser(@PathVariable String userID) {
+    public ResponseEntity<Object> getUser(@PathVariable String userID) {
         try {
             User user = userService.getUserbyId(userID);
-            return ResponseEntity.ok(user);  // Spring Boot will convert this to JSON automatically
+            return ResponseEntity.ok(user);  
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
         }
     }
     
     @GetMapping("/getUserRank/{userID}")
-    public ResponseEntity<Integer> getUserRank(@PathVariable String userID) {
+    public ResponseEntity<Object> getUserRank(@PathVariable String userID) {
         try {
             int rank = userService.getUserRank(userID);
             return ResponseEntity.ok(rank);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
         }
     }
     
+    private Map<String, String> createErrorResponse(String message) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", message);
+        return errorResponse;
+    }
+
 }

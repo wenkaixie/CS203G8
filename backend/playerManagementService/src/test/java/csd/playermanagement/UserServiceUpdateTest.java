@@ -183,6 +183,7 @@ public class UserServiceUpdateTest {
         updatedUser.setName("Old Name"); // Name remains unchanged
         updatedUser.setPhoneNumber(87654321); // Phone number updated
         updatedUser.setNationality("New Country"); // Nationality updated
+        updatedUser.setElo(0);
 
         // Create a mock for the updated DocumentSnapshot
         DocumentSnapshot updatedUserSnapshot = Mockito.mock(DocumentSnapshot.class);
@@ -227,7 +228,7 @@ public class UserServiceUpdateTest {
         });
 
         // Assert
-        assertEquals("No user found with the provided authId.", exception.getMessage());
+        assertEquals("User not found.", exception.getMessage());
         verify(userDocRef, Mockito.never()).update(anyMap());
         verify(userDocRef, Mockito.never()).set(anyMap());
     }
@@ -277,6 +278,7 @@ public class UserServiceUpdateTest {
         updatedUser.setPhoneNumber(87654321); // Phone number updated
         updatedUser.setNationality("New Country"); // Nationality updated
         updatedUser.setDateOfBirth(existingUser.getDateOfBirth()); // dateOfBirth remains unchanged
+        updatedUser.setElo(0);
 
         // Mock retrieval after update
         DocumentSnapshot updatedUserSnapshot = Mockito.mock(DocumentSnapshot.class);

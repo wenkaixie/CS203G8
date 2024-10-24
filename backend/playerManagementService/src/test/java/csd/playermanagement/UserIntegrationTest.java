@@ -71,24 +71,20 @@ public class UserIntegrationTest {
     private List<String> createdUserUids = new ArrayList<>();
     private List<String> createdTournamentIds = new ArrayList<>();
 
+
+    // WORKAROUND for working with TIMESTAMP for now
     @BeforeEach
     public void setUp() {
         ObjectMapper objectMapper = new ObjectMapper();
         // Register the mixin
-        objectMapper.addMixIn(User.class, IgnoreDateOfBirthMixin.class);
+        objectMapper.addMixIn(User.class, IgnoreTimestampFieldsMixin.class);
         objectMapper.addMixIn(Tournament.class, IgnoreTimestampFieldsMixin.class);
 
         // Configure the RestTemplate to use the custom ObjectMapper
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(objectMapper);
         restTemplate.getRestTemplate().getMessageConverters().add(0, converter);
-        restTemplate.getRestTemplate().getMessageConverters().add(0, new StringHttpMessageConverter());
     }
 
-    // Define the mixin within your test class
-    @JsonIgnoreProperties({"dateOfBirth"})
-    public abstract class IgnoreDateOfBirthMixin {
-        // No need to include any methods or fields
-    }
     @JsonIgnoreProperties({"dateOfBirth", "createdTimestamp", "startDatetime", "endDatetime"})
     public abstract class IgnoreTimestampFieldsMixin {
         // No need to include any methods or fields
@@ -120,6 +116,7 @@ public class UserIntegrationTest {
         createdTournamentIds.clear();
     }
 
+    // NOT USED
     // @Test
     // public void createUser_Success() throws Exception {
     //     URI uri = new URI(baseUrl + port + "/user/createUser");
@@ -148,7 +145,6 @@ public class UserIntegrationTest {
     @Test
     public void getAllUsers_Success() throws Exception {
         // Arrange
-        // Create users
         User user1 = new User();
         user1.setAuthId("auth1");
         user1.setUsername("user1");
@@ -185,7 +181,6 @@ public class UserIntegrationTest {
     @Test
     public void getUser_ValidUserId_Success() throws Exception {
         // Arrange
-        // Create a user directly in Firestore
         User user1 = new User();
         user1.setAuthId("auth1");
         user1.setUsername("testuser");
@@ -214,20 +209,28 @@ public class UserIntegrationTest {
 
     @Test
     public void getUser_InvalidUserId_Failure() throws Exception {
-        String invalidUserId = "nonexistent";
+        // Arrange
+        String invalidUserId = "nonExistent";
 
+        // Prepare the URI
         URI uri = new URI(baseUrl + port + "/user/getUser/" + invalidUserId);
 
-        ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
+        // Act: Perform the GET request, expecting a Map (JSON response)
+        ResponseEntity<Map> result = restTemplate.getForEntity(uri, Map.class);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
-        // Optionally, check the response body for error message
+        // Assert: Check the status code is 404 NOT_FOUND
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+
+        // Assert: Check the response body contains an error message
+        Map<String, String> responseBody = result.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertTrue(responseBody.containsKey("error"), "Response should contain 'error' key");
+        assertEquals("User not found.", responseBody.get("error").trim(), "Error message should match 'User not found'");
     }
 
     @Test
     public void updateUser_Success() throws Exception {
         // Arrange
-        // Create a user directly in Firestore
         User user = new User();
         user.setAuthId("auth1");
         user.setEmail("original@example.com");
@@ -267,7 +270,7 @@ public class UserIntegrationTest {
     @Test
     public void updateUser_InvalidUserId_Failure() throws Exception {
         // Arrange
-        String invalidUserId = "nonexistent_user_id_";
+        String invalidUserId = "nonexistent_user_id";
 
         // Prepare updated user data
         UserDTO updatedUser = new UserDTO();
@@ -288,31 +291,162 @@ public class UserIntegrationTest {
         // Create the request entity
         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(updatedUser, headers);
 
-        // Act
-        ResponseEntity<Map> response = null;
-        try {
-            response = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, Map.class);
-            // If no exception, check for unexpected status code
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode(), "Expected 404 Not Found");
-        } catch (HttpClientErrorException ex) {
-            // Capture the error response
-            response = new ResponseEntity<>(ex.getResponseBodyAs(Map.class), ex.getStatusCode());
-        }
+        // Act: Expect a Map (JSON response) since we're testing an error case
+        ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, Map.class);
 
         // Assert
         assertNotNull(response);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
+        // Assert the response body contains an error message
+        Map<String, String> responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertTrue(responseBody.containsKey("error"), "Response should contain 'error' key");
+        assertEquals("User not found.", responseBody.get("error").trim(), "Error message should match 'User not found'");
     }
 
     @Test
     public void registerUserForTournament_Success() throws Exception {
         // Arrange
-
-        // Step 1: Create a tournament in Firestore
         DocumentReference tournamentRef = firestore.collection("Tournaments").document();
         String tournamentId = tournamentRef.getId();
 
+        Tournament tournament = new Tournament();
+        tournament.setTid(tournamentId);
+        tournament.setName("Test Tournament");
+        tournament.setCapacity(10);
+        tournament.setEloRequirement(800); // Ensure this is set correctly
+        tournament.setAgeLimit(18);        // Set an age limit to verify
+        tournament.setDescription("A test tournament");
+        tournament.setPrize(500);
+        tournament.setLocation("Test Location");
+        tournament.setStatus("Registration Open");
+
+        // Set timestamps for start and end times
+        Timestamp now = Timestamp.now();
+        tournament.setCreatedTimestamp(now);
+        tournament.setStartDatetime(Timestamp.ofTimeSecondsAndNanos(now.getSeconds() + 3600, 0)); // 1 hour later
+        tournament.setEndDatetime(Timestamp.ofTimeSecondsAndNanos(now.getSeconds() + 7200, 0));   // 2 hours later
+        tournament.setUsers(new ArrayList<>());  // No users initially
+
+        // Save tournament to Firestore
+        tournamentRef.set(tournament).get();
+        createdTournamentIds.add(tournamentId);
+
+        // Create a user in Firestore
+        User user = new User();
+        user.setAuthId("auth1");
+        user.setEmail("testuser@example.com");
+        user.setElo(1000);  // Set Elo to match the requirement
+
+        // User is 20 years old
+        LocalDate dateOfBirth = LocalDate.now().minusYears(20);
+        Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
+        user.setRegistrationHistory(new ArrayList<>());  // No history initially
+
+        // Save user to Firestore
+        DocumentReference userRef = firestore.collection("Users").document();
+        user.setUid(userRef.getId());
+        userRef.set(user).get();
+        createdUserUids.add(userRef.getId());
+
+        // Prepare request to register the user for the tournament
+        URI uri = new URI(baseUrl + port + "/user/registerTournament/" + tournamentId);
+
+        // Create DTO for the request
+        UserDTO userDto = new UserDTO();
+        userDto.setAuthId(user.getAuthId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
+
+        HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
+
+        // Act
+        ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
+
+        // Assert HTTP Status
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Expected HTTP 200 OK");
+        Map<String, String> responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+
+        // Validate the message in the response
+        assertEquals("User successfully registered for the tournament.", responseBody.get("message").trim());
+
+        // Verify the user has been added to the tournament's user list
+        Tournament updatedTournament = tournamentRef.get().get().toObject(Tournament.class);
+        assertNotNull(updatedTournament, "Tournament should not be null");
+        assertTrue(updatedTournament.getUsers().contains(user.getAuthId()), "User should be registered in the tournament");
+
+        // Verify the tournament ID is in the user's registration history
+        User updatedUser = userRef.get().get().toObject(User.class);
+        assertNotNull(updatedUser, "User should not be null");
+
+    }
+
+    @Test
+    public void registerUserForTournament_Failure_InvalidTournamentId() throws Exception {
+        // Arrange
+        User user = new User();
+        user.setAuthId("auth1");
+        user.setEmail("testuser@example.com");
+
+        // User is 20 years old
+        LocalDate dateOfBirth = LocalDate.now().minusYears(20);
+        Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
+        user.setRegistrationHistory(new ArrayList<>());
+
+        // Save the user to Firestore
+        DocumentReference userRef = firestore.collection("Users").document();
+        user.setUid(userRef.getId());
+        userRef.set(user).get();  // Ensure synchronous Firestore write
+        createdUserUids.add(userRef.getId());  // Add the created user ID to cleanup list
+
+        // Act: Use a non-existent tournament ID
+        String invalidTournamentId = "invalid_tournament_id";
+
+        // Create the registration URI with the invalid tournament ID
+        URI uri = new URI(baseUrl + port + "/user/registerTournament/" + invalidTournamentId);
+
+        // Create a UserDTO object for the request
+        UserDTO userDto = new UserDTO();
+        userDto.setAuthId(user.getAuthId());
+
+        // Create request headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
+
+        // Prepare the request entity
+        HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
+
+        // Act
+        ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Expected HTTP 404 Not Found");
+
+        // Assert: Ensure the response body contains the correct error message in the Map
+        Map<String, String> responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertEquals("No tournament found with the provided ID.", responseBody.get("error").trim());
+
+        // Assert: Ensure the user's registration history has not been updated
+        User updatedUser = userRef.get().get().toObject(User.class);
+        assertNotNull(updatedUser, "User should not be null");
+        assertTrue(updatedUser.getRegistrationHistory().isEmpty(), "User's registration history should remain empty");
+    }
+
+  
+    @Test
+    public void unregisterUserFromTournament_Success() throws Exception {
+        // Arrange
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document();
+        String tournamentId = tournamentRef.getId();
+    
         Tournament tournament = new Tournament();
         tournament.setTid(tournamentId);
         tournament.setName("Test Tournament");
@@ -323,126 +457,69 @@ public class UserIntegrationTest {
         tournament.setPrize(500);
         tournament.setLocation("Test Location");
         tournament.setStatus("Registration Open");
-
-        Timestamp now = Timestamp.now();
-        tournament.setCreatedTimestamp(now);
-        tournament.setStartDatetime(Timestamp.ofTimeSecondsAndNanos(now.getSeconds() + 3600, 0));
-        tournament.setEndDatetime(Timestamp.ofTimeSecondsAndNanos(now.getSeconds() + 7200, 0));
-        tournament.setUsers(new ArrayList<>());
-
+        tournament.setUsers(new ArrayList<>());  // No users initially
+    
+        // Save tournament to Firestore
         tournamentRef.set(tournament).get();
         createdTournamentIds.add(tournamentId);
-
-        // Step 2: Create a user in Firestore
+    
+        // Arrange: Create a user in Firestore and register them for the tournament
         User user = new User();
         user.setAuthId("auth1");
         user.setEmail("testuser@example.com");
-
-        LocalDate dateOfBirth = LocalDate.now().minusYears(20); // User is 20 years old
+    
+        // User is 20 years old
+        LocalDate dateOfBirth = LocalDate.now().minusYears(20);
         Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
         user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
-        user.setRegistrationHistory(new ArrayList<>());
-
+    
+        List<String> registrationHistory = new ArrayList<>();
+        registrationHistory.add(tournamentId);  // Add tournament ID to the user's registration history
+        user.setRegistrationHistory(registrationHistory);
+    
+        // Save the user to Firestore
         DocumentReference userRef = firestore.collection("Users").document();
         user.setUid(userRef.getId());
         userRef.set(user).get();
         createdUserUids.add(userRef.getId());
-
-        URI uri = new URI(baseUrl + port + "/user/registerTournament/" + tournamentId);
-
+    
+        // Add the user to the tournament's user list
+        List<String> tournamentUsers = new ArrayList<>();
+        tournamentUsers.add(user.getAuthId());
+        tournamentRef.update("users", tournamentUsers).get();
+    
+        // Act: Prepare request to unregister the user from the tournament
+        URI uri = new URI(baseUrl + port + "/user/unregisterTournament/" + tournamentId);
+    
         UserDTO userDto = new UserDTO();
         userDto.setAuthId(user.getAuthId());
-
+    
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));  // Accept both JSON and plain text
-        
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
+    
         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
-        
-        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, String.class);
-
-        // Assert status and body
+    
+        // Act: Make the API request to unregister the user using PUT
+        ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, Map.class);
+    
+        // Assert: Ensure the response is 200 OK
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Expected HTTP 200 OK");
-        assertNotNull(response.getBody(), "Response body should not be null");
-
-        // Check if the response looks like JSON
-        String responseBody = response.getBody();
-        if (responseBody.trim().startsWith("{")) {
-            // Attempt to parse the response as JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> jsonResponse = objectMapper.readValue(responseBody, Map.class);
-            assertEquals("User successfully registered for the tournament.", jsonResponse.get("message"));
-        } else {
-            // Handle plain text response
-            System.out.println("headers: " + headers);
-            System.out.println("response: " + response);
-            System.out.println("response body: " + response.getBody());
-            System.out.println("Received plain text response: " + responseBody);
-            assertEquals("User successfully registered for the tournament.", responseBody.trim());
-        }
-
-        // Validate the message in the response
-        assertEquals("User successfully registered for the tournament.", responseBody.trim());
-        // Verify the user has been added to the tournament's user list
+    
+        Map<String, String> responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertEquals("User successfully unregistered from the tournament.", responseBody.get("message").trim());
+    
+        // Assert: Ensure the user's registration history no longer contains the tournament ID
+        User updatedUser = userRef.get().get().toObject(User.class);
+        assertNotNull(updatedUser, "User should not be null");
+        assertFalse(updatedUser.getRegistrationHistory().contains(tournamentId),
+                "User's registration history should no longer contain the tournament ID");
+    
+        // Assert: Ensure the tournament's user list no longer contains the user's auth ID
         Tournament updatedTournament = tournamentRef.get().get().toObject(Tournament.class);
         assertNotNull(updatedTournament, "Tournament should not be null");
-        assertTrue(updatedTournament.getUsers().contains(user.getAuthId()), "User should be registered in the tournament");
-
-        // Verify the tournament ID is in the user's registration history
-        User updatedUser = userRef.get().get().toObject(User.class);
-        assertNotNull(updatedUser, "User should not be null");
-        assertTrue(updatedUser.getRegistrationHistory().contains(tournamentId), 
-                "Tournament ID should be in user's registration history");
-    }
-
-    @Test
-    public void registerUserForTournament_Failure_InvalidTournamentId() throws Exception {
-        // Arrange: Create a user in Firestore
-        User user = new User();
-        user.setAuthId("auth1");
-        user.setEmail("testuser@example.com");
-
-        LocalDate dateOfBirth = LocalDate.now().minusYears(20); // User is 20 years old
-        Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
-        user.setRegistrationHistory(new ArrayList<>());
-
-        DocumentReference userRef = firestore.collection("Users").document();
-        user.setUid(userRef.getId());
-        userRef.set(user).get();
-        createdUserUids.add(userRef.getId());
-
-        // Act: Use a non-existent tournament ID
-        String invalidTournamentId = "invalid_tournament_id";
-
-        URI uri = new URI(baseUrl + port + "/user/registerTournament/" + invalidTournamentId);
-
-        UserDTO userDto = new UserDTO();
-        userDto.setAuthId(user.getAuthId());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));  // Accept both JSON and plain text
-
-        HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
-
-        // Act: Make the API request
-        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, String.class);
-
-        // Debug: Print the response for troubleshooting
-        System.out.println("Response Status Code: " + response.getStatusCode());
-        System.out.println("Response Body: " + response.getBody());
-
-        // Assert: Ensure the response is 500 INTERNAL_SERVER_ERROR
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode(), "Expected HTTP 500 INTERNAL SERVER ERROR");
-
-        // Optionally, check if the response body contains the expected error message
-        assertNull(response.getBody(), "Response body should be null");
-
-        // Verify the user's registration history was not updated
-        User updatedUser = userRef.get().get().toObject(User.class);
-        assertNotNull(updatedUser, "User should not be null");
-        assertTrue(updatedUser.getRegistrationHistory().isEmpty(), 
-                "User's registration history should remain empty");
+        assertFalse(updatedTournament.getUsers().contains(user.getAuthId()),
+                "Tournament's user list should no longer contain the user's auth ID");
     }
 }

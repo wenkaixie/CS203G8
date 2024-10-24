@@ -9,6 +9,8 @@ import com.google.api.core.ApiFutures;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import csd.playermanagement.DTO.UserDTO;
+import csd.playermanagement.Exception.UserNotFoundException;
+import csd.playermanagement.Exception.UserTournamentException;
 import csd.playermanagement.Model.Tournament;
 import csd.playermanagement.Model.User;
 import csd.playermanagement.Service.UserService;
@@ -65,7 +67,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_UserSuccessfullyRegistered() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange 
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -89,7 +91,7 @@ public class UserServiceRegisterTest {
         user.setElo(1200);
         user.setRegistrationHistory(new ArrayList<>());
 
-        // mock ***
+        // Mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -124,12 +126,12 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_TournamentNotFound_ReturnsError() throws Exception {
-        // arrange ***
+        // arrange 
         String tournamentId = "invalidTournamentId";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
 
-        // mock ***
+        // mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -148,7 +150,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_TournamentClosed_ReturnsError() throws InterruptedException, ExecutionException {
-        // Arrange: Prepare the tournament and user data
+        // Arrange
         String tournamentId = "tournamentClosed";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -166,11 +168,13 @@ public class UserServiceRegisterTest {
         // Mock the status field to simulate a closed registration
         when(tournamentSnapshot.getString("status")).thenReturn("Registration Closed");
 
-        // Act: Call the service method
-        String result = userService.registerUserForTournament(tournamentId, userDto);
+        // Act & Assert: Call the service method and assert that the exception is thrown
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+            userService.registerUserForTournament(tournamentId, userDto);
+        });
 
         // Assert: Verify the expected error message is returned
-        assertEquals("Cannot register: The tournament registration is closed.", result);
+        assertEquals("Cannot register: The tournament registration is closed.", thrown.getMessage());
 
         // Verify that the tournament document was fetched from Firestore
         verify(tournamentRef).get();
@@ -178,7 +182,7 @@ public class UserServiceRegisterTest {
 
     @Test
     void registerUserForTournament_UserNotFound_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange 
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("userNotFound");
@@ -190,7 +194,7 @@ public class UserServiceRegisterTest {
         tournament.setCapacity(5);
         tournament.setEloRequirement(1000);
 
-        // mock ***
+        // mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -207,18 +211,22 @@ public class UserServiceRegisterTest {
         when(userQueryFuture.get()).thenReturn(userQuerySnapshot);
         when(userQuerySnapshot.isEmpty()).thenReturn(true);
 
-        // act
-        String result = userService.registerUserForTournament(tournamentId, userDto);
+        // Act & Assert: Call the service method and assert that the exception is thrown
+        UserNotFoundException thrown = assertThrows(UserNotFoundException.class, () -> {
+            userService.registerUserForTournament(tournamentId, userDto);
+        });
 
-        // assert
-        assertEquals("User not found.", result);
+        // Assert: Verify the expected error message is returned
+        assertEquals("User not found.", thrown.getMessage());
+
+        // Verify Firestore interaction
         verify(usersCollection).whereEqualTo("authId", userDto.getAuthId());
         verify(usersQuery).get();
     }
 
     @Test
     void registerUserForTournament_UserAlreadyRegistered_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange 
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -236,7 +244,7 @@ public class UserServiceRegisterTest {
         user.setElo(1200);
         user.setRegistrationHistory(new ArrayList<>());
 
-        // mock ***
+        // mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -255,17 +263,21 @@ public class UserServiceRegisterTest {
         when(userQuerySnapshot.getDocuments()).thenReturn(Collections.singletonList(userSnapshot));
         when(userSnapshot.toObject(User.class)).thenReturn(user);
 
-        // act
-        String result = userService.registerUserForTournament(tournamentId, userDto);
+        // Act & Assert: Call the service method and assert that the exception is thrown
+        UserTournamentException thrown = assertThrows(UserTournamentException.class, () -> {
+            userService.registerUserForTournament(tournamentId, userDto);
+        });
 
-        // assert
-        assertEquals("User already registered for this tournament.", result);
+        // Assert: Verify the expected error message is returned
+        assertEquals("User already registered for this tournament.", thrown.getMessage());
+
+        // Verify Firestore interactions
         verify(tournamentRef).get();
     }
 
     @Test
     void registerUserForTournament_UserDoesNotMeetEloRequirement_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange 
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -283,7 +295,7 @@ public class UserServiceRegisterTest {
         user.setElo(1200); // User's elo is below requirement
         user.setRegistrationHistory(new ArrayList<>());
 
-        // mock ***
+        // mock 
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -302,17 +314,21 @@ public class UserServiceRegisterTest {
         when(userQuerySnapshot.getDocuments()).thenReturn(Collections.singletonList(userSnapshot));
         when(userSnapshot.toObject(User.class)).thenReturn(user);
 
-        // act
-        String result = userService.registerUserForTournament(tournamentId, userDto);
+        // Act & Assert: Call the service method and assert that the exception is thrown
+        UserTournamentException thrown = assertThrows(UserTournamentException.class, () -> {
+            userService.registerUserForTournament(tournamentId, userDto);
+        });
 
-        // assert
-        assertEquals("User does not meet the Elo requirement for this tournament.", result);
+        // Assert: Verify the expected error message is returned
+        assertEquals("User does not meet the Elo requirement for this tournament.", thrown.getMessage());
+
+        // Verify Firestore interactions
         verify(tournamentRef).get();
     }
 
     @Test
     void registerUserForTournament_TournamentAtFullCapacity_ReturnsError() throws InterruptedException, ExecutionException {
-        // arrange ***
+        // arrange
         String tournamentId = "tournament123";
         UserDTO userDto = new UserDTO();
         userDto.setAuthId("user123");
@@ -331,7 +347,7 @@ public class UserServiceRegisterTest {
         user.setElo(1200);
         user.setRegistrationHistory(new ArrayList<>());
 
-        // mock ***
+        // Mock
         when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
         when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
         when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
@@ -350,11 +366,104 @@ public class UserServiceRegisterTest {
         when(userQuerySnapshot.getDocuments()).thenReturn(Collections.singletonList(userSnapshot));
         when(userSnapshot.toObject(User.class)).thenReturn(user);
 
-        // act
-        String result = userService.registerUserForTournament(tournamentId, userDto);
+        // Act & Assert: Call the service method and assert that the exception is thrown
+        UserTournamentException thrown = assertThrows(UserTournamentException.class, () -> {
+            userService.registerUserForTournament(tournamentId, userDto);
+        });
 
-        // assert
-        assertEquals("Tournament is at full capacity.", result);
+        // Assert: Verify the expected error message is returned
+        assertEquals("Tournament is at full capacity.", thrown.getMessage());
+
+        // Verify Firestore interactions
         verify(tournamentRef).get();
+    }
+
+
+    @Test
+    void unregisterUserFromTournament_Success() throws InterruptedException, ExecutionException {
+        // Arrange
+        String tournamentId = "tournament123";
+        UserDTO userDto = new UserDTO();
+        userDto.setAuthId("user123");
+
+        // Mock tournament
+        Tournament tournament = new Tournament();
+        tournament.setUsers(new ArrayList<>(Arrays.asList("user123"))); // User is registered
+        tournament.setCapacity(5);
+
+        // Mock user
+        User user = new User();
+        user.setAuthId("user123");
+        user.setUid("userUid123");
+        user.setRegistrationHistory(new ArrayList<>(Arrays.asList(tournamentId))); // User is registered
+
+        // Mock Firestore interactions for the tournament
+        when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
+        when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
+        when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
+        when(tournamentSnapshot.exists()).thenReturn(true);
+        when(tournamentSnapshot.toObject(Tournament.class)).thenReturn(tournament);
+
+        // Mock Firestore interactions for the user
+        when(firestore.collection("Users")).thenReturn(usersCollection);
+        when(usersCollection.whereEqualTo("authId", userDto.getAuthId())).thenReturn(usersQuery);
+        when(usersQuery.get()).thenReturn(userQueryFuture);
+        when(userQueryFuture.get()).thenReturn(userQuerySnapshot);
+        when(userQuerySnapshot.isEmpty()).thenReturn(false);
+        when(userQuerySnapshot.getDocuments()).thenReturn(Collections.singletonList(userSnapshot));
+        when(userSnapshot.toObject(User.class)).thenReturn(user);
+
+        // Ensure getReference() returns a valid DocumentReference
+        when(userSnapshot.getReference()).thenReturn(userDocRef);
+
+        // Mock the update calls to Firestore for both the tournament and user
+        when(userDocRef.update(anyString(), any())).thenReturn(ApiFutures.immediateFuture(null));
+        when(tournamentRef.update(anyString(), any())).thenReturn(ApiFutures.immediateFuture(null));
+
+        // Act
+        String result = userService.unregisterUserFromTournament(tournamentId, userDto);
+
+        // Assert
+        assertEquals("User successfully unregistered from the tournament.", result);
+        verify(userDocRef).update("registrationHistory", new ArrayList<>()); // Verify the user's registration history update
+        verify(tournamentRef).update("users", new ArrayList<>()); // Verify the tournament's user list update
+    }
+
+    @Test
+    void unregisterUserFromTournament_InvalidUser() throws InterruptedException, ExecutionException {
+        // Arrange
+        String tournamentId = "tournament123";
+        UserDTO userDto = new UserDTO();
+        userDto.setAuthId("invalidUser123"); // Invalid user
+
+        // Mock Firestore interactions for the tournament (assuming tournament exists)
+        Tournament tournament = new Tournament();
+        tournament.setUsers(new ArrayList<>()); // No users in the tournament
+        tournament.setCapacity(5);
+
+        when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
+        when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
+        when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
+        when(tournamentSnapshot.exists()).thenReturn(true);
+        when(tournamentSnapshot.toObject(Tournament.class)).thenReturn(tournament);
+
+        // Mock Firestore interactions for the user (user not found)
+        when(firestore.collection("Users")).thenReturn(usersCollection);
+        when(usersCollection.whereEqualTo("authId", userDto.getAuthId())).thenReturn(usersQuery);
+        when(usersQuery.get()).thenReturn(userQueryFuture);
+        when(userQueryFuture.get()).thenReturn(userQuerySnapshot);
+        when(userQuerySnapshot.isEmpty()).thenReturn(true); // No user found
+
+        // Act & Assert
+        UserNotFoundException thrown = assertThrows(UserNotFoundException.class, () -> {
+            userService.unregisterUserFromTournament(tournamentId, userDto);
+        });
+
+        // Verify that the expected exception message is returned
+        assertEquals("User not found.", thrown.getMessage());
+
+        // Verify Firestore interactions
+        verify(usersCollection).whereEqualTo("authId", userDto.getAuthId());
+        verify(usersQuery).get();
     }
 }

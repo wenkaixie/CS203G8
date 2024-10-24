@@ -190,7 +190,8 @@ const AllTournamentsTable = () => {
                 </thead>
                 <tbody>
                     {currentTournaments.map((tournament, index) => {
-                        const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
+                        let registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
+                        if (tournament.status === "Completed") {registrationStatus = "Completed"}
 
                         return (
                             <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className="clickable-row">
@@ -199,7 +200,7 @@ const AllTournamentsTable = () => {
                                 <td>{formatDate(tournament.startDatetime)} - {formatDate(tournament.endDatetime)}</td>
                                 <td>{tournament.location}</td>
                                 <td>{tournament.capacity}</td>
-                                <td className={`status-${registrationStatus.toLowerCase()}`}>{registrationStatus}</td>
+                                <td className={`status-${registrationStatus}`}>{registrationStatus}</td>
                                 <td>${tournament.prize}</td>
                             </tr>
                         );

@@ -39,8 +39,8 @@ public class FirestoreService {
         try{
             ApiFuture<QuerySnapshot> future = firestore.collection("Tournaments").get();
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-            System.out.println("Future: " + future);// remove for production?
-            System.out.println("Documents: " + documents);
+            // System.out.println("Future: " + future);// remove for production?
+            // System.out.println("Documents: " + documents);
 
             for (DocumentSnapshot document : documents) {
                 tournaments.add(document.toObject(Tournament.class));

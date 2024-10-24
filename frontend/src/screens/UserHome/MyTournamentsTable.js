@@ -58,14 +58,14 @@ const MyTournamentsTable = () => {
         }
     };
 
-    const isPlayerRegistered = (tournament) => {
-        // Check if current user is in the users list
-        if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
-            return 'Registered';
-        }
+    // const isPlayerRegistered = (tournament) => {
+    //     // Check if current user is in the users list
+    //     if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
+    //         return 'REGISTERED';
+    //     }
     
-        return tournament.status;
-    };
+    //     return tournament.status;
+    // };
 
     const handleRowClick = (tournamentId) => {
         navigate(`/user/tournament/${tournamentId}/overview`);
@@ -189,7 +189,7 @@ const MyTournamentsTable = () => {
                 </thead>
                 <tbody>
                 {currentTournaments.map((tournament, index) => {
-                    const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
+                    const registrationStatus = tournament.status === "Ongoing" ? "Ongoing" : "Registered"
 
                     return (
                         <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className="clickable-row">
@@ -198,7 +198,7 @@ const MyTournamentsTable = () => {
                             <td>{formatDate(tournament.startDatetime)} - {formatDate(tournament.endDatetime)}</td>
                             <td>{tournament.location}</td>
                             <td>{tournament.capacity}</td>
-                            <td className={`status-${registrationStatus.toLowerCase()}`}>{registrationStatus}</td>
+                            <td className={`status-${registrationStatus}`}>{registrationStatus}</td>
                             <td>${tournament.prize}</td>
                         </tr>
                     );
