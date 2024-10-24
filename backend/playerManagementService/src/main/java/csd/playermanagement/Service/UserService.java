@@ -153,7 +153,7 @@ public class UserService {
         }
     
         // If all checks pass, register the user
-        tournamentUsers.add(user.getAuthId());
+        tournamentUsers.add(user.getUid());
         registrationHistory.add(tournamentId);
     
         ApiFuture<WriteResult> tournamentUpdate = tournamentRef.update("users", tournamentUsers);
@@ -208,7 +208,7 @@ public class UserService {
         
         // Remove user from the tournament's users list
         List<String> updatedTournamentUsers = new ArrayList<>(tournament.getUsers());
-        updatedTournamentUsers.remove(userDto.getAuthId());
+        updatedTournamentUsers.remove(userDto.getUid());
         
         // Update the tournament's document in Firestore
         ApiFuture<WriteResult> tournamentUpdateFuture = tournamentRef.update("users", updatedTournamentUsers);
@@ -216,7 +216,6 @@ public class UserService {
         // Wait for both updates to complete
         userUpdateFuture.get();  // handle any potential exceptions here
         tournamentUpdateFuture.get();  // handle any potential exceptions here
-        
         System.out.println("User successfully unregistered from the tournament.");
         return "User successfully unregistered from the tournament.";
     }
