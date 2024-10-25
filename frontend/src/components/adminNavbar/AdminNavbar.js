@@ -17,10 +17,10 @@ import { signOut } from 'firebase/auth';
 import FBInstanceAuth from '../../firebase/firebase_auth'; // Assuming this is where Firebase auth is managed
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const pages = ['Home', 'Tournaments', 'My Calendar', 'My Performance'];
+const pages = ['Home', 'Tournaments'];
 const settings = ['Profile', 'Logout'];
 
-const Navbar = () => {
+const AdminNavbar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [error, setError] = React.useState(null); // State for handling errors
@@ -44,19 +44,15 @@ const Navbar = () => {
   };
 
   const handleGoToHome = () => {
-    navigate('/user/home');
+    navigate('/admin/home');
   }
 
   const handleGoToTournaments = () => {
-    navigate('/user/tournaments');
-  }
-
-  const handleGoToCalendar = () => {
-    navigate('/user/calendar');
+    navigate('/admin/tournaments');
   }
 
   const handleGoToProfile = () => {
-    navigate('/user/profile');
+    navigate('/admin/profile');
   }
 
   const handleLogout = async () => {
@@ -108,10 +104,6 @@ const Navbar = () => {
                   <MenuItem key={page} onClick={handleGoToHome}>
                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
                   </MenuItem>
-                ) : page === 'My Calendar' ? (
-                  <MenuItem key={page} onClick={handleGoToCalendar}>
-                    <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
-                  </MenuItem>
                 ) : page === 'Tournaments' ? (
                   <MenuItem key={page} onClick={handleGoToTournaments}>
                     <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
@@ -139,15 +131,6 @@ const Navbar = () => {
                   <Button
                     key={page}
                     onClick={handleGoToTournaments}
-                    style={{ cursor: 'pointer' }}
-                    sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
-                  >
-                    {page}
-                  </Button>
-                ) : page === 'My Calendar' ? (
-                  <Button
-                    key={page}
-                    onClick={handleGoToCalendar}
                     style={{ cursor: 'pointer' }}
                     sx={{ my: 2, color: 'black', display: 'block', fontFamily: 'Josefin Sans', fontWeight: '500', fontSize: '18px', textTransform: 'none' }}
                   >
@@ -210,4 +193,4 @@ const Navbar = () => {
   );
 }
 
-export default Navbar;
+export default AdminNavbar;

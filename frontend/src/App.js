@@ -39,6 +39,7 @@ import UserCalendar from './screens/UserCalendar/UserCalendar';
 
 // Admin Screens
 import AdminHome from './screens/AdminHome/AdminHome';
+import AdminUpdateProfile from './screens/AdminUpdateProfile/AdminUpdateProfile';
 
 
 const App = () => {
@@ -77,7 +78,8 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['Admins']}>
               <Routes>
-                <Route path="/home" element={<AdminHome />} />
+                <Route path="home" element={<AdminHome />} />
+                <Route path="profile" element={<AdminUpdateProfile />} />
               </Routes>
             </ProtectedRoute>
           }

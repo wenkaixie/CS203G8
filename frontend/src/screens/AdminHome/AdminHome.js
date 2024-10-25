@@ -1,12 +1,12 @@
 import React from 'react';
 import './AdminHome.css';
-import Navbar from '../../components/navbar/Navbar';
 import MatchCard from './MatchCard';
 import MyTournamentsTable from './MyTournamentsTable';
 import AllTournamentsTable from './AllTournamentsTable';
 import TournamentCarousel from './TournamentCarousel';
 import Divider from '@mui/material/Divider';
-import UserDetails from './Tasks';
+import Tasks from './Tasks';
+import AdminNavbar from '../../components/adminNavbar/AdminNavbar';
 
 const Dashboard = () => {
 
@@ -14,7 +14,7 @@ const Dashboard = () => {
     <div className='dashboard'>
       <div className='dashboard-col'>
         <div className='dashboard-col-inner' style={{maxHeight:'fit-content'}}>
-          <UserDetails />
+          <Tasks />
         </div>
         <div className='dashboard-col-inner' style={{maxHeight:'fit-content'}}>
           <MatchCard />
@@ -31,13 +31,13 @@ const Dashboard = () => {
   );
 };
 
-const Home = () => {
+const AdminHome = () => {
 
   return (
     <div>
       <div className='background'>
         <div className='background-content'>
-          <Navbar />
+          <AdminNavbar />
           <TournamentCarousel />
           <Dashboard />
         </div>
@@ -46,4 +46,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default AdminHome;
