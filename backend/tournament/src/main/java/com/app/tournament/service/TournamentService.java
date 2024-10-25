@@ -45,9 +45,9 @@ public class TournamentService {
     @Autowired
     private TournamentSchedulerService tournamentSchedulerService;
 
-    @Autowired
+    // @Autowired
     
-    private EliminationService eliminationService;
+    // private EliminationService eliminationService;
 
     // Create a new tournament and ensure tid matches the document ID
     public String createTournament(TournamentDTO tournamentDTO) throws ExecutionException, InterruptedException {
@@ -55,14 +55,12 @@ public class TournamentService {
         DocumentReference docRef = firestore.collection("Tournaments").document();
         String generatedId = docRef.getId();
         log.info("Generated tournament ID: {}", generatedId);
-
-
         // what does this do ?
+
         addTournamentStatusListener(generatedId);
 
         tournamentSchedulerService.scheduleTournamentRoundGeneration(generatedId, 
-                                                                    tournamentDTO.getStartDatetime(),
-                                                                    eliminationService);
+                                                                    tournamentDTO.getStartDatetime());
 
         Tournament tournament = convertToEntity(tournamentDTO, generatedId);
         ApiFuture<WriteResult> future = docRef.set(tournament);

@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +18,11 @@ public class TournamentSchedulerService implements DisposableBean {
 
     // can increase thead pool size as needed
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+
+    @Autowired
+    private EliminationService eliminationService;
     
-    public void scheduleTournamentRoundGeneration(String tid, Instant startDatetime,
-            EliminationService eliminationService) {
+    public void scheduleTournamentRoundGeneration(String tid, Instant startDatetime) {
         Instant now = Instant.now();
 
         // Calculate the delay (24 hours before tournament start time)

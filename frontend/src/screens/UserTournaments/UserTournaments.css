@@ -201,7 +201,6 @@ body {
   padding: 15px 20px;
   text-align: left;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
