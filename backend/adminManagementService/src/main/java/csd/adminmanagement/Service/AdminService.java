@@ -10,9 +10,12 @@ import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import csd.adminmanagement.Exception.AdminNotFoundException;
+import csd.adminmanagement.Exception.TournamentNotFoundException;
 import csd.adminmanagement.Model.Admin;
+import csd.adminmanagement.Model.Tournament;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,5 +92,34 @@ public class AdminService {
         }
     }
 
-    
-}
+
+    // *** RAY ***
+    // Retrieve Tournaments for task list
+    public List<Tournament> getTaskView(String adminId) {
+        CollectionReference tournamentsRef = firestore.collection("Tournaments");
+        List<Tournament> taskList = new ArrayList<>();
+        // check tournament belong to admin
+        try {
+            ApiFuture<QuerySnapshot> querySnapshot = tournamentsRef.whereEqualTo("adminId", adminId).get();
+            List<QueryDocumentSnapshot> tournamentDocuments = querySnapshot.get().getDocuments();
+
+            if (tournamentDocuments.isEmpty()) {
+                throw new TournamentNotFoundException("No tournaments found for adminId: " + adminId);
+            }
+
+            for (QueryDocumentSnapshot document : tournamentDocuments) {
+                Tournament tournament = document.toObject(Tournament.class);
+                // check tournament status !completed then add to return list
+                if (!tournament.getStatus().equals("Completed")) {
+                    taskList.add(tournament);
+                }
+            }
+            return taskList;
+
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Error fetching tournament data from Firestore: " + e.getMessage(), e);
+        }
+
+    }
+
+    // NOT

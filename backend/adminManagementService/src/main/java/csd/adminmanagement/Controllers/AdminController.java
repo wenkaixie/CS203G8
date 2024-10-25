@@ -1,7 +1,9 @@
 package csd.adminmanagement.Controllers;
 
 import csd.adminmanagement.Exception.AdminNotFoundException;
+import csd.adminmanagement.Exception.TournamentNotFoundException;
 import csd.adminmanagement.Model.Admin;
+import csd.adminmanagement.Model.Tournament;
 import csd.adminmanagement.Service.AdminService;
 import java.util.HashMap;
 import java.util.List;
@@ -29,56 +31,44 @@ public class AdminController {
     // Update Admin Profile
     @PutMapping("/updateAdmin/{adminID}")
     public ResponseEntity<Object> updateAdminProfile(@PathVariable String adminID, @RequestBody Admin updatedAdmin) {
-        try {
-            Admin updatedAdminProfile = adminService.updateAdminProfile(adminID, updatedAdmin);
-            return ResponseEntity.ok(updatedAdminProfile); // Return the updated admin
-        } catch (AdminNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
-        }
+        Admin updatedAdminProfile = adminService.updateAdminProfile(adminID, updatedAdmin);
+        return ResponseEntity.ok(updatedAdminProfile); // Return the updated admin
     }
     
     // Create Admin Profile
     @PostMapping("/createAdmin")
     public ResponseEntity<Admin> createAdmin(@RequestBody Admin newAdmin) {
-        try {
-            Admin response = adminService.createAdminProfile(newAdmin);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        Admin response = adminService.createAdminProfile(newAdmin);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // Get all Admins
     @GetMapping("/getAllAdmins")
     public ResponseEntity<List<Admin>> getAllAdmins(){
-        try {
-            List<Admin> admins = adminService.getAllAdmins(); // Correct call to the service
-            return ResponseEntity.ok(admins);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        List<Admin> admins = adminService.getAllAdmins(); // Correct call to the service
+        return ResponseEntity.ok(admins);
     }
 
-// Get Admin by ID
+    // Get Admin by ID
     @GetMapping("/getAdmin/{adminId}")
     public ResponseEntity<Object> getAdminById(@PathVariable String adminId) {
-        try {
-            Admin admin = adminService.getAdminById(adminId);
-            return ResponseEntity.ok(admin);
-        } catch (AdminNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
-        }
+        Admin admin = adminService.getAdminById(adminId);
+        return ResponseEntity.ok(admin);
     }
 
-    // Helper method to create error responses
-    private Map<String, String> createErrorResponse(String message) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", message);
-        return errorResponse;
+    // Get Admin Task List
+    @GetMapping("/getAdminTaskList/{adminId}")
+    public ResponseEntity<List<Tournament>> getAdminTaskList(@PathVariable String adminId) {
+        List<Tournament> taskList = adminService.getTaskView(adminId);
+        return ResponseEntity.ok(taskList);
+    }
+
+    // DO NOT USE NOT TESTED **RAY**
+    // Admin Completion Button
+    @PutMapping("/completeTask/{tournamentId}")
+    public ResponseEntity<Object> completeTask(@PathVariable String tournamentId) {
+        Tournament tournament = adminService.completeTournament(tournamentId);
+        return ResponseEntity.ok(tournament);
     }
 
 }
