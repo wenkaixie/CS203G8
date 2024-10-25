@@ -34,6 +34,7 @@
     background-color: white;
     border-radius: 8px;
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
   }
   
   .event-time {
@@ -43,11 +44,26 @@
   }
   
   .event-title {
-    font-size: 14px;
     margin-top: 4px;
   }
   
   .calendar-component {
     flex-grow: 1;
     padding: 20px;
+  }
+
+  .highlight {
+    background-color: #f0f8ff;
+    border-left: 4px solid #007bff;
+  }
+  
+  .view-tournament-details {
+    font-size: 1rem;
+    color: #a35d32;
+    cursor: pointer;
+    width: fit-content;
+  }
+
+  .view-tournament-details:hover {
+    text-decoration: underline;
   }
