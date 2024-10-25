@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.time.Instant;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldPath;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
@@ -188,5 +190,55 @@ public class AdminService {
     // loop through all the matches and change the state of the match to completed
     // change the status of the tournament to CLOSED/COMPLETED 
     // tournament will be removed from the task list
+
+    // wenkai 25/10
+    public List<Tournament> getAdminTournaments(String adminId) {
+        CollectionReference adminsRef = firestore.collection("Admins");
+        List<Tournament> tournaments = new ArrayList<>();
+
+        try {
+            ApiFuture<QuerySnapshot> querySnapshot = adminsRef.whereEqualTo("authId", adminId).get();
+            List<QueryDocumentSnapshot> adminDocuments = querySnapshot.get().getDocuments();
+
+            if (adminDocuments.isEmpty()) {
+                throw new AdminNotFoundException("No admin found for adminId: " + adminId);
+            }
+
+            List<String> tournamentIDs = adminDocuments.get(0).toObject(Admin.class).getTournamentCreated();
+            if (tournamentIDs == null || tournamentIDs.isEmpty()) {
+                return tournaments;
+            }
+
+            CollectionReference tournamentsRef = firestore.collection("Tournaments");
+            ApiFuture<QuerySnapshot> tournamentsQuery = tournamentsRef.whereIn(FieldPath.documentId(), tournamentIDs).get();
+            List<QueryDocumentSnapshot> tournamentDocuments = tournamentsQuery.get().getDocuments();
+
+            for (DocumentSnapshot document : tournamentDocuments) {
+                if (document.exists()) {
+                    tournaments.add(document.toObject(Tournament.class));
+                }
+            }
+
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Error fetching tournament data from Firestore: " + e.getMessage(), e);
+        }
+
+        return tournaments;
+    }
+
+    // wenkai 25/10
+    // createTournament
+
+    public Tournament createTournament(String adminId, Tournament newTournament) {
+        CollectionReference tournamentsRef = firestore.collection("Tournaments");
+        DocumentReference docRef = tournamentsRef.document();
+        newTournament.setTid(docRef.getId());                   // Set generated tournament ID
+        newTournament.setStatus("Registration open");           // Set the status to "Registration open"
+        newTournament.setCreatedTimestamp(Instant.now());     // Set the current timestamp
+        newTournament.setAdminId(adminId);   
+        ApiFuture<WriteResult> result = docRef.set(newTournament);
+        return newTournament;
+    }
+    
    
 }
