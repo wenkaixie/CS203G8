@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "AdminManagementService",
+            "request": "launch",
+            "mainClass": "csd.adminmanagement.AdminManagementService",
+            "projectName": "adminManagementService"
+        },
+        {
+            "type": "java",
             "name": "EloApplication",
             "request": "launch",
             "mainClass": "elo.EloApplication",

@@ -1,5 +1,15 @@
 package csd.adminmanagement.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -9,16 +19,11 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
+
 import csd.adminmanagement.Exception.AdminNotFoundException;
 import csd.adminmanagement.Exception.TournamentNotFoundException;
 import csd.adminmanagement.Model.Admin;
 import csd.adminmanagement.Model.Tournament;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class AdminService {
@@ -29,21 +34,28 @@ public class AdminService {
     // Update Admin Profile
     public Admin updateAdminProfile(String adminID, Admin updatedAdmin) throws AdminNotFoundException {
         DocumentReference docRef = firestore.collection("Admins").document(adminID);
-        ApiFuture<DocumentSnapshot> future = docRef.get();
-        DocumentSnapshot document;
+        
         try {
-            document = future.get();
+            // Convert Admin object to Map<String, Object>
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> updatedFields = objectMapper.convertValue(updatedAdmin, Map.class);
+            
+            // Filter out null fields to avoid updating fields to null unintentionally
+            Map<String, Object> filteredFields = updatedFields.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)  // Exclude null values
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            // Perform the update
+            ApiFuture<WriteResult> future = docRef.update(filteredFields);
+            future.get();
+            
+            return updatedAdmin;
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            throw new AdminNotFoundException("Admin not found");
-        }
-        if (document.exists()) {
-            ApiFuture<WriteResult> result = docRef.set(updatedAdmin, SetOptions.merge());
-            return updatedAdmin;
-        } else {
-            throw new AdminNotFoundException("Admin not found");
+            throw new AdminNotFoundException("Admin not found or update failed");
         }
     }
+
 
     // Create Admin Profile
     public Admin createAdminProfile(Admin newAdmin) {
