@@ -134,7 +134,6 @@ public class AdminService {
 
     }
 
-    // NOT TESTED
     // NEED to perform verification for (tournament belongs to admin)
     // Completion button from frontend will call this method
     public Tournament completeTournament(String tournamentId){
@@ -165,7 +164,7 @@ public class AdminService {
                 List<Map<String, Object>> matches = (List<Map<String, Object>>) round.get("matches");
                 if (matches != null) {
                     for (Map<String, Object> match : matches) {
-                        match.put("state", "Completed");
+                        match.put("state", "DONE");
                     }
                     // Update the round document with the modified matches
                     round.getReference().update("matches", matches).get();

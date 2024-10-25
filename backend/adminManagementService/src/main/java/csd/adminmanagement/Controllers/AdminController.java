@@ -63,9 +63,8 @@ public class AdminController {
         return ResponseEntity.ok(taskList);
     }
 
-    // DO NOT USE NOT TESTED **RAY**
     // Admin Completion Button
-    @PutMapping("/completeTask/{tournamentId}")
+    @PutMapping("/completeTournament/{tournamentId}")
     public ResponseEntity<Object> completeTask(@PathVariable String tournamentId) {
         Tournament tournament = adminService.completeTournament(tournamentId);
         return ResponseEntity.ok(tournament);
