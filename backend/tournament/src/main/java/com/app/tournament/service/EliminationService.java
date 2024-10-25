@@ -6,15 +6,14 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.app.tournament.DTO.ParticipantDTO;
+import com.app.tournament.events.TournamentClosedEvent;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
 import com.app.tournament.model.Tournament;
-import com.app.tournament.events.TournamentClosedEvent;
-import org.springframework.context.event.EventListener;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
@@ -32,7 +31,6 @@ public class EliminationService {
     private TournamentService tournamentService;
 
     @Autowired
-    // @Qualifier("UserServiceV2")
     private UserService userService;
 
     @EventListener
@@ -259,6 +257,7 @@ public class EliminationService {
             throw new RuntimeException("Current round not found.");
         }
 
+        // Fetch the next round's document
         int nextRoundNumber = currentRoundNumber + 1;
         DocumentReference nextRoundDocRef = firestore.collection("Tournaments")
                 .document(tournamentID)
@@ -287,8 +286,8 @@ public class EliminationService {
             }
 
             if (parentMatches.size() != 2) {
-                log.warn("Match {} in round {} has incorrect number of parent matches: {}.",
-                        matchId, nextRoundNumber, parentMatches.size());
+                log.warn("Match {} in round {} has incorrect number of parent matches: {}.", matchId, nextRoundNumber,
+                        parentMatches.size());
                 continue;
             }
 
@@ -331,5 +330,12 @@ public class EliminationService {
         nextRoundDocRef.set(nextRound).get();
 
         log.info("Successfully populated round {} with {} matches.", nextRoundNumber, nextRoundMatches.size());
+
+        // Increment and update currentRoundNumber in the tournament document
+        DocumentReference tournamentDocRef = firestore.collection("Tournaments").document(tournamentID);
+        tournamentDocRef.update("currentRound", currentRoundNumber + 1).get(); // Update currentRound directly
+
+        log.info("Updated tournament {} current round to {}.", tournamentID, currentRoundNumber + 1);
     }
+
 }
