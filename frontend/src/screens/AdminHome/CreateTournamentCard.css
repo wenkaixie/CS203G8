@@ -121,3 +121,11 @@ select:focus {
   outline: none; /* Remove outline when focused */
   border-color: #8F3013; /* Highlight border on focus */
 }
+
+@media (max-width: 1000px){
+  .small-inputs,
+  .date-inputs {
+    flex-direction: column;
+    flex-grow: inherit;
+  }
+}

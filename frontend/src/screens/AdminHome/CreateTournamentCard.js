@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './CreateTournamentCard.css';
 import axios from 'axios';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -8,6 +8,8 @@ import { getAuth } from "firebase/auth";
 const CreateTournamentCard = () => {
   const auth = getAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [minStartDate, setMinStartDate] = useState('');
+  const [minEndDate, setMinEndDate] = useState('');
   const [tournamentData, setTournamentData] = useState({
     name: '',
     description: '',
@@ -21,11 +23,28 @@ const CreateTournamentCard = () => {
     eloRequirement: ''
   });
 
+  // Set the minimum start date to be one day after the current date
+  useEffect(() => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setMinStartDate(tomorrow.toISOString().split('T')[0]); // Format date to YYYY-MM-DD
+  }, []);
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setTournamentData({
       ...tournamentData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+
+    // Update the minimum end date to be after the selected start date
+    if (name === 'startDate') {
+      const newStartDate = new Date(value);
+      const dayAfterStartDate = new Date(newStartDate);
+      dayAfterStartDate.setDate(newStartDate.getDate() + 1);
+      setMinEndDate(dayAfterStartDate.toISOString().split('T')[0]);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -36,6 +55,7 @@ const CreateTournamentCard = () => {
         userId: auth.currentUser.uid
       });
       setIsModalOpen(false); // Close the modal after submission
+      alert("Tournament Created Successfully!");
     } catch (error) {
       console.error("Error creating tournament:", error);
     }
@@ -87,24 +107,28 @@ const CreateTournamentCard = () => {
                   </label>
               </div>
               <div className="date-inputs">
-                  <label>
+                <label>
                   Tournament Start Date
                   <input 
-                      type="date" 
-                      name="startDate" 
-                      value={tournamentData.startDate} 
-                      onChange={handleChange} 
+                    type="date" 
+                    name="startDate" 
+                    value={tournamentData.startDate} 
+                    onChange={handleChange} 
+                    min={minStartDate} /* Start date must be at least 1 day after today */
+                    required
                   />
-                  </label>
-                  <label>
+                </label>
+                <label>
                   Tournament End Date
                   <input 
-                      type="date" 
-                      name="endDate" 
-                      value={tournamentData.endDate} 
-                      onChange={handleChange} 
+                    type="date" 
+                    name="endDate" 
+                    value={tournamentData.endDate} 
+                    onChange={handleChange} 
+                    min={minEndDate} /* End date must be after the start date */
+                    required
                   />
-                  </label>
+                </label>
               </div>
               <div>
                   <label>
