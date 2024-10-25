@@ -16,6 +16,7 @@ import com.app.tournament.model.Round;
 import com.app.tournament.model.Tournament;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +28,8 @@ public class EliminationService {
     @Autowired
     private Firestore firestore;
 
-    @Autowired
-    private TournamentService tournamentService;
+    // @Autowired
+    // private TournamentService tournamentService;
 
     @Autowired
     private UserService userService;
@@ -48,7 +49,7 @@ public class EliminationService {
     // Generate rounds and matches for the tournament
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
         try {
-            Tournament tournament = tournamentService.getTournamentById(tournamentID);
+            Tournament tournament = getTournamentById(tournamentID);
             List<String> users = tournament.getUsers();
 
             List<String> names = userService.getUserNamesByIds(users);
@@ -336,6 +337,19 @@ public class EliminationService {
         tournamentDocRef.update("currentRound", currentRoundNumber + 1).get(); // Update currentRound directly
 
         log.info("Updated tournament {} current round to {}.", tournamentID, currentRoundNumber + 1);
+    }
+
+        public Tournament getTournamentById(String tournamentID) throws ExecutionException, InterruptedException {
+        log.info("Fetching tournament with ID: {}", tournamentID);
+        DocumentSnapshot document = firestore.collection("Tournaments").document(tournamentID).get().get();
+
+        if (!document.exists()) {
+            log.error("Tournament not found with ID: {}", tournamentID);
+            throw new RuntimeException("Tournament not found with ID: " + tournamentID);
+        }
+
+        log.info("Tournament {} retrieved successfully.", tournamentID);
+        return document.toObject(Tournament.class);
     }
 
 }
