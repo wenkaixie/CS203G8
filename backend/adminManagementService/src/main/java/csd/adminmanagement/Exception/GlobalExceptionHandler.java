@@ -19,4 +19,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AdminNotFoundException.class)
     public ResponseEntity<Object> handleAdminNotFound(AdminNotFoundException ex) {
-        return Respon
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleGeneralException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred"));
+    }
+
+    // Helper method to create error responses
+    private Map<String, String> createErrorResponse(String message) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", message);
+        return errorResponse;
+    }
+}

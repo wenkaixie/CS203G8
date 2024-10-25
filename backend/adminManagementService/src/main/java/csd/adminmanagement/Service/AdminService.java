@@ -122,4 +122,59 @@ public class AdminService {
 
     }
 
-    // NOT
+    // NOT TESTED
+    // NEED to perform verification for (tournament belongs to admin)
+    // Completion button from frontend will call this method
+    public Tournament completeTournament(String tournamentId){
+        CollectionReference tournamentsRef = firestore.collection("Tournaments");
+
+        try{
+            ApiFuture<QuerySnapshot> querySnapshot = tournamentsRef.whereEqualTo("tid", tournamentId).get();
+            List<QueryDocumentSnapshot> tournamentDocuments = querySnapshot.get().getDocuments();
+
+            if (tournamentDocuments.isEmpty()) {
+                throw new TournamentNotFoundException("No tournaments found for tournamentId: " + tournamentId);
+            }
+
+            DocumentSnapshot tournamentSnapshot = tournamentDocuments.get(0);
+            Tournament tournament = tournamentSnapshot.toObject(Tournament.class);
+
+            if (tournament == null) {
+                throw new TournamentNotFoundException("Tournament data is null for tournamentId: " + tournamentId);
+            }
+
+            // loop through all the matches and change the state of the match to completed
+            DocumentReference tournamentDocRef = tournamentsRef.document(tournamentId);
+            CollectionReference roundsRef = tournamentDocRef.collection("Rounds");
+            ApiFuture<QuerySnapshot> roundsQuerySnapshot = roundsRef.get();
+            List<QueryDocumentSnapshot> rounds = roundsQuerySnapshot.get().getDocuments();
+
+            for (QueryDocumentSnapshot round : rounds) {
+                List<Map<String, Object>> matches = (List<Map<String, Object>>) round.get("matches");
+                if (matches != null) {
+                    for (Map<String, Object> match : matches) {
+                        match.put("state", "Completed");
+                    }
+                    // Update the round document with the modified matches
+                    round.getReference().update("matches", matches).get();
+                }
+            }
+
+            // change the status of the tournament to CLOSED/COMPLETED 
+            tournament.setStatus("Completed");
+            // update the tournament in the database
+            ApiFuture<WriteResult> result = tournamentsRef.document(tournamentId).set(tournament, SetOptions.merge());
+
+            return tournament;
+
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Error fetching tournament data from Firestore: " + e.getMessage(), e);
+        }
+    }
+
+    // LOGIC:
+    // loop through all the matches and change the state of the match to completed
+    // change the status of the tournament to CLOSED/COMPLETED 
+    // tournament will be removed from the task list
+   
+}
