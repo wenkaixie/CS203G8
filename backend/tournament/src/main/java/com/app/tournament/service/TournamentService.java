@@ -5,35 +5,30 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-// import org.threeten.bp.LocalDate;
-// import org.threeten.bp.Period;
-// import org.threeten.bp.ZoneId;
 
 import com.app.tournament.DTO.TournamentDTO;
+import com.app.tournament.events.TournamentClosedEvent;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
 import com.app.tournament.model.Tournament;
-import com.app.tournament.model.User;
-import com.app.tournament.events.TournamentClosedEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
-import com.google.cloud.firestore.Query;
-import java.util.Date;
-import java.util.Map;
-
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +42,13 @@ public class TournamentService {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher; // Add event publisher
 
+    @Autowired
+    private TournamentSchedulerService tournamentSchedulerService;
+
+    @Autowired
+    
+    private EliminationService eliminationService;
+
     // Create a new tournament and ensure tid matches the document ID
     public String createTournament(TournamentDTO tournamentDTO) throws ExecutionException, InterruptedException {
         log.info("Creating new tournament...");
@@ -54,7 +56,13 @@ public class TournamentService {
         String generatedId = docRef.getId();
         log.info("Generated tournament ID: {}", generatedId);
 
+
+        // what does this do ?
         addTournamentStatusListener(generatedId);
+
+        tournamentSchedulerService.scheduleTournamentRoundGeneration(generatedId, 
+                                                                    tournamentDTO.getStartDatetime(),
+                                                                    eliminationService);
 
         Tournament tournament = convertToEntity(tournamentDTO, generatedId);
         ApiFuture<WriteResult> future = docRef.set(tournament);
@@ -290,7 +298,8 @@ public class TournamentService {
                 dto.getPrize(),
                 "Open",
                 dto.getUsers(),
-                new ArrayList<>());
+                new ArrayList<>(),
+                0);
     }
 
     // Retrieve all matches from a specific tournament
