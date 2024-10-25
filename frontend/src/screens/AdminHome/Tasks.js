@@ -6,45 +6,31 @@ import TrophyIcon from '../../assets/images/trophy.png';
 import StarIcon from '../../assets/images/star.png';
 import { Img } from 'react-image';
 
-const UserDetails = () => {
+const Tasks = () => {
     const auth = getAuth();
-    const [userDetails, setUserDetails] = useState(null);
-    const [userRank, setUserRank] = useState('');
+    const [tasks, setTasks] = useState(null);
 
     useEffect(() => {
-        const fetchUserDetails = async () => {
+        const fetchTasks = async () => {
             try {
-                const response = await axios.get(`http://localhost:9090/user/getUser/${auth.currentUser.uid}`);
-                setUserDetails(response.data);
+                const response = await axios.get(`http://localhost:7070/admin/getAdminTaskList/${auth.currentUser.uid}`);
+                setTasks(response.data);
             } catch (error) {
                 console.error('Error fetching user details:', error);
             }
         };
 
-        fetchUserDetails();
+        fetchTasks();
     }, []);
 
-    useEffect(() => {
-      const fetchUserRank = async () => {
-          try {
-              const response = await axios.get(`http://localhost:9090/user/getUserRank/${auth.currentUser.uid}`);
-              setUserRank(response.data);
-          } catch (error) {
-              console.error('Error fetching user rank:', error);
-          }
-      };
-
-      fetchUserRank();
-  }, []);
-
-    if (!userDetails) {
-        return <div>Loading User Details...</div>; 
+    if (!tasks) {
+        return <div>Loading Tasks...</div>; 
     }
 
     return(
         <div>
           <div className='welcome-back'>
-            <h2>Welcome Back, {userDetails.username}!</h2>
+            <h2>Welcome Back, {tasks.username}!</h2>
           </div>
           <div className='rating-and-rank'>
             <div className='rating-and-rank-section'>
@@ -55,7 +41,7 @@ const UserDetails = () => {
                   height={'30%'}
                   width={'30%'}
                 />
-                <h2 style={{margin:'0px'}}>{userDetails.elo}</h2>
+                <h2 style={{margin:'0px'}}>{tasks.elo}</h2>
               </div>
             </div>
             <div className='divider'></div>
@@ -67,7 +53,7 @@ const UserDetails = () => {
                   height={'30%'}
                   width={'30%'}
                 />
-                <h2 style={{margin:'0px'}}>#{userRank}</h2>
+                <h2 style={{margin:'0px'}}>#{}</h2>
               </div>
             </div>
           </div>
@@ -75,4 +61,4 @@ const UserDetails = () => {
     );
 }
 
-export default UserDetails;
+export default Tasks;

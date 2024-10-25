@@ -6,7 +6,7 @@ import MyTournamentsTable from './MyTournamentsTable';
 import AllTournamentsTable from './AllTournamentsTable';
 import TournamentCarousel from './TournamentCarousel';
 import Divider from '@mui/material/Divider';
-import UserDetails from './AdminDetails';
+import UserDetails from './Tasks';
 
 const Dashboard = () => {
 
