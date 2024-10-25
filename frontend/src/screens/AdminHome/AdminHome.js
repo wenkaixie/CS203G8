@@ -1,8 +1,7 @@
 import React from 'react';
 import './AdminHome.css';
-import MatchCard from './MatchCard';
+import MatchCard from './CreateTournamentCard';
 import MyTournamentsTable from './MyTournamentsTable';
-import AllTournamentsTable from './AllTournamentsTable';
 import TournamentCarousel from './TournamentCarousel';
 import Divider from '@mui/material/Divider';
 import Tasks from './Tasks';
@@ -14,17 +13,15 @@ const Dashboard = () => {
     <div className='dashboard'>
       <div className='dashboard-col'>
         <div className='dashboard-col-inner' style={{maxHeight:'fit-content'}}>
-          <Tasks />
+          <MatchCard />
         </div>
         <div className='dashboard-col-inner' style={{maxHeight:'fit-content'}}>
-          <MatchCard />
+          <Tasks />
         </div>
       </div>
       <div className='dashboard-col'>
         <div className='dashboard-col-inner'>
           <MyTournamentsTable />
-          <Divider sx={{ my: 0.5 }} />
-          <AllTournamentsTable />
         </div>
       </div>
     </div>

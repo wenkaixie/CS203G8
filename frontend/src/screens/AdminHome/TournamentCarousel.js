@@ -54,7 +54,7 @@ const TournamentCarousel = () => {
               <Carousel.Caption>
                 <p> </p>
                 <h2>You have no Upcoming Tournaments</h2>
-                <h3>Join a Tournament to get started!</h3>
+                <h3>Create a Tournament to get started!</h3>
               </Carousel.Caption>
             </Carousel.Item>
         </Carousel>
