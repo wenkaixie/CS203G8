@@ -6,6 +6,7 @@
 
 # backend
 /firebase/serviceAccountKey.json
+backend/tournament/src/main/resources/serviceAccountKey.json
 ### DS_Store ###
 .DS_Store
 /serviceAccountKey.json

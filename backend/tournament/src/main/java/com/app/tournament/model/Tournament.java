@@ -41,7 +41,10 @@ public class Tournament {
     
     // List to store players in the tournament
     private List<String> users; // store players uid's
-    private List<Round> rounds; 
+    private List<Round> rounds;
+    
+    //
+    private int currentRound;
 
 }
 
