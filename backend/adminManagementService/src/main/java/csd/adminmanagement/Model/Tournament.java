@@ -3,8 +3,6 @@ package csd.adminmanagement.Model;
 import java.time.Instant;
 import java.util.List;
 
-import com.google.cloud.Timestamp;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,9 +28,9 @@ public class Tournament {
     private String status;
     
     // List to store players in the tournament
-    private List<String> users; // store players uid's
-    private List<Round> rounds;
-    
+    private List<String> users;
+
+    private String adminId;
     //
     private int currentRound;
 }
