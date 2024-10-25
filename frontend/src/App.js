@@ -24,24 +24,32 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/routeProtection/ProtectedRoute';
 
-// Import your pages/components
-import UserHome from './screens/UserHome/UserHome';
+// All Screens
 import Login from './screens/Login/Login';
-import UpdateProfile from './screens/UpdateProfile/UpdateProfile';
 import Signup from './screens/Signup/Signup';
+
+// User Screens
+import UserHome from './screens/UserHome/UserHome';
+import UpdateProfile from './screens/UpdateProfile/UpdateProfile';
 import UserTournaments from './screens/UserTournaments/UserTournaments';
 import UserTournamentParticipants from './screens/UserTournamentDetails/UserTournamentParticipants';
 import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
 import UserTournamentMatch from './screens/UserTournamentDetails/UserTournamentMatch';
 import UserCalendar from './screens/UserCalendar/UserCalendar';
 
-function App() {
+// Admin Screens
+import AdminHome from './screens/AdminHome/AdminHome';
+
+
+const App = () => {
   return (
     <Router>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+    
+        {/* <Route path="/admin/home" element={<AdminHome />} /> */}
 
         {/* User Protected Routes */}
         <Route
@@ -69,7 +77,7 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['Admins']}>
               <Routes>
-                {/* <Route path="/home" element={<AdminHome />} /> */}
+                <Route path="/home" element={<AdminHome />} />
               </Routes>
             </ProtectedRoute>
           }
