@@ -9,6 +9,7 @@
     background-color: #f7f7f7;
     border-right: 1px solid #e0e0e0;
     overflow-y: auto;
+    height: 720px;
   }
   
   .sidebar {
@@ -54,12 +55,12 @@
 
   .highlight {
     background-color: #f0f8ff;
-    border-left: 4px solid #007bff;
+    border-left: 4px solid #000000;
   }
   
   .view-tournament-details {
     font-size: 1rem;
-    color: #a35d32;
+    color: #000000;
     cursor: pointer;
     width: fit-content;
   }
