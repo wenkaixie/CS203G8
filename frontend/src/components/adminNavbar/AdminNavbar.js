@@ -17,7 +17,7 @@ import { signOut } from 'firebase/auth';
 import FBInstanceAuth from '../../firebase/firebase_auth'; // Assuming this is where Firebase auth is managed
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const pages = ['Home', 'Tournaments'];
+const pages = ['Home', 'My Tournaments'];
 const settings = ['Profile', 'Logout'];
 
 const AdminNavbar = () => {
@@ -127,7 +127,7 @@ const AdminNavbar = () => {
                 >
                   {page}
                 </Button>
-                ) : page === 'Tournaments' ? (
+                ) : page === 'My Tournaments' ? (
                   <Button
                     key={page}
                     onClick={handleGoToTournaments}
