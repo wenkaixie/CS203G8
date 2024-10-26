@@ -10,11 +10,11 @@ import axios from 'axios';
 
 const UserCalendar = () => {
     const [activeView, setActiveView] = useState('calendar');
-    const [matches, setMatches] = useState([]);
-    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [sortedTournaments, setSortedTournaments] = useState(null);
+    const [ongoingMatches, setOngoingMatches] = useState([]);
+    const [upcomingMatches, setUpcomingMatches] = useState([]);
+    const [pastMatches, setPastMatches] = useState([]);
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('');
 
     const auth = getAuth();
 
@@ -26,13 +26,31 @@ const UserCalendar = () => {
         setActiveView('calendar');
     };
 
-    // Fetch ongoing tournaments
     const fetchTournaments = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/upcoming/${auth.currentUser.uid}`);
-            setMatches(response.data);
+            const response = await axios.get(`http://localhost:8080/api/tournaments/user/${auth.currentUser.uid}`);
+            const tournaments = response.data;
+            const currentDate = moment();
+
+            const ongoing = tournaments.filter(tournament =>
+                moment(tournament.startDatetime).isSameOrBefore(currentDate) &&
+                moment(tournament.endDatetime).isAfter(currentDate)
+            );
+
+            const upcoming = tournaments.filter(tournament =>
+                moment(tournament.startDatetime).isAfter(currentDate)
+            );
+
+            const past = tournaments.filter(tournament =>
+                moment(tournament.endDatetime).isBefore(currentDate)
+            );
+
+            setOngoingMatches(ongoing);
+            setUpcomingMatches(upcoming);
+            setPastMatches(past);
+            setIsDataLoaded(true);
         } catch (error) {
-            console.error('Error fetching ongoing tournaments:', error);
+            console.error('Error fetching tournaments:', error);
         }
     };
 
@@ -40,56 +58,20 @@ const UserCalendar = () => {
         fetchTournaments();
     }, []);
 
-    // Filter matches based on search term
-    const filteredMatches = matches.filter(match => {
+    const filterMatches = (matches) => {
         const searchLower = searchTerm.toLowerCase();
-        return (
-            match.name.toLowerCase().includes(searchLower) || 
+        return matches.filter(match =>
+            match.name.toLowerCase().includes(searchLower) ||
             match.location.toLowerCase().includes(searchLower)
         );
-    });
-
-    // Group matches by start date (ignoring time)
-    const groupMatchesByDate = (matches) => {
-        return matches.reduce((groupedMatches, match) => {
-            const date = moment(match.startDatetime).format('YYYY-MM-DD'); // Group by date only
-            if (!groupedMatches[date]) {
-                groupedMatches[date] = [];
-            }
-            groupedMatches[date].push(match);
-            return groupedMatches;
-        }, {});
     };
 
-    const groupedMatches = groupMatchesByDate(filteredMatches);
+    const filteredOngoingMatches = filterMatches(ongoingMatches);
+    const filteredUpcomingMatches = filterMatches(upcomingMatches);
+    const filteredPastMatches = filterMatches(pastMatches);
 
-    // Handle search input
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
-    };
-
-    // Toggle dropdown visibility
-    const toggleDropdown = () => {
-        setIsDropdownVisible(!isDropdownVisible);
-    };
-
-    // Sorting the tournaments
-    const handleSortChange = (criteria) => {
-        let sortedList = [...matches];
-        if (criteria === 'Name') {
-            sortedList.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (criteria === 'Date') {
-            sortedList.sort((a, b) => new Date(a.startDatetime) - new Date(b.startDatetime));
-        } else if (criteria === 'Slots') {
-            sortedList.sort((a, b) => a.capacity - b.capacity);
-        } else if (criteria === 'EloRequirement') {
-            sortedList.sort((a, b) => a.eloRequirement - b.eloRequirement);
-        } else if (criteria === 'Prize') {
-            sortedList.sort((a, b) => a.prizePool - b.prizePool);
-        }
-        setSortedTournaments(sortedList); // Set the sorted tournaments
-        setSortBy(criteria);
-        setIsDropdownVisible(false);
     };
 
     return (
@@ -98,7 +80,7 @@ const UserCalendar = () => {
             <div className='user-calendar'>
                 <div className='user-calendar-header'>
                     <div className='user-calendar-header-title'>
-                        <h2>My Games</h2>
+                        <h2>My Tournaments Calendar</h2>
                     </div>
                     <div className='user-calendar-header-buttons'>
                         <button
@@ -116,58 +98,39 @@ const UserCalendar = () => {
                     </div>
                 </div>
 
-                {activeView === 'list' && (
+                {!isDataLoaded ? (
+                    <p>Loading tournaments...</p>
+                ) : (
                     <>
-                        <div className='user-calendar-query'>
-                            <div className="search-bar">
-                                <input
-                                    type="text"
-                                    placeholder="Search for a tournament"
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                />
-                                <img src={searchIcon} alt="Search Icon" className="search-icon" />
-                            </div>
-                            <div className="buttons-container">
-                                <div className="dropdown">
-                                    <button className="order-button" onClick={toggleDropdown}>
-                                        Order By {sortBy && `(${sortBy})`}
-                                    </button>
-                                    {isDropdownVisible && (
-                                        <div className="dropdown-content">
-                                            <div className="dropdown-item" onClick={() => handleSortChange('Name')}>
-                                                Name
-                                            </div>
-                                            <div className="dropdown-item" onClick={() => handleSortChange('Date')}>
-                                                Date
-                                            </div>
-                                            <div className="dropdown-item" onClick={() => handleSortChange('Slots')}>
-                                                Slots
-                                            </div>
-                                            <div className="dropdown-item" onClick={() => handleSortChange('EloRequirement')}>
-                                                ELO Requirement
-                                            </div>
-                                            <div className="dropdown-item" onClick={() => handleSortChange('Prize')}>
-                                                Prize
-                                            </div>
-                                        </div>
-                                    )}
+                        {activeView === 'list' && (
+                            <>
+                                <div className='user-calendar-query'>
+                                    <div className="search-bar">
+                                        <input
+                                            type="text"
+                                            placeholder="Search for a tournament"
+                                            value={searchTerm}
+                                            onChange={handleSearch}
+                                        />
+                                        <img src={searchIcon} alt="Search Icon" className="search-icon" />
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div>
-                            {/* Map over grouped matches by date */}
-                            {Object.keys(groupedMatches).map((date, index) => (
-                                <MatchTable key={index} date={date} matches={groupedMatches[date]} />
-                            ))}
-                        </div>
-                    </>
-                )}
+                                <MatchTable
+                                    ongoingMatches={filteredOngoingMatches}
+                                    upcomingMatches={filteredUpcomingMatches}
+                                    pastMatches={filteredPastMatches}
+                                />
+                            </>
+                        )}
 
-                {activeView === 'calendar' && (
-                    <div>
-                        <CalendarView matches={filteredMatches} />
-                    </div>
+                        {activeView === 'calendar' && (
+                            <CalendarView
+                                ongoingMatches={filteredOngoingMatches}
+                                upcomingMatches={filteredUpcomingMatches}
+                                pastMatches={filteredPastMatches}
+                            />
+                        )}
+                    </>
                 )}
             </div>
         </div>
