@@ -99,36 +99,24 @@ public class TournamentService {
 
     // Retrieve all tournaments of a user
     public List<Tournament> getTournamentsOfUser(String userID) throws ExecutionException, InterruptedException {
-        System.out.println("Fetching tournaments of user with ID: " + userID);
         log.info("Fetching tournaments of user with ID: {}", userID);
-        CollectionReference usersCollection = firestore.collection("Users");
-        Query query = usersCollection.whereEqualTo("authId", userID);
-        ApiFuture<QuerySnapshot> futureQuerySnapshot = query.get();
-        QuerySnapshot querySnapshot = futureQuerySnapshot.get();
-        System.out.println("Query snapshot size: " + querySnapshot.size());
+        CollectionReference tournamentsCollection = firestore.collection("Tournaments");
+        QuerySnapshot tournamentsSnapshot = tournamentsCollection.get().get();
 
-        if (querySnapshot.isEmpty()) {
-            return new ArrayList<>(); // Return an empty list if no user with matching authID is found
-        }
-        
-        DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0); // Assuming authID is unique, get the first document
-        List<String> registrationHistory = (List<String>) userDoc.get("registrationHistory");
-        
-        if (registrationHistory == null || registrationHistory.isEmpty()) {
-            return new ArrayList<>(); // Return an empty list if registrationHistory is empty or null
-        }
-        
         List<Tournament> tournaments = new ArrayList<>();
-        
-        for (String tournamentId : registrationHistory) {
-            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
-            DocumentSnapshot tournamentDoc = tournamentRef.get().get();
-            
-            if (tournamentDoc.exists()) {
+
+        for (QueryDocumentSnapshot tournamentDoc : tournamentsSnapshot) {
+            // Reference to the Users subcollection within the tournament
+            CollectionReference usersCollection = tournamentDoc.getReference().collection("Users");
+            DocumentReference userRef = usersCollection.document(userID);
+            DocumentSnapshot userDoc = userRef.get().get();
+
+            if (userDoc.exists()) {
                 tournaments.add(tournamentDoc.toObject(Tournament.class));
             }
         }
-        
+
+        log.info("Retrieved {} tournaments for user {}.", tournaments.size(), userID);
         return tournaments;
     }
 
@@ -155,14 +143,20 @@ public class TournamentService {
     public String addUserToTournament(String tournamentID, String userID)
             throws ExecutionException, InterruptedException {
         log.info("Adding user {} to tournament {}.", userID, tournamentID);
-        DocumentReference docRef = firestore.collection("Tournaments").document(tournamentID);
-        DocumentSnapshot document = docRef.get().get();
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
+        DocumentSnapshot tournamentDoc = tournamentRef.get().get();
 
-        if (document.exists()) {
-            Tournament tournament = document.toObject(Tournament.class);
-            if (!tournament.getUsers().contains(userID)) {
-                tournament.getUsers().add(userID);
-                docRef.set(tournament).get();
+        if (tournamentDoc.exists()) {
+            // Reference to the Users subcollection within the tournament
+            CollectionReference usersCollection = tournamentRef.collection("Users");
+            DocumentReference userRef = usersCollection.document(userID);
+
+            // Check if the user already exists in the subcollection
+            DocumentSnapshot userDoc = userRef.get().get();
+            if (!userDoc.exists()) {
+                // Add a user document to the subcollection
+                Map<String, Object> userData = Map.of("userID", userID, "joinedAt", Instant.now());
+                userRef.set(userData).get();
                 log.info("User {} added to tournament {}.", userID, tournamentID);
                 return "User added successfully.";
             } else {
@@ -179,13 +173,19 @@ public class TournamentService {
     public String removeUserFromTournament(String tournamentID, String userID)
             throws ExecutionException, InterruptedException {
         log.info("Removing user {} from tournament {}.", userID, tournamentID);
-        DocumentReference docRef = firestore.collection("Tournaments").document(tournamentID);
-        DocumentSnapshot document = docRef.get().get();
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
+        DocumentSnapshot tournamentDoc = tournamentRef.get().get();
 
-        if (document.exists()) {
-            Tournament tournament = document.toObject(Tournament.class);
-            if (tournament.getUsers().remove(userID)) {
-                docRef.set(tournament).get();
+        if (tournamentDoc.exists()) {
+            // Reference to the Users subcollection within the tournament
+            CollectionReference usersCollection = tournamentRef.collection("Users");
+            DocumentReference userRef = usersCollection.document(userID);
+
+            // Check if the user exists in the subcollection
+            DocumentSnapshot userDoc = userRef.get().get();
+            if (userDoc.exists()) {
+                // Remove the user document from the subcollection
+                userRef.delete().get();
                 log.info("User {} removed from tournament {}.", userID, tournamentID);
                 return "User removed successfully.";
             } else {
@@ -283,6 +283,8 @@ public class TournamentService {
     private Tournament convertToEntity(TournamentDTO dto, String tid) {
         log.info("Converting TournamentDTO to Tournament entity with ID: {}", tid);
         return new Tournament(
+                dto.getAdminId(),
+                dto.getType(),
                 dto.getAgeLimit(),
                 dto.getName(),
                 dto.getDescription(),

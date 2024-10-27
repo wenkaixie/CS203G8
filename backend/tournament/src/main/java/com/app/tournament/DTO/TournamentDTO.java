@@ -14,7 +14,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TournamentDTO {
-
+    private String adminId;
+    private String type; // classic, blitz etcx
+    
     private int ageLimit;
     private String name;
     private String description;

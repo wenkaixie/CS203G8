@@ -16,10 +16,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Tournament {
 
-    // private String adminID;
-    // private boolean status; // denotes of torunament is open. however, should toggle based on max capacity and/or cut off based
-                                // on dateTime
-    // private String type; // classic, blitz etcx
+    private String adminId;
+    private String type; // classic, blitz etcx
 
 
 
@@ -45,6 +43,5 @@ public class Tournament {
     
     //
     private int currentRound;
-
 }
 
