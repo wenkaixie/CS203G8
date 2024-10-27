@@ -143,21 +143,50 @@ public class TournamentService {
     public String addUserToTournament(String tournamentID, String userID)
             throws ExecutionException, InterruptedException {
         log.info("Adding user {} to tournament {}.", userID, tournamentID);
+
+        // Reference to the user in the main Users collection
+        DocumentReference userRef = firestore.collection("Users").document(userID);
+        DocumentSnapshot userDoc = userRef.get().get();
+
+        if (!userDoc.exists()) {
+            log.error("User {} not found in the Users collection.", userID);
+            throw new RuntimeException("User not found with ID: " + userID);
+        }
+
+        // Retrieve user details from the main Users collection
+        String name = userDoc.getString("name");
+        String nationality = userDoc.getString("nationality");
+        Long elo = userDoc.getLong("elo");
+
+        if (name == null || nationality == null || elo == null) {
+            log.error("Missing user data for user {}: name={}, nationality={}, elo={}", userID, name, nationality, elo);
+            throw new RuntimeException("Incomplete user data for ID: " + userID);
+        }
+
+        // Reference to the tournament
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
         DocumentSnapshot tournamentDoc = tournamentRef.get().get();
 
         if (tournamentDoc.exists()) {
             // Reference to the Users subcollection within the tournament
             CollectionReference usersCollection = tournamentRef.collection("Users");
-            DocumentReference userRef = usersCollection.document(userID);
+            DocumentReference tournamentUserRef = usersCollection.document(userID);
 
             // Check if the user already exists in the subcollection
-            DocumentSnapshot userDoc = userRef.get().get();
-            if (!userDoc.exists()) {
-                // Add a user document to the subcollection
-                Map<String, Object> userData = Map.of("userID", userID, "joinedAt", Instant.now());
-                userRef.set(userData).get();
-                log.info("User {} added to tournament {}.", userID, tournamentID);
+            DocumentSnapshot tournamentUserDoc = tournamentUserRef.get().get();
+            if (!tournamentUserDoc.exists()) {
+                // Prepare the data to be stored in the tournament's Users subcollection
+                Map<String, Object> userData = Map.of(
+                        "userID", userID,
+                        "name", name,
+                        "nationality", nationality,
+                        "elo", elo,
+                        "joinedAt", Instant.now());
+
+                // Add the user to the tournament's Users subcollection
+                tournamentUserRef.set(userData).get();
+                log.info("User {} added to tournament {} with nationality {} and Elo {}.", userID, tournamentID,
+                        nationality, elo);
                 return "User added successfully.";
             } else {
                 log.warn("User {} is already part of the tournament {}.", userID, tournamentID);
