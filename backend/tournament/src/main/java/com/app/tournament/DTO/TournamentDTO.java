@@ -14,7 +14,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TournamentDTO {
-
+    private String adminId;
+    private String type; // classic, blitz etcx
+    
     private int ageLimit;
     private String name;
     private String description;
@@ -26,6 +28,6 @@ public class TournamentDTO {
     private Instant startDatetime; // Field for start datetime of the tournament
     private Instant endDatetime; // Field for end datetime of the tournament
 
-    private List<String> users;
+    // private List<String> users;
 
 }

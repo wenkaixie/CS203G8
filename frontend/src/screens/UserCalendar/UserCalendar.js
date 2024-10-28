@@ -1,146 +1,136 @@
-import React, { useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import './UserCalendar.css';
 import Navbar from '../../components/navbar/Navbar';
-import { Form, InputGroup } from 'react-bootstrap';
-import SearchIcon from '@mui/icons-material/Search';
-import TuneIcon from '@mui/icons-material/Tune';
+import searchIcon from '../../assets/images/Search.png';
 import MatchTable from './MatchTable';
 import CalendarView from './CalendarView';
+import moment from 'moment';
+import { getAuth } from "firebase/auth";
+import axios from 'axios';
 
 const UserCalendar = () => {
-    const [activeView, setActiveView] = useState('list');
+    const [activeView, setActiveView] = useState('calendar');
+    const [ongoingMatches, setOngoingMatches] = useState([]);
+    const [upcomingMatches, setUpcomingMatches] = useState([]);
+    const [pastMatches, setPastMatches] = useState([]);
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const auth = getAuth();
 
     const handleListButtonClick = () => {
-    setActiveView('list');
+        setActiveView('list');
     };
 
     const handleCalendarButtonClick = () => {
-    setActiveView('calendar');
-};
+        setActiveView('calendar');
+    };
 
-    // get matches data from api
-    const matches = [
-        {
-            date: "Sep 21, 2024",
-            matches: [
-                {
-                    time: "08:40am",
-                    tournament: "Youth Chess Championships 2024",
-                    round: 1,
-                    player1: { name: "Hikaru Nakamura", nationality: "Japan" /* avatar: player1Avatar */ },
-                    player2: { name: "Vincent Keymer", nationality: "Germany" /* avatar: player2Avatar */ },
-                },
-                {
-                    time: "10:40am",
-                    tournament: "Youth Chess Championships 2024",
-                    round: 2,
-                    player1: { name: "Hikaru Nakamura", nationality: "Japan" /* avatar: player1Avatar */ },
-                    player2: { name: "Vincent Keymer", nationality: "Germany" /* avatar: player2Avatar */ },
-                }
-            ]
-        },
-        {
-            date: "Sep 23, 2024",
-            matches: [
-                {
-                    time: "08:40am",
-                    tournament: "Youth Chess Championships 2024",
-                    round: 3,
-                    player1: { name: "Hikaru Nakamura", nationality: "Japan" /* avatar: player1Avatar */ },
-                    player2: { name: "Vincent Keymer", nationality: "Germany" /* avatar: player2Avatar */ },
-                }
-            ]
-        },
-        {
-            date: "Sep 24, 2024",
-            matches: [
-                {
-                    time: "08:40am",
-                    tournament: "Speed Chess Championships 2024",
-                    round: 1,
-                    player1: { name: "Hikaru Nakamura", nationality: "Japan" /* avatar: player1Avatar */ },
-                    player2: { name: "Vincent Keymer", nationality: "Germany" /* avatar: player2Avatar */ },
-                },
-                {
-                    time: "10:40am",
-                    tournament: "Speed Chess Championships 2024",
-                    round: 2,
-                    player1: { name: "Hikaru Nakamura", nationality: "Japan" /* avatar: player1Avatar */ },
-                    player2: { name: "Vincent Keymer", nationality: "Germany" /* avatar: player2Avatar */ },
-                },
-                {
-                    time: "12:40pm",
-                    tournament: "Speed Chess Championships 2024",
-                    round: 3,
-                    player1: { name: "Hikaru Nakamura", nationality: "Japan" /* avatar: player1Avatar */ },
-                    player2: { name: "Vincent Keymer", nationality: "Germany" /* avatar: player2Avatar */ },
-                }
-            ]
-        },
-    ];
-    
+    const fetchTournaments = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/tournaments/user/${auth.currentUser.uid}`);
+            const tournaments = response.data;
+            const currentDate = moment();
+
+            const ongoing = tournaments.filter(tournament =>
+                moment(tournament.startDatetime).isSameOrBefore(currentDate) &&
+                moment(tournament.endDatetime).isAfter(currentDate)
+            );
+
+            const upcoming = tournaments.filter(tournament =>
+                moment(tournament.startDatetime).isAfter(currentDate)
+            );
+
+            const past = tournaments.filter(tournament =>
+                moment(tournament.endDatetime).isBefore(currentDate)
+            );
+
+            setOngoingMatches(ongoing);
+            setUpcomingMatches(upcoming);
+            setPastMatches(past);
+            setIsDataLoaded(true);
+        } catch (error) {
+            console.error('Error fetching tournaments:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTournaments();
+    }, []);
+
+    const filterMatches = (matches) => {
+        const searchLower = searchTerm.toLowerCase();
+        return matches.filter(match =>
+            match.name.toLowerCase().includes(searchLower) ||
+            match.location.toLowerCase().includes(searchLower)
+        );
+    };
+
+    const filteredOngoingMatches = filterMatches(ongoingMatches);
+    const filteredUpcomingMatches = filterMatches(upcomingMatches);
+    const filteredPastMatches = filterMatches(pastMatches);
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
     return (
         <div>
             <Navbar />
             <div className='user-calendar'>
                 <div className='user-calendar-header'>
                     <div className='user-calendar-header-title'>
-                        <h2>Upcoming Games</h2>
+                        <h2>My Tournaments Calendar</h2>
                     </div>
                     <div className='user-calendar-header-buttons'>
-                        <button
-                            onClick={handleListButtonClick}
-                            className={`user-calendar-header-button ${activeView === 'list' ? 'active' : ''}`}
-                        >
-                            List
-                        </button>
                         <button
                             onClick={handleCalendarButtonClick}
                             className={`user-calendar-header-button ${activeView === 'calendar' ? 'active' : ''}`}
                         >
                             Calendar
                         </button>
+                        <button
+                            onClick={handleListButtonClick}
+                            className={`user-calendar-header-button ${activeView === 'list' ? 'active' : ''}`}
+                        >
+                            List
+                        </button>
                     </div>
                 </div>
 
-                {activeView === 'list' && (
+                {!isDataLoaded ? (
+                    <p>Loading tournaments...</p>
+                ) : (
                     <>
-                        <div className='user-calendar-query'>
-                            <div className='searchbox'>
-                                <Form className="d-flex">
-                                    <InputGroup>
-                                        <InputGroup.Text id="search-icon">
-                                            <SearchIcon />
-                                        </InputGroup.Text>
-                                        <Form.Control
-                                            type="search"
-                                            placeholder="Search"
-                                            aria-label="Search"
-                                            aria-describedby="search-icon"
-                                            style={{ backgroundColor: "#F8F9FA" }}
+                        {activeView === 'list' && (
+                            <>
+                                <div className='user-calendar-query'>
+                                    <div className="search-bar">
+                                        <input
+                                            type="text"
+                                            placeholder="Search for a tournament"
+                                            value={searchTerm}
+                                            onChange={handleSearch}
                                         />
-                                    </InputGroup>
-                                </Form>
-                            </div>
-                            <div className="filter-buttons">
-                                <button className="filter-icon">
-                                    <TuneIcon />
-                                </button>
-                                <button className="order-by">Order By</button>
-                            </div>
-                        </div>
-                        <div>
-                            {matches.map((day, index) => (
-                                <MatchTable key={index} date={day.date} matches={day.matches} />
-                            ))}
-                        </div>
-                    </>
-                )}
+                                        <img src={searchIcon} alt="Search Icon" className="search-icon" />
+                                    </div>
+                                </div>
+                                <MatchTable
+                                    ongoingMatches={filteredOngoingMatches}
+                                    upcomingMatches={filteredUpcomingMatches}
+                                    pastMatches={filteredPastMatches}
+                                />
+                            </>
+                        )}
 
-                {activeView === 'calendar' && (
-                    <div>
-                        <CalendarView matches={matches} />
-                    </div>
+                        {activeView === 'calendar' && (
+                            <CalendarView
+                                ongoingMatches={filteredOngoingMatches}
+                                upcomingMatches={filteredUpcomingMatches}
+                                pastMatches={filteredPastMatches}
+                            />
+                        )}
+                    </>
                 )}
             </div>
         </div>

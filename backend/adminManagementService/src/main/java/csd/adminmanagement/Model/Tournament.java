@@ -1,25 +1,16 @@
-package com.app.tournament.model;
+package csd.adminmanagement.Model;
 
 import java.time.Instant;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
- 
-// import player from player service
 
-@Setter 
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data // Generates getters, setters, toString, equals, and hashCode methods
+@NoArgsConstructor // Generates a no-argument constructor
+@AllArgsConstructor // Generates an all-arguments constructor
 public class Tournament {
-
-    private String adminId;
-    private String type; // classic, blitz etcx
-
-
-
     private int ageLimit;
     private String name;
     private String description;   
@@ -37,9 +28,9 @@ public class Tournament {
     private String status;
     
     // List to store players in the tournament
-    // private List<String> users; // store players uid's
-    // private List<Round> rounds;
-    
+    private List<String> users;
+
+    private String adminId;
     //
     private int currentRound;
 }

@@ -23,8 +23,9 @@ const UserTournaments = () => {
     useEffect(() => {
         const fetchTournaments = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/tournaments');
+                const response = await axios.get('http://localhost:8080/api/tournaments/all');
                 setTournaments(response.data);
+                console.log(response.data);
             } catch (error) {
                 console.error("Error fetching tournaments:", error);
             }

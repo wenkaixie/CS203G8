@@ -28,4 +28,7 @@ public class Tournament {
     private String tid;
     private String trid;
     private List<String> users;
+
+    // added
+    private String adminId;
 }

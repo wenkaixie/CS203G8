@@ -1,4 +1,4 @@
-package csd.playermanagement.Configuration;
+package csd.adminmanagement.Configuration;
 
 // Spring imports
 import java.io.FileInputStream;
@@ -24,7 +24,8 @@ public class FirebaseConfig {
         try {
             // Updated path to Firebase service account key file
             FileInputStream serviceAccount = 
-                new FileInputStream("serviceAccountKey.json");
+                new FileInputStream("C:\\Users\\xwkof\\Downloads\\serviceAccountKey.json");
+
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
                 .build();
