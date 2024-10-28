@@ -28,6 +28,6 @@ public class TournamentDTO {
     private Instant startDatetime; // Field for start datetime of the tournament
     private Instant endDatetime; // Field for end datetime of the tournament
 
-    private List<String> users;
+    // private List<String> users;
 
 }

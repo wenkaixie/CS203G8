@@ -1,7 +1,6 @@
 package com.app.tournament.model;
 
 import java.time.Instant;
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,8 +37,8 @@ public class Tournament {
     private String status;
     
     // List to store players in the tournament
-    private List<String> users; // store players uid's
-    private List<Round> rounds;
+    // private List<String> users; // store players uid's
+    // private List<Round> rounds;
     
     //
     private int currentRound;

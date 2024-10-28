@@ -326,8 +326,8 @@ public class TournamentService {
                 Instant.now(), // Use Instant for the created timestamp
                 dto.getPrize(),
                 "Open",
-                dto.getUsers(),
-                new ArrayList<>(),
+                // new ArrayList<>(),
+                // new ArrayList<>(),
                 0);
     }
 
