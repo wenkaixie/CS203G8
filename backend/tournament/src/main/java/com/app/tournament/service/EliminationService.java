@@ -18,6 +18,7 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,29 +47,67 @@ public class EliminationService {
         }
     }
 
+    
     // Generate rounds and matches for the tournament
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
         try {
-            Tournament tournament = getTournamentById(tournamentID);
-            List<String> users = tournament.getUsers();
+            // Get reference to the Users subcollection of the specified tournament
+            CollectionReference usersCollection = firestore.collection("Tournaments").document(tournamentID)
+                    .collection("Users");
 
-            List<String> names = userService.getUserNamesByIds(users);
+            // Fetch all users from the Users subcollection
+            List<QueryDocumentSnapshot> userDocs = usersCollection.get().get().getDocuments();
 
-            int numPlayers = users.size();
+            if (userDocs.isEmpty()) {
+                log.warn("No users found for tournament {}.", tournamentID);
+                throw new RuntimeException("No users found in tournament: " + tournamentID);
+            }
+
+            // Extract user details (userID, name, elo, nationality) from each document
+            List<ParticipantDTO> participants = new ArrayList<>();
+            int numPlayers = userDocs.size();
+
+            for (QueryDocumentSnapshot userDoc : userDocs) {
+                String userID = userDoc.getId();
+                String name = userDoc.getString("name");
+                Long elo = userDoc.getLong("elo");
+                String nationality = userDoc.getString("nationality");
+
+                if (name == null || elo == null || nationality == null) {
+                    log.warn("User data incomplete for user {} in tournament {}.", userDoc.getId(), tournamentID);
+                    throw new RuntimeException("Incomplete user data for user ID: " + userDoc.getId());
+                }
+
+                // Create ParticipantDTO and add to list
+                participants.add(new ParticipantDTO(
+                        null, // id will be set when used in matches (1 or 2)
+                        userID,
+                        name,
+                        "", // resultText will be set when the match is finished
+                        elo.intValue(),
+                        nationality,
+                        false // isWinner will be set later when match results are known
+                ));
+            }
+
+            // Calculate number of rounds needed based on number of players
             int numRounds = calculateEliminationRounds(numPlayers);
 
-            generateRounds(tournamentID, names, numPlayers, numRounds);
+            // Generate rounds for the tournament with the retrieved participants and player
+            // count
+            generateRounds(tournamentID, participants, numPlayers, numRounds);
         } catch (Exception e) {
             log.error("Failed to generate rounds for tournament {}: {}", tournamentID, e.getMessage());
             throw e;
         }
     }
 
+
     private int calculateEliminationRounds(int numPlayers) {
         return (int) Math.ceil(Math.log(numPlayers) / Math.log(2));
     }
 
-    private void generateRounds(String tournamentID, List<String> users, int numPlayers, int numRounds)
+    private void generateRounds(String tournamentID, List<ParticipantDTO> participants, int numPlayers, int numRounds)
             throws ExecutionException, InterruptedException {
 
         CollectionReference roundsCollection = firestore.collection("Tournaments")
@@ -83,7 +122,7 @@ public class EliminationService {
             numPlayers /= 2;
 
             List<Match> matches = (roundNumber == 1)
-                    ? createFirstRoundMatches(users, matchCounter)
+                    ? createFirstRoundMatches(participants, matchCounter)
                     : createEmptyMatches(tournamentID, numMatches, roundNumber, matchCounter, previousRoundMatches);
 
             matchCounter += numMatches;
@@ -100,22 +139,27 @@ public class EliminationService {
         }
     }
 
-    private List<Match> createFirstRoundMatches(List<String> users, int startCounter) {
+    private List<Match> createFirstRoundMatches(List<ParticipantDTO> participants, int startCounter) {
         List<Match> matches = new ArrayList<>();
-    
-        for (int i = 0; i < users.size(); i += 2) {
+
+        for (int i = 0; i < participants.size(); i += 2) {
             int matchId = startCounter + (i / 2);
-    
-            // Correct nextMatchId calculation: Group every two matches (i / 4 to group matches in pairs of 2)
-            int nextMatchId = startCounter + (users.size() / 2) + ((i / 2) / 2);
-    
-            List<ParticipantDTO> participants = new ArrayList<>();
-            participants.add(new ParticipantDTO("1", users.get(i), "W", false));
-    
-            if (i + 1 < users.size()) {
-                participants.add(new ParticipantDTO("2", users.get(i + 1), "B", false));
+
+            // Correct nextMatchId calculation: Group every two matches (i / 4 to group
+            // matches in pairs of 2)
+            int nextMatchId = startCounter + (participants.size() / 2) + ((i / 2) / 2);
+
+            List<ParticipantDTO> matchParticipants = new ArrayList<>();
+
+            // Assign the participants to player 1 and player 2 in the match
+            participants.get(i).setId("1");
+            matchParticipants.add(participants.get(i));
+
+            if (i + 1 < participants.size()) {
+                participants.get(i + 1).setId("2");
+                matchParticipants.add(participants.get(i + 1));
             }
-    
+
             Match match = new Match(
                     matchId,
                     "Match " + matchId,
@@ -123,9 +167,8 @@ public class EliminationService {
                     1,
                     Instant.now(),
                     "PENDING",
-                    participants
-            );
-    
+                    matchParticipants);
+
             matches.add(match);
         }
         return matches;
@@ -299,10 +342,14 @@ public class EliminationService {
                         .filter(ParticipantDTO::getIsWinner)
                         .findFirst()
                         .ifPresent(winner -> participants.add(new ParticipantDTO(
-                                String.valueOf(participants.size() + 1),
-                                winner.getName(),
-                                "",
-                                false)));
+                                String.valueOf(participants.size() + 1), // Assign new player ID (1 or 2)
+                                winner.getUid(), // Carry over the winner's UID
+                                winner.getName(), // Carry over the winner's name
+                                "", // Result text will be determined in the next match
+                                winner.getElo(), // Carry over the winner's Elo
+                                winner.getNationality(), // Carry over the winner's nationality
+                                false // Set isWinner as false for now, will be decided in the next match
+                        )));
             }
 
             if (participants.size() < 2) {

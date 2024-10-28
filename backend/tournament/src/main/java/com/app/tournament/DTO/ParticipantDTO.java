@@ -12,9 +12,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ParticipantDTO {
+
     private String id; // player 1 or player 2
+    private String uid; //players Uid
     private String name; // Name of the participant
     private String resultText; // Textual result of the match (e.g., "6" or "Win")
+
+    private int elo;
+    private String nationality;
 
     @JsonProperty("isWinner") // Ensure the field is serialized as 'isWinner'
     private boolean isWinner; // Whether the participant won the match
