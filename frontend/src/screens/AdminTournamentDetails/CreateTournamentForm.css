@@ -192,3 +192,18 @@ textarea:focus {
 .registration-body .form-group {
     margin-bottom: 20px;
 }
+
+.confirmation-popup {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #4caf50;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    animation: fadeInOut 2s ease-in-out;
+}

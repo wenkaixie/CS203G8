@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { getAuth } from 'firebase/auth';
 import './AdminTournamentParticipants.css';
 import AdminDetailsHeader from './AdminTournamentHeader';
-import CreateTournamentForm from './CreateTournamentForm'; // Import the CreateTournamentForm
+import CreateTournamentForm from './CreateTournamentForm';
 
 const AdminTournamentParticipants = () => {
     const { tournamentId } = useParams();
@@ -16,38 +17,34 @@ const AdminTournamentParticipants = () => {
     const [numberOfPlayers, setNumberOfPlayers] = useState(0);
     const [tournamentData, setTournamentData] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [showCreateForm, setShowCreateForm] = useState(false); // State to manage the form visibility
+    const [showCreateForm, setShowCreateForm] = useState(false);
+    const [adminId, setAdminId] = useState(null);
 
     const calculateAge = (dateOfBirth) => {
         const birthDate = new Date(dateOfBirth.seconds * 1000);
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        if (age === 0 && (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()))) {
-            return 0;
-        }
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
+        if (age === 0 && (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()))) return 0;
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
         return age;
     };
 
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                const response = await axios.get(http://localhost:8080/api/tournaments/${tournamentId});
                 const tournamentData = response.data;
                 const participantIds = tournamentData.users || [];
 
                 const participantDetails = await Promise.all(
                     participantIds.map(async (userID) => {
                         const sanitizedUserID = userID.replace(/['"]/g, '');
-                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${sanitizedUserID}`);
+                        const userResponse = await axios.get(http://localhost:9090/user/getUser/${sanitizedUserID});
                         const userData = userResponse.data;
                         const age = calculateAge(userData.dateOfBirth);
 
-                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${sanitizedUserID}`);
+                        const rankResponse = await axios.get(http://localhost:9090/user/getUserRank/${sanitizedUserID});
                         const userRank = rankResponse.data;
 
                         return { ...userData, age, userRank };
@@ -89,13 +86,9 @@ const AdminTournamentParticipants = () => {
 
         if (sortBy) {
             updatedList = updatedList.sort((a, b) => {
-                if (sortBy === 'name') {
-                    return a.name.localeCompare(b.name);
-                } else if (sortBy === 'age') {
-                    return b.age - a.age;
-                } else if (sortBy === 'rating') {
-                    return b.elo - a.elo;
-                }
+                if (sortBy === 'name') return a.name.localeCompare(b.name);
+                else if (sortBy === 'age') return b.age - a.age;
+                else if (sortBy === 'rating') return b.elo - a.elo;
                 return 0;
             });
         }
@@ -107,7 +100,7 @@ const AdminTournamentParticipants = () => {
         const confirmDelete = window.confirm("Are you sure you want to remove this player from the tournament?");
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/players/${playerId}`);
+                const response = await axios.delete(http://localhost:8080/api/tournaments/${tournamentId}/players/${playerId});
                 console.log(response.data);
                 setParticipants(participants.filter((participant) => participant.uid !== playerId));
                 setNumberOfPlayers(numberOfPlayers - 1);
@@ -118,22 +111,11 @@ const AdminTournamentParticipants = () => {
     };
 
     const handleCreateTournament = () => {
-        setShowCreateForm(true); // Show the create tournament form as an overlay
+        setShowCreateForm(true);
     };
 
     const closeForm = () => {
-        setShowCreateForm(false); // Close the form overlay
-    };
-
-    const handleSaveTournament = async (formData) => {
-        try {
-            const response = await axios.post('http://localhost:8080/api/tournaments', formData);
-            console.log("Tournament created with ID:", response.data);
-            setShowCreateForm(false);
-            // Optionally navigate or refresh data here
-        } catch (error) {
-            console.error("Error creating tournament:", error);
-        }
+        setShowCreateForm(false);
     };
 
     const handleEditClick = () => {
@@ -141,7 +123,7 @@ const AdminTournamentParticipants = () => {
     };
 
     const handleSaveClick = () => {
-        setIsEditMode(false); // Exit edit mode after save
+        setIsEditMode(false);
     };
 
     const handleCancelClick = () => {
@@ -155,8 +137,8 @@ const AdminTournamentParticipants = () => {
                 tournamentTitle={tournamentData?.name || "Tournament"}
                 playerCount={numberOfPlayers}
                 onEditClick={handleEditClick}
-                onSaveClick={handleSaveClick} // Save action passed
-                onCancelClick={handleCancelClick} // Cancel action passed
+                onSaveClick={handleSaveClick}
+                onCancelClick={handleCancelClick}
                 isEditMode={isEditMode}
             />
 
@@ -210,9 +192,9 @@ const AdminTournamentParticipants = () => {
                                         <td>{index + 1}</td>
                                         <td>{participant.name || 'null'}</td>
                                         <td>{participant.nationality || 'null'}</td>
-                                        <td>{participant.age !== null && participant.age !== undefined ? participant.age : '0'}</td>
+                                        <td>{participant.age ?? '0'}</td>
                                         <td>{participant.userRank || 'null'}</td>
-                                        <td>{participant.elo !== null && participant.elo !== undefined ? participant.elo : '0'}</td>
+                                        <td>{participant.elo ?? '0'}</td>
                                         <td>{participant.registrationHistory.length || '0'}</td>
                                         {isEditMode && (
                                             <td>
@@ -239,11 +221,13 @@ const AdminTournamentParticipants = () => {
                     +
                 </button>
 
-                {/* Render the CreateTournamentForm overlay */}
                 {showCreateForm && (
                     <CreateTournamentForm
                         onClose={closeForm}
-                        onSave={handleSaveTournament}
+                        onSuccess={() => {
+                            closeForm();
+                            // Add any additional data handling, such as refetching data here
+                        }}
                     />
                 )}
             </div>
@@ -252,4 +236,3 @@ const AdminTournamentParticipants = () => {
 };
 
 export default AdminTournamentParticipants;
-

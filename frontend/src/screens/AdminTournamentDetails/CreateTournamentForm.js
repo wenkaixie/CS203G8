@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { getAuth } from 'firebase/auth';
 import './CreateTournamentForm.css';
 
-const CreateTournamentForm = ({ onClose, onSave }) => {
+const CreateTournamentForm = ({ onClose, onSuccess }) => {
     const [page, setPage] = useState(1);
     const [formData, setFormData] = useState({
         name: '',
@@ -13,13 +15,15 @@ const CreateTournamentForm = ({ onClose, onSave }) => {
         endDatetime: '',
         prize: 0,
         capacity: 0,
-        tournamentType: 'Elimination',
+        tournamentType: '',
         openRegistration: '',
         closeRegistration: '',
     });
+    const [error, setError] = useState(null);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const auth = getAuth();
 
     useEffect(() => {
-        // Set the Open Registration date as the current date and time
         const now = new Date();
         setFormData((prevData) => ({
             ...prevData,
@@ -33,36 +37,57 @@ const CreateTournamentForm = ({ onClose, onSave }) => {
             ...prevData,
             [name]: value,
         }));
-    
-        // Set Close Registration 24 hours before the Start Date when Start Date changes
+
         if (name === 'startDatetime') {
             const startDate = new Date(value);
             const closeRegDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
-    
-            // Adjust closeRegDate to local timezone in the correct format (yyyy-MM-ddTHH:mm)
-            const closeRegISO = closeRegDate.toISOString().slice(0, 16);
-    
             setFormData((prevData) => ({
                 ...prevData,
-                closeRegistration: closeRegISO,
+                closeRegistration: closeRegDate.toISOString().slice(0, 16),
             }));
         }
     };
-    
 
     const handleNext = () => setPage(2);
     const handleBack = () => setPage(1);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        const user = auth.currentUser;
 
-        // Prepare data to include status and exclude fields handled by backend like tid
-        const submissionData = {
-            ...formData,
-            status: "Open registration"
-        };
+        if (!user) {
+            setError("User is not authenticated.");
+            return;
+        }
 
-        onSave(submissionData); // Call the onSave function with the form data
+        try {
+            const formattedData = {
+                ...formData,
+                ageLimit: Number(formData.ageLimit),
+                eloRequirement: Number(formData.eloRequirement),
+                prize: Number(formData.prize),
+                capacity: Number(formData.capacity),
+                startDatetime: formData.startDatetime + ":00Z",
+                endDatetime: formData.endDatetime + ":00Z",
+                openRegistration: formData.openRegistration + ":00Z",
+                closeRegistration: formData.closeRegistration + ":00Z",
+            };
+
+            await axios.post(
+                http://localhost:7070/admin/createTournament/${user.uid},
+                formattedData
+            );
+
+            setShowConfirmation(true); // Show confirmation popup
+            setTimeout(() => {
+                setShowConfirmation(false);
+                onClose();
+                if (onSuccess) onSuccess();
+            }, 2000); // Hide popup and close form after 2 seconds
+        } catch (error) {
+            console.error("Error creating tournament:", error);
+            setError("Failed to create tournament. Please try again.");
+        }
     };
 
     return (
@@ -73,6 +98,7 @@ const CreateTournamentForm = ({ onClose, onSave }) => {
                     <button className="close-button" onClick={onClose}>×</button>
                 </div>
                 <form onSubmit={handleSubmit}>
+                    {error && <p className="error-message">{error}</p>}
                     {page === 1 ? (
                         <div className="registration-body">
                             <label>Tournament Name</label>
@@ -155,6 +181,13 @@ const CreateTournamentForm = ({ onClose, onSave }) => {
                     </div>
                 </form>
             </div>
+
+            {/* Confirmation Popup */}
+            {showConfirmation && (
+                <div className="confirmation-popup">
+                    <p>Tournament created successfully!</p>
+                </div>
+            )}
         </div>
     );
 };
