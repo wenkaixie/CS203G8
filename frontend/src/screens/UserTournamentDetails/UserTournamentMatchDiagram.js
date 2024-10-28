@@ -42,7 +42,7 @@ export const WhiteThemeBracket = () => {
 
   const fetchTournamentMatches = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/tournaments2/${tournamentId}/matches`);
+      const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/matches`);
       setMatches(response.data);
       console.log(response.data);
     } catch (error) {

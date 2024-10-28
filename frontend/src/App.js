@@ -34,6 +34,8 @@ import UserTournamentParticipants from './screens/UserTournamentDetails/UserTour
 import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
 import UserTournamentMatch from './screens/UserTournamentDetails/UserTournamentMatch';
 import UserCalendar from './screens/UserCalendar/UserCalendar';
+import AdminTournamentOverview from './screens/AdminTournamentDetails/AdminTournamentOverview';
+import AdminTournamentParticipants from './screens/AdminTournamentDetails/AdminTournamentParticipants';
 
 function App() {
   return (
@@ -42,6 +44,8 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="tournament/:tournamentId/adminoverview" element={<AdminTournamentOverview />} />
+        <Route path="tournament/:tournamentId/adminparticipants" element={<AdminTournamentParticipants />} />
 
         {/* User Protected Routes */}
         <Route

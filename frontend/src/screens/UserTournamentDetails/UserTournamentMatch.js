@@ -9,14 +9,14 @@ const UserTournamentMatch = () => {
     const { tournamentId } = useParams();
     const [matches, setMatches] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [selectedRound, setSelectedRound] = useState(''); // Default: empty string
-    const [availableRounds, setAvailableRounds] = useState([]);
+    const [selectedRound, setSelectedRound] = useState(''); // Default: empty string (all rounds)
+    const [availableRounds, setAvailableRounds] = useState([]); // To hold unique round numbers
     const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
     const [activeView, setActiveView] = useState('diagram');
 
+    // Fetch tournament details
     useEffect(() => {
         const fetchTournamentDetails = async () => {
             try {
@@ -31,72 +31,54 @@ const UserTournamentMatch = () => {
             }
         };
         fetchTournamentDetails();
-
-        const handleRegistrationSuccess = () => fetchTournamentDetails();
-        window.addEventListener('registrationSuccess', handleRegistrationSuccess);
-
-        // Cleanup listener on unmount
-        return () => {
-            window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
-        };
     }, [tournamentId]);
 
-    useEffect(() => {
-        const fetchRounds = async () => {
-            try {
-                const response = await axios.get(
-                    `http://localhost:8080/api/tournaments/${tournamentId}/rounds`
-                );
-                setAvailableRounds(response.data);
-            } catch (error) {
-                console.error('Error fetching rounds:', error);
-            }
-        };
-        fetchRounds();
-    }, [tournamentId]);
+    // Fetch participant information (rating and nationality)
+    const fetchParticipantInfo = async (uid) => {
+        try {
+            const response = await axios.get(`http://localhost:9090/user/getUser/${uid}`);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching user data for ${uid}:`, error);
+            return { rating: 'N/A', nationality: 'N/A' }; // Return default values if the API call fails
+        }
+    };
 
+    // Fetch all matches for the tournament and enhance participant data
     useEffect(() => {
         const fetchMatches = async () => {
             try {
-                if (selectedRound) {
-                    const response = await axios.get(
-                        `http://localhost:8080/api/rounds/${selectedRound}/matches`
-                    );
-                    const matchesData = response.data;
+                const response = await axios.get(
+                    `http://localhost:8080/api/tournaments/${tournamentId}/matches`
+                );
+                const fetchedMatches = response.data;
 
-                    const enhancedMatches = await Promise.all(
-                        matchesData.map(async (match) => {
-                            const [player1Response, player2Response] = await Promise.all([
-                                axios.get(`http://localhost:9090/user/getUser/${match.uid1}`),
-                                axios.get(`http://localhost:9090/user/getUser/${match.uid2}`),
-                            ]);
+                // Fetch additional information
+                const enhancedMatches = await Promise.all(fetchedMatches.map(async (match) => {
+                    const participant1Data = await fetchParticipantInfo(match.participants[0].id);
+                    const participant2Data = await fetchParticipantInfo(match.participants[1].id);
 
-                            const player1Data = player1Response.data;
-                            const player2Data = player2Response.data;
+                    return {
+                        ...match,
+                        participants: [
+                            { ...match.participants[0], ...participant1Data },
+                            { ...match.participants[1], ...participant2Data }
+                        ]
+                    };
+                }));
 
-                            return {
-                                ...match,
-                                player1: player1Data.name || 'Player 1',
-                                rating1: player1Data.elo || 'N/A',
-                                nationality1: player1Data.nationality || 'N/A',
-                                player2: player2Data.name || 'Player 2',
-                                rating2: player2Data.elo || 'N/A',
-                                nationality2: player2Data.nationality || 'N/A',
-                            };
-                        })
-                    );
+                setMatches(enhancedMatches);
 
-                    setMatches(enhancedMatches);
-                } else {
-                    setMatches([]); // Clear matches if no round is selected
-                }
+                // Extract unique round numbers from matches using `tournamentRoundText`
+                const rounds = [...new Set(enhancedMatches.map(match => match.tournamentRoundText))];
+                setAvailableRounds(rounds);
             } catch (error) {
                 console.error('Error fetching matches:', error);
                 setMatches([]);
             }
         };
         fetchMatches();
-    }, [selectedRound]);
+    }, [tournamentId]);
 
     const handleSearch = (e) => setSearchTerm(e.target.value);
     const toggleDropdown = () => setIsDropdownVisible(!isDropdownVisible);
@@ -172,10 +154,10 @@ const UserTournamentMatch = () => {
                                 {availableRounds.map((round) => (
                                     <div
                                         className="dropdown-item"
-                                        key={round.trid}
-                                        onClick={() => handleRoundSelection(round.trid)}
+                                        key={round}
+                                        onClick={() => handleRoundSelection(round)}
                                     >
-                                        Round {round.roundNumber}
+                                        Round {round}
                                     </div>
                                 ))}
                             </div>
@@ -185,8 +167,8 @@ const UserTournamentMatch = () => {
 
                 {activeView === 'list' ? (
                     availableRounds.map((round) => (
-                        <div key={round.trid}>
-                            <h2 className="round-title">Round {round.roundNumber}</h2>
+                        <div key={round}>
+                            <h2 className="round-title">Round {round}</h2>
                             <table className="matches-table">
                                 <thead>
                                     <tr>
@@ -202,31 +184,33 @@ const UserTournamentMatch = () => {
                                         <th>Player 2</th>
                                         <th>Rating</th>
                                         <th>Nationality</th>
+                                        <th>State</th> {/* New column for match state */}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {matches.filter((match) => match.rid === round.trid).length > 0 ? (
+                                    {matches.filter((match) => match.tournamentRoundText === round).length > 0 ? (
                                         matches
-                                            .filter((match) => match.rid === round.trid)
+                                            .filter((match) => match.tournamentRoundText === round)
                                             .map((match, index) => (
                                                 <tr key={index}>
                                                     <td>{index + 1}</td>
-                                                    <td>{new Date(match.matchDate).toLocaleDateString()}</td>
+                                                    <td>{new Date(match.startTime).toLocaleDateString()}</td>
                                                     <td>{match.location || 'N/A'}</td>
-                                                    <td>{match.player1}</td>
-                                                    <td>{match.rating1}</td>
-                                                    <td>{match.nationality1}</td>
-                                                    <td>{match.user1Score}</td>
+                                                    <td>{match.participants[0].name}</td>
+                                                    <td>{match.participants[0].rating}</td>
+                                                    <td>{match.participants[0].nationality}</td>
+                                                    <td>{match.participants[0].resultText}</td>
                                                     <td className="vs-text">VS</td>
-                                                    <td>{match.user2Score}</td>
-                                                    <td>{match.player2}</td>
-                                                    <td>{match.rating2}</td>
-                                                    <td>{match.nationality2}</td>
+                                                    <td>{match.participants[1].resultText}</td>
+                                                    <td>{match.participants[1].name}</td>
+                                                    <td>{match.participants[1].rating}</td>
+                                                    <td>{match.participants[1].nationality}</td>
+                                                    <td>{match.state}</td> 
                                                 </tr>
                                             ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="12">No matches for this round.</td>
+                                            <td colSpan="13">No matches for this round.</td>
                                         </tr>
                                     )}
                                 </tbody>
