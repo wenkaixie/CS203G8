@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 const pages = ['Home', 'Tournaments', 'My Calendar', 'My Performance'];
 const settings = ['Profile', 'Logout'];
 
-function Navbar() {
+const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [error, setError] = React.useState(null); // State for handling errors
