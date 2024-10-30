@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './MyTournamentsTable.css';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import axios from 'axios';
 import { getAuth } from "firebase/auth";
 
-const MyTournamentsTable = () => {
+const MyTournamentsTable = ({upcomingTournaments, ongoingTournaments}) => {
     const [ongoingButton, setOngoingButton] = useState(true);
     const [upcomingButton, setUpcomingButton] = useState(false);
     const [sortedTournaments, setSortedTournaments] = useState(null); // Initially null
@@ -19,29 +18,13 @@ const MyTournamentsTable = () => {
     const navigate = useNavigate();
     const auth = getAuth();
 
-    // Fetch ongoing tournaments
-    const fetchOngoingTournaments = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
-            setTournaments(response.data);
-        } catch (error) {
-            console.error('Error fetching ongoing tournaments:', error);
-        }
-    };
+    const fetchOngoingTournaments = () => {
+        setTournaments(ongoingTournaments);
+    }
 
-    // Fetch upcoming tournaments
-    const fetchUpcomingTournaments = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/upcoming/${auth.currentUser.uid}`);
-            setTournaments(response.data);
-        } catch (error) {
-            console.error('Error fetching upcoming tournaments:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchOngoingTournaments();
-    }, []);
+    const fetchUpcomingTournaments = () => {
+        setTournaments(upcomingTournaments);
+    }
 
     const handleOngoingUpcomingButtonChange = (type) => {
         setSortBy('');
@@ -68,11 +51,11 @@ const MyTournamentsTable = () => {
     };
 
     const handleRowClick = (tournamentId) => {
-        navigate(`/user/tournament/${tournamentId}/overview`);
+        navigate(`/admin/tournament/${tournamentId}/overview`);
     };
 
-    const handleViewMyCalendar = () => {
-        navigate(`/user/calendar`);
+    const handleViewMyTournaments = () => {
+        navigate(`/admin/tournaments`);
     }
 
     const formatDate = (dateString) => {
@@ -198,7 +181,7 @@ const MyTournamentsTable = () => {
                             <td>{formatDate(tournament.startDatetime)} - {formatDate(tournament.endDatetime)}</td>
                             <td>{tournament.location}</td>
                             <td>{tournament.capacity}</td>
-                            <td className={`status-${registrationStatus.toLowerCase()}`}>{registrationStatus}</td>
+                            <td className={`status-${registrationStatus.toLowerCase()}`}>{tournament.status}</td>
                             <td>${tournament.prize}</td>
                         </tr>
                     );
@@ -231,8 +214,8 @@ const MyTournamentsTable = () => {
                 </span>
             </div>
 
-            <div className="show-more-text" onClick={handleViewMyCalendar}>
-                View My Calendar
+            <div className="show-more-text" onClick={handleViewMyTournaments}>
+                View My Tournaments
             </div>
         </div>
     );

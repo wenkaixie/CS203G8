@@ -93,7 +93,6 @@ body {
 
 .dashboard-col-inner:last-child {
   flex: 0 1 60%;
-  min-height: 500px;
 }
 
 .dashboard-col-inner:only-child {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import './UpdateProfile.css';
+import './UserUpdateProfile.css';
 import logoImage from '../../assets/images/logo.png';
 import profileImage from '../../assets/images/chess-profile-pic.jpg';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
@@ -11,7 +11,7 @@ import axios from 'axios';
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
-const UpdateProfile = () => {
+const UserUpdateProfile = () => {
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -172,4 +172,4 @@ const UpdateProfile = () => {
     );
 };
 
-export default UpdateProfile;
+export default UserUpdateProfile;

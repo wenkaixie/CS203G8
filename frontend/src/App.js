@@ -30,7 +30,7 @@ import Signup from './screens/Signup/Signup';
 
 // User Screens
 import UserHome from './screens/UserHome/UserHome';
-import UpdateProfile from './screens/UpdateProfile/UpdateProfile';
+import UserUpdateProfile from './screens/UserUpdateProfile/UserUpdateProfile';
 import UserTournaments from './screens/UserTournaments/UserTournaments';
 import UserTournamentParticipants from './screens/UserTournamentDetails/UserTournamentParticipants';
 import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
@@ -59,7 +59,7 @@ const App = () => {
             <ProtectedRoute allowedRoles={['Users']}>
               <Routes>
                 <Route path="home" element={<UserHome />} />
-                <Route path="profile" element={<UpdateProfile />} />
+                <Route path="profile" element={<UserUpdateProfile />} />
                 <Route path="tournaments" element={<UserTournaments />} />
                 <Route path="calendar" element={<UserCalendar />} />
 

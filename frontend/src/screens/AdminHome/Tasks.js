@@ -41,16 +41,14 @@ const Tasks = () => {
       </div>
       <div className="task-list">
         {tasks.map((task, index) => (
-          <div key={index} className="task-item">
+          <div key={index} className="task-item"
+              onClick={() => navigate(`/admin/tournament/${task.tid}`)} >
             <div className="task-details">
               <h4>{task.name}</h4>
               <p>{task.description}</p>
               <span>{task.status}</span>
             </div>
-            <ArrowForwardIosIcon 
-              sx={{ fontSize: '1.5rem', cursor: 'pointer' }} 
-              onClick={() => navigate(`/admin/tournament/${task.tid}`)} 
-            />
+            <ArrowForwardIosIcon />
           </div>
         ))}
       </div>
