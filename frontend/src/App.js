@@ -44,8 +44,8 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="tournament/:tournamentId/adminoverview" element={<AdminTournamentOverview />} />
-        <Route path="tournament/:tournamentId/adminparticipants" element={<AdminTournamentParticipants />} />
+        <Route path="tournament/:tournamentId/participants" element={<UserTournamentParticipants />} />
+        <Route path="tournaments" element={<UserTournaments />} />
 
         {/* User Protected Routes */}
         <Route
@@ -74,6 +74,8 @@ function App() {
             <ProtectedRoute allowedRoles={['Admins']}>
               <Routes>
                 {/* <Route path="/home" element={<AdminHome />} /> */}
+                <Route path="tournament/:tournamentId/overview" element={<AdminTournamentOverview />} />
+                <Route path="tournament/:tournamentId/participants" element={<AdminTournamentParticipants />} />
               </Routes>
             </ProtectedRoute>
           }

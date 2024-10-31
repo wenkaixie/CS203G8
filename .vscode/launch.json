@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "AppApplication",
+            "request": "launch",
+            "mainClass": "com.app.tournamentv2.app.AppApplication",
+            "projectName": "app"
+        },
+        {
+            "type": "java",
             "name": "AdminManagementService",
             "request": "launch",
             "mainClass": "csd.adminmanagement.AdminManagementService",

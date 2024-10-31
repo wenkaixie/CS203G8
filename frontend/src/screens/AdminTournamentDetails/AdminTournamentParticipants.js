@@ -33,18 +33,18 @@ const AdminTournamentParticipants = () => {
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                const response = await axios.get(http://localhost:8080/api/tournaments/${tournamentId});
+                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
                 const participantIds = tournamentData.users || [];
 
                 const participantDetails = await Promise.all(
                     participantIds.map(async (userID) => {
                         const sanitizedUserID = userID.replace(/['"]/g, '');
-                        const userResponse = await axios.get(http://localhost:9090/user/getUser/${sanitizedUserID});
+                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${sanitizedUserID}`);
                         const userData = userResponse.data;
                         const age = calculateAge(userData.dateOfBirth);
 
-                        const rankResponse = await axios.get(http://localhost:9090/user/getUserRank/${sanitizedUserID});
+                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${sanitizedUserID}`);
                         const userRank = rankResponse.data;
 
                         return { ...userData, age, userRank };
@@ -100,7 +100,7 @@ const AdminTournamentParticipants = () => {
         const confirmDelete = window.confirm("Are you sure you want to remove this player from the tournament?");
         if (confirmDelete) {
             try {
-                const response = await axios.delete(http://localhost:8080/api/tournaments/${tournamentId}/players/${playerId});
+                const response = await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/players/${playerId}`);
                 console.log(response.data);
                 setParticipants(participants.filter((participant) => participant.uid !== playerId));
                 setNumberOfPlayers(numberOfPlayers - 1);

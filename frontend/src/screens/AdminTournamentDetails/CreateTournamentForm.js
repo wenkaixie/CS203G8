@@ -74,7 +74,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             };
 
             await axios.post(
-                http://localhost:7070/admin/createTournament/${user.uid},
+                `http://localhost:7070/admin/createTournament/${user.uid}`,
                 formattedData
             );
 

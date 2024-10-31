@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './AdminTournamentOverview.css';
-import AdminDetailsHeader from './AdminTournamentHeader'; 
+import AdminDetailsHeader from './AdminTournamentHeader';
+import CreateTournamentForm from './CreateTournamentForm'; // Import the form
 
 const AdminTournamentOverview = () => {
     const { tournamentId } = useParams();
@@ -10,7 +11,8 @@ const AdminTournamentOverview = () => {
     const [tournamentData, setTournamentData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isEditMode, setIsEditMode] = useState(false); // State to toggle between edit and view modes
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [showCreateForm, setShowCreateForm] = useState(false); // State to control form visibility
 
     useEffect(() => {
         const fetchTournamentData = async () => {
@@ -48,42 +50,43 @@ const AdminTournamentOverview = () => {
 
     const handleSaveClick = async () => {
         try {
-            // Ensure the date fields are correctly formatted before saving
             const updatedTournamentData = {
                 ...tournamentData,
                 startDatetime: new Date(tournamentData.startDatetime).toISOString(),
                 endDatetime: new Date(tournamentData.endDatetime).toISOString(),
             };
 
-            // Make the PUT API call to save the updated data
-            await axios.put(
-                `http://localhost:8080/api/tournaments/${tournamentId}`, 
-                updatedTournamentData // Send the updated tournament data as the request body
-            );
-            setIsEditMode(false); // Exit edit mode
+            await axios.put(`http://localhost:8080/api/tournaments/${tournamentId}`, updatedTournamentData);
+            setIsEditMode(false);
         } catch (error) {
             console.error("Error updating tournament:", error);
         }
     };
 
     const handleCancelClick = () => {
-        setIsEditMode(false); // Exit edit mode without saving
+        setIsEditMode(false);
     };
 
     const handleEditClick = () => {
-        setIsEditMode(true); // Enable edit mode
+        setIsEditMode(true);
+    };
+
+    const handleCreateTournament = () => {
+        setShowCreateForm(true);
+    };
+
+    const closeForm = () => {
+        setShowCreateForm(false);
     };
 
     // Calculate prize breakdown based on total prize
     const calculatePrizeBreakdown = (totalPrize) => {
         let total = 0;
-
         if (typeof totalPrize === 'string') {
             total = parseFloat(totalPrize.replace(/[^0-9.-]+/g, ''));
         } else if (typeof totalPrize === 'number') {
             total = totalPrize;
         }
-
         return [
             { place: "1st", amount: `$${(total * 0.40).toLocaleString()}` },
             { place: "2nd", amount: `$${(total * 0.25).toLocaleString()}` },
@@ -198,7 +201,7 @@ const AdminTournamentOverview = () => {
                                 onChange={(e) => handleFieldChange('location', e.target.value)}
                             />
                         ) : (
-                            tournamentData?.location || "Budapest, Hungary"
+                            tournamentData?.location || "N/A"
                         )}
                     </div>
 
@@ -207,7 +210,7 @@ const AdminTournamentOverview = () => {
                         <p>{`${tournamentData?.name || "This tournament"} is a ${tournamentData?.capacity || numberOfPlayers}-player single-elimination knockout tournament. Players compete head-to-head in a series of matches, with the winner advancing to the next round, and the loser being eliminated. The tournament follows standard chess rules, with time controls of 90 minutes for the first 40 moves, followed by 30 minutes for the remainder of the game, with an additional 30 seconds per move starting from move one. The ultimate goal is to determine the champion through progressive elimination of participants.`}</p>
                     </div>
 
-                    <div className="detail-row">
+                    <div className="prizes-section">
                         <strong>Prizes:</strong>
                         <div className="prizes">
                             <div className="prize-total-box">
@@ -226,18 +229,12 @@ const AdminTournamentOverview = () => {
                             <div className="prize-breakdown-box">
                                 <table className="prize-table">
                                     <tbody>
-                                        {prizeBreakdown.length > 0 ? (
-                                            prizeBreakdown.map((prize, index) => (
-                                                <tr key={index}>
-                                                    <td className="prize-place">{prize.place}</td>
-                                                    <td className="prize-amount-text">{prize.amount}</td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="2">No prize breakdown available</td>
+                                        {prizeBreakdown.map((prize, index) => (
+                                            <tr key={index}>
+                                                <td className="prize-place">{prize.place}</td>
+                                                <td className="prize-amount-text">{prize.amount}</td>
                                             </tr>
-                                        )}
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -251,10 +248,22 @@ const AdminTournamentOverview = () => {
                     </div>
 
                     {!isEditMode && (
-                        <button className="fixed-plus-button">+</button> // The floating button appears only in view mode
+                        <button className="fixed-plus-button" onClick={handleCreateTournament}>
+                            +
+                        </button>
                     )}
                 </div>
             </div>
+
+            {showCreateForm && (
+                <CreateTournamentForm
+                    onClose={closeForm}
+                    onSuccess={() => {
+                        closeForm();
+                        // Optionally refresh data here after form submission
+                    }}
+                />
+            )}
         </div>
     );
 };
