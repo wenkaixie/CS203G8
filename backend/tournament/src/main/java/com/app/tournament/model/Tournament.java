@@ -1,7 +1,6 @@
 package com.app.tournament.model;
 
 import java.time.Instant;
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,10 +15,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Tournament {
 
-    // private String adminID;
-    // private boolean status; // denotes of torunament is open. however, should toggle based on max capacity and/or cut off based
-                                // on dateTime
-    // private String type; // classic, blitz etcx
+    private String adminId;
+    private String type; // classic, blitz etcx
 
 
 
@@ -40,8 +37,10 @@ public class Tournament {
     private String status;
     
     // List to store players in the tournament
-    private List<String> users; // store players uid's
-    private List<Round> rounds; 
-
+    // private List<String> users; // store players uid's
+    // private List<Round> rounds;
+    
+    //
+    private int currentRound;
 }
 

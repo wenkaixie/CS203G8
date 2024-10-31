@@ -1,0 +1,138 @@
+@import url('https://fonts.cdnfonts.com/css/josefin-sans');
+
+body {
+  font-family: 'Josefin Sans' !important;
+}
+
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../../assets/images/home-background.png');
+  background-size: cover;
+  background-attachment: fixed;
+  overflow-y: auto;
+}
+
+.background::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.4);
+  background-size: cover;
+  background-attachment: fixed;
+  z-index: 1;
+  overflow-y: auto;
+}
+
+.background-content {
+  position: relative;
+  z-index: 2;
+}
+
+.carousel-item {
+  height: 250px;
+}
+
+.carousel-caption {
+  width: fit-content !important;
+  text-align: left !important;
+  height: 100%;
+}
+
+.dashboard {
+  padding: 0px 100px;
+  margin-bottom: 50px;
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px){
+  .dashboard {
+    flex-direction: column;
+    padding: 0px 50px;
+  }
+}
+
+.dashboard-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-col:first-child {
+  flex: 0 1 30%;
+}
+
+.dashboard-col:last-child {
+  flex: 0 1 70%;
+}
+
+.dashboard-col-inner {
+  background-color: #FFFFFF;
+  border: '1px solid rgba(0, 0, 0, 0.1)';
+  border-radius: 10px;
+  box-shadow: '0px 4px 10px rgba(0, 0, 0, 0.2)';
+  padding: min(30px, 10%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-col-inner:first-child {
+  flex: 0 1 20%;
+}
+
+.dashboard-col-inner:last-child {
+  flex: 0 1 80%;
+}
+
+.dashboard-col-inner:only-child {
+  flex: 0 1 100%;
+}
+
+.welcome-back h2{
+  font-weight: 600px;
+}
+
+.rating-and-rank {
+  background-color: #F5F5EE;
+  padding: 5%;
+  border: '1px solid rgba(0, 0, 0, 0.1)';
+  border-radius: 10px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+
+.rating-and-rank-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 45%;
+}
+
+.divider {
+  width: 1px;
+  height: 75%;
+  background-color: #e0e0e0;
+  margin: 0px 5%;
+}
+
+.rating-and-rank-section-details {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 70%;
+}

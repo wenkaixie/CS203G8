@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
-// Spring imports
 import org.springframework.context.annotation.Configuration;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -50,7 +49,7 @@ public class FirebaseConfig {
             return firebaseApps.get(0);
         } else {
             // Initialize a new FirebaseApp instance
-            String credentialsPath = System.getenv("FIREBASE_CREDENTIALS");
+            String credentialsPath = "serviceAccountKey.json";
             FileInputStream serviceAccount = new FileInputStream(credentialsPath);
 
             FirebaseOptions options = FirebaseOptions.builder()
