@@ -95,7 +95,7 @@ const UserTournamentOverview = () => {
 
                     </div>
                     <div className="detail-row">
-                        <strong>Tournament type:</strong> {tournamentData?.type || "Swiss"}
+                        <strong>Tournament type:</strong> {tournamentData?.type || "Single-elimination"}
                     </div>
                     <div className="detail-row">
                         <strong>ELO requirement:</strong> {tournamentData?.eloRequirement || "0"}

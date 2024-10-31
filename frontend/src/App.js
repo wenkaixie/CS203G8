@@ -36,11 +36,12 @@ import UserTournamentParticipants from './screens/UserTournamentDetails/UserTour
 import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
 import UserTournamentMatch from './screens/UserTournamentDetails/UserTournamentMatch';
 import UserCalendar from './screens/UserCalendar/UserCalendar';
+import AdminTournamentOverview from './screens/AdminTournamentDetails/AdminTournamentOverview';
+import AdminTournamentParticipants from './screens/AdminTournamentDetails/AdminTournamentParticipants';
 
 // Admin Screens
 import AdminHome from './screens/AdminHome/AdminHome';
 import AdminUpdateProfile from './screens/AdminUpdateProfile/AdminUpdateProfile';
-
 
 const App = () => {
   return (
@@ -49,6 +50,9 @@ const App = () => {
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="tournament/:tournamentId/participants" element={<UserTournamentParticipants />} />
+        <Route path="tournament/:tournamentId/overview" element={<UserTournamentOverview />} />
+        <Route path="tournaments" element={<UserTournaments />} />
     
         {/* <Route path="/admin/home" element={<AdminHome />} /> */}
 
@@ -78,6 +82,9 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={['Admins']}>
               <Routes>
+                {/* <Route path="/home" element={<AdminHome />} /> */}
+                <Route path="tournament/:tournamentId/overview" element={<AdminTournamentOverview />} />
+                <Route path="tournament/:tournamentId/participants" element={<AdminTournamentParticipants />} />
                 <Route path="home" element={<AdminHome />} />
                 <Route path="profile" element={<AdminUpdateProfile />} />
               </Routes>

@@ -1,0 +1,178 @@
+/* General Styles for AdminTournamentOverview */
+.admin-tournament-overview {
+    font-family: 'Josefin Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh; /* Ensure the body takes up the full viewport height */
+    background-color: #F5F5EF;
+}
+
+/* Tournament Overview Container */
+.admin-tournament-overview {
+    padding: 50px 100px;
+    width: 100%;
+    background-color: #F5F5EF;
+    margin: 20px auto;
+    margin-top: 230px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribute content evenly */
+    box-sizing: border-box;
+}
+
+
+/* Tournament Description */
+.admin-tournament-overview .tournament-description {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 30px;
+    line-height: 1.2;
+}
+
+.admin-tournament-overview .tournament-description textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    resize: vertical;
+}
+
+/* Tournament Details */
+.admin-tournament-overview .tournament-details {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.admin-tournament-overview .detail-row {
+    margin-bottom: 15px;
+}
+
+.admin-tournament-overview .detail-row strong {
+    color: #8F3013;
+    margin-right: 10px;
+}
+
+.admin-tournament-overview .detail-row input,
+.admin-tournament-overview .detail-row select {
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: auto;
+}
+
+.admin-tournament-overview .detail-row input[type="date"] {
+    width: auto;
+}
+
+/* Prizes Section */
+.admin-tournament-overview .prizes {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.admin-tournament-overview .prize-total-box,
+.admin-tournament-overview .prize-breakdown-box {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.admin-tournament-overview .prize-total-box {
+    padding: 25px 20px;
+    align-items: center;
+    text-align: center;
+}
+
+.admin-tournament-overview .prize-icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.admin-tournament-overview .prize-amount {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #8F3013;
+}
+
+.admin-tournament-overview .prize-label {
+    font-size: 1rem;
+    color: #555;
+}
+
+.admin-tournament-overview .prize-table {
+    width: 100%;
+    border-spacing: 0 5px;
+}
+
+.admin-tournament-overview .prize-table td {
+    padding: 0px 10px;
+}
+
+.admin-tournament-overview .prize-place {
+    font-weight: bold;
+    color: #8F3013;
+}
+
+/* Organizer and Official Partners Styling */
+.admin-tournament-overview .organizer-container {
+    margin-top: 30px;
+    margin-bottom: 0;
+}
+
+.admin-tournament-overview .organizer-container strong {
+    font-size: 1rem;
+    color: #8F3013;
+}
+
+.admin-tournament-overview .organizer-container p {
+    font-size: 1rem;
+    color: #333;
+    margin-top: 5px;
+}
+
+/* Ensure Full Bottom Coverage */
+html, body {
+    height: 100%; /* Ensure the HTML and body elements cover the full height */
+}
+
+.admin-tournament-overview .tournament-overview::after {
+    content: '';
+    display: block;
+    height: 50px; /* Extra height to ensure full coverage */
+    background-color: #F5F5EF;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-tournament-overview .tournament-overview {
+        padding: 20px 15px;
+    }
+
+    .admin-tournament-overview .prizes {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .admin-tournament-overview .prize-total-box {
+        margin-bottom: 20px;
+    }
+
+    .admin-tournament-overview .prize-breakdown-box,
+    .admin-tournament-overview .prize-table td {
+        width: 100%;
+        text-align: center;
+    }
+
+    .admin-tournament-overview .fixed-plus-button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+}
