@@ -11,3 +11,5 @@ backend/tournament/src/main/resources/serviceAccountKey.json
 .DS_Store
 /serviceAccountKey.json
 .FIREBASE_CREDENTIALS.json
+
+backend/tournament/src/main/java/com/app/tournament/FirebaseConfig.java

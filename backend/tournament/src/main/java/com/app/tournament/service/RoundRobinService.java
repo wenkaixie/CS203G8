@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.app.tournament.DTO.ParticipantDTO;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
-import com.app.tournament.model.Tournament;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
@@ -26,17 +25,17 @@ public class RoundRobinService {
     @Autowired
     private Firestore firestore;
 
-    @Autowired
-    private TournamentService tournamentService;
+    // @Autowired
+    // private TournamentService tournamentService;
 
-    @Autowired
-    private UserService userService; // Assuming you have a service to fetch user details
+    // @Autowired
+    // private UserService userService; // Assuming you have a service to fetch user details
 
     // Method to generate round-robin rounds and matches
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
         try {
             // Fetch tournament from the tournamentService
-            Tournament tournament = tournamentService.getTournamentById(tournamentID);
+            // Tournament tournament = tournamentService.getTournamentById(tournamentID);
 
             // Retrieve the Users subcollection from Firestore
             CollectionReference usersCollection = firestore.collection("Tournaments").document(tournamentID)

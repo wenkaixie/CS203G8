@@ -14,7 +14,7 @@ import lombok.Setter;
 public class ParticipantDTO {
 
     private String id; // player 1 or player 2
-    private String uid; //players Uid
+    private String authId; //players Uid
     private String name; // Name of the participant
     private String resultText; // Textual result of the match (e.g., "6" or "Win")
 

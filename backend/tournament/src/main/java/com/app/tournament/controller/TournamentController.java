@@ -1,8 +1,11 @@
 package com.app.tournament.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +36,8 @@ public class TournamentController {
 
     @Autowired
     private EliminationService eliminationService;
+
+    private static final Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
     // Create tournament endpoint
     @PostMapping
@@ -130,6 +135,20 @@ public class TournamentController {
     // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     // }
     // }
+
+    @GetMapping("/{tournamentID}/users")
+    public ResponseEntity<List<Map<String, Object>>> getAllUsersFromTournament(@PathVariable String tournamentID) {
+        try {
+            List<Map<String, Object>> users = tournamentService.getAllUsersFromTournament(tournamentID);
+            return ResponseEntity.ok(users);
+        } catch (ExecutionException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
 
     // Get upcoming tournaments
     @GetMapping("/upcoming/{userID}")

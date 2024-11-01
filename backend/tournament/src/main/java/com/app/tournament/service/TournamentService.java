@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,8 @@ public class TournamentService {
 
     @Autowired
     private TournamentSchedulerService tournamentSchedulerService;
+
+    private static final Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
     // @Autowired
     
@@ -343,6 +347,29 @@ public class TournamentService {
 
         log.info("Fetched a total of {} matches from tournament {}.", allMatches.size(), tournamentID);
         return allMatches;
+    }
+
+
+    // Method to retrieve all users from the user subcollection of a specific
+    // tournament
+    public List<Map<String, Object>> getAllUsersFromTournament(String tournamentID)
+            throws ExecutionException, InterruptedException {
+        logger.info("Starting retrieval of users from tournament with ID: {}", tournamentID);
+
+        CollectionReference usersRef = firestore.collection("Tournaments")
+                .document(tournamentID)
+                .collection("Users");
+
+        ApiFuture<QuerySnapshot> future = usersRef.get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+        List<Map<String, Object>> users = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            users.add(document.getData()); // Retrieve document data as Map
+        }
+
+        logger.info("Retrieved {} users from tournament with ID: {}", users.size(), tournamentID);
+        return users;
     }
 
     public List<Tournament> getTournamentsWithPagination(int limit, String lastTournamentID) throws InterruptedException, ExecutionException {

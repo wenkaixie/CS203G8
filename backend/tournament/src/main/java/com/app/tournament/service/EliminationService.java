@@ -30,8 +30,8 @@ public class EliminationService {
     // @Autowired
     // private TournamentService tournamentService;
 
-    @Autowired
-    private UserService userService;
+    // @Autowired
+    // private UserService userService;
 
     // Generate rounds and matches for the tournament
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
@@ -327,7 +327,7 @@ public class EliminationService {
                         .findFirst()
                         .ifPresent(winner -> participants.add(new ParticipantDTO(
                                 String.valueOf(participants.size() + 1), // Assign new player ID (1 or 2)
-                                winner.getUid(), // Carry over the winner's UID
+                                winner.getAuthId(), // Carry over the winner's UID
                                 winner.getName(), // Carry over the winner's name
                                 "", // Result text will be determined in the next match
                                 winner.getElo(), // Carry over the winner's Elo
