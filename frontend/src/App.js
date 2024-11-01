@@ -53,10 +53,6 @@ const App = () => {
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="tournament/:tournamentId/participants" element={<UserTournamentParticipants />} />
-        <Route path="tournament/:tournamentId/overview" element={<UserTournamentOverview />} />
-        <Route path="tournaments" element={<UserTournaments />} />
-        <Route path="tournament/:tournamentId/games" element={<AdminTournamentMatch />} />
     
         {/* <Route path="/admin/home" element={<AdminHome />} /> */}
 
