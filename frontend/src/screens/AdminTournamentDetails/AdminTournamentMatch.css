@@ -1,0 +1,251 @@
+/* General Styles */
+body {
+    font-family: 'Josefin Sans', sans-serif !important;
+    margin: 0;
+    padding: 0;
+}
+
+/* UserTournamentMatch Component */
+.admin-tournament-match {
+    padding: 300px 40px;
+    width: 100%;
+    background-color: #F5F5EF;
+    margin-top: -70px;
+    min-height: 500px;
+}
+
+/* Controls Container for List, Image, Search, Filter, and Rounds */
+.admin-tournament-match .controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1450px;
+    margin: 25px auto 30px;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* View Buttons for List and Image View */
+.admin-tournament-match .view-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+/* Button Styles for Image View and List View */
+.admin-tournament-match .image-view-button,
+.admin-tournament-match .list-view-button {
+    height: 45px;
+    width: 45px;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* Active Button Styling */
+.admin-tournament-match .list-view-button.active {
+    background-color: #F9E4D6; /* Light background for list view when active */
+}
+
+.admin-tournament-match .image-view-button.active {
+    background-color: #8F3013; /* Highlight image view button */
+    color: white;
+}
+
+/* Icon Images inside Buttons */
+.admin-tournament-match .image-view-button img,
+.admin-tournament-match .list-view-button img {
+    width: 25px;
+    height: 25px;
+    transition: opacity 0.3s ease;
+    opacity: 0.5; /* Default opacity */
+}
+
+.admin-tournament-match .image-view-button.active img,
+.admin-tournament-match .list-view-button.active img {
+    opacity: 1; /* Fully visible when active */
+}
+
+/* Hover Effect for Buttons */
+.admin-tournament-match .list-view-button:hover,
+.admin-tournament-match .image-view-button:hover {
+    background-color: #e0e0e0;
+}
+
+.image-view-button.active.pink {
+    background-color: #F9E4D6;
+}
+
+
+/* Search Bar Styles */
+.admin-tournament-match .search-bar {
+    position: relative;
+    flex-grow: 1;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.admin-tournament-match .search-bar input {
+    width: 100%;
+    padding: 10px 50px 10px 20px;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    height: 45px;
+    color: #333;
+}
+
+.admin-tournament-match .search-bar input::placeholder {
+    color: #a1a1a1;
+}
+
+/* Search Icon inside the Search Bar */
+.admin-tournament-match .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 20px;
+}
+
+/* Filter Button */
+.admin-tournament-match .filter-button {
+    height: 45px;
+    width: 120px;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-tournament-match .filter-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Dropdown styles */
+.admin-tournament-match .dropdown {
+    position: relative;
+}
+
+.user-tournament-participants .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    margin-top: 10px;
+    z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-tournament-match .dropdown-content .dropdown-item {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.admin-tournament-match .dropdown-content .dropdown-item:hover {
+    background-color: #f1f1f1;
+}
+
+/* Round Button Styles */
+.admin-tournament-match .order-button {
+    height: 45px;
+    width: 140px;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+}
+
+/* Match List */
+.admin-tournament-match .match-list {
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Round Title */
+.admin-tournament-match .round-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #8F3013;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+
+/* Participants Table */
+.admin-tournament-match .matches-table {
+    width: 100%;
+    border-collapse: separate;
+    margin-top: 20px;
+}
+
+.admin-tournament-match .matches-table th {
+    font-weight: 600;
+    color: #333;
+    padding: 10px 20px;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: left;
+    background-color: #f0f0f0;
+}
+
+.admin-tournament-match .matches-table tr {
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.admin-tournament-match .matches-table td {
+    font-weight: 500;
+    color: #555;
+    padding: 15px 20px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-tournament-match .matches-table tr:hover {
+    background-color: #f0f0f0;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .admin-tournament-match .controls-container {
+        flex-direction: column;
+        gap: 15px;
+        margin: 15px auto;
+    }
+
+    .admin-tournament-match .search-bar {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .admin-tournament-match .order-button {
+        width: 100%;
+        text-align: center;
+    }
+}

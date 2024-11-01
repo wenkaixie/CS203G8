@@ -31,28 +31,27 @@ const UserTournamentParticipants = () => {
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                const tournamentData = response.data;
-                const participantIds = tournamentData.users || [];
-                console.log(tournamentData)
-                
+                // Fetch users directly from the Users subcollection within the tournament
+                const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+                const usersArray = usersResponse.data.map(authId => authId.trim()).filter(authId => authId !== "");
+                setPlayerCount(usersArray.length);
+
+                // Fetch user details for each participant
                 const participantDetails = await Promise.all(
-                    participantIds.map(async (userID) => {
-                        const sanitizedUserID = userID.replace(/['"]/g, '');
-                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${sanitizedUserID}`);
+                    usersArray.map(async (authId) => {
+                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${authId}`);
                         const userData = userResponse.data;
                         const age = calculateAge(userData.dateOfBirth);
 
-                        // Fetch userRank for each participant
-                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${sanitizedUserID}`);
+                        // Fetch user rank for each participant
+                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${authId}`);
                         const userRank = rankResponse.data;
 
-                        return { ...userData, age, userRank };
+                        return { ...userData, age, userRank, authId };
                     })
                 );
 
                 setParticipants(participantDetails);
-                setPlayerCount(participantDetails.length);
             } catch (error) {
                 console.error('Error fetching participants:', error);
             }
@@ -67,6 +66,7 @@ const UserTournamentParticipants = () => {
             window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
         };
     }, [tournamentId]);
+
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -155,7 +155,7 @@ const UserTournamentParticipants = () => {
                         <tbody>
                             {filteredParticipants.length > 0 ? (
                                 filteredParticipants.map((participant, index) => (
-                                    <tr key={participant.uid || index}>
+                                    <tr key={participant.authId || index}>
                                         <td>{index + 1}</td>
                                         <td>{participant.name || 'null'}</td>
                                         <td>{participant.nationality || 'null'}</td>

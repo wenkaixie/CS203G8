@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { getAuth } from 'firebase/auth';
 import './AdminTournamentParticipants.css';
 import AdminDetailsHeader from './AdminTournamentHeader';
 import CreateTournamentForm from './CreateTournamentForm';
 
 const AdminTournamentParticipants = () => {
     const { tournamentId } = useParams();
-    const navigate = useNavigate();
     const [participants, setParticipants] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
@@ -18,7 +16,6 @@ const AdminTournamentParticipants = () => {
     const [tournamentData, setTournamentData] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [adminId, setAdminId] = useState(null);
 
     const calculateAge = (dateOfBirth) => {
         const birthDate = new Date(dateOfBirth.seconds * 1000);
@@ -33,27 +30,27 @@ const AdminTournamentParticipants = () => {
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                const tournamentData = response.data;
-                const participantIds = tournamentData.users || [];
+                // Fetch users directly from the Users subcollection within the tournament
+                const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+                const usersArray = usersResponse.data.map(authId => authId.trim()).filter(authId => authId !== "");
+                setNumberOfPlayers(usersArray.length);
 
+                // Fetch user details for each participant
                 const participantDetails = await Promise.all(
-                    participantIds.map(async (userID) => {
-                        const sanitizedUserID = userID.replace(/['"]/g, '');
-                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${sanitizedUserID}`);
+                    usersArray.map(async (authId) => {
+                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${authId}`);
                         const userData = userResponse.data;
                         const age = calculateAge(userData.dateOfBirth);
 
-                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${sanitizedUserID}`);
+                        // Fetch user rank for each participant
+                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${authId}`);
                         const userRank = rankResponse.data;
 
-                        return { ...userData, age, userRank };
+                        return { ...userData, age, userRank, authId };
                     })
                 );
 
-                setTournamentData(tournamentData);
                 setParticipants(participantDetails);
-                setNumberOfPlayers(participantDetails.length);
             } catch (error) {
                 console.error('Error fetching participants:', error);
             }
@@ -96,13 +93,13 @@ const AdminTournamentParticipants = () => {
         setFilteredParticipants(updatedList);
     }, [searchTerm, sortBy, participants]);
 
-    const handleDeleteParticipant = async (playerId) => {
+    const handleDeleteParticipant = async (authId) => {
         const confirmDelete = window.confirm("Are you sure you want to remove this player from the tournament?");
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/players/${playerId}`);
+                const response = await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`);
                 console.log(response.data);
-                setParticipants(participants.filter((participant) => participant.uid !== playerId));
+                setParticipants(participants.filter((participant) => participant.authId !== authId));
                 setNumberOfPlayers(numberOfPlayers - 1);
             } catch (error) {
                 console.error('Error deleting participant:', error);
@@ -188,7 +185,7 @@ const AdminTournamentParticipants = () => {
                         <tbody>
                             {filteredParticipants.length > 0 ? (
                                 filteredParticipants.map((participant, index) => (
-                                    <tr key={participant.uid || index}>
+                                    <tr key={participant.authId || index}>
                                         <td>{index + 1}</td>
                                         <td>{participant.name || 'null'}</td>
                                         <td>{participant.nationality || 'null'}</td>
@@ -200,7 +197,7 @@ const AdminTournamentParticipants = () => {
                                             <td>
                                                 <button
                                                     className="delete-participant-button"
-                                                    onClick={() => handleDeleteParticipant(participant.uid)}
+                                                    onClick={() => handleDeleteParticipant(participant.authId)}
                                                 >
                                                     ❌
                                                 </button>
@@ -226,7 +223,6 @@ const AdminTournamentParticipants = () => {
                         onClose={closeForm}
                         onSuccess={() => {
                             closeForm();
-                            // Add any additional data handling, such as refetching data here
                         }}
                     />
                 )}

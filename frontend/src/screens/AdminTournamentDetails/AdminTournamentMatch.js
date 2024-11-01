@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './UserTournamentMatch.css';
-import Header from './UserDetailsHeader';
+import './AdminTournamentMatch.css';
+import Header from './AdminTournamentHeader';
 import { useParams } from 'react-router-dom';
-import UserTournamentMatchDiagram from './UserTournamentMatchDiagram';
+import UserTournamentMatchDiagram from './AdminTournamentMatchDiagram';
 
-const UserTournamentMatch = () => {
+const AdminTournamentMatch = () => {
     const { tournamentId } = useParams();
     const [matches, setMatches] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -106,7 +106,7 @@ const UserTournamentMatch = () => {
     return (
         <div>
             <Header tournamentTitle={tournamentTitle} playerCount={playerCount} />
-            <div className="user-tournament-match">
+            <div className="admin-tournament-match">
                 <div className="controls-container">
                     <div className="view-buttons">
                         <button
@@ -237,4 +237,4 @@ const UserTournamentMatch = () => {
     );
 };
 
-export default UserTournamentMatch;
+export default AdminTournamentMatch;

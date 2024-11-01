@@ -36,12 +36,13 @@ import UserTournamentParticipants from './screens/UserTournamentDetails/UserTour
 import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
 import UserTournamentMatch from './screens/UserTournamentDetails/UserTournamentMatch';
 import UserCalendar from './screens/UserCalendar/UserCalendar';
-import AdminTournamentOverview from './screens/AdminTournamentDetails/AdminTournamentOverview';
-import AdminTournamentParticipants from './screens/AdminTournamentDetails/AdminTournamentParticipants';
 
 // Admin Screens
 import AdminHome from './screens/AdminHome/AdminHome';
 import AdminUpdateProfile from './screens/AdminUpdateProfile/AdminUpdateProfile';
+import AdminTournamentOverview from './screens/AdminTournamentDetails/AdminTournamentOverview';
+import AdminTournamentParticipants from './screens/AdminTournamentDetails/AdminTournamentParticipants';
+import AdminTournamentMatch from './screens/AdminTournamentDetails/AdminTournamentMatch';
 
 const App = () => {
   return (
@@ -53,6 +54,7 @@ const App = () => {
         <Route path="tournament/:tournamentId/participants" element={<UserTournamentParticipants />} />
         <Route path="tournament/:tournamentId/overview" element={<UserTournamentOverview />} />
         <Route path="tournaments" element={<UserTournaments />} />
+        <Route path="tournament/:tournamentId/games" element={<AdminTournamentMatch />} />
     
         {/* <Route path="/admin/home" element={<AdminHome />} /> */}
 
@@ -87,6 +89,7 @@ const App = () => {
                 <Route path="tournament/:tournamentId/participants" element={<AdminTournamentParticipants />} />
                 <Route path="home" element={<AdminHome />} />
                 <Route path="profile" element={<AdminUpdateProfile />} />
+                <Route path="tournament/:tournamentId/games" element={<AdminTournamentMatch />} />
               </Routes>
             </ProtectedRoute>
           }

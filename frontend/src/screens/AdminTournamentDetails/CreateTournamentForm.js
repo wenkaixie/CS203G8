@@ -15,7 +15,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         endDatetime: '',
         prize: 0,
         capacity: 0,
-        tournamentType: '',
+        type: '',
         openRegistration: '',
         closeRegistration: '',
     });
@@ -119,7 +119,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                             </div>
 
                             <label>Tournament Type</label>
-                            <select name="tournamentType" className="full-width" value={formData.tournamentType} onChange={handleChange}>
+                            <select name="tournamentType" className="full-width" value={formData.type} onChange={handleChange}>
                                 <option value="Elimination">Elimination</option>
                                 <option value="Round Robin">Round Robin</option>
                             </select>

@@ -13,10 +13,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-<<<<<<< HEAD:tournament/src/main/java/com/app/tournament/service/TournamentService.java
-// import org.springframework.scheduling.TaskScheduler;
-=======
->>>>>>> 573d52aae37003dac78dea82a7855fceeef91585:backend/tournament/src/main/java/com/app/tournament/service/TournamentService.java
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -544,8 +540,6 @@ public class TournamentService {
         });
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD:tournament/src/main/java/com/app/tournament/service/TournamentService.java
     // @Autowired
     // private TaskScheduler taskScheduler;
 
@@ -556,7 +550,7 @@ public class TournamentService {
     //     taskScheduler.schedule(() -> closeRegistration(tournament.getTid()), closeRegistrationTime);
 
     // }
-=======
+
 
     // @Autowired
     // private TaskScheduler taskScheduler;
@@ -566,7 +560,6 @@ public class TournamentService {
     //     Instant startDatetime = tournament.getStartDatetime();
     //     Instant closeRegistrationTime = startDatetime.minus(Duration.ofHours(24)); 
     //     taskScheduler.schedule(() -> closeRegistration(tournament.getTid()), closeRegistrationTime);
->>>>>>> 573d52aae37003dac78dea82a7855fceeef91585:backend/tournament/src/main/java/com/app/tournament/service/TournamentService.java
 
     // }
 
@@ -577,7 +570,7 @@ public class TournamentService {
     //         System.out.println("Tournament registration closed for: " + tournamentID);
     //     }, Runnable::run);
     // }
-=======
+
     private void checkAndUpdateStatus(QuerySnapshot tournamentsSnapshot) {
         // Get the current time and tournament start time
         Date currentTime = new Date();
@@ -618,4 +611,4 @@ public class TournamentService {
         }
     }
 }
->>>>>>> d1df2e9f672b173f2db39a6c39e884c98bbac7f1
+

@@ -20,7 +20,10 @@ const AdminTournamentOverview = () => {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 setTournamentData(response.data);
 
-                const usersArray = (response.data.users || []).filter(user => user.trim() !== "");
+                // Fetch users from the subcollection within the tournament
+                //change the api
+                const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+                const usersArray = usersResponse.data.map(authId => authId.trim()).filter(authId => authId !== "");
                 setNumberOfPlayers(usersArray.length);
 
                 setLoading(false);
