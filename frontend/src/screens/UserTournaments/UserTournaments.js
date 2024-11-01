@@ -51,7 +51,6 @@ const UserTournaments = () => {
 
     // Check if the current user is registered for a tournament
     const isPlayerRegistered = (tournament) => {
-        // Check if current user is in the users list
         if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
             return 'Registered';
         }
@@ -128,7 +127,7 @@ const UserTournaments = () => {
         } else if (criteria === 'Prize') {
             sortedList.sort((a, b) => a.prizePool - b.prizePool);
         }
-        setSortedTournaments(sortedList); // Set the sorted tournaments
+        setSortedTournaments(sortedList);
         setSortBy(criteria);
         setIsDropdownVisible(false);
     };
@@ -138,10 +137,8 @@ const UserTournaments = () => {
 
     return (
         <div>
-            {/* Navbar at the top */}
             <Navbar />
 
-            {/* Tournament Content */}
             <div className="tournament-upcoming">
                 <div className="header-subtask-container">
                     <h1>All Tournaments</h1>
@@ -167,7 +164,6 @@ const UserTournaments = () => {
                     </div>
                 </div>
 
-                {/* Search and Filter Controls */}
                 <div className="controls-container">
                     <div className="search-bar">
                         <input
@@ -180,11 +176,6 @@ const UserTournaments = () => {
                     </div>
 
                     <div className="buttons-container">
-                        {/* <button className="filter-button">
-                            <img src={filterIcon} alt="Filter Icon" className="filter-icon" />
-                            Filter
-                        </button> */}
-
                         <div className="dropdown">
                             <button className="order-button" onClick={toggleDropdown}>
                                 Order By {sortBy && `(${sortBy})`}
@@ -212,7 +203,6 @@ const UserTournaments = () => {
                     </div>
                 </div>
 
-                {/* Tournament List */}
                 <div className="tournament-list-container">
                     <table className="tournament-table">
                         <thead>
@@ -221,7 +211,7 @@ const UserTournaments = () => {
                                 <th>Name</th>
                                 <th>Date</th>
                                 <th>Location</th>
-                                <th>Slots</th>
+                                <th>{activeTab === 'upcoming' ? 'Slots' : 'Participants'}</th>
                                 <th>ELO Requirement</th>
                                 <th>Prize Amount</th>
                                 <th>Status</th>
@@ -229,7 +219,10 @@ const UserTournaments = () => {
                         </thead>
                         <tbody>
                         {tournamentsToDisplay.map((tournament, index) => {
-                            const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
+                            const registrationStatus = isPlayerRegistered(tournament);
+                            const slotOrParticipants = activeTab === 'upcoming'
+                                ? tournament.capacity - tournament.users.length // Available slots
+                                : tournament.users.length; // Number of participants
 
                             return (
                                 <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)}>
@@ -241,7 +234,7 @@ const UserTournaments = () => {
                                         {new Date(tournament.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                                     </td>
                                     <td>{tournament.location}</td>
-                                    <td>{tournament.capacity}</td>
+                                    <td>{slotOrParticipants}</td>
                                     <td>{tournament.eloRequirement}</td>
                                     <td>${tournament.prize}</td>
                                     <td className={`status-${registrationStatus.toLowerCase()}`}>

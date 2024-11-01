@@ -1,30 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import './UserTournamentParticipants.css';
-import Header from './UserDetailsHeader';
+import './AdminTournamentParticipants.css';
+import AdminDetailsHeader from './AdminTournamentHeader';
+import CreateTournamentForm from './CreateTournamentForm';
 
-const UserTournamentParticipants = () => {
+const AdminTournamentParticipants = () => {
     const { tournamentId } = useParams();
     const [participants, setParticipants] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filteredParticipants, setFilteredParticipants] = useState([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const [playerCount, setPlayerCount] = useState(0);
+    const [numberOfPlayers, setNumberOfPlayers] = useState(0);
+    const [tournamentData, setTournamentData] = useState(null);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [showCreateForm, setShowCreateForm] = useState(false);
 
     const calculateAge = (dateOfBirth) => {
         const birthDate = new Date(dateOfBirth.seconds * 1000);
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        if (age === 0 && (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()))) {
-            return 0;
-        }
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
+        if (age === 0 && (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()))) return 0;
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
         return age;
     };
 
@@ -34,7 +33,7 @@ const UserTournamentParticipants = () => {
                 // Fetch users directly from the Users subcollection within the tournament
                 const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
                 const usersArray = usersResponse.data.map(authId => authId.trim()).filter(authId => authId !== "");
-                setPlayerCount(usersArray.length);
+                setNumberOfPlayers(usersArray.length);
 
                 // Fetch user details for each participant
                 const participantDetails = await Promise.all(
@@ -58,15 +57,7 @@ const UserTournamentParticipants = () => {
         };
 
         fetchTournamentData();
-
-        const handleRegistrationSuccess = () => fetchTournamentData();
-        window.addEventListener('registrationSuccess', handleRegistrationSuccess);
-
-        return () => {
-            window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
-        };
     }, [tournamentId]);
-
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -92,13 +83,9 @@ const UserTournamentParticipants = () => {
 
         if (sortBy) {
             updatedList = updatedList.sort((a, b) => {
-                if (sortBy === 'name') {
-                    return a.name.localeCompare(b.name);
-                } else if (sortBy === 'age') {
-                    return b.age - a.age;
-                } else if (sortBy === 'rating') {
-                    return b.elo - a.elo;
-                }
+                if (sortBy === 'name') return a.name.localeCompare(b.name);
+                else if (sortBy === 'age') return b.age - a.age;
+                else if (sortBy === 'rating') return b.elo - a.elo;
                 return 0;
             });
         }
@@ -106,11 +93,53 @@ const UserTournamentParticipants = () => {
         setFilteredParticipants(updatedList);
     }, [searchTerm, sortBy, participants]);
 
+    const handleDeleteParticipant = async (authId) => {
+        const confirmDelete = window.confirm("Are you sure you want to remove this player from the tournament?");
+        if (confirmDelete) {
+            try {
+                const response = await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`);
+                console.log(response.data);
+                setParticipants(participants.filter((participant) => participant.authId !== authId));
+                setNumberOfPlayers(numberOfPlayers - 1);
+            } catch (error) {
+                console.error('Error deleting participant:', error);
+            }
+        }
+    };
+
+    const handleCreateTournament = () => {
+        setShowCreateForm(true);
+    };
+
+    const closeForm = () => {
+        setShowCreateForm(false);
+    };
+
+    const handleEditClick = () => {
+        setIsEditMode(!isEditMode);
+    };
+
+    const handleSaveClick = () => {
+        setIsEditMode(false);
+    };
+
+    const handleCancelClick = () => {
+        setIsEditMode(false);
+    };
+
     return (
         <div>
-            <Header activetab="participants" tournamentTitle={tournamentId} playerCount={playerCount} />
+            <AdminDetailsHeader
+                activeTab="participants"
+                tournamentTitle={tournamentData?.name || "Tournament"}
+                playerCount={numberOfPlayers}
+                onEditClick={handleEditClick}
+                onSaveClick={handleSaveClick}
+                onCancelClick={handleCancelClick}
+                isEditMode={isEditMode}
+            />
 
-            <div className="user-tournament-participants">
+            <div className="admin-tournament-participants">
                 <div className="controls-container">
                     <div className="search-bar">
                         <input
@@ -150,6 +179,7 @@ const UserTournamentParticipants = () => {
                                 <th>World rank</th>
                                 <th>ELO Rating</th>
                                 <th>Games played this season</th>
+                                {isEditMode && <th>Remove</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -159,23 +189,46 @@ const UserTournamentParticipants = () => {
                                         <td>{index + 1}</td>
                                         <td>{participant.name || 'null'}</td>
                                         <td>{participant.nationality || 'null'}</td>
-                                        <td>{participant.age !== null && participant.age !== undefined ? participant.age : '0'}</td>
-                                        <td>#{participant.userRank || 'null'}</td>
-                                        <td>{participant.elo !== null && participant.elo !== undefined ? participant.elo : '0'}</td>
+                                        <td>{participant.age ?? '0'}</td>
+                                        <td>{participant.userRank || 'null'}</td>
+                                        <td>{participant.elo ?? '0'}</td>
                                         <td>{participant.registrationHistory.length || '0'}</td>
+                                        {isEditMode && (
+                                            <td>
+                                                <button
+                                                    className="delete-participant-button"
+                                                    onClick={() => handleDeleteParticipant(participant.authId)}
+                                                >
+                                                    ❌
+                                                </button>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="7">No participants available</td>
+                                    <td colSpan={isEditMode ? "8" : "7"}>No participants available</td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
+
+                <button className="fixed-plus-button" onClick={handleCreateTournament}>
+                    +
+                </button>
+
+                {showCreateForm && (
+                    <CreateTournamentForm
+                        onClose={closeForm}
+                        onSuccess={() => {
+                            closeForm();
+                        }}
+                    />
+                )}
             </div>
         </div>
     );
 };
 
-export default UserTournamentParticipants;
+export default AdminTournamentParticipants;

@@ -48,7 +48,6 @@ public class UserService {
 
 
     public String registerUserForTournament(String tournamentId, UserDTO userDto) throws InterruptedException, ExecutionException {
-        System.out.println("Registering user for tournament...");
     
         DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
         DocumentSnapshot tournamentSnapshot = tournamentRef.get().get();

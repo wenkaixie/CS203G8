@@ -1,0 +1,11 @@
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\AdminManagementService.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Configuration\FirebaseConfig.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Configuration\RestTemplateConfig.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Configuration\WebConfig.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Controllers\AdminController.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Exception\AdminNotFoundException.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Exception\GlobalExceptionHandler.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Exception\TournamentNotFoundException.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Model\Admin.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Model\Tournament.java
+C:\CS203G8\backend\adminManagementService\src\main\java\csd\adminmanagement\Service\AdminService.java

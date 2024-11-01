@@ -17,7 +17,10 @@ const UserTournamentOverview = () => {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 setTournamentData(response.data);
 
-                const usersArray = (response.data.users || []).filter(user => user.trim() !== "");
+                // Fetch users from the subcollection within the tournament
+                //change the api
+                const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+                const usersArray = usersResponse.data.map(authId => authId.trim()).filter(authId => authId !== "");
                 setNumberOfPlayers(usersArray.length);
 
                 setLoading(false);
@@ -95,10 +98,13 @@ const UserTournamentOverview = () => {
 
                     </div>
                     <div className="detail-row">
-                        <strong>Tournament type:</strong> {tournamentData?.type || "Swiss"}
+                        <strong>Tournament type:</strong> {tournamentData?.type || "Single-elimination"}
                     </div>
                     <div className="detail-row">
                         <strong>ELO requirement:</strong> {tournamentData?.eloRequirement || "0"}
+                    </div>
+                    <div className="detail-row">
+                        <strong>Age requirement:</strong> {tournamentData?.ageLimit === 0 ? "No limit" : tournamentData?.ageLimit || "N/A"}
                     </div>
                     <div className="detail-row">
                         <strong>Total Participants:</strong> {tournamentData?.capacity || "N/A"}

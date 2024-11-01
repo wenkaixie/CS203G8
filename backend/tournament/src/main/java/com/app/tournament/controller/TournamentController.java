@@ -213,7 +213,7 @@ public class TournamentController {
         }
     }
 
-    @DeleteMapping("/{tournamentID}/players/{playerID}")
+    @DeleteMapping("/{tournamentID}/players/{userID}")
     public ResponseEntity<String> removeUserFromTournament(
             @PathVariable String tournamentID,
             @PathVariable String userID) {

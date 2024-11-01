@@ -1,5 +1,5 @@
 import { SingleEliminationBracket, Match, createTheme } from '@g-loot/react-tournament-brackets';
-import './UserTournamentMatchDiagram.css';
+import './AdminTournamentMatchDiagram.css';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -170,7 +170,7 @@ export const WhiteThemeBracket = () => {
   );
 };
 
-const UserTournamentMatchDiagram = () => {
+const AdminTournamentMatchDiagram = () => {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
       <WhiteThemeBracket />
@@ -178,4 +178,4 @@ const UserTournamentMatchDiagram = () => {
   );
 };
 
-export default UserTournamentMatchDiagram;
+export default AdminTournamentMatchDiagram;

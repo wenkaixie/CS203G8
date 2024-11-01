@@ -18,7 +18,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
             const unsubscribe = onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     try {
-                        let userRole = null;
+                        let userRole = "null";
 
                         // Check if the user exists in the 'Users' collection
                         const userQuery = query(collection(FirestoreDB, 'Users'), where('authId', '==', user.uid));

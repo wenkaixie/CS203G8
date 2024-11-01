@@ -16,23 +16,25 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
         const user = auth.currentUser;
 
         if (user) {
-            const uid = user.uid;
-            fetchUserDetails(uid);
+            const authId = user.uid;
+            setAuthId(authId);
         } else {
             console.error('No user is signed in.');
         }
     }, []);
 
-    const fetchUserDetails = async (uid) => {
+    useEffect(() => {
+        if (authId) {
+            fetchUserDetails(authId);
+        }
+    }, [authId]);
+
+    const fetchUserDetails = async (authId) => {
         try {
             const response = await axios.get(
-                `http://localhost:9090/user/getUser/${uid}`
+                `http://localhost:9090/user/getUser/${authId}`
             );
             const userData = response.data;
-
-            // Store the user's authId in the component state
-            setAuthId(userData.authId);
-            console.log('authId:', userData.authId);
 
             // Populate input fields with user data
             setFullName(userData.name || '');
@@ -61,25 +63,42 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
 
     const handleSubmit = async () => {
         try {
-            // Send only authId to the API
-            const response = await axios.post(
+            // Register the user in the player service
+            const playerServiceResponse = await axios.post(
                 `http://localhost:9090/user/registerTournament/${tournamentID}`,
-                { authId }  // Only send authId
+                { authId }  
             );
 
-            alert(response.data);
+            if (playerServiceResponse.status !== 200) {
+                throw new Error("Failed to register in player service");
+            }
+
+            // Register the user in the tournament service
+            const tournamentServiceResponse = await axios.post(
+                `http://localhost:8080/api/tournaments/${tournamentID}/players`,
+                null,
+                { params: { userID: authId } } 
+            );
+
+            if (tournamentServiceResponse.status !== 200) {
+                throw new Error("Failed to register in tournament service");
+            }
+
+            // Show success message
+            alert("Registration successful!");
             onSubmit({ authId });
 
-            //refresh
+            // Dispatch a custom event to refresh data elsewhere if needed
             const event = new Event('registrationSuccess');
             window.dispatchEvent(event);
 
-            closeForm(); // Close the form after submission
+            closeForm(); // Close the form after successful submission
         } catch (error) {
-            console.error('Error registering user:', error);
-            alert('Failed to register. Please try again.');
+            console.error("Error registering user:", error);
+            alert("Failed to register. Please try again.");
         }
     };
+
 
     return (
         <div className="registration-overlay" onClick={closeForm}>

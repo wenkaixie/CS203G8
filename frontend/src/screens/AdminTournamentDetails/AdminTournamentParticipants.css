@@ -1,0 +1,160 @@
+@import url('https://fonts.cdnfonts.com/css/josefin-sans');
+
+/* General Styles */
+body {
+    font-family: 'Josefin Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Ensures the body takes the full height of the viewport */
+}
+
+/* User Tournament Container */
+.admin-tournament-participants {
+    padding: 300px 40px;
+    width: 100%;
+    margin-top: -70px;
+    background-color: #F5F5EF;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures content spreads evenly */
+}
+
+/* Controls Container for Search and Filters */
+.admin-tournament-participants .controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1450px; /* Ensures the same width as the table container */
+    margin: 25px auto 30px; /* Center the container */
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Search Bar Styles */
+.admin-tournament-participants .search-bar {
+    position: relative;
+    flex-grow: 1; /* Allows it to grow and fill available space */
+    margin-right: 5px; /* Ensure minimal spacing between search bar and buttons */
+    max-width: 80%; /* Limits the search bar size */
+    min-width: 250px; /* Prevents it from becoming too small */
+}
+
+/* Button Container */
+.admin-tournament-participants .buttons-container {
+    display: flex;
+    gap: 5px; 
+    margin-left: auto; 
+    margin-right: -15px;
+    padding-right: 20px; 
+}
+
+/* Button Styles */
+.admin-tournament-participants .filter-button,
+.admin-tournament-participants .order-button {
+    height: 45px;
+    width: 120px;
+    background-color: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.admin-tournament-participants .filter-button:hover,
+.admin-tournament-participants .order-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Filter Icon */
+.admin-tournament-participants .filter-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Tournament Table Container */
+.admin-tournament-participants .participants-list {
+    width: 100%;
+    max-width: 1450px; /* Matches the width of the controls container */
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Participants Table */
+.admin-tournament-participants .participants-table {
+    width: 100%;
+    border-collapse: separate;
+}
+
+.admin-tournament-participants .participants-table th {
+    font-weight: 600;
+    color: #333;
+    padding: 10px 20px;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: left;
+    background-color: #f0f0f0;
+}
+
+.admin-tournament-participants .participants-table td {
+    font-weight: 500;
+    color: #555;
+    padding: 15px 20px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Delete Button (Cross) Styles */
+.admin-tournament-participants .delete-participant-button {
+    font-size: 1.0rem;
+    color: #0d0d0d;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.admin-tournament-participants .delete-participant-button:hover {
+    color: #c9302c;
+}
+
+/* Ensure Full Coverage of the Bottom */
+html, body {
+    height: 100%; /* Ensure full height coverage */
+}
+
+.admin-tournament-participants::after {
+    content: '';
+    display: block;
+    height: 100px; /* Extra space to ensure full coverage */
+    background-color: #F5F5EF;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .admin-tournament-participants .controls-container {
+        flex-direction: column;
+        gap: 15px;
+        margin: 15px auto;
+    }
+    .admin-tournament-participants .search-bar {
+        width: 100%; /* Full width on smaller screens */
+        margin-right: 0;
+    }
+    .admin-tournament-participants .buttons-container {
+        width: 100%;
+        justify-content: space-between;
+        padding-right: 0;
+    }
+    .admin-tournament-participants .filter-button,
+    .admin-tournament-participants .order-button {
+        width: 48%; /* Adjust button width for small screens */
+    }
+}
