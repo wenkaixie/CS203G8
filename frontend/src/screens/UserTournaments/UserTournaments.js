@@ -221,8 +221,8 @@ const UserTournaments = () => {
                         {tournamentsToDisplay.map((tournament, index) => {
                             const registrationStatus = isPlayerRegistered(tournament);
                             const slotOrParticipants = activeTab === 'upcoming'
-                                ? tournament.capacity - tournament.users.length // Available slots
-                                : tournament.users.length; // Number of participants
+                                ? tournament.capacity - (tournament.users ? tournament.users.length : 0) // Check if users exist
+                                : (tournament.users ? tournament.users.length : 0); // If null, default to 0
 
                             return (
                                 <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)}>
