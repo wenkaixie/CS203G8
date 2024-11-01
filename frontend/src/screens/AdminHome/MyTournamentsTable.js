@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './MyTournamentsTable.css';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -17,6 +17,13 @@ const MyTournamentsTable = ({upcomingTournaments, ongoingTournaments}) => {
 
     const navigate = useNavigate();
     const auth = getAuth();
+
+    // Set tournaments to ongoingTournaments by default when it becomes available
+    useEffect(() => {
+        if (ongoingTournaments && ongoingTournaments.length > 0) {
+            setTournaments(ongoingTournaments);
+        }
+    }, [ongoingTournaments]);
 
     const fetchOngoingTournaments = () => {
         setTournaments(ongoingTournaments);
@@ -39,15 +46,6 @@ const MyTournamentsTable = ({upcomingTournaments, ongoingTournaments}) => {
             setUpcomingButton(true);
             fetchUpcomingTournaments();
         }
-    };
-
-    const isPlayerRegistered = (tournament) => {
-        // Check if current user is in the users list
-        if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
-            return 'Registered';
-        }
-    
-        return tournament.status;
     };
 
     const handleRowClick = (tournamentId) => {
@@ -172,7 +170,6 @@ const MyTournamentsTable = ({upcomingTournaments, ongoingTournaments}) => {
                 </thead>
                 <tbody>
                 {currentTournaments.map((tournament, index) => {
-                    const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
 
                     return (
                         <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className="clickable-row">
@@ -181,7 +178,7 @@ const MyTournamentsTable = ({upcomingTournaments, ongoingTournaments}) => {
                             <td>{formatDate(tournament.startDatetime)} - {formatDate(tournament.endDatetime)}</td>
                             <td>{tournament.location}</td>
                             <td>{tournament.capacity}</td>
-                            <td className={`status-${registrationStatus.toLowerCase()}`}>{tournament.status}</td>
+                            <td className={`status-${tournament.status.toLowerCase()}`}>{tournament.status}</td>
                             <td>${tournament.prize}</td>
                         </tr>
                     );

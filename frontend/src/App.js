@@ -40,6 +40,7 @@ import UserCalendar from './screens/UserCalendar/UserCalendar';
 // Admin Screens
 import AdminHome from './screens/AdminHome/AdminHome';
 import AdminUpdateProfile from './screens/AdminUpdateProfile/AdminUpdateProfile';
+import AdminTournaments from './screens/AdminTournaments/AdminTournaments';
 
 
 const App = () => {
@@ -80,6 +81,7 @@ const App = () => {
               <Routes>
                 <Route path="home" element={<AdminHome />} />
                 <Route path="profile" element={<AdminUpdateProfile />} />
+                <Route path="tournaments" element={<AdminTournaments />} />
               </Routes>
             </ProtectedRoute>
           }
