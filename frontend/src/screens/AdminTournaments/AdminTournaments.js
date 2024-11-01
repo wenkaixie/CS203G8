@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import './UserTournaments.css';
+import './AdminTournaments.css';
 import filterIcon from '../../assets/images/Adjust.png';
 import searchIcon from '../../assets/images/Search.png';
-import Navbar from '../../components/navbar/Navbar';
+import AdminNavbar from "../../components/adminNavbar/AdminNavbar";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
 
-const UserTournaments = () => {
+const AdminTournaments = () => {
     const [activeTab, setActiveTab] = useState('upcoming');
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [tournaments, setTournaments] = useState([]);
@@ -23,7 +23,7 @@ const UserTournaments = () => {
     useEffect(() => {
         const fetchTournaments = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/tournaments/all');
+                const response = await axios.get(`http://localhost:7070/admin/getAdminTournaments/${auth.currentUser.uid}`);
                 setTournaments(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -49,34 +49,8 @@ const UserTournaments = () => {
         }
     };
 
-    // Check if the current user is registered for a tournament
-    const isPlayerRegistered = (tournament) => {
-        // Check if current user is in the users list
-        if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
-            return 'Registered';
-        }
-    
-        return tournament.status;
-
-        // // Get the current time and tournament start time
-        // const currentTime = new Date();
-        // const startTime = new Date(tournament.startDatetime);
-    
-        // // Calculate the difference in time between now and the tournament start time
-        // const timeDiff = startTime - currentTime; // Time difference in milliseconds
-        // const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
-    
-        // // If more than 1 day is remaining before the tournament starts
-        // if (timeDiff > oneDayInMilliseconds) {
-        //     return 'Open';
-        // }
-    
-        // // If less than 1 day is remaining or the tournament has already started
-        // return 'Closed';
-    };
-
     const handleRowClick = (tournamentId) => {
-        navigate(`/user/tournament/${tournamentId}/overview`);
+        navigate(`/admin/tournament/${tournamentId}/overview`);
     };
 
     // Filter tournaments based on active tab (upcoming, ongoing, past)
@@ -139,12 +113,12 @@ const UserTournaments = () => {
     return (
         <div>
             {/* Navbar at the top */}
-            <Navbar />
+            <AdminNavbar />
 
             {/* Tournament Content */}
             <div className="tournament-upcoming">
                 <div className="header-subtask-container">
-                    <h1>All Tournaments</h1>
+                    <h1>My Tournaments</h1>
                     <div className="subtask-bar">
                         <button
                             className={`subtask-button ${activeTab === 'upcoming' ? 'active' : ''}`}
@@ -229,7 +203,6 @@ const UserTournaments = () => {
                         </thead>
                         <tbody>
                         {tournamentsToDisplay.map((tournament, index) => {
-                            const registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
 
                             return (
                                 <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)}>
@@ -244,8 +217,8 @@ const UserTournaments = () => {
                                     <td>{tournament.capacity}</td>
                                     <td>{tournament.eloRequirement}</td>
                                     <td>${tournament.prize}</td>
-                                    <td className={`status-${registrationStatus.toLowerCase()}`}>
-                                        {registrationStatus}
+                                    <td className={`status-${tournament.status.toLowerCase()}`}>
+                                        {tournament.status}
                                     </td>
                                 </tr>
                             );
@@ -258,4 +231,4 @@ const UserTournaments = () => {
     );
 };
 
-export default UserTournaments;
+export default AdminTournaments;
