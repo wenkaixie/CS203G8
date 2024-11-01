@@ -192,7 +192,6 @@ const AllTournamentsTable = () => {
                 <tbody>
                     {currentTournaments.map((tournament, index) => {
                         let registrationStatus = isPlayerRegistered(tournament); // 'Registered', 'Open', or 'Closed'
-                        if (tournament.status === "Completed") {registrationStatus = "Completed"}
 
                         return (
                             <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className="clickable-row">
