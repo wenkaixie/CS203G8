@@ -16,6 +16,7 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldPath;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
@@ -237,8 +238,11 @@ public class AdminService {
         newTournament.setCreatedTimestamp(Instant.now());     // Set the current timestamp
         newTournament.setAdminId(adminId);   
         ApiFuture<WriteResult> result = docRef.set(newTournament);
+
+        CollectionReference adminsRef = firestore.collection("Admins");
+        DocumentReference adminDocRef = adminsRef.document(adminId);
+        adminDocRef.update("tournamentCreated", FieldValue.arrayUnion(newTournament.getTid()));
         return newTournament;
     }
     
-   
 }

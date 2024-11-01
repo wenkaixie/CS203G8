@@ -413,13 +413,14 @@ public class UserService {
         }
     
         DocumentSnapshot userSnapshot = userDocuments.get(0);
-        System.out.println(userSnapshot.toObject(User.class));
+        //System.out.println(userSnapshot.toObject(User.class));
     
         return userSnapshot.toObject(User.class);
     }
 
     // Method to get user's rank based on elo
     public int getUserRank(String userId) throws InterruptedException, ExecutionException {
+        System.out.println("Getting user rank..." + userId);
         CollectionReference usersRef = firestore.collection("Users");
         ApiFuture<QuerySnapshot> querySnapshot = usersRef.orderBy("elo", Query.Direction.DESCENDING).get();
         
@@ -429,9 +430,12 @@ public class UserService {
     
         for (QueryDocumentSnapshot document : userDocuments) {
             User user = document.toObject(User.class);
+            System.out.println("User: " + user);
     
             // Check if the userId matches
+            //System.out.println("Auth id is: " + user.getAuthId());
             if (user.getAuthId().equals(userId)) {
+                System.out.println("User found: " + user);
                 // Check if elo exists for the user
                 if (user.getElo() != null) {
                     return rank;  // Return the rank if elo exists
@@ -446,6 +450,56 @@ public class UserService {
         throw new UserNotFoundException("User not found.");
     }
 
+
+    // public int getUserRank(String userId) throws InterruptedException, ExecutionException {
+    //     System.out.println("Getting user rank for userId: " + userId);
+    
+    //     // Firestore reference to the 'Users' collection
+    //     CollectionReference usersRef = firestore.collection("Users");
+    
+    //     // Query users ordered by 'elo' in descending order, and by 'username' in ascending order if 'elo' is the same
+    //     ApiFuture<QuerySnapshot> querySnapshot = usersRef
+    //         .orderBy("elo", Query.Direction.DESCENDING)  // Primary sort by elo in descending order
+    //         .orderBy("username", Query.Direction.ASCENDING)  // Secondary sort by username in ascending order
+    //         .get();
+    
+    //     List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
+    
+    //     int rank = 1;  // Start rank at 1
+    //     int previousRank = 1;  // Keep track of the previous rank
+    //     Integer previousElo = null;  // Keep track of the previous elo for comparison
+    
+    //     // Loop through all the user documents
+    //     for (QueryDocumentSnapshot document : userDocuments) {
+    //         User user = document.toObject(User.class);
+    //         System.out.println("Processing user: " + user.getUsername() + " with elo: " + user.getElo());
+    
+    //         // Check if the user has a valid 'authId' and 'elo'
+    //         if (user.getAuthId() != null && user.getElo() != null) {
+    //             // If the current user's elo is different from the previous user's elo, increment the rank
+    //             if (previousElo != null && !user.getElo().equals(previousElo)) {
+    //                 rank = previousRank + 1;  // Increment rank only if elo is different
+    //             }
+    //             // Set previousElo and previousRank for the next iteration
+    //             previousElo = user.getElo();
+    //             previousRank = rank;
+    
+    //             // Check if the current user's authId matches the input userId
+    //             if (user.getAuthId().equals(userId)) {
+    //                 System.out.println("User found: " + user.getUsername() + " with rank: " + rank);
+    //                 return rank;  // Return the rank when the user is found
+    //             }
+    //         } else {
+    //             // Log the case where the user has a null elo or authId
+    //             System.err.println("Error: User has null authId or elo. Skipping user: " + user.getUsername());
+    //         }
+    //     }
+    
+    //     // If no user with the specified userId is found, throw an exception
+    //     throw new UserNotFoundException("User not found.");
+    // }
+    
+    
     // NOT USED
     public User createUserProfile(User newUser) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
