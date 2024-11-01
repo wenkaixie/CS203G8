@@ -34,11 +34,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/registerTournament/{tournamentId}")
-    public ResponseEntity<Object> registerUserForTournament(@PathVariable String tournamentId, @RequestBody UserDTO userDto) {
+    @PutMapping("/registerTournament/{tournamentId}/{authId}")
+    public ResponseEntity<Object> registerUserForTournament(@PathVariable String tournamentId, @PathVariable String authId) {
         try {
             Map<String, String> response = new HashMap<>();
-            response.put("message", userService.registerUserForTournament(tournamentId, userDto));
+            response.put("message", userService.registerUserForTournament(tournamentId, authId));
             return ResponseEntity.ok(response);  // Will be serialized to JSON
         } catch (TournamentNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
@@ -51,11 +51,11 @@ public class UserController {
         }
     }
 
-    @PutMapping("/unregisterTournament/{tournamentId}")
-    public ResponseEntity<Object> unregisterUserFromTournament(@PathVariable String tournamentId, @RequestBody UserDTO userDto) {
+    @PutMapping("/unregisterTournament/{tournamentId}/{authId}")
+    public ResponseEntity<Object> unregisterUserFromTournament(@PathVariable String tournamentId, @PathVariable String authId) {
         try {
             Map<String, String> response = new HashMap<>();
-            response.put("message", userService.unregisterUserFromTournament(tournamentId, userDto));
+            response.put("message", userService.unregisterUserForTournament(tournamentId, authId));
             return ResponseEntity.ok(response); // Will be serialized to JSON
         } catch (TournamentNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));

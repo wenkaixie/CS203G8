@@ -47,184 +47,72 @@ public class UserService {
     private Firestore firestore;
 
 
-    public String registerUserForTournament(String tournamentId, UserDTO userDto) throws InterruptedException, ExecutionException {
+    public String registerUserForTournament(String tournamentId, String authId) throws InterruptedException, ExecutionException {
+        System.out.println("Registering user for tournament...");
     
-        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
-        DocumentSnapshot tournamentSnapshot = tournamentRef.get().get();
+        // Directly reference the user document by authId
+        DocumentReference userRef = firestore.collection("Users").document(authId);
     
-        if (!tournamentSnapshot.exists()) {
-            throw new TournamentNotFoundException("No tournament found with the provided ID.");
-        }
-    
-        Tournament tournament = tournamentSnapshot.toObject(Tournament.class);
-        if (tournament == null) {
-            throw new RuntimeException("Error retrieving tournament data.");
-        }
-    
-        // Timestamp startTimestamp = tournament.getStartDatetime();
-        // Date startDate = (startTimestamp != null) ? startTimestamp.toDate() : null;
-        // Date currentDate = new Date();
-    
-        // Check if the tournament has already started
-        // if (currentDate.after(startDate)) {
-        //     return "Cannot register: The tournament has already started.";
-        // }
-
-        String status = tournamentSnapshot.getString("status");
-        if (status == null) {
-            throw new RuntimeException("Error retrieving tournament status.");
-        }else if (status.equals("Registration Closed")) {
-            throw new RuntimeException("Cannot register: The tournament registration is closed.");
-        }
-    
-        List<String> tournamentUsers = tournament.getUsers();
-        System.out.println("Tournament size: " + tournamentUsers.size());
-
-        Long capacityCountLong = tournamentSnapshot.getLong("capacity");
-        int capacityCount = (capacityCountLong != null) ? capacityCountLong.intValue() : 0;
-
-        Long eloRequirementLong = tournamentSnapshot.getLong("eloRequirement");
-        int eloRequirement = (eloRequirementLong != null) ? eloRequirementLong.intValue() : 0;
-
-        Long ageLimitLomg = tournamentSnapshot.getLong("ageLimit");
-        int ageLimit = (ageLimitLomg != null) ? ageLimitLomg.intValue() : 0;
-    
-        System.out.println("userDto: " + userDto);
-        System.out.println("eloRequirement: " + eloRequirement + " capacityCount: " + capacityCount);
-    
-        CollectionReference usersRef = firestore.collection("Users");
-        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userDto.getAuthId()).get();
-    
-        if (querySnapshot.get().isEmpty()) {
+        // Get the user document
+        DocumentSnapshot userSnapshot = userRef.get().get();
+        if (!userSnapshot.exists()) {
             throw new UserNotFoundException("User not found.");
         }
     
-        List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
-        if (userDocuments.isEmpty()) {
-            throw new RuntimeException("Error retrieving user data.");
-        }
-    
-        DocumentSnapshot userSnapshot = userDocuments.get(0);
-        if (userSnapshot == null) {
-            throw new RuntimeException("Error retrieving user data.");
-        }
-    
+        // Retrieve current registration history, or initialize if null
         User user = userSnapshot.toObject(User.class);
-        if (user == null) {
-            throw new RuntimeException("Error retrieving user data.");
-        }
-
-        // Print user's registration history to the logs
         List<String> registrationHistory = user.getRegistrationHistory();
-        System.out.println("User's Registration History: " + registrationHistory);
+
     
-        if (tournamentUsers.contains(user.getAuthId()) || registrationHistory.contains(tournamentId)) {
-            throw new UserTournamentException("User already registered for this tournament.");
-        }
-    
-        if (user.getElo() < eloRequirement) {
-            throw new UserTournamentException("User does not meet the Elo requirement for this tournament.");
-        }
-    
-        if (tournamentUsers.size() >= capacityCount) {
-            throw new UserTournamentException("Tournament is at full capacity.");
-        }
-
-        /// Get user's date of birth
-        Timestamp dateOfBirthTimestamp = user.getDateOfBirth();
-        if (dateOfBirthTimestamp == null) {
-            throw new RuntimeException("User's date of birth is not available.");
-        }
-
-        // Calculate user's age
-        Date dateOfBirthDate = dateOfBirthTimestamp.toDate();
-        Instant dobInstant = dateOfBirthDate.toInstant();
-        LocalDate dobLocalDate = dobInstant.atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate currentDateLocal = LocalDate.now();
-
-        int age = Period.between(dobLocalDate, currentDateLocal).getYears();
-
-        System.out.println("User's age: " + age);
-
-        // Check if user's age meets the tournament's age requirements
-        if (age < ageLimit) {
-            throw new UserTournamentException("User does not meet the age requirement for this tournament.");
-        }
-    
-        // If all checks pass, register the user
-        tournamentUsers.add(user.getUid());
+        // Add the tournamentId to the list
         registrationHistory.add(tournamentId);
     
-        ApiFuture<WriteResult> tournamentUpdate = tournamentRef.update("users", tournamentUsers);
-        ApiFuture<WriteResult> userUpdate = usersRef.document(user.getUid()).update("registrationHistory", registrationHistory);
-        tournamentUpdate.get();
-        userUpdate.get();
+        // Update the registrationHistory in Firestore
+        ApiFuture<WriteResult> userUpdate = userRef.update("registrationHistory", registrationHistory);
+        userUpdate.get(); // Wait for the update to complete
     
+        System.out.println("User's updated Registration History: " + registrationHistory);
+
         return "User successfully registered for the tournament.";
     }
 
-    public String unregisterUserFromTournament(String tournamentId, UserDTO userDto) throws InterruptedException, ExecutionException {
+    public String unregisterUserForTournament(String tournamentId, String authId) throws InterruptedException, ExecutionException {
         System.out.println("Unregistering user from tournament...");
-        
-        // Fetch the tournament reference and snapshot
-        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
-        DocumentSnapshot tournamentSnapshot = tournamentRef.get().get();
-        
-        if (!tournamentSnapshot.exists()) {
-            throw new TournamentNotFoundException("No tournament found with the provided ID.");
-        }
-        
-        Tournament tournament = tournamentSnapshot.toObject(Tournament.class);
-        if (tournament == null) {
-            throw new RuntimeException("Error retrieving tournament data.");
-        }
-        
-        CollectionReference usersRef = firestore.collection("Users");
-        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userDto.getAuthId()).get();
-        
-        if (querySnapshot.get().isEmpty()) {
+
+        // Directly reference the user document by authId
+        DocumentReference userRef = firestore.collection("Users").document(authId);
+
+        // Get the user document
+        DocumentSnapshot userSnapshot = userRef.get().get();
+        if (!userSnapshot.exists()) {
             throw new UserNotFoundException("User not found.");
         }
-    
-        DocumentSnapshot userSnapshot = querySnapshot.get().getDocuments().get(0);  // First matching user
+
+        // Retrieve current registration history, or initialize if null
         User user = userSnapshot.toObject(User.class);
-    
-        if (user == null) {
-            throw new RuntimeException("Error retrieving user data.");
+        List<String> registrationHistory = user.getRegistrationHistory();
+        if (registrationHistory == null || !registrationHistory.contains(tournamentId)) {
+            System.out.println("User is not registered for this tournament.");
+            return "User is not registered for this tournament.";
         }
-        
-        // Check if the user is registered in the tournament
-        if (!user.getRegistrationHistory().contains(tournamentId)) {
-            throw new UserTournamentException("User is not registered for this tournament.");
-        }
-        
-        // Remove tournamentId from the user's registration history
-        List<String> updatedRegistrationHistory = new ArrayList<>(user.getRegistrationHistory());
-        updatedRegistrationHistory.remove(tournamentId);
-        
-        // Update the user's document in Firestore
-        ApiFuture<WriteResult> userUpdateFuture = userSnapshot.getReference().update("registrationHistory", updatedRegistrationHistory);
-        
-        // Remove user from the tournament's users list
-        List<String> updatedTournamentUsers = new ArrayList<>(tournament.getUsers());
-        updatedTournamentUsers.remove(userDto.getUid());
-        
-        // Update the tournament's document in Firestore
-        ApiFuture<WriteResult> tournamentUpdateFuture = tournamentRef.update("users", updatedTournamentUsers);
-        
-        // Wait for both updates to complete
-        userUpdateFuture.get();  // handle any potential exceptions here
-        tournamentUpdateFuture.get();  // handle any potential exceptions here
-        System.out.println("User successfully unregistered from the tournament.");
+
+        // Remove the tournamentId from the list
+        registrationHistory.remove(tournamentId);
+
+        // Update the registrationHistory in Firestore
+        ApiFuture<WriteResult> userUpdate = userRef.update("registrationHistory", registrationHistory);
+        userUpdate.get(); // Wait for the update to complete
+
+        System.out.println("User's updated Registration History after removal: " + registrationHistory);
         return "User successfully unregistered from the tournament.";
     }
 
-    public UserDTO updateUserProfile(String userId, UserDTO updatedUser) throws InterruptedException, ExecutionException {
-        System.out.println("Updating User profile for user ID: " + userId);
+    public UserDTO updateUserProfile(String authId, UserDTO updatedUser) throws InterruptedException, ExecutionException {
+        System.out.println("Updating User profile for user ID: " + authId);
         System.out.println("Received updated user:" + updatedUser);
         
         CollectionReference usersRef = firestore.collection("Users");
-        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userId).get();
+        ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", authId).get();
         
         List<QueryDocumentSnapshot> userDocuments = querySnapshot.get().getDocuments();
         System.out.println(userDocuments);
@@ -235,8 +123,10 @@ public class UserService {
         
         DocumentSnapshot userSnapshot = userDocuments.get(0);
         DocumentReference userRef = userSnapshot.getReference();
-        
+
+                       
         Map<String, Object> changes = new HashMap<>();
+        Map<String, Object> changes2 = new HashMap<>();
         
         // Update username if provided
         if (updatedUser.getUsername() != null) {
@@ -246,6 +136,7 @@ public class UserService {
         // Update name if provided
         if (updatedUser.getName() != null) {
             changes.put("name", updatedUser.getName());
+            changes2.put("name", updatedUser.getName());
         }
         
         // Update phone number if provided
@@ -256,6 +147,7 @@ public class UserService {
         // Update nationality if provided
         if (updatedUser.getNationality() != null) {
             changes.put("nationality", updatedUser.getNationality());
+            changes2.put("nationality", updatedUser.getNationality());
         }
 
         // Update chessUsername if provided
@@ -305,6 +197,39 @@ public class UserService {
         } else {
             System.out.println("No changes to update.");
         }
+
+        System.out.println("NEW CODE FOR UPDATING USER IN TOURNAMENT");
+        // For collecting the User subcollection within tournament
+        // Reference to the Tournaments collection
+        CollectionReference tournamentsRef = firestore.collection("Tournaments");
+
+        // Retrieve all tournaments
+        ApiFuture<QuerySnapshot> tournamentsQuery = tournamentsRef.get();
+        List<QueryDocumentSnapshot> tournamentDocuments = tournamentsQuery.get().getDocuments();
+
+
+        // Loop through each tournament
+        for (QueryDocumentSnapshot tournamentDoc : tournamentDocuments) {
+            // Reference to the Users subcollection within the current tournament
+            CollectionReference usersRef2 = tournamentDoc.getReference().collection("Users");
+
+            // Query the Users subcollection for the specific user by userID
+            ApiFuture<QuerySnapshot> userQuery = usersRef2.whereEqualTo("authId", authId).get();
+            
+            List<QueryDocumentSnapshot> userDocuments2 = userQuery.get().getDocuments();
+
+            // Check if the user document exists
+            if (!userDocuments2.isEmpty()) {
+                // Get the document reference for the user
+                DocumentReference userRef2 = userDocuments2.get(0).getReference();
+                
+                // Update the fields in the user's document within the tournament
+                ApiFuture<WriteResult> updateResult = userRef2.update(changes2);
+                updateResult.get(); // Wait for the update to complete
+            } 
+        }
+        // End of collecting user within the tournament                 
+
         
         System.out.println("Retrieving updated user data...");
         DocumentSnapshot updatedUserSnapshot = userRef.get().get();
@@ -461,7 +386,7 @@ public class UserService {
         DocumentReference documentReference = writeResult.get();
 
         String generatedUid = documentReference.getId();
-        newUser.setUid(generatedUid);
+        newUser.setAuthId(generatedUid);
 
         newUserProfile.put("uid", generatedUid);
         documentReference.set(newUserProfile, SetOptions.merge());

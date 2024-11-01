@@ -24,6 +24,7 @@ import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Tournament;
 import com.app.tournament.service.EliminationService;
+import com.app.tournament.service.RoundRobinService;
 import com.app.tournament.service.TournamentService;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -37,11 +38,16 @@ public class TournamentController {
     @Autowired
     private EliminationService eliminationService;
 
+    @Autowired
+    private RoundRobinService roundRobinService;
+
     private static final Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
     // Create tournament endpoint
+    // Create tournament endpoint
     @PostMapping
     public ResponseEntity<String> createTournament(@RequestBody TournamentDTO tournamentDTO) {
+
         try {
             String tournamentID = tournamentService.createTournament(tournamentDTO);
             return ResponseEntity.ok(tournamentID); // Return the tournament ID in the response body
@@ -225,16 +231,36 @@ public class TournamentController {
         }
     }
 
-    // 1. Generate rounds and matches for the tournament
+    // Generate rounds and matches for the tournament based on type
     @PostMapping("/{tournamentID}/generateRounds")
     public ResponseEntity<String> generateRoundsForTournament(@PathVariable String tournamentID) {
         try {
-            eliminationService.generateRoundsForTournament(tournamentID);
+            // Retrieve the tournament type to determine which service to use
+            Tournament tournament = tournamentService.getTournamentById(tournamentID);
+            String tournamentType = tournament.getType();
+
+            // Determine the service based on tournament type
+            if ("Round Robin".equalsIgnoreCase(tournamentType)) {
+                logger.info("Generating rounds for round-robin tournament ID: {}", tournamentID);
+                roundRobinService.generateRoundsForTournament(tournamentID);
+            } else if ("Elimination".equalsIgnoreCase(tournamentType)) {
+                logger.info("Generating rounds for elimination tournament ID: {}", tournamentID);
+                eliminationService.generateRoundsForTournament(tournamentID);
+            } else {
+                logger.error("Invalid tournament type specified: {}", tournamentType);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Invalid tournament type specified.");
+            }
+
             return ResponseEntity.ok("Rounds and matches generated successfully.");
+
         } catch (ExecutionException | InterruptedException e) {
+            logger.error("Error generating rounds for tournament {}: {}", tournamentID, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error generating rounds: " + e.getMessage());
         } catch (Exception e) {
+            logger.error("An unexpected error occurred while generating rounds for tournament {}: {}", tournamentID,
+                    e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred: " + e.getMessage());
         }
@@ -249,7 +275,7 @@ public class TournamentController {
             @RequestBody String winnerName) {
         try {
             
-            eliminationService.updateMatchWinner(tournamentID, roundNumber, matchId, winnerName);
+            tournamentService.updateMatchWinner(tournamentID, roundNumber, matchId, winnerName);
             return ResponseEntity.ok("Winner updated successfully.");
         } catch (ExecutionException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
