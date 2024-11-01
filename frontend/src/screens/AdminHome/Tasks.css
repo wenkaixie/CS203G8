@@ -31,8 +31,12 @@ body {
     padding: 15px;
     background-color: #f9f9f9;
     border-radius: 8px;
-    cursor: pointer;
   }
+
+  .task-item:hover {
+    background-color: #F5F5EF;
+    cursor: pointer;
+}
   
   .task-details {
     flex-grow: 1;

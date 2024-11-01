@@ -43,6 +43,8 @@ import AdminUpdateProfile from './screens/AdminUpdateProfile/AdminUpdateProfile'
 import AdminTournamentOverview from './screens/AdminTournamentDetails/AdminTournamentOverview';
 import AdminTournamentParticipants from './screens/AdminTournamentDetails/AdminTournamentParticipants';
 import AdminTournamentMatch from './screens/AdminTournamentDetails/AdminTournamentMatch';
+import AdminTournaments from './screens/AdminTournaments/AdminTournaments';
+
 
 const App = () => {
   return (
@@ -90,6 +92,7 @@ const App = () => {
                 <Route path="home" element={<AdminHome />} />
                 <Route path="profile" element={<AdminUpdateProfile />} />
                 <Route path="tournament/:tournamentId/games" element={<AdminTournamentMatch />} />
+                <Route path="tournaments" element={<AdminTournaments />} />
               </Routes>
             </ProtectedRoute>
           }

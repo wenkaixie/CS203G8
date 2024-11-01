@@ -51,6 +51,8 @@ const AdminHome = () => {
         (tournament) => new Date(tournament.startDatetime) > currentTime
       );
 
+      console.log(ongoing);
+      console.log(upcoming);
       setOngoingTournaments(ongoing);
       setUpcomingTournaments(upcoming);
     } catch (error) {

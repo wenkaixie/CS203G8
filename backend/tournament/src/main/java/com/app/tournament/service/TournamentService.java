@@ -14,11 +14,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.app.tournament.DTO.TournamentDTO;
-import com.app.tournament.events.TournamentClosedEvent;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
 import com.app.tournament.model.Tournament;
@@ -40,9 +38,6 @@ public class TournamentService {
 
     @Autowired
     private Firestore firestore;
-    
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher; // Add event publisher
 
     @Autowired
     private TournamentSchedulerService tournamentSchedulerService;
@@ -57,9 +52,6 @@ public class TournamentService {
         DocumentReference docRef = firestore.collection("Tournaments").document();
         String generatedId = docRef.getId();
         log.info("Generated tournament ID: {}", generatedId);
-        // what does this do ?
-
-        addTournamentStatusListener(generatedId);
 
         tournamentSchedulerService.scheduleTournamentRoundGeneration(generatedId, 
                                                                     tournamentDTO.getStartDatetime());
@@ -509,68 +501,6 @@ public class TournamentService {
         return ongoingTournaments; // Return the list of ongoing tournaments
     }
 
-    // This method adds a listener to a tournament's document
-    public void addTournamentStatusListener(String tournamentId) {
-        // Reference the specific tournament document in Firestore by tournamentId
-        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
-
-        // Attach a snapshot listener to detect changes in the tournament document
-        tournamentRef.addSnapshotListener((snapshot, e) -> {
-            if (e != null) {
-                System.err.println("Error listening to tournament status changes: " + e.getMessage());
-                return;
-            }
-
-            if (snapshot != null && snapshot.exists()) {
-                // Extract the tournament status (assuming there's a 'status' field)
-                String status = snapshot.getString("status");
-                System.out.println("Tournament status changed: " + status);
-
-                // Add any logic you want to execute on status change here
-                if (status.equals("Closed")) {
-                    // Get the tournament ID from Firestore snapshot
-                    String tournamentID = snapshot.getString("tid");
-                    log.info("Tournament status changed to Closed. TID={}", tournamentID);
-                    
-                    applicationEventPublisher.publishEvent(new TournamentClosedEvent(this, tournamentID));
-                }
-            } else {
-                System.out.println("Tournament document does not exist.");
-            }
-        });
-    }
-
-    // @Autowired
-    // private TaskScheduler taskScheduler;
-
-    // // Method to schedule a task for each tournament
-    // public void scheduleCloseRegistration(Tournament tournament) {
-    //     Instant startDatetime = tournament.getStartDatetime();
-    //     Instant closeRegistrationTime = startDatetime.minus(Duration.ofHours(24)); 
-    //     taskScheduler.schedule(() -> closeRegistration(tournament.getTid()), closeRegistrationTime);
-
-    // }
-
-
-    // @Autowired
-    // private TaskScheduler taskScheduler;
-
-    // // Method to schedule a task for each tournament
-    // public void scheduleCloseRegistration(Tournament tournament) {
-    //     Instant startDatetime = tournament.getStartDatetime();
-    //     Instant closeRegistrationTime = startDatetime.minus(Duration.ofHours(24)); 
-    //     taskScheduler.schedule(() -> closeRegistration(tournament.getTid()), closeRegistrationTime);
-
-    // }
-
-    // // This method will be triggered at the scheduled time to close registration
-    // private void closeRegistration(String tournamentID) {
-    //     DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
-    //     tournamentRef.update("status", "Registration Closed").addListener(() -> {
-    //         System.out.println("Tournament registration closed for: " + tournamentID);
-    //     }, Runnable::run);
-    // }
-
     private void checkAndUpdateStatus(QuerySnapshot tournamentsSnapshot) {
         // Get the current time and tournament start time
         Date currentTime = new Date();
@@ -594,10 +524,7 @@ public class TournamentService {
                     long oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
 
                     // If less than or equal to 1 day is remaining and the tournament is still open
-                    if (timeDiff <= oneDayInMilliseconds && "Open".equals(status)) {
-                        // Update the status to "Closed"
-                        tournamentDoc.getReference().update("status", "Closed");
-                    } else if (endTime.getTime() < currentTime.getTime()) {
+                    if (endTime.getTime() < currentTime.getTime()) {
                         tournamentDoc.getReference().update("status","Completed");
                     } else if (timeDiff <= 0 && "Closed".equals(status)) {
                         tournamentDoc.getReference().update("status","Ongoing");

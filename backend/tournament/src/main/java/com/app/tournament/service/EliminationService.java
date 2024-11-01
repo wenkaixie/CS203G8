@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import com.app.tournament.DTO.ParticipantDTO;
-import com.app.tournament.events.TournamentClosedEvent;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
 import com.app.tournament.model.Tournament;
@@ -34,19 +32,6 @@ public class EliminationService {
 
     @Autowired
     private UserService userService;
-
-    @EventListener
-    public void handleTournamentClosedEvent(TournamentClosedEvent event) {
-        String tournamentId = event.getTournamentId();
-        log.info("Handling closed tournament with ID: {}", tournamentId);
-
-        try {
-            generateRoundsForTournament(tournamentId);
-        } catch (Exception e) {
-            log.error("Error generating rounds for tournament {}: {}", tournamentId, e.getMessage());
-        }
-    }
-
     
     // Generate rounds and matches for the tournament
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
