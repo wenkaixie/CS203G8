@@ -32,7 +32,7 @@ public class EliminationService {
 
     @Autowired
     private UserService userService;
-    
+
     // Generate rounds and matches for the tournament
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
         try {
@@ -86,7 +86,6 @@ public class EliminationService {
             throw e;
         }
     }
-
 
     private int calculateEliminationRounds(int numPlayers) {
         return (int) Math.ceil(Math.log(numPlayers) / Math.log(2));
@@ -371,7 +370,7 @@ public class EliminationService {
         log.info("Updated tournament {} current round to {}.", tournamentID, currentRoundNumber + 1);
     }
 
-        public Tournament getTournamentById(String tournamentID) throws ExecutionException, InterruptedException {
+    public Tournament getTournamentById(String tournamentID) throws ExecutionException, InterruptedException {
         log.info("Fetching tournament with ID: {}", tournamentID);
         DocumentSnapshot document = firestore.collection("Tournaments").document(tournamentID).get().get();
 
