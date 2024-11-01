@@ -26,7 +26,7 @@ public class User {
     private String nationality;
     private Integer phoneNumber;
     private List<String> registrationHistory;
-    private String uid;
+    // private String uid; // REMOVED
     private String username;
     private String chessUsername;
 }

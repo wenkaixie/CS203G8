@@ -5,9 +5,12 @@ import csd.adminmanagement.Exception.TournamentNotFoundException;
 import csd.adminmanagement.Model.Admin;
 import csd.adminmanagement.Model.Tournament;
 import csd.adminmanagement.Service.AdminService;
+import csd.adminmanagement.Model.MatchResultUpdateRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.checkerframework.checker.units.qual.m;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,11 +66,20 @@ public class AdminController {
         return ResponseEntity.ok(taskList);
     }
 
-    // Admin Completion Button
-    @PutMapping("/completeTournament/{tournamentId}")
-    public ResponseEntity<Object> completeTask(@PathVariable String tournamentId) {
-        Tournament tournament = adminService.completeTournament(tournamentId);
-        return ResponseEntity.ok(tournament);
+    // Match complete endpoint (for testing only)
+    // @GetMapping("/completeMatch/{tournamentId}/{roundId}/{matchId}")
+    // public ResponseEntity<Object> completeMatch(@PathVariable String tournamentId, @PathVariable String roundId, @PathVariable int matchId, @RequestBody MatchResultUpdateRequest matchResultUpdateRequest) {
+    //     adminService.completeMatch(tournamentId, roundId, matchId, matchResultUpdateRequest);
+    //     return ResponseEntity.ok("Match completed successfully");
+
+    // }
+
+    // Match complete endpoint
+    @PutMapping("/completeMatch/{tournamentId}/{roundId}/{matchId}")
+    public ResponseEntity<Object> completeMatch(@PathVariable String tournamentId, @PathVariable String roundId, @PathVariable int matchId, @RequestBody MatchResultUpdateRequest matchResultUpdateRequest) {
+        adminService.completeMatch(tournamentId, roundId, matchId, matchResultUpdateRequest);
+        return ResponseEntity.ok("Match completed successfully");
     }
+
 
 }

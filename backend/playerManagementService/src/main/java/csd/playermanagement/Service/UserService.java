@@ -50,48 +50,6 @@ public class UserService {
     public String registerUserForTournament(String tournamentId, UserDTO userDto) throws InterruptedException, ExecutionException {
         System.out.println("Registering user for tournament...");
     
-        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
-        DocumentSnapshot tournamentSnapshot = tournamentRef.get().get();
-    
-        if (!tournamentSnapshot.exists()) {
-            throw new TournamentNotFoundException("No tournament found with the provided ID.");
-        }
-    
-        Tournament tournament = tournamentSnapshot.toObject(Tournament.class);
-        if (tournament == null) {
-            throw new RuntimeException("Error retrieving tournament data.");
-        }
-    
-        // Timestamp startTimestamp = tournament.getStartDatetime();
-        // Date startDate = (startTimestamp != null) ? startTimestamp.toDate() : null;
-        // Date currentDate = new Date();
-    
-        // Check if the tournament has already started
-        // if (currentDate.after(startDate)) {
-        //     return "Cannot register: The tournament has already started.";
-        // }
-
-        String status = tournamentSnapshot.getString("status");
-        if (status == null) {
-            throw new RuntimeException("Error retrieving tournament status.");
-        }else if (status.equals("Registration Closed")) {
-            throw new RuntimeException("Cannot register: The tournament registration is closed.");
-        }
-    
-        List<String> tournamentUsers = tournament.getUsers();
-        System.out.println("Tournament size: " + tournamentUsers.size());
-
-        Long capacityCountLong = tournamentSnapshot.getLong("capacity");
-        int capacityCount = (capacityCountLong != null) ? capacityCountLong.intValue() : 0;
-
-        Long eloRequirementLong = tournamentSnapshot.getLong("eloRequirement");
-        int eloRequirement = (eloRequirementLong != null) ? eloRequirementLong.intValue() : 0;
-
-        Long ageLimitLomg = tournamentSnapshot.getLong("ageLimit");
-        int ageLimit = (ageLimitLomg != null) ? ageLimitLomg.intValue() : 0;
-    
-        System.out.println("userDto: " + userDto);
-        System.out.println("eloRequirement: " + eloRequirement + " capacityCount: " + capacityCount);
     
         CollectionReference usersRef = firestore.collection("Users");
         ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId", userDto.getAuthId()).get();
@@ -118,47 +76,9 @@ public class UserService {
         // Print user's registration history to the logs
         List<String> registrationHistory = user.getRegistrationHistory();
         System.out.println("User's Registration History: " + registrationHistory);
-    
-        if (tournamentUsers.contains(user.getAuthId()) || registrationHistory.contains(tournamentId)) {
-            throw new UserTournamentException("User already registered for this tournament.");
-        }
-    
-        if (user.getElo() < eloRequirement) {
-            throw new UserTournamentException("User does not meet the Elo requirement for this tournament.");
-        }
-    
-        if (tournamentUsers.size() >= capacityCount) {
-            throw new UserTournamentException("Tournament is at full capacity.");
-        }
 
-        /// Get user's date of birth
-        Timestamp dateOfBirthTimestamp = user.getDateOfBirth();
-        if (dateOfBirthTimestamp == null) {
-            throw new RuntimeException("User's date of birth is not available.");
-        }
-
-        // Calculate user's age
-        Date dateOfBirthDate = dateOfBirthTimestamp.toDate();
-        Instant dobInstant = dateOfBirthDate.toInstant();
-        LocalDate dobLocalDate = dobInstant.atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate currentDateLocal = LocalDate.now();
-
-        int age = Period.between(dobLocalDate, currentDateLocal).getYears();
-
-        System.out.println("User's age: " + age);
-
-        // Check if user's age meets the tournament's age requirements
-        if (age < ageLimit) {
-            throw new UserTournamentException("User does not meet the age requirement for this tournament.");
-        }
     
-        // If all checks pass, register the user
-        tournamentUsers.add(user.getUid());
-        registrationHistory.add(tournamentId);
-    
-        ApiFuture<WriteResult> tournamentUpdate = tournamentRef.update("users", tournamentUsers);
-        ApiFuture<WriteResult> userUpdate = usersRef.document(user.getUid()).update("registrationHistory", registrationHistory);
-        tournamentUpdate.get();
+        ApiFuture<WriteResult> userUpdate = usersRef.document(user.getAuthId()).update("registrationHistory", registrationHistory);
         userUpdate.get();
     
         return "User successfully registered for the tournament.";
@@ -236,8 +156,10 @@ public class UserService {
         
         DocumentSnapshot userSnapshot = userDocuments.get(0);
         DocumentReference userRef = userSnapshot.getReference();
-        
+
+                       
         Map<String, Object> changes = new HashMap<>();
+        Map<String, Object> changes2 = new HashMap<>();
         
         // Update username if provided
         if (updatedUser.getUsername() != null) {
@@ -247,6 +169,7 @@ public class UserService {
         // Update name if provided
         if (updatedUser.getName() != null) {
             changes.put("name", updatedUser.getName());
+            changes2.put("name", updatedUser.getName());
         }
         
         // Update phone number if provided
@@ -257,6 +180,7 @@ public class UserService {
         // Update nationality if provided
         if (updatedUser.getNationality() != null) {
             changes.put("nationality", updatedUser.getNationality());
+            changes2.put("nationality", updatedUser.getNationality());
         }
 
         // Update chessUsername if provided
@@ -306,6 +230,36 @@ public class UserService {
         } else {
             System.out.println("No changes to update.");
         }
+
+        // For collecting the User subcollection within tournament
+        // Reference to the Tournaments collection
+        CollectionReference tournamentsRef = firestore.collection("Tournaments");
+
+        // Retrieve all tournaments
+        ApiFuture<QuerySnapshot> tournamentsQuery = tournamentsRef.get();
+        List<QueryDocumentSnapshot> tournamentDocuments = tournamentsQuery.get().getDocuments();
+
+        // Loop through each tournament
+        for (QueryDocumentSnapshot tournamentDoc : tournamentDocuments) {
+            // Reference to the Users subcollection within the current tournament
+            CollectionReference usersRef2 = tournamentDoc.getReference().collection("Users");
+
+            // Query the Users subcollection for the specific user by userID
+            ApiFuture<QuerySnapshot> userQuery = usersRef2.whereEqualTo("userID", userId).get();
+            List<QueryDocumentSnapshot> userDocuments2 = userQuery.get().getDocuments();
+
+            // Check if the user document exists
+            if (!userDocuments.isEmpty()) {
+                // Get the document reference for the user
+                DocumentReference userRef2 = userDocuments2.get(0).getReference();
+                
+                // Update the fields in the user's document within the tournament
+                ApiFuture<WriteResult> updateResult = userRef2.update(changes2);
+                updateResult.get(); // Wait for the update to complete
+            } 
+        }
+        // End of collecting user within the tournament                 
+
         
         System.out.println("Retrieving updated user data...");
         DocumentSnapshot updatedUserSnapshot = userRef.get().get();
@@ -462,7 +416,7 @@ public class UserService {
         DocumentReference documentReference = writeResult.get();
 
         String generatedUid = documentReference.getId();
-        newUser.setUid(generatedUid);
+        newUser.setAuthId(generatedUid);
 
         newUserProfile.put("uid", generatedUid);
         documentReference.set(newUserProfile, SetOptions.merge());
