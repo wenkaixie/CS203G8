@@ -195,7 +195,7 @@ public class AdminService {
 
             // URL for the ELO update service
             String url = "http://localhost:9091/api/elo/update/" + user1 + "/" + user2;
-            RestTemplate restTemplate = new RestTemplate();
+            // RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
