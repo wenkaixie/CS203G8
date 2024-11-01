@@ -49,7 +49,7 @@ public class FirebaseConfig {
             return firebaseApps.get(0);
         } else {
             // Initialize a new FirebaseApp instance
-            String credentialsPath = "C:\\CS203G8\\serviceAccountKey.json";
+            String credentialsPath = "backend/tournament/src/main/resources/serviceAccountKey.json";
             FileInputStream serviceAccount = new FileInputStream(credentialsPath);
 
             FirebaseOptions options = FirebaseOptions.builder()

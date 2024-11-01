@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.app.tournament.DTO.ParticipantDTO;
 import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
@@ -535,6 +536,49 @@ public class TournamentService {
 
         return ongoingTournaments; // Return the list of ongoing tournaments
     }
+    public void updateMatchWinner(String tournamentID, int roundNumber, int matchId, String winnerName)
+            throws ExecutionException, InterruptedException {
+
+        log.info("Updating winner for match {} in round {} of tournament {}.", matchId, roundNumber, tournamentID);
+
+        DocumentReference roundDocRef = firestore.collection("Tournaments")
+                .document(tournamentID)
+                .collection("Rounds")
+                .document(String.valueOf(roundNumber));
+
+        Round round = roundDocRef.get().get().toObject(Round.class);
+        if (round == null) {
+            log.error("Round {} not found in tournament {}.", roundNumber, tournamentID);
+            throw new RuntimeException("Round not found: " + roundNumber);
+        }
+
+        List<Match> matches = round.getMatches();
+        Match targetMatch = matches.stream()
+                .filter(match -> match.getId() == matchId)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Match not found: " + matchId));
+
+        log.info("Participants in match {}: {}", matchId,
+                targetMatch.getParticipants().stream().map(ParticipantDTO::getName).toList());
+
+        boolean winnerSet = false;
+        for (ParticipantDTO participant : targetMatch.getParticipants()) {
+            boolean isWinner = participant.getName().equals(winnerName);
+            participant.setIsWinner(isWinner);
+            if (isWinner) {
+                winnerSet = true;
+                log.info("Participant {} set as the winner for match {}.", participant.getName(), matchId);
+            }
+        }
+
+        if (!winnerSet) {
+            throw new RuntimeException("No participant found with name: " + winnerName);
+        }
+
+        roundDocRef.set(round).get();
+        log.info("Successfully updated winner for match {} in round {} of tournament {}.", matchId, roundNumber,
+                tournamentID);
+    }
 
     private void checkAndUpdateStatus(QuerySnapshot tournamentsSnapshot) {
         // Get the current time and tournament start time
@@ -569,6 +613,9 @@ public class TournamentService {
                 } catch (Exception e) {
                     System.err.println("Error processing tournament: " + e);
                 }
+                
+                
+
             }
         }
     }
