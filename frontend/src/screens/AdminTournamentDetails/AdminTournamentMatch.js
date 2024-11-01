@@ -195,7 +195,11 @@ const AdminTournamentMatch = () => {
                                         {roundMatches.map((match, index) => (
                                             <tr key={index} className={editingMatchId === match.id ? 'editing-row' : ''}>
                                                 <td>{index + 1}</td>
-                                                <td>{new Date(match.startTime).toLocaleString()}</td>
+                                                <td>{new Date(match.startTime).toLocaleString('en-US', {
+                                                        year: 'numeric', month: 'long', day: 'numeric',
+                                                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                                                        hour12: true
+                                                    }).replace(',', '')}</td>
                                                 <td>{match.location || 'N/A'}</td>
                                                 <td>{match.participants[0].name}</td>
                                                 <td>{match.participants[0].elo || 'N/A'}</td>

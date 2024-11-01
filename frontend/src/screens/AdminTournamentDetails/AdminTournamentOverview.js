@@ -23,8 +23,11 @@ const AdminTournamentOverview = () => {
                 // Fetch users from the subcollection within the tournament
                 //change the api
                 const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
-                const usersArray = usersResponse.data.map(authId => authId.trim()).filter(authId => authId !== "");
+                const usersArray = usersResponse.data
+                    .map(user => user.authId ? user.authId.trim() : null) // Access authId field in each user object
+                    .filter(authId => authId !== null && authId !== ""); // Filter out any null or empty authIds
                 setNumberOfPlayers(usersArray.length);
+
 
                 setLoading(false);
             } catch (error) {
@@ -143,7 +146,7 @@ const AdminTournamentOverview = () => {
                             </>
                         ) : (
                             <>
-                                {new Date(tournamentData?.startDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} — 
+                                {new Date(tournamentData?.startDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} —
                                 {' '}
                                 {new Date(tournamentData?.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                             </>
