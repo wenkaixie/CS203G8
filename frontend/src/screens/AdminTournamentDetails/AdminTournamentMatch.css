@@ -231,9 +231,7 @@ body {
 }
 
 .edit-button {
-    background-color: #f0f0f0; /* Light gray background */
     border: none;
-    border-radius: 50%;
     padding: 8px;
     cursor: pointer;
     font-size: 16px;
@@ -248,11 +246,8 @@ body {
     margin-right: 4px;
 }
 
-.cancel-button {
+.delete-button {
     border: none;
-    border-radius: 50%;
-    padding: 6px 10px;
-    color: rgb(3, 3, 3);
     cursor: pointer;
 }
 

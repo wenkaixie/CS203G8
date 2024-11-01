@@ -28,7 +28,6 @@ const AdminTournamentOverview = () => {
                     .filter(authId => authId !== null && authId !== ""); // Filter out any null or empty authIds
                 setNumberOfPlayers(usersArray.length);
 
-
                 setLoading(false);
             } catch (error) {
                 setError(error.message);

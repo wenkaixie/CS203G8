@@ -51,7 +51,7 @@ const AdminDetailsHeader = ({ activeTab, tournamentTitle, playerCount, onEditCli
         try {
             // DELETE request to delete the tournament
             await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}`);
-            navigate('/admin/tournaments'); // Redirect to the tournaments list after deletion
+            navigate('/admin/home'); // Redirect to the home after deletion
         } catch (error) {
             console.error("Error deleting tournament:", error);
         }

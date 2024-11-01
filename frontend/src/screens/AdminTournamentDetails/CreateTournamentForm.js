@@ -11,10 +11,10 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         location: '',
         ageLimit: 0,
         eloRequirement: 0,
-        startDatetime: '',
-        endDatetime: '',
-        prize: 0,
-        capacity: 0,
+        startDate: '', // Changed from startDatetime to match CreateTournamentCard
+        endDate: '',   // Changed from endDatetime to match CreateTournamentCard
+        prizePool: 0,
+        slots: 0,
         type: '',
         openRegistration: '',
         closeRegistration: '',
@@ -27,7 +27,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         const now = new Date();
         setFormData((prevData) => ({
             ...prevData,
-            openRegistration: now.toISOString().slice(0, 16),
+            openRegistration: now.toISOString().slice(0, 10), // Default to current date
         }));
     }, []);
 
@@ -38,12 +38,13 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             [name]: value,
         }));
 
-        if (name === 'startDatetime') {
+        // Adjust close registration date based on start date selection
+        if (name === 'startDate') {
             const startDate = new Date(value);
             const closeRegDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
             setFormData((prevData) => ({
                 ...prevData,
-                closeRegistration: closeRegDate.toISOString().slice(0, 16),
+                closeRegistration: closeRegDate.toISOString().slice(0, 10),
             }));
         }
     };
@@ -62,28 +63,30 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
 
         try {
             const formattedData = {
-                ...formData,
+                name: formData.name,
+                description: formData.description,
+                location: formData.location,
                 ageLimit: Number(formData.ageLimit),
                 eloRequirement: Number(formData.eloRequirement),
-                prize: Number(formData.prize),
-                capacity: Number(formData.capacity),
-                startDatetime: formData.startDatetime + ":00Z",
-                endDatetime: formData.endDatetime + ":00Z",
-                openRegistration: formData.openRegistration + ":00Z",
-                closeRegistration: formData.closeRegistration + ":00Z",
+                prizePool: Number(formData.prizePool),
+                slots: Number(formData.slots),
+                type: formData.type,
+                startDate: formData.startDate, // Send in date-only format
+                endDate: formData.endDate,     // Send in date-only format
+                userId: user.uid,
             };
 
             await axios.post(
-                `http://localhost:7070/admin/createTournament/${user.uid}`,
+                `http://localhost:7070/admin/createTournament`,
                 formattedData
             );
 
-            setShowConfirmation(true); // Show confirmation popup
+            setShowConfirmation(true); 
             setTimeout(() => {
                 setShowConfirmation(false);
                 onClose();
                 if (onSuccess) onSuccess();
-            }, 2000); // Hide popup and close form after 2 seconds
+            }, 2000);
         } catch (error) {
             console.error("Error creating tournament:", error);
             setError("Failed to create tournament. Please try again.");
@@ -102,63 +105,124 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                     {page === 1 ? (
                         <div className="registration-body">
                             <label>Tournament Name</label>
-                            <input type="text" className="full-width" name="name" value={formData.name} onChange={handleChange} required />
+                            <input
+                                type="text"
+                                className="full-width"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                required
+                            />
 
                             <label>Description</label>
-                            <textarea name="description" className="full-width" value={formData.description} onChange={handleChange}></textarea>
+                            <textarea
+                                name="description"
+                                className="full-width"
+                                value={formData.description}
+                                onChange={handleChange}
+                            ></textarea>
 
                             <div className="input-row">
                                 <div className="form-group half-width">
                                     <label>Start Date</label>
-                                    <input type="datetime-local" name="startDatetime" value={formData.startDatetime} onChange={handleChange} required />
+                                    <input
+                                        type="datetime-local"
+                                        name="startDate"
+                                        value={formData.startDate}
+                                        onChange={handleChange}
+                                        required
+                                    />
                                 </div>
                                 <div className="form-group half-width">
                                     <label>End Date</label>
-                                    <input type="datetime-local" name="endDatetime" value={formData.endDatetime} onChange={handleChange} required />
+                                    <input
+                                        type="datetime-local"
+                                        name="endDate"
+                                        value={formData.endDate}
+                                        onChange={handleChange}
+                                        required
+                                    />
                                 </div>
                             </div>
 
                             <label>Tournament Type</label>
-                            <select name="tournamentType" className="full-width" value={formData.type} onChange={handleChange}>
-                                <option value="Elimination">Elimination</option>
-                                <option value="Round Robin">Round Robin</option>
+                            <select name="type" className="full-width" value={formData.type} onChange={handleChange}>
+                                <option value="swiss">Swiss Format</option>
+                                <option value="elim">Single Elimination Format</option>
                             </select>
                         </div>
                     ) : (
                         <div className="registration-body">
                             <label>Location</label>
-                            <input type="text" className="full-width" name="location" value={formData.location} onChange={handleChange} required />
+                            <input
+                                type="text"
+                                className="full-width"
+                                name="location"
+                                value={formData.location}
+                                onChange={handleChange}
+                                required
+                            />
 
                             <div className="input-row">
                                 <div className="form-group half-width">
                                     <label>Age Limit</label>
-                                    <input type="number" name="ageLimit" value={formData.ageLimit} onChange={handleChange} />
+                                    <input
+                                        type="number"
+                                        name="ageLimit"
+                                        value={formData.ageLimit}
+                                        onChange={handleChange}
+                                    />
                                 </div>
                                 <div className="form-group half-width">
                                     <label>ELO Requirement</label>
-                                    <input type="number" name="eloRequirement" value={formData.eloRequirement} onChange={handleChange} />
+                                    <input
+                                        type="number"
+                                        name="eloRequirement"
+                                        value={formData.eloRequirement}
+                                        onChange={handleChange}
+                                    />
                                 </div>
                             </div>
 
                             <div className="input-row">
                                 <div className="form-group half-width">
                                     <label>Open Registration</label>
-                                    <input type="datetime-local" name="openRegistration" value={formData.openRegistration} readOnly />
+                                    <input
+                                        type="datetime-local"
+                                        name="openRegistration"
+                                        value={formData.openRegistration}
+                                        readOnly
+                                    />
                                 </div>
                                 <div className="form-group half-width">
                                     <label>Close Registration</label>
-                                    <input type="datetime-local" name="closeRegistration" value={formData.closeRegistration} readOnly />
+                                    <input
+                                        type="datetime-local"
+                                        name="closeRegistration"
+                                        value={formData.closeRegistration}
+                                        readOnly
+                                    />
                                 </div>
                             </div>
 
                             <div className="input-row">
                                 <div className="form-group half-width">
                                     <label>Prize Pool</label>
-                                    <input type="number" name="prize" value={formData.prize} onChange={handleChange} />
+                                    <input
+                                        type="number"
+                                        name="prizePool"
+                                        value={formData.prizePool}
+                                        onChange={handleChange}
+                                    />
                                 </div>
                                 <div className="form-group half-width">
                                     <label>Slots</label>
-                                    <input type="number" name="capacity" value={formData.capacity} onChange={handleChange} />
+                                    <input
+                                        type="number"
+                                        name="slots"
+                                        value={formData.slots}
+                                        onChange={handleChange}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -182,7 +246,6 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                 </form>
             </div>
 
-            {/* Confirmation Popup */}
             {showConfirmation && (
                 <div className="confirmation-popup">
                     <p>Tournament created successfully!</p>
