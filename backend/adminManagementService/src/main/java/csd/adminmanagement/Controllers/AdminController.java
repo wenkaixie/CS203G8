@@ -82,4 +82,20 @@ public class AdminController {
     }
 
 
+    // wenkai 25/10
+    // Get All Tournaments of Admin
+    @GetMapping("/getAdminTournaments/{adminId}")
+    public ResponseEntity<Object> getAdminTournaments(@PathVariable String adminId) {
+        List<Tournament> tournaments = adminService.getAdminTournaments(adminId);
+        return ResponseEntity.ok(tournaments);
+    }
+
+    // wenkai 25/10
+    // Create Tournament
+    @PostMapping("/createTournament/{adminId}")
+    public ResponseEntity<Object> createTournament(@PathVariable String adminId, @RequestBody Tournament newTournament) {
+        Tournament tournament = adminService.createTournament(adminId, newTournament);
+        return ResponseEntity.ok(tournament);
+    }
+
 }

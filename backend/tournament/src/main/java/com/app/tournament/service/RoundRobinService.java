@@ -1,20 +1,23 @@
 package com.app.tournament.service;
 
-import com.app.tournament.model.Match;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.app.tournament.DTO.ParticipantDTO;
+import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
 import com.app.tournament.model.Tournament;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -26,24 +29,64 @@ public class RoundRobinService {
     @Autowired
     private TournamentService tournamentService;
 
+    @Autowired
+    private UserService userService; // Assuming you have a service to fetch user details
+
     // Method to generate round-robin rounds and matches
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
         try {
-            // Retrieve tournament and users
+            // Fetch tournament from the tournamentService
             Tournament tournament = tournamentService.getTournamentById(tournamentID);
-            List<String> users = tournament.getUsers();
-            int numPlayers = users.size();
+
+            // Retrieve the Users subcollection from Firestore
+            CollectionReference usersCollection = firestore.collection("Tournaments").document(tournamentID)
+                    .collection("Users");
+
+            // Fetch all users from the Users subcollection and convert them to
+            // ParticipantDTO
+            List<QueryDocumentSnapshot> userDocs = usersCollection.get().get().getDocuments();
+            if (userDocs.isEmpty()) {
+                log.warn("No users found for tournament {}.", tournamentID);
+                throw new RuntimeException("No users found in tournament: " + tournamentID);
+            }
+
+            List<ParticipantDTO> participants = new ArrayList<>();
+            for (QueryDocumentSnapshot userDoc : userDocs) {
+                String uid = userDoc.getId(); // User's unique ID (document ID)
+                String name = userDoc.getString("name");
+                Long elo = userDoc.getLong("elo");
+                String nationality = userDoc.getString("nationality");
+
+                if (name == null || elo == null || nationality == null) {
+                    log.warn("User data incomplete for user {} in tournament {}.", uid, tournamentID);
+                    throw new RuntimeException("Incomplete user data for user ID: " + uid);
+                }
+
+                // Create a new ParticipantDTO with the existing constructor, passing an empty
+                // resultText and isWinner as false
+                participants.add(new ParticipantDTO(
+                        null, // You can assign 'null' here since this will be set later as player 1 or player
+                              // 2 in each match
+                        uid,
+                        name,
+                        "", // resultText (empty for now)
+                        elo.intValue(),
+                        nationality,
+                        false // Set isWinner as false for now
+                ));
+            }
 
             // Generate round-robin rounds and matches
-            generateRounds(tournamentID, users, numPlayers);
+            generateRounds(tournamentID, participants, participants.size());
         } catch (Exception e) {
             log.error("Failed to generate rounds for tournament {}: {}", tournamentID, e.getMessage());
             throw e;
         }
     }
 
+
     // Method to generate rounds for a round-robin tournament
-    private void generateRounds(String tournamentID, List<String> users, int numPlayers)
+    private void generateRounds(String tournamentID, List<ParticipantDTO> participants, int numPlayers)
             throws ExecutionException, InterruptedException {
 
         CollectionReference roundsCollection = firestore.collection("Tournaments")
@@ -56,7 +99,9 @@ public class RoundRobinService {
         // Create matches for every pair of players
         for (int i = 0; i < numPlayers; i++) {
             for (int j = i + 1; j < numPlayers; j++) {
-                Match match = createMatch(users.get(i), users.get(j), matchCounter);
+                // Create a match between player i and player j using the ParticipantDTO objects
+                Match match = createMatch(participants.get(i), participants.get(j), matchCounter);
+
                 allMatches.add(match);
                 matchCounter++;
             }
@@ -93,10 +138,16 @@ public class RoundRobinService {
     }
 
     // Helper method to create a match between two players
-    private Match createMatch(String player1, String player2, int matchCounter) {
+    private Match createMatch(ParticipantDTO player1, ParticipantDTO player2, int matchCounter) {
         List<ParticipantDTO> participants = new ArrayList<>();
-        participants.add(new ParticipantDTO("1", player1, "", false));
-        participants.add(new ParticipantDTO("2", player2, "", false));
+
+        // Set player 1 and player 2 IDs to "1" and "2" respectively, maintaining other
+        // fields
+        player1.setId("1");
+        player2.setId("2");
+
+        participants.add(player1);
+        participants.add(player2);
 
         return new Match(
                 matchCounter,
@@ -107,4 +158,5 @@ public class RoundRobinService {
                 "PENDING",
                 participants);
     }
+
 }

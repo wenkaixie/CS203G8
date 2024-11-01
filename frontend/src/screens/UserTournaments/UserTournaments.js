@@ -23,8 +23,9 @@ const UserTournaments = () => {
     useEffect(() => {
         const fetchTournaments = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/tournaments');
+                const response = await axios.get('http://localhost:8080/api/tournaments/all');
                 setTournaments(response.data);
+                console.log(response.data);
             } catch (error) {
                 console.error("Error fetching tournaments:", error);
             }
@@ -55,21 +56,23 @@ const UserTournaments = () => {
             return 'Registered';
         }
     
-        // Get the current time and tournament start time
-        const currentTime = new Date();
-        const startTime = new Date(tournament.startDatetime);
+        return tournament.status;
+
+        // // Get the current time and tournament start time
+        // const currentTime = new Date();
+        // const startTime = new Date(tournament.startDatetime);
     
-        // Calculate the difference in time between now and the tournament start time
-        const timeDiff = startTime - currentTime; // Time difference in milliseconds
-        const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+        // // Calculate the difference in time between now and the tournament start time
+        // const timeDiff = startTime - currentTime; // Time difference in milliseconds
+        // const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
     
-        // If more than 1 day is remaining before the tournament starts
-        if (timeDiff > oneDayInMilliseconds) {
-            return 'Open';
-        }
+        // // If more than 1 day is remaining before the tournament starts
+        // if (timeDiff > oneDayInMilliseconds) {
+        //     return 'Open';
+        // }
     
-        // If less than 1 day is remaining or the tournament has already started
-        return 'Closed';
+        // // If less than 1 day is remaining or the tournament has already started
+        // return 'Closed';
     };
 
     const handleRowClick = (tournamentId) => {

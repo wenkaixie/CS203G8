@@ -1,10 +1,8 @@
 package csd.adminmanagement.Model;
 
+import java.time.Instant;
 import java.util.List;
 
-import com.google.cloud.Timestamp;
-
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,18 +12,26 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor // Generates an all-arguments constructor
 public class Tournament {
     private int ageLimit;
-    private int capacity;
-    private Timestamp createdTimestamp;
-    private String description;
-    private int eloRequirement;
-    private Timestamp endDatetime;
-    private String location;
     private String name;
+    private String description;   
+    private int eloRequirement;
+    private String location;
+    private int capacity;
+    
+    private Instant startDatetime;   // Field for start datetime of the tournament
+    private Instant endDatetime; // Field for end datetime of the tournament
+    
+    private String tid; // tournamentID
+    private Instant createdTimestamp;
     private int prize;
-    private Timestamp startDatetime;
+
     private String status;
-    private String tid;
-    private String trid;
+    
+    // List to store players in the tournament
     private List<String> users;
+
+    private String adminId;
+    //
+    private int currentRound;
 }
 

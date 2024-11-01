@@ -1,0 +1,131 @@
+.create-tournament {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.create-tournament h2 {
+  margin-bottom: 0px;
+}
+
+.modal-content {
+  background-color: #fff !important;
+  padding: 30px;
+  width: 50% !important;
+  max-height: 85%;
+  position: relative;
+  border-radius: 10px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Dark background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: hidden; /* Prevent the background itself from scrolling */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-tournament-form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allows form to grow */
+  overflow-y: auto; /* Make form content scrollable */
+  gap: 10px;
+}
+
+.create-tournament-form label {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  font-size: 20px;
+  gap: 10px;
+}
+
+.create-tournament-form input,
+.create-tournament-form textarea,
+.create-tournament-form select {
+  padding: 10px; /* Increased padding for larger input area */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 15px; /* Increased font size for better readability */
+}
+
+.create-tournament-form textarea {
+  height: 100px; /* Set height for the description textarea */
+}
+
+.date-inputs,
+.small-inputs {
+  display: flex;
+  justify-content: space-between;
+}
+
+.date-inputs label,
+.small-inputs label {
+  width: 48%; /* Keep the inputs side by side */
+}
+
+.submit-container {
+  margin-top: 15px;
+  padding-top: 15px;
+  display: flex;
+}
+
+.submit-btn {
+  padding: 12px 20px; /* Increased button padding */
+  background-color: #8F3013;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px; /* Increased font size for the button */
+}
+
+.submit-btn:hover {
+  background-color: #6e240f;
+}
+
+.close-icon {
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+}
+
+select {
+  font-size: 18px; /* Increase font size */
+  padding: 12px; /* Add more padding for a larger appearance */
+  width: 100%; /* Ensure the select fills the available width */
+  border-radius: 4px; /* Round the corners */
+  border: 1px solid #ccc; /* Add a border */
+  height: auto; /* Allow the height to auto-adjust */
+  box-sizing: border-box; /* Ensure padding and border are included in width */
+  appearance: none; /* Remove default browser styling if needed */
+}
+
+select:focus {
+  outline: none; /* Remove outline when focused */
+  border-color: #8F3013; /* Highlight border on focus */
+}
+
+@media (max-width: 1000px){
+  .small-inputs,
+  .date-inputs {
+    flex-direction: column;
+    flex-grow: inherit;
+  }
+}
