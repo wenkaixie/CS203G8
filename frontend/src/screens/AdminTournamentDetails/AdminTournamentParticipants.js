@@ -14,41 +14,30 @@ const AdminTournamentParticipants = () => {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [numberOfPlayers, setNumberOfPlayers] = useState(0);
     const [tournamentData, setTournamentData] = useState(null);
+    const [tournamentTitle, setTournamentTitle] = useState("Tournament");
     const [isEditMode, setIsEditMode] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
-
-    const calculateAge = (dateOfBirth) => {
-        const birthDate = new Date(dateOfBirth.seconds * 1000);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (age === 0 && (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()))) return 0;
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
-        return age;
-    };
 
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
+                // Fetch the tournament details
+                const tournamentResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                setTournamentTitle(tournamentResponse.data.name || "Tournament");
+
                 // Fetch users directly from the Users subcollection within the tournament
                 const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
-                const usersArray = usersResponse.data.map(authId => authId.trim()).filter(authId => authId !== "");
+                const usersArray = usersResponse.data; // Assuming this returns an array of user documents
                 setNumberOfPlayers(usersArray.length);
 
-                // Fetch user details for each participant
-                const participantDetails = await Promise.all(
-                    usersArray.map(async (authId) => {
-                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${authId}`);
-                        const userData = userResponse.data;
-                        const age = calculateAge(userData.dateOfBirth);
-
-                        // Fetch user rank for each participant
-                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${authId}`);
-                        const userRank = rankResponse.data;
-
-                        return { ...userData, age, userRank, authId };
-                    })
-                );
+                // Map the usersArray to participant details
+                const participantDetails = usersArray.map((user) => ({
+                    authId: user.authId,
+                    elo: user.elo,
+                    joinedAt: user.joinedAt,  // Assuming joinedAt is a Date object or valid timestamp
+                    name: user.name,
+                    nationality: user.nationality,
+                }));
 
                 setParticipants(participantDetails);
             } catch (error) {
@@ -84,7 +73,6 @@ const AdminTournamentParticipants = () => {
         if (sortBy) {
             updatedList = updatedList.sort((a, b) => {
                 if (sortBy === 'name') return a.name.localeCompare(b.name);
-                else if (sortBy === 'age') return b.age - a.age;
                 else if (sortBy === 'rating') return b.elo - a.elo;
                 return 0;
             });
@@ -97,8 +85,7 @@ const AdminTournamentParticipants = () => {
         const confirmDelete = window.confirm("Are you sure you want to remove this player from the tournament?");
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`);
-                console.log(response.data);
+                await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`);
                 setParticipants(participants.filter((participant) => participant.authId !== authId));
                 setNumberOfPlayers(numberOfPlayers - 1);
             } catch (error) {
@@ -106,6 +93,7 @@ const AdminTournamentParticipants = () => {
             }
         }
     };
+
 
     const handleCreateTournament = () => {
         setShowCreateForm(true);
@@ -131,7 +119,7 @@ const AdminTournamentParticipants = () => {
         <div>
             <AdminDetailsHeader
                 activeTab="participants"
-                tournamentTitle={tournamentData?.name || "Tournament"}
+                tournamentTitle={tournamentTitle}
                 playerCount={numberOfPlayers}
                 onEditClick={handleEditClick}
                 onSaveClick={handleSaveClick}
@@ -160,7 +148,6 @@ const AdminTournamentParticipants = () => {
                             {isDropdownVisible && (
                                 <div className="dropdown-content">
                                     <div className="dropdown-item" onClick={() => handleSortChange('name')}>Name</div>
-                                    <div className="dropdown-item" onClick={() => handleSortChange('age')}>Age</div>
                                     <div className="dropdown-item" onClick={() => handleSortChange('rating')}>Rating</div>
                                 </div>
                             )}
@@ -175,11 +162,9 @@ const AdminTournamentParticipants = () => {
                                 <th>No</th>
                                 <th>Name</th>
                                 <th>Nationality</th>
-                                <th>Age</th>
-                                <th>World rank</th>
                                 <th>ELO Rating</th>
-                                <th>Games played this season</th>
-                                {isEditMode && <th>Remove</th>}
+                                <th>Registration Date</th>
+                                {isEditMode && <th>Actions</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -189,10 +174,12 @@ const AdminTournamentParticipants = () => {
                                         <td>{index + 1}</td>
                                         <td>{participant.name || 'null'}</td>
                                         <td>{participant.nationality || 'null'}</td>
-                                        <td>{participant.age ?? '0'}</td>
-                                        <td>{participant.userRank || 'null'}</td>
                                         <td>{participant.elo ?? '0'}</td>
-                                        <td>{participant.registrationHistory.length || '0'}</td>
+                                        <td>{new Date(participant.joinedAt).toLocaleString('en-US', {
+                                            year: 'numeric', month: 'long', day: 'numeric',
+                                            hour: '2-digit', minute: '2-digit', second: '2-digit',
+                                            hour12: true
+                                        }).replace(',', '')}</td>
                                         {isEditMode && (
                                             <td>
                                                 <button
@@ -207,7 +194,7 @@ const AdminTournamentParticipants = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={isEditMode ? "8" : "7"}>No participants available</td>
+                                    <td colSpan={isEditMode ? "6" : "5"}>No participants available</td>
                                 </tr>
                             )}
                         </tbody>
