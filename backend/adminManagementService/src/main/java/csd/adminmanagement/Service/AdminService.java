@@ -179,7 +179,7 @@ public class AdminService {
                 throw new RuntimeException("No participants found in the match.");
             }
 
-            String user1 = (String) participants.get(0).get("uid"); String user2 = (String) participants.get(1).get("uid");
+            String user1 = (String) participants.get(0).get("authId"); String user2 = (String) participants.get(1).get("authId");
     
             // Update match results
             updateMatchResults(participants, matchResultUpdateRequest.getAS1(), matchResultUpdateRequest.getAS2());
