@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './UserTournamentParticipants.css';
-import Header from './UserDetailsHeader';
 
 const UserTournamentParticipants = () => {
     const { tournamentId } = useParams();
@@ -110,8 +109,6 @@ const UserTournamentParticipants = () => {
 
     return (
         <div>
-            <Header activetab="participants" tournamentTitle={tournamentId} playerCount={playerCount} />
-
             <div className="user-tournament-participants">
                 <div className="controls-container">
                     <div className="search-bar">

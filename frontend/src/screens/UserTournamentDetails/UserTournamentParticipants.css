@@ -10,9 +10,7 @@ body {
 
 /* User Tournament Container */
 .user-tournament-participants {
-    padding: 300px 40px;
     width: 100%;
-    margin-top: -70px;
     background-color: #F5F5EF;
     box-sizing: border-box;
     display: flex;
