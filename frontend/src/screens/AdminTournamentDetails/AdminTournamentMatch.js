@@ -14,20 +14,19 @@ const AdminTournamentMatch = () => {
     const [availableRounds, setAvailableRounds] = useState([]);
     const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
-    const [currentRound, setCurrentRound] = useState(null); // To store the current round of the tournament
+    const [currentRound, setCurrentRound] = useState(null);
     const [activeView, setActiveView] = useState('diagram');
     const [editingMatchId, setEditingMatchId] = useState(null);
     const [participant1Result, setParticipant1Result] = useState('');
     const [participant2Result, setParticipant2Result] = useState('');
 
-    // Fetch tournament details, including currentRound
     useEffect(() => {
         const fetchTournamentDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
                 setTournamentTitle(tournamentData.name || 'Tournament');
-                setCurrentRound(tournamentData.currentRound); // Set currentRound from the tournament data
+                setCurrentRound(tournamentData.currentRound);
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
             }
@@ -35,7 +34,6 @@ const AdminTournamentMatch = () => {
         fetchTournamentDetails();
     }, [tournamentId]);
 
-    // Function to fetch all matches for the tournament
     const fetchMatches = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/matches`);
@@ -45,18 +43,18 @@ const AdminTournamentMatch = () => {
                 ...match,
                 participants: match.participants.map(participant => ({
                     ...participant,
-                    resultText: participant.isWinner ? 1 : 0 // Set based on `isWinner`
+                    resultText: participant.isWinner ? 1 : 0
                 }))
             }));
 
             setMatches(allMatches);
-            setAvailableRounds([...new Set(fetchedMatches.map(match => match.tournamentRoundText))]);
+            const rounds = [...new Set(fetchedMatches.map(match => match.tournamentRoundText))];
+            setAvailableRounds(rounds.sort((a, b) => b - a));
         } catch (error) {
             console.error('Error fetching matches:', error);
         }
     };
 
-    // Fetch matches initially
     useEffect(() => {
         fetchMatches();
     }, [tournamentId]);
@@ -68,12 +66,15 @@ const AdminTournamentMatch = () => {
     };
 
     const handleDeleteMatch = async (match) => {
-        const { tournamentRoundText: roundNumber, id: matchId } = match;
-        try {
-            await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/${matchId}`);
-            fetchMatches(); // Refresh matches after deletion
-        } catch (error) {
-            console.error('Error deleting match:', error);
+        const confirmDelete = window.confirm("Are you sure you want to delete this match?");
+        if (confirmDelete) {
+            const { tournamentRoundText: roundNumber, id: matchId } = match;
+            try {
+                await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/${matchId}`);
+                fetchMatches();
+            } catch (error) {
+                console.error('Error deleting match:', error);
+            }
         }
     };
 
@@ -90,7 +91,7 @@ const AdminTournamentMatch = () => {
                 participant2: participant2Result === '1' || participant2Result === '0.5',
             });
             setEditingMatchId(null);
-            fetchMatches(); // Refresh matches after update
+            fetchMatches();
         } catch (error) {
             console.error('Error saving match results:', error);
         }
@@ -99,7 +100,7 @@ const AdminTournamentMatch = () => {
     const handleConfirmResults = async (roundNumber) => {
         try {
             await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
-            fetchMatches(); // Refresh matches after confirmation
+            fetchMatches();
         } catch (error) {
             console.error('Error confirming results:', error);
         }
@@ -168,6 +169,7 @@ const AdminTournamentMatch = () => {
                         const roundMatches = matches.filter(match => match.tournamentRoundText === round);
                         const allResultsEntered = isRoundResultsComplete(roundMatches);
                         const isCurrentRound = round === currentRound;
+                        const isPastRound = round < currentRound;
 
                         return (
                             <div key={round}>
@@ -188,7 +190,7 @@ const AdminTournamentMatch = () => {
                                             <th>ELO</th>
                                             <th>Nationality</th>
                                             <th>State</th>
-                                            <th>Actions</th>
+                                            {!isPastRound && <th>Actions</th>}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -211,16 +213,18 @@ const AdminTournamentMatch = () => {
                                                 <td>{match.participants[1].elo || 'N/A'}</td>
                                                 <td>{match.participants[1].nationality || 'N/A'}</td>
                                                 <td>{match.state}</td>
-                                                <td className="action-buttons">
-                                                    {editingMatchId === match.id ? (
-                                                        <>
-                                                            <button className="save-button" onClick={() => handleSaveClick(match)}>✔</button>
-                                                            <button className="cancel-button" onClick={() => handleDeleteMatch(match)}>✖</button>
-                                                        </>
-                                                    ) : (
+                                                {!isPastRound && (
+                                                    <td className="action-buttons">
                                                         <button className="edit-button" onClick={() => handleEditClick(match.id, match.participants[0].resultText, match.participants[1].resultText)}>✎</button>
-                                                    )}
-                                                </td>
+                                                        <button className="delete-button" onClick={() => handleDeleteMatch(match)}>❌</button>
+                                                        {editingMatchId === match.id && (
+                                                            <>
+                                                                <button className="save-button" onClick={() => handleSaveClick(match)}>✔</button>
+                                                                <button className="cancel-button" onClick={() => setEditingMatchId(null)}>✖</button>
+                                                            </>
+                                                        )}
+                                                    </td>
+                                                )}
                                             </tr>
                                         ))}
                                     </tbody>

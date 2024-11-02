@@ -592,6 +592,7 @@ public class TournamentService {
                     String status = (String) tournamentData.get("status");
                     Date startTime = tournamentDoc.getDate("startDatetime");
                     Date endTime = tournamentDoc.getDate("endDatetime");
+                    int currentRound = tournamentDoc.getLong("currentRound").intValue();
 
                     if (startTime == null || status == null) {
                         System.out.println("Invalid tournament data: missing startDatetime or status.");
@@ -603,10 +604,14 @@ public class TournamentService {
                     long oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 1 day in milliseconds
 
                     // If less than or equal to 1 day is remaining and the tournament is still open
-                    if (endTime.getTime() < currentTime.getTime()) {
-                        tournamentDoc.getReference().update("status", "Completed");
+                    if (timeDiff <= oneDayInMilliseconds && "Open".equals(status)) {
+                        tournamentDoc.getReference().update("status", "Closed");
+                    } else if (endTime.getTime() < currentTime.getTime()) {
+                        tournamentDoc.getReference().update("status","Completed");
                     } else if (timeDiff <= 0 && "Closed".equals(status)) {
-                        tournamentDoc.getReference().update("status", "Ongoing");
+                        tournamentDoc.getReference().update("status","Round 1");
+                    } else if (status.equals("Round " + (currentRound - 1))) {
+                        tournamentDoc.getReference().update("status","Round " + currentRound);
                     } else {
                         System.out.println("No update needed for tournament: " + tournamentDoc.getId());
                     }

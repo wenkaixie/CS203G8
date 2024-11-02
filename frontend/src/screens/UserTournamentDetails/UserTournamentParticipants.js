@@ -33,7 +33,9 @@ const UserTournamentParticipants = () => {
             try {
                 // Fetch users directly from the Users subcollection within the tournament
                 const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
-                const usersArray = usersResponse.data.map(authId => authId.trim()).filter(authId => authId !== "");
+                const usersArray = usersResponse.data
+                    .map(user => user.authId ? user.authId.trim() : null) // Access authId field in each user object
+                    .filter(authId => authId !== null && authId !== ""); // Filter out any null or empty authIds
                 setPlayerCount(usersArray.length);
 
                 // Fetch user details for each participant

@@ -189,7 +189,12 @@ const MyTournamentsTable = () => {
                 </thead>
                 <tbody>
                 {currentTournaments.map((tournament, index) => {
-                    const registrationStatus = tournament.status === "Ongoing" ? "Ongoing" : "Registered"
+                    let registrationStatus = "";
+                    if (tournament.status === "Open" || tournament.status === "Closed") {
+                        registrationStatus = "Registered";
+                    } else {
+                        registrationStatus = tournament.status;
+                    }
 
                     return (
                         <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)} className="clickable-row">
