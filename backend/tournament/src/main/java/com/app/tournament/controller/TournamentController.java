@@ -117,6 +117,34 @@ public class TournamentController {
         }
     }
 
+    // Add player to tournament
+    @PostMapping("/{tournamentID}/players")
+    public ResponseEntity<String> addUserToTournament(@PathVariable String tournamentID,
+            @RequestParam String userID) {
+        try {
+            String response = tournamentService.addUserToTournament(tournamentID, userID);
+            return ResponseEntity.ok(response);
+        } catch (ExecutionException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error adding player: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{tournamentID}/players/{userID}")
+    public ResponseEntity<String> removeUserFromTournament(
+            @PathVariable String tournamentID,
+            @PathVariable String userID) {
+        try {
+            String response = tournamentService.removeUserFromTournament(tournamentID, userID);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
     // @GetMapping("/search")
     // public ResponseEntity<List<Tournament>>
     // getTournamentsByLocation(@RequestParam String location) {
@@ -158,8 +186,7 @@ public class TournamentController {
 
     // Get upcoming tournaments
     @GetMapping("/upcoming/{userID}")
-    public ResponseEntity<List<Tournament>>
-    getUpcomingTournamentsOfUser(@PathVariable String userID) {
+    public ResponseEntity<List<Tournament>>getUpcomingTournamentsOfUser(@PathVariable String userID) {
         try {
             List<Tournament> tournaments =tournamentService.getUpcomingTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
@@ -170,8 +197,7 @@ public class TournamentController {
 
     // Get past tournaments
     @GetMapping("/past/{userID}")
-    public ResponseEntity<List<Tournament>>
-        getPastTournamentsOfUser(@PathVariable String userID) {
+    public ResponseEntity<List<Tournament>>getPastTournamentsOfUser(@PathVariable String userID) {
         try {
             List<Tournament> tournaments =tournamentService.getPastTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
@@ -182,8 +208,7 @@ public class TournamentController {
 
     // Get ongoing tournaments of user
     @GetMapping("/ongoing/{userID}")
-    public ResponseEntity<List<Tournament>>
-        getOngoingTournamentsOfUser(@PathVariable String userID) {
+    public ResponseEntity<List<Tournament>>getOngoingTournamentsOfUser(@PathVariable String userID) {
         try {
             List<Tournament> tournaments =tournamentService.getOngoingTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
@@ -200,34 +225,6 @@ public class TournamentController {
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
-    // Add player to tournament
-    @PostMapping("/{tournamentID}/players")
-    public ResponseEntity<String> addUserToTournament(@PathVariable String tournamentID,
-            @RequestParam String userID) {
-        try {
-            String response = tournamentService.addUserToTournament(tournamentID, userID);
-            return ResponseEntity.ok(response);
-        } catch (ExecutionException | InterruptedException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error adding player: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred: " + e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{tournamentID}/players/{userID}")
-    public ResponseEntity<String> removeUserFromTournament(
-            @PathVariable String tournamentID,
-            @PathVariable String userID) {
-        try {
-            String response = tournamentService.removeUserFromTournament(tournamentID, userID);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

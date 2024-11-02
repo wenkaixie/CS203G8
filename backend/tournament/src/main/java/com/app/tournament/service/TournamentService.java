@@ -65,6 +65,27 @@ public class TournamentService {
         future.get();
         log.info("Tournament {} created successfully.", generatedId);
 
+        // Retrieve admin authId from tournamentDTO and update the admin's document
+        String authId = tournamentDTO.getAdminId(); 
+        DocumentReference adminRef = firestore.collection("Admins").document(authId);
+        DocumentSnapshot adminSnapshot = adminRef.get().get();
+
+        if (adminSnapshot.exists()) {
+            // Update or add the tournamentCreated field in the admin document
+            List<String> tournamentsCreated = (List<String>) adminSnapshot.get("tournamentCreated");
+            if (tournamentsCreated == null) {
+                tournamentsCreated = new ArrayList<>();
+            }
+            tournamentsCreated.add(generatedId);
+
+            // Update the admin document
+            adminRef.update("tournamentCreated", tournamentsCreated).get();
+            log.info("Tournament ID {} added to admin {}'s tournamentCreated field.", generatedId, authId);
+        } else {
+            log.warn("Admin with authId {} not found in Admins collection.", authId);
+            throw new RuntimeException("Admin not found with authId: " + authId);
+        }
+
         return generatedId;
     }
 
@@ -186,6 +207,7 @@ public class TournamentService {
                 "name", name,
                 "nationality", nationality,
                 "elo", elo,
+                "score", 0,
                 "joinedAt", Instant.now());
 
         // Add the user to the tournament's Users subcollection
