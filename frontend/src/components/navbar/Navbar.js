@@ -17,7 +17,7 @@ import { signOut } from 'firebase/auth';
 import FBInstanceAuth from '../../firebase/firebase_auth'; // Assuming this is where Firebase auth is managed
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const pages = ['Home', 'Tournaments', 'My Calendar', 'My Performance'];
+const pages = ['Home', 'Tournaments', 'My Calendar'];
 const settings = ['Profile', 'Logout'];
 
 const Navbar = () => {
