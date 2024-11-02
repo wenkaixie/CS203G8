@@ -21,9 +21,9 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
     });
     const [error, setError] = useState(null);
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const auth = getAuth();
 
-    // Set initial openRegistration to current date and time in UTC+8
     useEffect(() => {
         const now = new Date();
         now.setHours(now.getHours() + 8); // Adjust to UTC+8
@@ -41,17 +41,24 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             [name]: value,
         }));
 
-        // Adjust close registration date based on end date selection
         if (name === 'endDate') {
             const endDate = new Date(value);
-            endDate.setHours(endDate.getHours() + 8); // Adjust to UTC+8
-            const closeRegDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000); // 24 hours before end date
-            const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
+            endDate.setHours(endDate.getHours() + 8);
+            const closeRegDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
+            const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16);
             setFormData((prevData) => ({
                 ...prevData,
                 closeRegistration: formattedCloseRegDate,
             }));
         }
+    };
+
+    const handleTypeSelection = (type) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            type: type,
+        }));
+        setIsDropdownVisible(false);
     };
 
     const handleNext = () => setPage(2);
@@ -68,19 +75,17 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
 
         try {
             const formattedData = {
+                adminId: user.uid,
+                type: formData.type,
+                ageLimit: Number(formData.ageLimit),
                 name: formData.name,
                 description: formData.description,
-                location: formData.location,
-                ageLimit: Number(formData.ageLimit),
                 eloRequirement: Number(formData.eloRequirement),
-                prizePool: Number(formData.prizePool),
-                slots: Number(formData.slots),
-                type: formData.type,
-                startDate: formData.startDate,
-                endDate: formData.endDate,
-                openRegistration: formData.openRegistration,
-                closeRegistration: formData.closeRegistration,
-                userId: user.uid,
+                location: formData.location,
+                capacity: Number(formData.slots),
+                prize: Number(formData.prizePool),
+                startDatetime: formData.startDate + ":00Z",
+                endDatetime: formData.endDate + ":00Z",
             };
 
             console.log("Formatted data being sent:", formattedData);
@@ -155,10 +160,32 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                             </div>
 
                             <label>Tournament Type</label>
-                            <select name="type" className="full-width" value={formData.type} onChange={handleChange}>
-                                <option value="Round Robin">Round Robin</option>
-                                <option value="Elimination">Single Elimination</option>
-                            </select>
+                            <div className="dropdown full-width">
+                                <button
+                                    type="button" // Prevents the form from auto-submitting
+                                    className="dropdown-button"
+                                    onClick={() => setIsDropdownVisible(!isDropdownVisible)}
+                                >
+                                    {formData.type || "Select Type"}
+                                    <span className="dropdown-arrow">&#9662;</span>
+                                </button>
+                                {isDropdownVisible && (
+                                    <div className="dropdown-content">
+                                        <div
+                                            className="dropdown-item"
+                                            onClick={() => handleTypeSelection("Round Robin")}
+                                        >
+                                            Round Robin
+                                        </div>
+                                        <div
+                                            className="dropdown-item"
+                                            onClick={() => handleTypeSelection("Elimination")}
+                                        >
+                                            Single Elimination
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ) : (
                         <div className="registration-body">
