@@ -49,6 +49,12 @@ public class UserService {
 
     public String registerUserForTournament(String tournamentId, String authId) throws InterruptedException, ExecutionException {
         System.out.println("Registering user for tournament...");
+
+        // Checking tournament exist
+        DocumentSnapshot tournamentSnapshot = firestore.collection("Tournaments").document(tournamentId).get().get();
+        if (!tournamentSnapshot.exists()) {
+            throw new TournamentNotFoundException("Tournament not found.");
+        }
     
         // Directly reference the user document by authId
         DocumentReference userRef = firestore.collection("Users").document(authId);
@@ -78,6 +84,12 @@ public class UserService {
 
     public String unregisterUserForTournament(String tournamentId, String authId) throws InterruptedException, ExecutionException {
         System.out.println("Unregistering user from tournament...");
+
+        // Checking tournament exist
+        DocumentSnapshot tournamentSnapshot = firestore.collection("Tournaments").document(tournamentId).get().get();
+        if (!tournamentSnapshot.exists()) {
+            throw new TournamentNotFoundException("Tournament not found.");
+        }
 
         // Directly reference the user document by authId
         DocumentReference userRef = firestore.collection("Users").document(authId);
