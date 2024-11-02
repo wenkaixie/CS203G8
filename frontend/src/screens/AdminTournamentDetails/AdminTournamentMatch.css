@@ -49,11 +49,11 @@ body {
 
 /* Active Button Styling */
 .admin-tournament-match .list-view-button.active {
-    background-color: #F9E4D6; /* Light background for list view when active */
+    background-color: #F9E4D6;
 }
 
 .admin-tournament-match .image-view-button.active {
-    background-color: #8F3013; /* Highlight image view button */
+    background-color: #8F3013;
     color: white;
 }
 
@@ -63,12 +63,12 @@ body {
     width: 25px;
     height: 25px;
     transition: opacity 0.3s ease;
-    opacity: 0.5; /* Default opacity */
+    opacity: 0.5;
 }
 
 .admin-tournament-match .image-view-button.active img,
 .admin-tournament-match .list-view-button.active img {
-    opacity: 1; /* Fully visible when active */
+    opacity: 1;
 }
 
 /* Hover Effect for Buttons */
@@ -80,7 +80,6 @@ body {
 .image-view-button.active.pink {
     background-color: #F9E4D6;
 }
-
 
 /* Search Bar Styles */
 .admin-tournament-match .search-bar {
@@ -237,7 +236,7 @@ body {
     font-size: 16px;
 }
 
-.save-button {
+.save-button, .cancel-button {
     border: none;
     border-radius: 50%;
     padding: 6px 10px;
@@ -264,12 +263,23 @@ body {
     text-align: center;
     display: inline-block;
     margin-bottom: 30px;
+    transition: background-color 0.2s, color 0.2s, cursor 0.2s;
 }
 
-.confirm-results-button:hover {
+.confirm-results-button.active {
+    background-color: #8F3013;
+    color: #fff;
+}
+
+.confirm-results-button.inactive {
+    background-color: #d3d3d3;
+    color: #7d7d7d;
+    cursor: not-allowed;
+}
+
+.confirm-results-button:hover:not(.inactive) {
     background-color: #7a2811;
 }
-
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
