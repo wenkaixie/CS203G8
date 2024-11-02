@@ -30,6 +30,7 @@ const Dashboard = ({upcomingTournaments, ongoingTournaments}) => {
               <CreateTournamentForm 
                 onClose={closeForm}
                 onSuccess={() => {
+                    window.location.reload();
                     closeForm();
               }}/>
             }
@@ -58,7 +59,6 @@ const AdminHome = () => {
     try {
       const response = await axios.get(`http://localhost:7070/admin/getAdminTournaments/${auth.currentUser.uid}`);
       const tournaments = response.data;
-      console.log(response.data);
       
       // Get the current time to compare with tournament dates
       const currentTime = new Date();
