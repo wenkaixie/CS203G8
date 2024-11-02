@@ -6,13 +6,12 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
-import java.util.List;
 
 @Service
 public class EloService {
 
     // Updates the Elo ratings for two users
-    public void updateElo(String userId1, String userId2, double Elo1, double Elo2, double AS1, double AS2) throws Exception {
+    public void updateElo(String tournamentId, String userId1, String userId2, double Elo1, double Elo2, double AS1, double AS2) throws Exception {
         Firestore db = FirestoreClient.getFirestore();
         
         try {
@@ -41,14 +40,8 @@ public class EloService {
             // Update Elo ratings in Firestore
             db.collection("Users").document(userId1).update("elo", newElo1);
             db.collection("Users").document(userId2).update("elo", newElo2);
-            List<String> user1Tournaments = (List<String>) user1Snapshot.get("registrationHistory");
-            for (String s : user1Tournaments) {
-                db.collection("Tournaments").document(s).collection("Users").document(userId1).update("elo", newElo1);
-            }
-            List<String> user2Tournaments = (List<String>) user2Snapshot.get("registrationHistory");
-            for (String s : user2Tournaments) {
-                db.collection("Tournaments").document(s).collection("Users").document(userId2).update("elo", newElo2);
-            }
+            db.collection("Tournaments").document(tournamentId).collection("Users").document(userId1).update("elo", newElo1);
+            db.collection("Tournaments").document(tournamentId).collection("Users").document(userId2).update("elo", newElo2);
 
         } catch (ExecutionException | InterruptedException e) {
             // Handle Firestore operation failures
