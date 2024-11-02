@@ -137,17 +137,17 @@ public class TournamentService {
         log.info("Tournament {} deleted successfully.", tournamentID);
     }
 
-    public String addUserToTournament(String tournamentID, String userID)
+    public String addUserToTournament(String tournamentID, String authId)
             throws ExecutionException, InterruptedException {
-        log.info("Adding user {} to tournament {}.", userID, tournamentID);
+        log.info("Adding user {} to tournament {}.", authId, tournamentID);
 
         // Reference to the user in the main Users collection
-        DocumentReference userRef = firestore.collection("Users").document(userID);
+        DocumentReference userRef = firestore.collection("Users").document(authId);
         DocumentSnapshot userDoc = userRef.get().get();
 
         if (!userDoc.exists()) {
-            log.error("User {} not found in the Users collection.", userID);
-            throw new RuntimeException("User not found with ID: " + userID);
+            log.error("User {} not found in the Users collection.", authId);
+            throw new RuntimeException("User not found with ID: " + authId);
         }
 
         // Retrieve user details from the main Users collection
@@ -156,8 +156,8 @@ public class TournamentService {
         Long elo = userDoc.getLong("elo");
 
         if (name == null || nationality == null || elo == null) {
-            log.error("Missing user data for user {}: name={}, nationality={}, elo={}", userID, name, nationality, elo);
-            throw new RuntimeException("Incomplete user data for ID: " + userID);
+            log.error("Missing user data for user {}: name={}, nationality={}, elo={}", authId, name, nationality, elo);
+            throw new RuntimeException("Incomplete user data for ID: " + authId);
         }
 
         // Reference to the tournament
@@ -171,18 +171,18 @@ public class TournamentService {
 
         // Reference to the Users subcollection within the tournament
         CollectionReference usersCollection = tournamentRef.collection("Users");
-        DocumentReference tournamentUserRef = usersCollection.document(userID);
+        DocumentReference tournamentUserRef = usersCollection.document(authId);
 
         // Check if the user already exists in the tournament's Users subcollection
         DocumentSnapshot tournamentUserDoc = tournamentUserRef.get().get();
         if (tournamentUserDoc.exists()) {
-            log.warn("User {} is already part of the tournament {}.", userID, tournamentID);
+            log.warn("User {} is already part of the tournament {}.", authId, tournamentID);
             return "User is already part of the tournament.";
         }
 
         // Prepare the data to be stored in the tournament's Users subcollection
         Map<String, Object> userData = Map.of(
-                "userID", userID,
+                "authId", authId,
                 "name", name,
                 "nationality", nationality,
                 "elo", elo,
@@ -190,12 +190,12 @@ public class TournamentService {
 
         // Add the user to the tournament's Users subcollection
         tournamentUserRef.set(userData).get();
-        log.info("User {} added to tournament {} with nationality {} and Elo {}.", userID, tournamentID, nationality,
+        log.info("User {} added to tournament {} with nationality {} and Elo {}.", authId, tournamentID, nationality,
                 elo);
 
         // Add the tournament ID to the user's registration history
         userRef.update("registrationHistory", FieldValue.arrayUnion(tournamentID)).get();
-        log.info("Tournament {} added to registration history of user {}.", tournamentID, userID);
+        log.info("Tournament {} added to registration history of user {}.", tournamentID, authId);
 
         return "User added successfully.";
     }
