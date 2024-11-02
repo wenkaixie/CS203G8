@@ -558,7 +558,7 @@ public class TournamentService {
 
         return ongoingTournaments; // Return the list of ongoing tournaments
     }
-    public void updateMatchWinner(String tournamentID, int roundNumber, int matchId, String winnerName)
+    public void updateMatchWinner(String tournamentID, int roundNumber, int matchId, String authId)
             throws ExecutionException, InterruptedException {
 
         log.info("Updating winner for match {} in round {} of tournament {}.", matchId, roundNumber, tournamentID);
@@ -585,7 +585,7 @@ public class TournamentService {
 
         boolean winnerSet = false;
         for (ParticipantDTO participant : targetMatch.getParticipants()) {
-            boolean isWinner = participant.getName().equals(winnerName);
+            boolean isWinner = participant.getAuthId().equals(authId);
             participant.setIsWinner(isWinner);
             if (isWinner) {
                 winnerSet = true;
@@ -594,7 +594,7 @@ public class TournamentService {
         }
 
         if (!winnerSet) {
-            throw new RuntimeException("No participant found with name: " + winnerName);
+            throw new RuntimeException("No participant found with name: " + authId);
         }
 
         roundDocRef.set(round).get();

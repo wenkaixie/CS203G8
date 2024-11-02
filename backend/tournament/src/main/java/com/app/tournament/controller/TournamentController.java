@@ -269,10 +269,10 @@ public class TournamentController {
             @PathVariable String tournamentID,
             @PathVariable int roundNumber,
             @PathVariable int matchId,
-            @RequestBody String winnerName) {
+            @RequestParam String authId) {
         try {
             
-            tournamentService.updateMatchWinner(tournamentID, roundNumber, matchId, winnerName);
+            tournamentService.updateMatchWinner(tournamentID, roundNumber, matchId, authId);
             return ResponseEntity.ok("Winner updated successfully.");
         } catch (ExecutionException | InterruptedException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
