@@ -47,7 +47,7 @@ const AdminTournamentMatch = () => {
             })));
 
             const rounds = [...new Set(fetchedMatches.map(match => match.tournamentRoundText))];
-            setAvailableRounds(rounds.sort((a, b) => a - b)); // Sort rounds numerically
+            setAvailableRounds(rounds.sort((a, b) => b - a));
         } catch (error) {
             console.error('Error fetching matches:', error);
         }
@@ -61,15 +61,17 @@ const AdminTournamentMatch = () => {
         setEditingMatchId(matchId);
     };
 
-    const handleWinnerSelection = (matchId, value) => {
-        setWinnerSelection(prev => ({ ...prev, [matchId]: value }));
+    const handleWinnerSelection = (matchId, authId) => {
+        setWinnerSelection(prev => ({ ...prev, [matchId]: authId }));
     };
 
     const handleSaveClick = async (match) => {
         const { tournamentRoundText: roundNumber, id: matchId } = match;
-        const winnerName = winnerSelection[matchId];
+        const authId = winnerSelection[matchId];
         try {
-            await axios.put(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/${matchId}/winner`, winnerName);
+            await axios.put(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/${matchId}/winner`, null, {
+                params: { authId }
+            });
             setEditingMatchId(null);
             fetchMatches();
         } catch (error) {
@@ -141,7 +143,7 @@ const AdminTournamentMatch = () => {
 
                 {activeView === 'list' ? (
                     availableRounds
-                        .filter(round => selectedRound === '' || round === selectedRound) // Filter based on selected round
+                        .filter(round => selectedRound === '' || round === selectedRound)
                         .map((round) => {
                             const roundMatches = matches.filter(match => match.tournamentRoundText === round);
                             const allResultsEntered = isRoundResultsComplete(roundMatches);
@@ -190,8 +192,8 @@ const AdminTournamentMatch = () => {
                                                                 value={winnerSelection[match.id] || ''}
                                                             >
                                                                 <option value="">Select</option>
-                                                                <option value={match.participants[0].name}>{match.participants[0].name}</option>
-                                                                <option value={match.participants[1].name}>{match.participants[1].name}</option>
+                                                                <option value={match.participants[0].authId}>{match.participants[0].name}</option>
+                                                                <option value={match.participants[1].authId}>{match.participants[1].name}</option>
                                                                 <option value="Draw">Draw</option>
                                                             </select>
                                                         ) : (
