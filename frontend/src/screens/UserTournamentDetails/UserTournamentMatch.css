@@ -3,12 +3,15 @@ body {
     font-family: 'Josefin Sans', sans-serif !important;
     margin: 0;
     padding: 0;
+    background-color: #F5F5EF;
 }
 
 /* UserTournamentMatch Component */
 .user-tournament-match {
     width: 100%;
     background-color: #F5F5EF;
+    min-height: 100vh;
+    padding-top: 20px;
 }
 
 /* Controls Container for List, Image, Search, Filter, and Rounds */
@@ -17,8 +20,8 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1450px;
-    margin: 25px auto 30px;
+    max-width: 1250px;
+    margin: 0 auto 30px;
     padding: 0 20px;
     box-sizing: border-box;
 }
@@ -46,11 +49,11 @@ body {
 
 /* Active Button Styling */
 .user-tournament-match .list-view-button.active {
-    background-color: #F9E4D6; /* Light background for list view when active */
+    background-color: #F9E4D6;
 }
 
 .user-tournament-match .image-view-button.active {
-    background-color: #8F3013; /* Highlight image view button */
+    background-color: #8F3013;
     color: white;
 }
 
@@ -60,12 +63,12 @@ body {
     width: 25px;
     height: 25px;
     transition: opacity 0.3s ease;
-    opacity: 0.5; /* Default opacity */
+    opacity: 0.5;
 }
 
 .user-tournament-match .image-view-button.active img,
 .user-tournament-match .list-view-button.active img {
-    opacity: 1; /* Fully visible when active */
+    opacity: 1;
 }
 
 /* Hover Effect for Buttons */
@@ -77,7 +80,6 @@ body {
 .image-view-button.active.pink {
     background-color: #F9E4D6;
 }
-
 
 /* Search Bar Styles */
 .user-tournament-match .search-bar {
@@ -131,34 +133,12 @@ body {
     height: 20px;
 }
 
-/* Dropdown styles */
+/* Dropdown Styles */
 .user-tournament-match .dropdown {
     position: relative;
 }
 
-.user-tournament-participants .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #d1d1d1;
-    border-radius: 10px;
-    margin-top: 10px;
-    z-index: 1;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.user-tournament-match .dropdown-content .dropdown-item {
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.user-tournament-match .dropdown-content .dropdown-item:hover {
-    background-color: #f1f1f1;
-}
-
-/* Round Button Styles */
-.user-tournament-match .order-button {
+.user-tournament-match .dropdown .order-button {
     height: 45px;
     width: 140px;
     background-color: #ffffff;
@@ -173,17 +153,6 @@ body {
     margin-left: 5px;
 }
 
-/* Match List */
-.user-tournament-match .match-list {
-    width: 100%;
-    max-width: 1250px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 /* Round Title */
 .user-tournament-match .round-title {
     font-size: 1.1rem;
@@ -191,15 +160,24 @@ body {
     color: #8F3013;
     margin-bottom: 10px;
     margin-top: 20px;
+    max-width: 1250px; /* Restrict width to align with controls container */
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* Participants Table */
+/* Restrict Table Width */
 .user-tournament-match .matches-table {
     width: 100%;
+    max-width: 1250px;
+    margin: 0 auto;
     border-collapse: separate;
     margin-top: 20px;
+    background-color: #f5f5ef;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
+/* Table Headings */
 .user-tournament-match .matches-table th {
     font-weight: 600;
     color: #333;
@@ -209,10 +187,12 @@ body {
     background-color: #f0f0f0;
 }
 
+/* Table Rows */
 .user-tournament-match .matches-table tr {
     border-bottom: 1px solid #f5f5f5;
 }
 
+/* Table Cells */
 .user-tournament-match .matches-table td {
     font-weight: 500;
     color: #555;
@@ -226,7 +206,6 @@ body {
 .user-tournament-match .matches-table tr:hover {
     background-color: #f0f0f0;
 }
-
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {

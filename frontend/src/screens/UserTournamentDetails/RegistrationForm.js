@@ -9,7 +9,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
     const [age, setAge] = useState('');
     const [nationality, setNationality] = useState('');
     const [email, setEmail] = useState('');
-    const [authId, setAuthId] = useState(null); // Store the participant's authId
+    const [authId, setAuthId] = useState(null);
 
     useEffect(() => {
         const auth = getAuth();
@@ -36,12 +36,10 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
             );
             const userData = response.data;
 
-            // Populate input fields with user data
             setFullName(userData.name || '');
             setEmail(userData.email || '');
             setNationality(userData.nationality || '');
 
-            // Convert dateOfBirth to age
             const birthDate = new Date(userData.dateOfBirth.seconds * 1000);
             const currentAge = calculateAge(birthDate);
             setAge(currentAge);
@@ -50,7 +48,6 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
         }
     };
 
-    // Helper function to calculate age from date of birth
     const calculateAge = (birthDate) => {
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
@@ -63,10 +60,9 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
 
     const handleSubmit = async () => {
         try {
-            // Register the user in the player service
-            const playerServiceResponse = await axios.post(
-                `http://localhost:9090/user/registerTournament/${tournamentID}`,
-                { authId }  
+            // Register the user using the new PUT endpoint
+            const playerServiceResponse = await axios.put(
+                `http://localhost:9090/user/registerTournament/${tournamentID}/${authId}`
             );
 
             if (playerServiceResponse.status !== 200) {
@@ -88,17 +84,15 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
             alert("Registration successful!");
             onSubmit({ authId });
 
-            // Dispatch a custom event to refresh data elsewhere if needed
             const event = new Event('registrationSuccess');
             window.dispatchEvent(event);
 
-            closeForm(); // Close the form after successful submission
+            closeForm();
         } catch (error) {
             console.error("Error registering user:", error);
             alert("Failed to register. Please try again.");
         }
     };
-
 
     return (
         <div className="registration-overlay" onClick={closeForm}>

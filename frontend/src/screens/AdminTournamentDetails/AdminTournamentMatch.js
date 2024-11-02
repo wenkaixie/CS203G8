@@ -47,7 +47,7 @@ const AdminTournamentMatch = () => {
             })));
 
             const rounds = [...new Set(fetchedMatches.map(match => match.tournamentRoundText))];
-            setAvailableRounds(rounds.sort((a, b) => b - a));
+            setAvailableRounds(rounds.sort((a, b) => a - b)); // Sort rounds numerically
         } catch (error) {
             console.error('Error fetching matches:', error);
         }
@@ -68,7 +68,6 @@ const AdminTournamentMatch = () => {
     const handleSaveClick = async (match) => {
         const { tournamentRoundText: roundNumber, id: matchId } = match;
         const winnerName = winnerSelection[matchId];
-        console.log(winnerName);
         try {
             await axios.put(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/${matchId}/winner`, winnerName);
             setEditingMatchId(null);
@@ -92,6 +91,11 @@ const AdminTournamentMatch = () => {
             [0, 0.5, 1].includes(match.participants[0].resultText) &&
             [0, 0.5, 1].includes(match.participants[1].resultText)
         );
+    };
+
+    const handleRoundSelection = (round) => {
+        setSelectedRound(round);
+        setIsDropdownVisible(false);
     };
 
     return (
@@ -124,9 +128,9 @@ const AdminTournamentMatch = () => {
                         </button>
                         {isDropdownVisible && (
                             <div className="dropdown-content">
-                                <div className="dropdown-item" onClick={() => setSelectedRound('')}>All rounds</div>
+                                <div className="dropdown-item" onClick={() => handleRoundSelection('')}>All rounds</div>
                                 {availableRounds.map((round) => (
-                                    <div className="dropdown-item" key={round} onClick={() => setSelectedRound(round)}>
+                                    <div className="dropdown-item" key={round} onClick={() => handleRoundSelection(round)}>
                                         Round {round}
                                     </div>
                                 ))}
@@ -136,91 +140,93 @@ const AdminTournamentMatch = () => {
                 </div>
 
                 {activeView === 'list' ? (
-                    availableRounds.map((round) => {
-                        const roundMatches = matches.filter(match => match.tournamentRoundText === round);
-                        const allResultsEntered = isRoundResultsComplete(roundMatches);
-                        const isCurrentRound = round === currentRound;
+                    availableRounds
+                        .filter(round => selectedRound === '' || round === selectedRound) // Filter based on selected round
+                        .map((round) => {
+                            const roundMatches = matches.filter(match => match.tournamentRoundText === round);
+                            const allResultsEntered = isRoundResultsComplete(roundMatches);
+                            const isCurrentRound = round === currentRound;
 
-                        return (
-                            <div key={round}>
-                                <h2 className="round-title">Round {round}</h2>
-                                <table className="matches-table">
-                                    <thead>
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Date</th>
-                                            <th>Player 1</th>
-                                            <th>ELO</th>
-                                            <th>Nationality</th>
-                                            <th>Result</th>
-                                            <th></th>
-                                            <th>Result</th>
-                                            <th>Player 2</th>
-                                            <th>ELO</th>
-                                            <th>Nationality</th>
-                                            <th>Winner</th>
-                                            <th>State</th>
-                                            {isCurrentRound && <th>Actions</th>}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {roundMatches.map((match, index) => (
-                                            <tr key={index} className={editingMatchId === match.id ? 'editing-row' : ''}>
-                                                <td>{index + 1}</td>
-                                                <td>{new Date(match.startTime).toLocaleString()}</td>
-                                                <td>{match.participants[0].name}</td>
-                                                <td>{match.participants[0].elo || 'N/A'}</td>
-                                                <td>{match.participants[0].nationality || 'N/A'}</td>
-                                                <td>{match.participants[0].resultText || '-'}</td>
-                                                <td className="vs-text">VS</td>
-                                                <td>{match.participants[1].resultText || '-'}</td>
-                                                <td>{match.participants[1].name}</td>
-                                                <td>{match.participants[1].elo || 'N/A'}</td>
-                                                <td>{match.participants[1].nationality || 'N/A'}</td>
-                                                <td>
-                                                    {editingMatchId === match.id ? (
-                                                        <select
-                                                            onChange={(e) => handleWinnerSelection(match.id, e.target.value)}
-                                                            value={winnerSelection[match.id] || ''}
-                                                        >
-                                                            <option value="">Select</option>
-                                                            <option value={match.participants[0].name}>{match.participants[0].name}</option>
-                                                            <option value={match.participants[1].name}>{match.participants[1].name}</option>
-                                                            <option value="Draw">Draw</option>
-                                                        </select>
-                                                    ) : (
-                                                        winnerSelection[match.id] || '-'
-                                                    )}
-                                                </td>
-                                                <td>{match.state}</td>
-                                                {isCurrentRound && (
-                                                    <td className="action-buttons">
+                            return (
+                                <div key={round}>
+                                    <h2 className="round-title">Round {round}</h2>
+                                    <table className="matches-table">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Date</th>
+                                                <th>Player 1</th>
+                                                <th>ELO</th>
+                                                <th>Nationality</th>
+                                                <th>Result</th>
+                                                <th></th>
+                                                <th>Result</th>
+                                                <th>Player 2</th>
+                                                <th>ELO</th>
+                                                <th>Nationality</th>
+                                                <th>Winner</th>
+                                                <th>State</th>
+                                                {isCurrentRound && <th>Actions</th>}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {roundMatches.map((match, index) => (
+                                                <tr key={index} className={editingMatchId === match.id ? 'editing-row' : ''}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{new Date(match.startTime).toLocaleString()}</td>
+                                                    <td>{match.participants[0].name}</td>
+                                                    <td>{match.participants[0].elo || 'N/A'}</td>
+                                                    <td>{match.participants[0].nationality || 'N/A'}</td>
+                                                    <td>{match.participants[0].resultText || '-'}</td>
+                                                    <td className="vs-text">VS</td>
+                                                    <td>{match.participants[1].resultText || '-'}</td>
+                                                    <td>{match.participants[1].name}</td>
+                                                    <td>{match.participants[1].elo || 'N/A'}</td>
+                                                    <td>{match.participants[1].nationality || 'N/A'}</td>
+                                                    <td>
                                                         {editingMatchId === match.id ? (
-                                                            <>
-                                                                <button className="save-button" onClick={() => handleSaveClick(match)}>✔</button>
-                                                                <button className="cancel-button" onClick={() => setEditingMatchId(null)}>✖</button>
-                                                            </>
+                                                            <select
+                                                                onChange={(e) => handleWinnerSelection(match.id, e.target.value)}
+                                                                value={winnerSelection[match.id] || ''}
+                                                            >
+                                                                <option value="">Select</option>
+                                                                <option value={match.participants[0].name}>{match.participants[0].name}</option>
+                                                                <option value={match.participants[1].name}>{match.participants[1].name}</option>
+                                                                <option value="Draw">Draw</option>
+                                                            </select>
                                                         ) : (
-                                                            <button className="edit-button" onClick={() => handleEditClick(match.id)}>✎</button>
+                                                            winnerSelection[match.id] || '-'
                                                         )}
                                                     </td>
-                                                )}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                {isCurrentRound && (
-                                    <button
-                                        className={`confirm-results-button ${allResultsEntered ? 'active' : 'inactive'}`}
-                                        onClick={() => handleConfirmResults(round)}
-                                        disabled={!allResultsEntered}
-                                    >
-                                        Confirm results
-                                    </button>
-                                )}
-                            </div>
-                        );
-                    })
+                                                    <td>{match.state}</td>
+                                                    {isCurrentRound && (
+                                                        <td className="action-buttons">
+                                                            {editingMatchId === match.id ? (
+                                                                <>
+                                                                    <button className="save-button" onClick={() => handleSaveClick(match)}>✔</button>
+                                                                    <button className="cancel-button" onClick={() => setEditingMatchId(null)}>✖</button>
+                                                                </>
+                                                            ) : (
+                                                                <button className="edit-button" onClick={() => handleEditClick(match.id)}>✎</button>
+                                                            )}
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    {isCurrentRound && (
+                                        <button
+                                            className={`confirm-results-button ${allResultsEntered ? 'active' : 'inactive'}`}
+                                            onClick={() => handleConfirmResults(round)}
+                                            disabled={!allResultsEntered}
+                                        >
+                                            Confirm results
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })
                 ) : (
                     <AdminTournamentMatchDiagram />
                 )}

@@ -25,7 +25,7 @@ const UserDetailsHeader = () => {
     const [authId, setAuthId] = useState(null);
 
     const handleTabChange = (tab) => {
-        setActiveTab(tab);  // Update activeTab to control component rendering
+        setActiveTab(tab);
     };
 
     useEffect(() => {
@@ -93,20 +93,18 @@ const UserDetailsHeader = () => {
 
             setTournamentData(data);
 
-            // Fetch users directly from the Users subcollection within the tournament
             const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
             const usersArray = usersResponse.data
-                .map(user => user.authId ? user.authId.trim() : null) // Access authId field in each user object
-                .filter(authId => authId !== null && authId !== ""); // Filter out any null or empty authIds
+                .map(user => user.authId ? user.authId.trim() : null)
+                .filter(authId => authId !== null && authId !== "");
             setNumberOfPlayers(usersArray.length);
-
 
             const isUserRegistered = usersArray.includes(authId);
             setIsRegistered(isUserRegistered);
 
             const isCapacityAvailable = data.capacity > usersArray.length;
             const isEloEligible = userElo >= data.eloRequirement;
-            const isRegistrationOpen = data.status == "Registration Open";
+            const isRegistrationOpen = data.status === "Open";
 
             setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
         } catch (error) {
@@ -119,10 +117,9 @@ const UserDetailsHeader = () => {
             setShowRegistrationForm(true);
         } else if (isRegistered) {
             try {
-                // Unregister the user in the player service
+                // Unregister the user in the player service using the new PUT endpoint
                 const unregisterResponse = await axios.put(
-                    `http://localhost:9090/user/unregisterTournament/${tournamentId}`,
-                    { authId }
+                    `http://localhost:9090/user/unregisterTournament/${tournamentId}/${authId}`
                 );
 
                 if (unregisterResponse.status !== 200) {

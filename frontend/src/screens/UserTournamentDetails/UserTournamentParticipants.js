@@ -12,62 +12,22 @@ const UserTournamentParticipants = () => {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [playerCount, setPlayerCount] = useState(0);
 
-    const calculateAge = (dateOfBirth) => {
-        const birthDate = new Date(dateOfBirth.seconds * 1000);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        if (age === 0 && (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate()))) {
-            return 0;
-        }
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
-    };
-
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                // Fetch users directly from the Users subcollection within the tournament
-                const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
-                const usersArray = usersResponse.data
-                    .map(user => user.authId ? user.authId.trim() : null) // Access authId field in each user object
-                    .filter(authId => authId !== null && authId !== ""); // Filter out any null or empty authIds
-                setPlayerCount(usersArray.length);
+                // Fetch participants directly from the tournament endpoint
+                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+                const participantsData = response.data; // Expect an array of participants
 
-                // Fetch user details for each participant
-                const participantDetails = await Promise.all(
-                    usersArray.map(async (authId) => {
-                        const userResponse = await axios.get(`http://localhost:9090/user/getUser/${authId}`);
-                        const userData = userResponse.data;
-                        const age = calculateAge(userData.dateOfBirth);
-
-                        // Fetch user rank for each participant
-                        const rankResponse = await axios.get(`http://localhost:9090/user/getUserRank/${authId}`);
-                        const userRank = rankResponse.data;
-
-                        return { ...userData, age, userRank, authId };
-                    })
-                );
-
-                setParticipants(participantDetails);
+                setPlayerCount(participantsData.length);
+                setParticipants(participantsData);
             } catch (error) {
                 console.error('Error fetching participants:', error);
             }
         };
 
         fetchTournamentData();
-
-        const handleRegistrationSuccess = () => fetchTournamentData();
-        window.addEventListener('registrationSuccess', handleRegistrationSuccess);
-
-        return () => {
-            window.removeEventListener('registrationSuccess', handleRegistrationSuccess);
-        };
     }, [tournamentId]);
-
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -93,13 +53,9 @@ const UserTournamentParticipants = () => {
 
         if (sortBy) {
             updatedList = updatedList.sort((a, b) => {
-                if (sortBy === 'name') {
-                    return a.name.localeCompare(b.name);
-                } else if (sortBy === 'age') {
-                    return b.age - a.age;
-                } else if (sortBy === 'rating') {
-                    return b.elo - a.elo;
-                }
+                if (sortBy === 'name') return a.name.localeCompare(b.name);
+                else if (sortBy === 'age') return b.age - a.age;
+                else if (sortBy === 'rating') return b.elo - a.elo;
                 return 0;
             });
         }
@@ -146,9 +102,8 @@ const UserTournamentParticipants = () => {
                                 <th>Name</th>
                                 <th>Nationality</th>
                                 <th>Age</th>
-                                <th>World rank</th>
                                 <th>ELO Rating</th>
-                                <th>Games played this season</th>
+                                <th>Games Played This Season</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -156,12 +111,11 @@ const UserTournamentParticipants = () => {
                                 filteredParticipants.map((participant, index) => (
                                     <tr key={participant.authId || index}>
                                         <td>{index + 1}</td>
-                                        <td>{participant.name || 'null'}</td>
-                                        <td>{participant.nationality || 'null'}</td>
-                                        <td>{participant.age !== null && participant.age !== undefined ? participant.age : '0'}</td>
-                                        <td>#{participant.userRank || 'null'}</td>
-                                        <td>{participant.elo !== null && participant.elo !== undefined ? participant.elo : '0'}</td>
-                                        <td>{participant.registrationHistory.length || '0'}</td>
+                                        <td>{participant.name || 'N/A'}</td>
+                                        <td>{participant.nationality || 'N/A'}</td>
+                                        <td>{participant.age ?? '0'}</td>
+                                        <td>{participant.elo ?? '0'}</td>
+                                        <td>{participant.registrationHistory?.length || '0'}</td>
                                     </tr>
                                 ))
                             ) : (
