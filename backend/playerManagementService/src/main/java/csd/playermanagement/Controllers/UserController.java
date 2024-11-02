@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import java.util.concurrent.ExecutionException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,99 +36,56 @@ public class UserController {
     private UserService userService;
 
     @PutMapping("/registerTournament/{tournamentId}/{authId}")
-    public ResponseEntity<Object> registerUserForTournament(@PathVariable String tournamentId, @PathVariable String authId) {
-        try {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", userService.registerUserForTournament(tournamentId, authId));
-            return ResponseEntity.ok(response);  // Will be serialized to JSON
-        } catch (TournamentNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        } catch(UserTournamentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
-        }
+    public ResponseEntity<Object> registerUserForTournament(@PathVariable String tournamentId, @PathVariable String authId) throws InterruptedException, ExecutionException {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", userService.registerUserForTournament(tournamentId, authId));
+        return ResponseEntity.ok(response);  // Will be serialized to JSON
+    
     }
 
     @PutMapping("/unregisterTournament/{tournamentId}/{authId}")
-    public ResponseEntity<Object> unregisterUserFromTournament(@PathVariable String tournamentId, @PathVariable String authId) {
-        try {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", userService.unregisterUserForTournament(tournamentId, authId));
-            return ResponseEntity.ok(response); // Will be serialized to JSON
-        } catch (TournamentNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        } catch(UserTournamentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
-        }
+    public ResponseEntity<Object> unregisterUserFromTournament(@PathVariable String tournamentId, @PathVariable String authId) throws InterruptedException, ExecutionException{
+        Map<String, String> response = new HashMap<>();
+        response.put("message", userService.unregisterUserForTournament(tournamentId, authId));
+        return ResponseEntity.ok(response); // Will be serialized to JSON
+       
     }
 
     @PutMapping("/updateUser/{userID}")
-    public ResponseEntity<Object> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) {
-        try {
-            UserDTO updatedUserProfile = userService.updateUserProfile(userID, updatedUser);
-            return ResponseEntity.ok(updatedUserProfile);  // Return the updated User object
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
-        }
+    public ResponseEntity<Object> updateUserProfile(@PathVariable String userID, @RequestBody UserDTO updatedUser) throws InterruptedException, ExecutionException{
+        UserDTO updatedUserProfile = userService.updateUserProfile(userID, updatedUser);
+        return ResponseEntity.ok(updatedUserProfile);  // Return the updated User object
+       
     }
     
     @PostMapping("/createUser")
-    public ResponseEntity<User> createUser(@RequestBody User newUser) {
-        try {
-            User response = userService.createUserProfile(newUser);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ResponseEntity<User> createUser(@RequestBody User newUser) throws InterruptedException, ExecutionException {
+        User response = userService.createUserProfile(newUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+       
     }
 
     @GetMapping("/getAllUsers")
-    public ResponseEntity<List<User>> getAllUsers(){
-        try {
-            List<User> users = userService.getAllUsers();
-            return ResponseEntity.ok(users);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ResponseEntity<List<User>> getAllUsers()throws InterruptedException, ExecutionException {  
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    
     }
 
     @GetMapping("/getUser/{userID}")
-    public ResponseEntity<Object> getUser(@PathVariable String userID) {
-        try {
-            User user = userService.getUserbyId(userID);
-            return ResponseEntity.ok(user);  
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
-        }
+    public ResponseEntity<Object> getUser(@PathVariable String userID) throws InterruptedException, ExecutionException{
+        User user = userService.getUserbyId(userID);
+        return ResponseEntity.ok(user);  
+      
     }
     
     @GetMapping("/getUserRank/{userID}")
-    public ResponseEntity<Object> getUserRank(@PathVariable String userID) {
-        try {
-            int rank = userService.getUserRank(userID);
-            return ResponseEntity.ok(rank);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createErrorResponse(e.getMessage()));
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createErrorResponse("An unexpected error occurred."));
-        }
+    public ResponseEntity<Object> getUserRank(@PathVariable String userID) throws InterruptedException, ExecutionException{
+        int rank = userService.getUserRank(userID);
+        return ResponseEntity.ok(rank);
+      
     }
     
-    private Map<String, String> createErrorResponse(String message) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", message);
-        return errorResponse;
-    }
+
 
 }
