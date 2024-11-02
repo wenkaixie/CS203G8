@@ -11,8 +11,8 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         location: '',
         ageLimit: 0,
         eloRequirement: 0,
-        startDate: '', // Changed from startDatetime to match CreateTournamentCard
-        endDate: '',   // Changed from endDatetime to match CreateTournamentCard
+        startDate: '',
+        endDate: '',
         prizePool: 0,
         slots: 0,
         type: '',
@@ -23,11 +23,14 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const auth = getAuth();
 
+    // Set initial openRegistration to current date and time in UTC+8
     useEffect(() => {
         const now = new Date();
+        now.setHours(now.getHours() + 8); // Adjust to UTC+8
+        const formattedNow = now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
         setFormData((prevData) => ({
             ...prevData,
-            openRegistration: now.toISOString().slice(0, 10), // Default to current date
+            openRegistration: formattedNow,
         }));
     }, []);
 
@@ -38,13 +41,15 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             [name]: value,
         }));
 
-        // Adjust close registration date based on start date selection
-        if (name === 'startDate') {
-            const startDate = new Date(value);
-            const closeRegDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
+        // Adjust close registration date based on end date selection
+        if (name === 'endDate') {
+            const endDate = new Date(value);
+            endDate.setHours(endDate.getHours() + 8); // Adjust to UTC+8
+            const closeRegDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000); // 24 hours before end date
+            const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
             setFormData((prevData) => ({
                 ...prevData,
-                closeRegistration: closeRegDate.toISOString().slice(0, 10),
+                closeRegistration: formattedCloseRegDate,
             }));
         }
     };
@@ -71,13 +76,17 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                 prizePool: Number(formData.prizePool),
                 slots: Number(formData.slots),
                 type: formData.type,
-                startDate: formData.startDate, // Send in date-only format
-                endDate: formData.endDate,     // Send in date-only format
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                openRegistration: formData.openRegistration,
+                closeRegistration: formData.closeRegistration,
                 userId: user.uid,
             };
 
+            console.log("Formatted data being sent:", formattedData);
+
             await axios.post(
-                `http://localhost:7070/admin/createTournament`,
+                `http://localhost:8080/api/tournaments`,
                 formattedData
             );
 
@@ -147,8 +156,8 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
 
                             <label>Tournament Type</label>
                             <select name="type" className="full-width" value={formData.type} onChange={handleChange}>
-                                <option value="swiss">Swiss Format</option>
-                                <option value="elim">Single Elimination Format</option>
+                                <option value="Round Robin">Round Robin</option>
+                                <option value="Elimination">Single Elimination</option>
                             </select>
                         </div>
                     ) : (

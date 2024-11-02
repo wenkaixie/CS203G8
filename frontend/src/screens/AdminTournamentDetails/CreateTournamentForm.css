@@ -83,7 +83,7 @@ body {
 
 /* Input Field Styling */
 input[type="text"],
-input[type="date"],
+input[type="datetime-local"],
 input[type="number"],
 select,
 textarea {
