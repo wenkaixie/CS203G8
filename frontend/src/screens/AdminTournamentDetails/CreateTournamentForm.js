@@ -11,8 +11,8 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         location: '',
         ageLimit: 0,
         eloRequirement: 0,
-        startDate: '', // Changed from startDatetime to match CreateTournamentCard
-        endDate: '',   // Changed from endDatetime to match CreateTournamentCard
+        startDate: '',
+        endDate: '',
         prizePool: 0,
         slots: 0,
         type: '',
@@ -21,13 +21,16 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
     });
     const [error, setError] = useState(null);
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const auth = getAuth();
 
     useEffect(() => {
         const now = new Date();
+        now.setHours(now.getHours() + 8); // Adjust to UTC+8
+        const formattedNow = now.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
         setFormData((prevData) => ({
             ...prevData,
-            openRegistration: now.toISOString().slice(0, 10), // Default to current date
+            openRegistration: formattedNow,
         }));
     }, []);
 
@@ -38,15 +41,24 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             [name]: value,
         }));
 
-        // Adjust close registration date based on start date selection
-        if (name === 'startDate') {
-            const startDate = new Date(value);
-            const closeRegDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
+        if (name === 'endDate') {
+            const endDate = new Date(value);
+            endDate.setHours(endDate.getHours() + 8);
+            const closeRegDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
+            const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16);
             setFormData((prevData) => ({
                 ...prevData,
-                closeRegistration: closeRegDate.toISOString().slice(0, 10),
+                closeRegistration: formattedCloseRegDate,
             }));
         }
+    };
+
+    const handleTypeSelection = (type) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            type: type,
+        }));
+        setIsDropdownVisible(false);
     };
 
     const handleNext = () => setPage(2);
@@ -63,21 +75,23 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
 
         try {
             const formattedData = {
+                adminId: user.uid,
+                type: formData.type,
+                ageLimit: Number(formData.ageLimit),
                 name: formData.name,
                 description: formData.description,
-                location: formData.location,
-                ageLimit: Number(formData.ageLimit),
                 eloRequirement: Number(formData.eloRequirement),
-                prizePool: Number(formData.prizePool),
-                slots: Number(formData.slots),
-                type: formData.type,
-                startDate: formData.startDate, // Send in date-only format
-                endDate: formData.endDate,     // Send in date-only format
-                userId: user.uid,
+                location: formData.location,
+                capacity: Number(formData.slots),
+                prize: Number(formData.prizePool),
+                startDatetime: formData.startDate + ":00Z",
+                endDatetime: formData.endDate + ":00Z",
             };
 
+            console.log("Formatted data being sent:", formattedData);
+
             await axios.post(
-                `http://localhost:7070/admin/createTournament`,
+                `http://localhost:8080/api/tournaments`,
                 formattedData
             );
 
@@ -146,10 +160,32 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                             </div>
 
                             <label>Tournament Type</label>
-                            <select name="type" className="full-width" value={formData.type} onChange={handleChange}>
-                                <option value="swiss">Swiss Format</option>
-                                <option value="elim">Single Elimination Format</option>
-                            </select>
+                            <div className="dropdown full-width">
+                                <button
+                                    type="button" // Prevents the form from auto-submitting
+                                    className="dropdown-button"
+                                    onClick={() => setIsDropdownVisible(!isDropdownVisible)}
+                                >
+                                    {formData.type || "Select Type"}
+                                    <span className="dropdown-arrow">&#9662;</span>
+                                </button>
+                                {isDropdownVisible && (
+                                    <div className="dropdown-content">
+                                        <div
+                                            className="dropdown-item"
+                                            onClick={() => handleTypeSelection("Round Robin")}
+                                        >
+                                            Round Robin
+                                        </div>
+                                        <div
+                                            className="dropdown-item"
+                                            onClick={() => handleTypeSelection("Elimination")}
+                                        >
+                                            Single Elimination
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ) : (
                         <div className="registration-body">

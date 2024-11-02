@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminTournamentHeader.css';
-import Navbar from '../../components/navbar/Navbar';
+import Navbar from '../../components/adminNavbar/AdminNavbar';
 
 const AdminDetailsHeader = ({ activeTab, tournamentTitle, playerCount, onEditClick, isEditMode, onSaveClick, onCancelClick }) => {
     const { tournamentId } = useParams();
@@ -141,7 +141,7 @@ const AdminDetailsHeader = ({ activeTab, tournamentTitle, playerCount, onEditCli
 
             <div className="banner">
                 <ul className="subtabs">
-                    {['overview', 'participants', 'games', 'discussion'].map((tab) => (
+                    {['overview', 'participants', 'games'].map((tab) => (
                         <li
                             key={tab}
                             className={`subtab-item ${activeTab === tab ? 'active' : ''}`}

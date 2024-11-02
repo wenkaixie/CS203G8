@@ -13,19 +13,17 @@ const UserTournamentMatch = () => {
     const [selectedRound, setSelectedRound] = useState(''); 
     const [availableRounds, setAvailableRounds] = useState([]); 
     const [tournamentTitle, setTournamentTitle] = useState('Tournament');
-    const [playerCount, setPlayerCount] = useState(0);
     const [activeView, setActiveView] = useState('list');
     const [currentRound, setCurrentRound] = useState(null);
     const [tournamentType, setTournamentType] = useState('');
 
-    // Fetch tournament details
     useEffect(() => {
         const fetchTournamentDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
                 setTournamentTitle(tournamentData.name || 'Tournament');
-                setCurrentRound(tournamentData.currentRound); // Set currentRound from the tournament data
+                setCurrentRound(tournamentData.currentRound);
                 setTournamentType(tournamentData.type);
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
@@ -34,7 +32,6 @@ const UserTournamentMatch = () => {
         fetchTournamentDetails();
     }, [tournamentId]);
 
-    // Fetch all matches for the tournament
     useEffect(() => {
         const fetchMatches = async () => {
             try {
@@ -44,45 +41,53 @@ const UserTournamentMatch = () => {
                 const allMatches = [];
                 const roundNumbers = new Set();
 
-                fetchedMatches.forEach(match => {
-                    // Add round number for dropdown options
+                for (const match of fetchedMatches) {
                     roundNumbers.add(match.tournamentRoundText);
 
-                    // Determine results based on `isWinner`
                     let participant1Result = 0;
                     let participant2Result = 0;
 
                     if (match.participants[0].isWinner && match.participants[1].isWinner) {
-                        // Both participants are marked as winners (draw)
                         participant1Result = 0.5;
                         participant2Result = 0.5;
                     } else if (match.participants[0].isWinner) {
-                        // Only participant 1 is a winner
                         participant1Result = 1;
                         participant2Result = 0;
                     } else if (match.participants[1].isWinner) {
-                        // Only participant 2 is a winner
                         participant1Result = 0;
                         participant2Result = 1;
                     }
 
-                    // Prepare match data with placeholder attributes for elo and nationality
+                    const participant1Data = await fetchParticipantDetails(match.participants[0].authId);
+                    const participant2Data = await fetchParticipantDetails(match.participants[1].authId);
+
                     allMatches.push({
                         ...match,
                         participants: [
-                            { ...match.participants[0], elo: null, nationality: null, resultText: participant1Result },
-                            { ...match.participants[1], elo: null, nationality: null, resultText: participant2Result }
+                            { ...match.participants[0], elo: participant1Data.elo || 'N/A', nationality: participant1Data.nationality || 'N/A', resultText: participant1Result || "-" },
+                            { ...match.participants[1], elo: participant2Data.elo || 'N/A', nationality: participant2Data.nationality || 'N/A', resultText: participant2Result || "-" }
                         ]
                     });
-                });
+                }
 
                 setMatches(allMatches);
-                setAvailableRounds([...roundNumbers]);
+                setAvailableRounds([...roundNumbers].sort((a, b) => a - b)); // Sort rounds numerically
             } catch (error) {
                 console.error('Error fetching matches:', error);
                 setMatches([]);
             }
         };
+
+        const fetchParticipantDetails = async (authId) => {
+            try {
+                const response = await axios.get(`http://localhost:9090/user/getUser/${authId}`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching participant details:', error);
+                return {};
+            }
+        };
+
         fetchMatches();
     }, [tournamentId]);
 
@@ -171,75 +176,68 @@ const UserTournamentMatch = () => {
                 </div>
 
                 {activeView === 'list' ? (
-                    availableRounds.map((round) => (
-                        <div key={round}>
-                            <h2 className="round-title">Round {round}</h2>
-                            <table className="matches-table">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Date</th>
-                                        <th>Location</th>
-                                        <th>Player 1</th>
-                                        <th>ELO</th>
-                                        <th>Nationality</th>
-                                        <th>Result</th>
-                                        <th></th>
-                                        <th>Result</th>
-                                        <th>Player 2</th>
-                                        <th>ELO</th>
-                                        <th>Nationality</th>
-                                        <th>State</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {matches.filter((match) => match.tournamentRoundText === round).length > 0 ? (
-                                        matches
-                                            .filter((match) => match.tournamentRoundText === round)
-                                            .map((match, index) => (
-                                                <tr key={index}>
-                                                    <td>{index + 1}</td>
-                                                    <td>{new Date(match.startTime).toLocaleString('en-US', {
-                                                        year: 'numeric', month: 'long', day: 'numeric',
-                                                        hour: '2-digit', minute: '2-digit', second: '2-digit',
-                                                        hour12: true
-                                                    }).replace(',', '')}</td>
-                                                    <td>{match.location || 'N/A'}</td>
-                                                    <td>{match.participants[0].name}</td>
-                                                    <td>{match.participants[0].elo || 'N/A'}</td>
-                                                    <td>{match.participants[0].nationality || 'N/A'}</td>
-                                                    <td>{match.participants[0].resultText}</td>
-                                                    <td className="vs-text">VS</td>
-                                                    <td>{match.participants[1].resultText}</td>
-                                                    <td>{match.participants[1].name}</td>
-                                                    <td>{match.participants[1].elo || 'N/A'}</td>
-                                                    <td>{match.participants[1].nationality || 'N/A'}</td>
-                                                    <td>{match.state}</td>
-                                                </tr>
-                                            ))
-                                    ) : (
+                    availableRounds
+                        .filter((round) => selectedRound === '' || round === selectedRound) // Filter rounds based on selectedRound
+                        .map((round) => (
+                            <div key={round} className="table-container">
+                                <h2 className="round-title">Round {round}</h2>
+                                <table className="matches-table">
+                                    <thead>
                                         <tr>
-                                            <td colSpan="13">No matches for this round.</td>
+                                            <th>No</th>
+                                            <th>Date</th>
+                                            <th>Player 1</th>
+                                            <th>ELO</th>
+                                            <th>Nationality</th>
+                                            <th>Result</th>
+                                            <th></th>
+                                            <th>Result</th>
+                                            <th>Player 2</th>
+                                            <th>ELO</th>
+                                            <th>Nationality</th>
+                                            <th>State</th>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                        )
-                    )
-                ) 
-                : tournamentType === 'Elimination' ? (
+                                    </thead>
+                                    <tbody>
+                                        {matches.filter((match) => match.tournamentRoundText === round).length > 0 ? (
+                                            matches
+                                                .filter((match) => match.tournamentRoundText === round)
+                                                .map((match, index) => (
+                                                    <tr key={index}>
+                                                        <td>{index + 1}</td>
+                                                        <td>{new Date(match.startTime).toLocaleString('en-US', {
+                                                            year: 'numeric', month: 'long', day: 'numeric',
+                                                            hour: '2-digit', minute: '2-digit', second: '2-digit',
+                                                            hour12: true
+                                                        }).replace(',', '')}</td>
+                                                        <td>{match.participants[0].name}</td>
+                                                        <td>{match.participants[0].elo || 'N/A'}</td>
+                                                        <td>{match.participants[0].nationality || 'N/A'}</td>
+                                                        <td>{match.participants[0].resultText === '' ? '-' : match.participants[0].resultText}</td>
+                                                        <td className="vs-text">VS</td>
+                                                        <td>{match.participants[1].resultText === '' ? '-' : match.participants[1].resultText}</td>
+                                                        <td>{match.participants[1].name}</td>
+                                                        <td>{match.participants[1].elo || 'N/A'}</td>
+                                                        <td>{match.participants[1].nationality || 'N/A'}</td>
+                                                        <td>{match.state}</td>
+                                                    </tr>
+                                                ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="13">No matches for this round.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ))
+                ) : tournamentType === 'Elimination' ? (
                     <UserTournamentMatchDiagram />
-                )
-                 : (
+                ) : (
                     matches.length > 0 && availableRounds.length > 0 && (
                         <UserTournamentMatchTable matches={matches}/>
-                    ))
-                    // uncomment to test round robin
-                    // : (
-                    //     <UserTournamentMatchTable matches={matches}/>
-                    // )
-                }
+                    )
+                )}
             </div>
         </div>
     );
