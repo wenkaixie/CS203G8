@@ -194,7 +194,7 @@ public class AdminService {
             HttpEntity<MatchResultUpdateRequest> requestEntity = new HttpEntity<>(matchResultUpdateRequest, headers);
 
             // URL for the ELO update service
-            String url = "http://localhost:9091/api/elo/update/" + user1 + "/" + user2;
+            String url = "http://localhost:9091/api/elo/update/" + tournamentId + "/" + user1 + "/" + user2;
             // RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
