@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './UserTournamentOverview.css';
-import UserDetailsHeader from './UserDetailsHeader';
-
 const UserTournamentOverview = () => {
     const { tournamentId } = useParams();
     const [numberOfPlayers, setNumberOfPlayers] = useState(0);
@@ -77,12 +75,6 @@ const UserTournamentOverview = () => {
 
     return (
         <div>
-            <UserDetailsHeader
-                activeTab="overview"
-                tournamentTitle={tournamentData?.name || "Tournament Overview"}
-                playerCount={numberOfPlayers}
-            />
-
             <div className="tournament-overview">
                 <div className="tournament-description">
                     <p>{tournamentData?.description || "No description available for this tournament."}</p>

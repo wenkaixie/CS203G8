@@ -44,6 +44,7 @@ import AdminTournamentOverview from './screens/AdminTournamentDetails/AdminTourn
 import AdminTournamentParticipants from './screens/AdminTournamentDetails/AdminTournamentParticipants';
 import AdminTournamentMatch from './screens/AdminTournamentDetails/AdminTournamentMatch';
 import AdminTournaments from './screens/AdminTournaments/AdminTournaments';
+import UserDetailsHeader from './screens/UserTournamentDetails/UserDetailsHeader';
 
 
 const App = () => {
@@ -68,9 +69,7 @@ const App = () => {
                 <Route path="calendar" element={<UserCalendar />} />
 
                 {/* Tournament Details Routes for Users */}
-                <Route path="tournament/:tournamentId/overview" element={<UserTournamentOverview />} />
-                <Route path="tournament/:tournamentId/participants" element={<UserTournamentParticipants />} />
-                <Route path="tournament/:tournamentId/games" element={<UserTournamentMatch />} />
+                <Route path="tournament/:tournamentId/overview" element={<UserDetailsHeader />} />
               </Routes>
             </ProtectedRoute>
           }

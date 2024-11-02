@@ -5,6 +5,9 @@ import axios from 'axios';
 import './UserDetailsHeader.css';
 import Navbar from '../../components/navbar/Navbar';
 import RegistrationForm from './RegistrationForm';
+import UserTournamentOverview from './UserTournamentOverview';
+import UserTournamentParticipants from './UserTournamentParticipants';
+import UserTournamentMatch from './UserTournamentMatch';
 
 const UserDetailsHeader = () => {
     const { tournamentId } = useParams();
@@ -21,10 +24,9 @@ const UserDetailsHeader = () => {
     const [userElo, setUserElo] = useState(null);
     const [authId, setAuthId] = useState(null);
 
-    useEffect(() => {
-        const path = location.pathname.split('/').pop();
-        setActiveTab(path);
-    }, [location.pathname]);
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);  // Update activeTab to control component rendering
+    };
 
     useEffect(() => {
         const auth = getAuth();
@@ -158,10 +160,6 @@ const UserDetailsHeader = () => {
         setShowRegistrationForm(false);
     };
 
-    const handleTabNavigation = (tab) => {
-        navigate(`/user/tournament/${tournamentId}/${tab}`);
-    };
-
     const availableSlots = tournamentData.capacity
         ? tournamentData.capacity - numberOfPlayers
         : 0;
@@ -237,17 +235,22 @@ const UserDetailsHeader = () => {
 
             <div className="banner">
                 <ul className="subtabs">
-                    {['overview', 'participants', 'games', 'discussion'].map((tab) => (
+                    {['overview', 'participants', 'games'].map((tab) => (
                         <li
                             key={tab}
                             className={`subtab-item ${activeTab === tab ? 'active' : ''}`}
-                            onClick={() => handleTabNavigation(tab)}
+                            onClick={() => handleTabChange(tab)}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </li>
                     ))}
                 </ul>
             </div>
+
+            {/* Conditionally Render Based on activeTab */}
+            {activeTab === 'overview' && <UserTournamentOverview />}
+            {activeTab === 'participants' && <UserTournamentParticipants />}
+            {activeTab === 'games' && <UserTournamentMatch />}
 
             {registrationError && <p className="error-message">{registrationError}</p>}
 

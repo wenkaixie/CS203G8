@@ -1,16 +1,19 @@
 package csd.playermanagement.Configuration;
 
 // Spring imports
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import java.io.FileInputStream;
-import java.io.IOException;
-import javax.annotation.PostConstruct;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FirebaseConfig {
@@ -22,6 +25,7 @@ public class FirebaseConfig {
             // Updated path to Firebase service account key file
             FileInputStream serviceAccount = 
                 new FileInputStream("serviceAccountKey.json");
+
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
                 .build();

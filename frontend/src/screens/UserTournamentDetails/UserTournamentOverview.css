@@ -11,8 +11,6 @@ body {
     padding: 50px 100px;
     width: 100%;
     background-color: #F5F5EF;
-    margin: 20px auto;
-    margin-top: 230px;
     display: flex;
     flex-direction: column;
     justify-content: space-between; /* Distribute content evenly */

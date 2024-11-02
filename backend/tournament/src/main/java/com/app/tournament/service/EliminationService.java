@@ -225,49 +225,6 @@ public class EliminationService {
         log.info("Successfully updated nextMatchId to {} for Match {}.", nextMatchId, matchId);
     }
 
-    public void updateMatchWinner(String tournamentID, int roundNumber, int matchId, String winnerName)
-            throws ExecutionException, InterruptedException {
-
-        log.info("Updating winner for match {} in round {} of tournament {}.", matchId, roundNumber, tournamentID);
-
-        DocumentReference roundDocRef = firestore.collection("Tournaments")
-                .document(tournamentID)
-                .collection("Rounds")
-                .document(String.valueOf(roundNumber));
-
-        Round round = roundDocRef.get().get().toObject(Round.class);
-        if (round == null) {
-            log.error("Round {} not found in tournament {}.", roundNumber, tournamentID);
-            throw new RuntimeException("Round not found: " + roundNumber);
-        }
-
-        List<Match> matches = round.getMatches();
-        Match targetMatch = matches.stream()
-                .filter(match -> match.getId() == matchId)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Match not found: " + matchId));
-
-        log.info("Participants in match {}: {}", matchId,
-                targetMatch.getParticipants().stream().map(ParticipantDTO::getName).toList());
-
-        boolean winnerSet = false;
-        for (ParticipantDTO participant : targetMatch.getParticipants()) {
-            boolean isWinner = participant.getName().equals(winnerName);
-            participant.setIsWinner(isWinner);
-            if (isWinner) {
-                winnerSet = true;
-                log.info("Participant {} set as the winner for match {}.", participant.getName(), matchId);
-            }
-        }
-
-        if (!winnerSet) {
-            throw new RuntimeException("No participant found with name: " + winnerName);
-        }
-
-        roundDocRef.set(round).get();
-        log.info("Successfully updated winner for match {} in round {} of tournament {}.", matchId, roundNumber,
-                tournamentID);
-    }
 
     public void populateNextRoundMatches(String tournamentID, int currentRoundNumber)
             throws ExecutionException, InterruptedException {
