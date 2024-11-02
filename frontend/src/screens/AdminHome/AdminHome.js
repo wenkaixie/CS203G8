@@ -58,6 +58,7 @@ const AdminHome = () => {
     try {
       const response = await axios.get(`http://localhost:7070/admin/getAdminTournaments/${auth.currentUser.uid}`);
       const tournaments = response.data;
+      console.log(response.data);
       
       // Get the current time to compare with tournament dates
       const currentTime = new Date();
@@ -66,12 +67,13 @@ const AdminHome = () => {
       const ongoing = tournaments.filter(
         (tournament) => new Date(tournament.startDatetime) <= currentTime && new Date(tournament.endDatetime) > currentTime
       );
+
       const upcoming = tournaments.filter(
         (tournament) => new Date(tournament.startDatetime) > currentTime
       );
 
-      console.log(ongoing);
       console.log(upcoming);
+
       setOngoingTournaments(ongoing);
       setUpcomingTournaments(upcoming);
     } catch (error) {
