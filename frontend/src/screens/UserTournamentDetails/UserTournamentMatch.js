@@ -4,6 +4,7 @@ import './UserTournamentMatch.css';
 import Header from './UserDetailsHeader';
 import { useParams } from 'react-router-dom';
 import UserTournamentMatchDiagram from './UserTournamentMatchDiagram';
+import UserTournamentMatchTable from './UserTournamentMatchTable';
 
 const UserTournamentMatch = () => {
     const { tournamentId } = useParams();
@@ -14,7 +15,9 @@ const UserTournamentMatch = () => {
     const [availableRounds, setAvailableRounds] = useState([]); 
     const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
-    const [activeView, setActiveView] = useState('diagram');
+    const [activeView, setActiveView] = useState('list');
+    const [currentRound, setCurrentRound] = useState(null);
+    const [tournamentType, setTournamentType] = useState('');
 
     // Fetch tournament details
     useEffect(() => {
@@ -23,7 +26,8 @@ const UserTournamentMatch = () => {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
                 setTournamentTitle(tournamentData.name || 'Tournament');
-
+                setCurrentRound(tournamentData.currentRound); // Set currentRound from the tournament data
+                setTournamentType(tournamentData.type);
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
             }
@@ -223,10 +227,21 @@ const UserTournamentMatch = () => {
                                 </tbody>
                             </table>
                         </div>
-                    ))
-                ) : (
+                        )
+                    )
+                ) 
+                : tournamentType === 'Elimination' ? (
                     <UserTournamentMatchDiagram />
-                )}
+                )
+                 : (
+                    matches.length > 0 && availableRounds.length > 0 && (
+                        <UserTournamentMatchTable matches={matches}/>
+                    ))
+                    // uncomment to test round robin
+                    // : (
+                    //     <UserTournamentMatchTable matches={matches}/>
+                    // )
+                }
             </div>
         </div>
     );
