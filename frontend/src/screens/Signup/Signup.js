@@ -31,7 +31,7 @@ const Signup = () => {
             if (user) {
                 try {
                     setLoading(true);
-                    navigate('/user/profile');
+                    navigate('/user/update-profile');
                 } catch (error) {
                     setError('Error redirecting after sign up.');
                 } finally {

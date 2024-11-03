@@ -7,6 +7,8 @@ import { Img } from "react-image";
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Select from 'react-select';
+import countryList from 'react-select-country-list';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -15,12 +17,13 @@ const UserUpdateProfile = () => {
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [nationality, setNationality] = useState('');
+    const [nationality, setNationality] = useState(null);
     const [dob, setDob] = useState('');
     const [chessUsername, setChessUsername] = useState('');
 
     const auth = getAuth();
     const navigate = useNavigate();
+    const countryOptions = countryList().getData(); // Get list of countries
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -31,7 +34,7 @@ const UserUpdateProfile = () => {
                 setName(data.name || '');
                 setUsername(data.username || '');
                 setPhoneNumber(data.phoneNumber || '');
-                setNationality(data.nationality || '');
+                setNationality(data.nationality ? countryOptions.find(option => option.label === data.nationality) : null);
                 if (data.dateOfBirth) {
                     const timestamp = data.dateOfBirth;
                     const date = new Date(timestamp.seconds * 1000);
@@ -55,7 +58,7 @@ const UserUpdateProfile = () => {
             name: name,
             username: username,
             phoneNumber: phoneNumber,
-            nationality: nationality,
+            nationality: nationality ? nationality.label : '', // Send only the label (country name)
             dateOfBirth: dob,
             chessUsername: chessUsername
         };
@@ -80,7 +83,6 @@ const UserUpdateProfile = () => {
     const handleHome = () => {
         navigate("/user/home");
     };
-
 
     return (
         <div>
@@ -136,10 +138,21 @@ const UserUpdateProfile = () => {
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="formBasicNationality">
                                 <Form.Label>Nationality</Form.Label>
-                                <Form.Control 
-                                    type="text" 
+                                <Select 
+                                    options={countryOptions}
                                     value={nationality}
-                                    onChange={(e) => setNationality(e.target.value)}
+                                    onChange={setNationality}
+                                    placeholder="Select your nationality"
+                                    formatOptionLabel={(country) => (
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <img
+                                                src={`https://flagcdn.com/w20/${country.value.toLowerCase()}.png`}
+                                                alt=""
+                                                style={{ marginRight: 10, width: 20, height: 15 }}
+                                            />
+                                            {country.label}
+                                        </div>
+                                    )}
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="formBasicDob">

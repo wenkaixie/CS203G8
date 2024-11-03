@@ -30,8 +30,10 @@ import Signup from './screens/Signup/Signup';
 
 // User Screens
 import UserHome from './screens/UserHome/UserHome';
+import UserProfile from './screens/UserProfile/UserProfile';
 import UserUpdateProfile from './screens/UserUpdateProfile/UserUpdateProfile';
 import UserTournaments from './screens/UserTournaments/UserTournaments';
+import UserDetailsHeader from './screens/UserTournamentDetails/UserDetailsHeader';
 import UserTournamentParticipants from './screens/UserTournamentDetails/UserTournamentParticipants';
 import UserTournamentOverview from './screens/UserTournamentDetails/UserTournamentOverview';
 import UserTournamentMatch from './screens/UserTournamentDetails/UserTournamentMatch';
@@ -44,7 +46,6 @@ import AdminTournamentOverview from './screens/AdminTournamentDetails/AdminTourn
 import AdminTournamentParticipants from './screens/AdminTournamentDetails/AdminTournamentParticipants';
 import AdminTournamentMatch from './screens/AdminTournamentDetails/AdminTournamentMatch';
 import AdminTournaments from './screens/AdminTournaments/AdminTournaments';
-import UserDetailsHeader from './screens/UserTournamentDetails/UserDetailsHeader';
 
 
 const App = () => {
@@ -64,7 +65,8 @@ const App = () => {
             <ProtectedRoute allowedRoles={['Users']}>
               <Routes>
                 <Route path="home" element={<UserHome />} />
-                <Route path="profile" element={<UserUpdateProfile />} />
+                <Route path="profile/:userID" element={<UserProfile />} />
+                <Route path="update-profile" element={<UserUpdateProfile />} />
                 <Route path="tournaments" element={<UserTournaments />} />
                 <Route path="calendar" element={<UserCalendar />} />
 
@@ -85,7 +87,7 @@ const App = () => {
                 <Route path="tournament/:tournamentId/overview" element={<AdminTournamentOverview />} />
                 <Route path="tournament/:tournamentId/participants" element={<AdminTournamentParticipants />} />
                 <Route path="home" element={<AdminHome />} />
-                <Route path="profile" element={<AdminUpdateProfile />} />
+                <Route path="update-profile" element={<AdminUpdateProfile />} />
                 <Route path="tournament/:tournamentId/games" element={<AdminTournamentMatch />} />
                 <Route path="tournaments" element={<AdminTournaments />} />
               </Routes>
