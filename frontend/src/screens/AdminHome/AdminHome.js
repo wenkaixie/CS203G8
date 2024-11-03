@@ -30,6 +30,7 @@ const Dashboard = ({upcomingTournaments, ongoingTournaments}) => {
               <CreateTournamentForm 
                 onClose={closeForm}
                 onSuccess={() => {
+                    window.location.reload();
                     closeForm();
               }}/>
             }
@@ -66,12 +67,13 @@ const AdminHome = () => {
       const ongoing = tournaments.filter(
         (tournament) => new Date(tournament.startDatetime) <= currentTime && new Date(tournament.endDatetime) > currentTime
       );
+
       const upcoming = tournaments.filter(
         (tournament) => new Date(tournament.startDatetime) > currentTime
       );
 
-      console.log(ongoing);
       console.log(upcoming);
+
       setOngoingTournaments(ongoing);
       setUpcomingTournaments(upcoming);
     } catch (error) {
