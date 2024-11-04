@@ -63,36 +63,46 @@ const AdminTournamentMatch = () => {
 
     const handleWinnerSelection = (matchId, authId) => {
         setWinnerSelection(prev => ({ ...prev, [matchId]: authId }));
+
+        setMatches(prevMatches => 
+            prevMatches.map(match => {
+                if (match.id !== matchId) return match;
+
+                const updatedParticipants = match.participants.map(participant => ({
+                    ...participant,
+                    resultText: participant.authId === authId ? 1 : 0,
+                    isWinner: participant.authId === authId
+                }));
+
+                // If "Draw" is selected, set both participants' resultText to 0.5
+                if (authId === 'Draw') {
+                    updatedParticipants.forEach(participant => participant.resultText = 0.5);
+                }
+
+                return {
+                    ...match,
+                    participants: updatedParticipants
+                };
+            })
+        );
     };
 
     const handleSaveClick = async (match) => {
         const { tournamentRoundText: roundNumber, id: matchId } = match;
         const authId = winnerSelection[matchId];
         try {
-            await axios.put(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/${matchId}/winner`, null, {
-                params: { authId }
-            });
+            await axios.put(
+                `http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/${matchId}/winner`,
+                null,
+                {
+                    params: { authId }
+                }
+            );
             setEditingMatchId(null);
-            fetchMatches();
+            fetchMatches(); // Refresh data after saving
         } catch (error) {
             console.error('Error saving match results:', error);
         }
-    };
-
-    const handleConfirmResults = async (roundNumber) => {
-        try {
-            await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
-            fetchMatches();
-        } catch (error) {
-            console.error('Error confirming results:', error);
-        }
-    };
-
-    const isRoundResultsComplete = (roundMatches) => {
-        return roundMatches.every(match =>
-            [0, 0.5, 1].includes(match.participants[0].resultText) &&
-            [0, 0.5, 1].includes(match.participants[1].resultText)
-        );
     };
 
     const handleRoundSelection = (round) => {
@@ -146,7 +156,6 @@ const AdminTournamentMatch = () => {
                         .filter(round => selectedRound === '' || round === selectedRound)
                         .map((round) => {
                             const roundMatches = matches.filter(match => match.tournamentRoundText === round);
-                            const allResultsEntered = isRoundResultsComplete(roundMatches);
                             const isCurrentRound = round === currentRound;
 
                             return (
@@ -217,15 +226,6 @@ const AdminTournamentMatch = () => {
                                             ))}
                                         </tbody>
                                     </table>
-                                    {isCurrentRound && (
-                                        <button
-                                            className={`confirm-results-button ${allResultsEntered ? 'active' : 'inactive'}`}
-                                            onClick={() => handleConfirmResults(round)}
-                                            disabled={!allResultsEntered}
-                                        >
-                                            Confirm results
-                                        </button>
-                                    )}
                                 </div>
                             );
                         })

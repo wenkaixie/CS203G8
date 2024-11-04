@@ -65,6 +65,27 @@ public class TournamentService {
         future.get();
         log.info("Tournament {} created successfully.", generatedId);
 
+        // Retrieve admin authId from tournamentDTO and update the admin's document
+        String authId = tournamentDTO.getAdminId(); 
+        DocumentReference adminRef = firestore.collection("Admins").document(authId);
+        DocumentSnapshot adminSnapshot = adminRef.get().get();
+
+        if (adminSnapshot.exists()) {
+            // Update or add the tournamentCreated field in the admin document
+            List<String> tournamentsCreated = (List<String>) adminSnapshot.get("tournamentCreated");
+            if (tournamentsCreated == null) {
+                tournamentsCreated = new ArrayList<>();
+            }
+            tournamentsCreated.add(generatedId);
+
+            // Update the admin document
+            adminRef.update("tournamentCreated", tournamentsCreated).get();
+            log.info("Tournament ID {} added to admin {}'s tournamentCreated field.", generatedId, authId);
+        } else {
+            log.warn("Admin with authId {} not found in Admins collection.", authId);
+            throw new RuntimeException("Admin not found with authId: " + authId);
+        }
+
         return generatedId;
     }
 
@@ -186,6 +207,7 @@ public class TournamentService {
                 "name", name,
                 "nationality", nationality,
                 "elo", elo,
+                "score", 0,
                 "joinedAt", Instant.now());
 
         // Add the user to the tournament's Users subcollection
@@ -536,7 +558,7 @@ public class TournamentService {
 
         return ongoingTournaments; // Return the list of ongoing tournaments
     }
-    public void updateMatchWinner(String tournamentID, int roundNumber, int matchId, String winnerName)
+    public void updateMatchWinner(String tournamentID, int roundNumber, int matchId, String authId)
             throws ExecutionException, InterruptedException {
 
         log.info("Updating winner for match {} in round {} of tournament {}.", matchId, roundNumber, tournamentID);
@@ -563,7 +585,7 @@ public class TournamentService {
 
         boolean winnerSet = false;
         for (ParticipantDTO participant : targetMatch.getParticipants()) {
-            boolean isWinner = participant.getName().equals(winnerName);
+            boolean isWinner = participant.getAuthId().equals(authId);
             participant.setIsWinner(isWinner);
             if (isWinner) {
                 winnerSet = true;
@@ -572,7 +594,7 @@ public class TournamentService {
         }
 
         if (!winnerSet) {
-            throw new RuntimeException("No participant found with name: " + winnerName);
+            throw new RuntimeException("No participant found with name: " + authId);
         }
 
         roundDocRef.set(round).get();
