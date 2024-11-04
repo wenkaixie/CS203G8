@@ -42,7 +42,7 @@ const Tasks = () => {
       <div className="task-list">
         {tasks.map((task, index) => (
           <div key={index} className="task-item"
-              onClick={() => navigate(`/admin/tournament/${task.tid}`)} >
+              onClick={() => navigate(`/admin/tournament/${task.tid}/overview`)} >
             <div className="task-details">
               <h4>{task.name}</h4>
               <p>{task.description}</p>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AdminHome.css';
-import MatchCard from './CreateTournamentCard';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import CreateTournamentForm from '../AdminTournamentDetails/CreateTournamentForm'
 import MyTournamentsTable from './MyTournamentsTable';
 import TournamentCarousel from './TournamentCarousel';
 import Tasks from './Tasks';
@@ -9,12 +10,31 @@ import axios from 'axios';
 import { getAuth } from "firebase/auth";
 
 const Dashboard = ({upcomingTournaments, ongoingTournaments}) => {
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+  const closeForm = () => {
+      setShowCreateForm(false);
+  };
 
   return (
     <div className='dashboard'>
       <div className='dashboard-col'>
         <div className='dashboard-col-inner' style={{maxHeight:'fit-content'}}>
-          <MatchCard />
+          <div className="create-tournament">
+            <h2>Create a new tournament</h2>
+            <AddCircleIcon
+              sx={{ fontSize: '2.5rem', cursor: 'pointer', color: '#8F3013' }}
+              onClick={() => setShowCreateForm(true)}
+            />
+            {showCreateForm && 
+              <CreateTournamentForm 
+                onClose={closeForm}
+                onSuccess={() => {
+                    window.location.reload();
+                    closeForm();
+              }}/>
+            }
+          </div>
         </div>
         <div className='dashboard-col-inner' style={{maxHeight:'fit-content'}}>
           <Tasks />
@@ -47,12 +67,13 @@ const AdminHome = () => {
       const ongoing = tournaments.filter(
         (tournament) => new Date(tournament.startDatetime) <= currentTime && new Date(tournament.endDatetime) > currentTime
       );
+
       const upcoming = tournaments.filter(
         (tournament) => new Date(tournament.startDatetime) > currentTime
       );
 
-      console.log(ongoing);
       console.log(upcoming);
+
       setOngoingTournaments(ongoing);
       setUpcomingTournaments(upcoming);
     } catch (error) {

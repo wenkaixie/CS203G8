@@ -24,8 +24,9 @@ public class EloController {
     }
 
     // Update Elo ratings
-    @PutMapping("/update/{userId1}/{userId2}")
+    @PutMapping("/update/{tournamentId}/{userId1}/{userId2}")
     public ResponseEntity<Object> updateElo(
+            @PathVariable String tournamentId,
             @PathVariable String userId1,
             @PathVariable String userId2,
             @RequestBody EloUpdateRequest request) {
@@ -36,11 +37,22 @@ public class EloController {
         Double elo1;
         Double elo2;
 
+        if (tournamentId == null || tournamentId.isEmpty()) {
+            return createErrorResponse("tournamentId required.", HttpStatus.BAD_REQUEST);
+        }
+
         if (userId1 == null || userId1.isEmpty() || userId2 == null || userId2.isEmpty()) {
             return createErrorResponse("userId1 and userId2 are required.", HttpStatus.BAD_REQUEST);
         }
 
-        try {            
+        try {      
+            // Retrieve tournament doc
+            DocumentSnapshot tournamentSnapshot = db.collection("Tournaments").document(tournamentId).get().get();
+
+            if (!tournamentSnapshot.exists()) {
+                return createErrorResponse("Tournament does not exist in Firebase.", HttpStatus.NOT_FOUND);
+            }
+
             // Retrieve userId1's document from Firebase and get Elo1
             DocumentSnapshot user1Snapshot = db.collection("Users").document(userId1).get().get();
     
@@ -68,7 +80,7 @@ public class EloController {
             return createErrorResponse("Error retrieving users from Firebase: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        logger.info("Received updateElo request: userId1={}, userId2={}, request={}", userId1, userId2, request);
+        logger.info("Received updateElo request: tournamentId={}, userId1={}, userId2={}, request={}", tournamentId, userId1, userId2, request);
 
         double AS1 = request.getAS1();
         double AS2 = request.getAS2();
@@ -85,7 +97,7 @@ public class EloController {
         }
 
         try {
-            eloService.updateElo(userId1, userId2, elo1, elo2, AS1, AS2);
+            eloService.updateElo(tournamentId, userId1, userId2, elo1, elo2, AS1, AS2);
             return new ResponseEntity<>("Elo ratings successfully updated", HttpStatus.OK);
         } catch (RuntimeException e) {
             logger.error("Error updating Elo ratings: {}", e.getMessage(), e);

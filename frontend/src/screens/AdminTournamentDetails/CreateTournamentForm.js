@@ -114,7 +114,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                     <h2>Create Tournament</h2>
                     <button className="close-button" onClick={onClose}>×</button>
                 </div>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className='registration-form'>
                     {error && <p className="error-message">{error}</p>}
                     {page === 1 ? (
                         <div className="registration-body">
@@ -270,12 +270,14 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                             </button>
                         ) : (
                             <>
-                                <button type="button" className="navigation-button back-button" onClick={handleBack}>
-                                    &lt;
-                                </button>
-                                <button type="submit" className="navigation-button create-button">
-                                    Create
-                                </button>
+                                <div className="buttonsContainer">
+                                    <button type="button" className="navigation-button back-button" onClick={handleBack}>
+                                        &lt;
+                                    </button>
+                                    <button type="submit" className="navigation-button create-button">
+                                        Create
+                                    </button>
+                                </div>
                             </>
                         )}
                     </div>

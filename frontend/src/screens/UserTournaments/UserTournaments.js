@@ -125,7 +125,7 @@ const UserTournaments = () => {
         } else if (criteria === 'EloRequirement') {
             sortedList.sort((a, b) => a.eloRequirement - b.eloRequirement);
         } else if (criteria === 'Prize') {
-            sortedList.sort((a, b) => a.prizePool - b.prizePool);
+            sortedList.sort((a, b) => a.prize - b.prize);
         }
         setSortedTournaments(sortedList);
         setSortBy(criteria);
@@ -220,9 +220,6 @@ const UserTournaments = () => {
                         <tbody>
                         {tournamentsToDisplay.map((tournament, index) => {
                             const registrationStatus = isPlayerRegistered(tournament);
-                            const slotOrParticipants = activeTab === 'upcoming'
-                                ? tournament.capacity - (tournament.users ? tournament.users.length : 0) // Check if users exist
-                                : (tournament.users ? tournament.users.length : 0); // If null, default to 0
 
                             return (
                                 <tr key={tournament.tid} onClick={() => handleRowClick(tournament.tid)}>
@@ -234,7 +231,7 @@ const UserTournaments = () => {
                                         {new Date(tournament.endDatetime).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                                     </td>
                                     <td>{tournament.location}</td>
-                                    <td>{slotOrParticipants}</td>
+                                    <td>{tournament.capacity}</td>
                                     <td>{tournament.eloRequirement}</td>
                                     <td>${tournament.prize}</td>
                                     <td className={`status-${registrationStatus.toLowerCase()}`}>

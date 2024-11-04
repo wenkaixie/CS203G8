@@ -13,11 +13,11 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { Img } from 'react-image';
 import logoImage from '../../assets/images/logo.png';
-import { signOut } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import FBInstanceAuth from '../../firebase/firebase_auth'; // Assuming this is where Firebase auth is managed
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-const pages = ['Home', 'Tournaments', 'My Calendar', 'My Performance'];
+const pages = ['Home', 'Tournaments', 'My Calendar'];
 const settings = ['Profile', 'Logout'];
 
 const Navbar = () => {
@@ -26,6 +26,7 @@ const Navbar = () => {
   const [error, setError] = React.useState(null); // State for handling errors
   const navigate = useNavigate(); // useNavigate hook to handle navigation
   const auth = FBInstanceAuth.getAuth(); // Getting auth instance from Firebase
+  const authId = getAuth();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -56,7 +57,7 @@ const Navbar = () => {
   }
 
   const handleGoToProfile = () => {
-    navigate('/user/profile');
+    navigate(`/user/profile/${auth.currentUser.uid}`);
   }
 
   const handleLogout = async () => {

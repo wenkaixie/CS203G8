@@ -136,3 +136,9 @@ body {
   gap: 12px;
   height: 70%;
 }
+
+.create-tournament {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
