@@ -179,10 +179,13 @@ public class AdminService {
                 throw new RuntimeException("No participants found in the match.");
             }
 
-            String user1 = (String) participants.get(0).get("uid"); String user2 = (String) participants.get(1).get("uid");
+            String user1 = (String) participants.get(0).get("authId"); String user2 = (String) participants.get(1).get("authId");
     
             // Update match results
             updateMatchResults(participants, matchResultUpdateRequest.getAS1(), matchResultUpdateRequest.getAS2());
+
+            // upate the state to DONE
+            foundMatch.put("state", "DONE");
 
             // Update the entire array in Firestore
             roundDocRef.update("matches", matches);
@@ -222,6 +225,10 @@ public class AdminService {
             participant1.put("isWinner", true);
             participant2.put("isWinner", true);
         }
+
+        // change the result text
+        participant1.put("resultText", score1);
+        participant2.put("resultText", score2);
     }
 
     // generate rounds button
