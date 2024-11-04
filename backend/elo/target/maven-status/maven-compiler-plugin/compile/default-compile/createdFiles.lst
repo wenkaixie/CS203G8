@@ -1,0 +1,5 @@
+elo\EloApplication.class
+elo\Configuration\FirebaseConfig.class
+elo\controller\EloController.class
+elo\model\EloBatchUpdateRequest.class
+elo\Configuration\RestTemplateConfig.class
