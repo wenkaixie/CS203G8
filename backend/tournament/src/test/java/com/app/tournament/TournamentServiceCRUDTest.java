@@ -1,10 +1,39 @@
 package com.app.tournament;
 
-import com.app.tournament.service.TournamentService;
-import com.app.tournament.service.TournamentSchedulerService;
+import java.time.Instant;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.model.Tournament;
+import com.app.tournament.service.TournamentSchedulerService;
+import com.app.tournament.service.TournamentService;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -12,29 +41,6 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
-import com.google.cloud.Timestamp;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class TournamentServiceCRUDTest {
@@ -70,27 +76,25 @@ public class TournamentServiceCRUDTest {
     public void setUp() throws ExecutionException, InterruptedException, TimeoutException {
         MockitoAnnotations.openMocks(this);
 
-        // Initialize the ApiFuture<WriteResult> mock
-        writeResultFutureMock = mock(ApiFuture.class);
+        // Mock WriteResult and ApiFuture for get() behavior
         WriteResult writeResultMock = mock(WriteResult.class);
-        
-        // Configure writeResultFutureMock to return writeResultMock when get() is called
         when(writeResultFutureMock.get()).thenReturn(writeResultMock);
         when(writeResultFutureMock.get(anyLong(), any(TimeUnit.class))).thenReturn(writeResultMock);
 
-        // Set up Firestore to return the mocked collection reference
+        // Set up Firestore to return mocked collection reference
         when(firestore.collection("Tournaments")).thenReturn(collectionRefMock);
 
         // Ensure documentRefMock will return a specific ID
         when(collectionRefMock.document(anyString())).thenReturn(documentRefMock);
-        when(collectionRefMock.document()).thenReturn(documentRefMock); // Mock document() with no args
+        when(collectionRefMock.document()).thenReturn(documentRefMock); // For document() with no args
         when(documentRefMock.getId()).thenReturn("testTournamentId");
 
-        // Make documentRefMock.set(...) return the non-null writeResultFutureMock for any argument
+        // Mock documentRefMock.set(...) to return the non-null writeResultFutureMock
         when(documentRefMock.set(any(Tournament.class))).thenReturn(writeResultFutureMock);
 
-        // Mock tournamentSchedulerService behavior
-        doNothing().when(tournamentSchedulerService).scheduleTournamentRoundGeneration(anyString(), any(Instant.class));
+        // Mock scheduler service with doNothing() for specific parameters
+        doNothing().when(tournamentSchedulerService).scheduleTournamentRoundGeneration(anyString(), any(Instant.class),
+                any());
     }
 
     @Test

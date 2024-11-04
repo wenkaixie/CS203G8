@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.app.tournament.DTO.ParticipantDTO;
+import com.app.tournament.enumerator.MatchResult;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +24,15 @@ public class Match {
     private int tournamentRoundText;
     private Instant startTime;
     private String state;
+    private MatchResult result; // Use the MatchResult enum for match outcome
     private List<ParticipantDTO> participants; // List of participants
 
-    
+    /// Method to update the result
+    public void updateResult(MatchResult result) {
+        this.result = result;
+    }
+
+    public boolean isDraw() {
+        return this.result == MatchResult.DRAW;
+    }
 }

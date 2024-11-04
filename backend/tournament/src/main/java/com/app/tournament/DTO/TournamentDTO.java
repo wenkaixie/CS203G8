@@ -2,7 +2,8 @@ package com.app.tournament.DTO;
 
 
 import java.time.Instant;
-import java.util.List;
+
+import com.app.tournament.enumerator.TournamentType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TournamentDTO {
     private String adminId;
-    private String type; // classic, blitz etcx
+    private TournamentType type; // classic, blitz etcx
     
     private int ageLimit;
     private String name;

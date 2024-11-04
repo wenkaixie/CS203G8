@@ -2,7 +2,9 @@ package com.app.tournament.service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +13,11 @@ import org.springframework.stereotype.Service;
 import com.app.tournament.DTO.ParticipantDTO;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
-import com.app.tournament.model.Tournament;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.WriteBatch;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -151,6 +152,7 @@ public class EliminationService {
                     1,
                     Instant.now(),
                     "PENDING",
+                    null,
                     matchParticipants);
 
             matches.add(match);
@@ -174,6 +176,7 @@ public class EliminationService {
                     roundNumber, // Round number text
                     Instant.now(), // Start time of the match
                     "PENDING", // Initial state of the match
+                    null,
                     new ArrayList<>() // No participants initially
             );
 
@@ -225,119 +228,239 @@ public class EliminationService {
         log.info("Successfully updated nextMatchId to {} for Match {}.", nextMatchId, matchId);
     }
 
+    // public void populateNextRoundMatches(String tournamentID, int
+    // currentRoundNumber)
+    // throws ExecutionException, InterruptedException {
+
+    // log.info("Populating next round matches for tournament {} from round {}.",
+    // tournamentID, currentRoundNumber);
+
+    // // Fetch the current round's document
+    // DocumentReference currentRoundDocRef = firestore.collection("Tournaments")
+    // .document(tournamentID)
+    // .collection("Rounds")
+    // .document(String.valueOf(currentRoundNumber));
+
+    // Round currentRound = currentRoundDocRef.get().get().toObject(Round.class);
+    // if (currentRound == null) {
+    // throw new RuntimeException("Current round not found.");
+    // }
+
+    // // Fetch the next round's document
+    // int nextRoundNumber = currentRoundNumber + 1;
+    // DocumentReference nextRoundDocRef = firestore.collection("Tournaments")
+    // .document(tournamentID)
+    // .collection("Rounds")
+    // .document(String.valueOf(nextRoundNumber));
+
+    // Round nextRound = nextRoundDocRef.get().get().toObject(Round.class);
+    // if (nextRound == null) {
+    // throw new RuntimeException("Next round not found.");
+    // }
+
+    // List<Match> nextRoundMatches = new ArrayList<>();
+
+    // // Iterate over each match in the next round
+    // for (int i = 0; i < nextRound.getMatches().size(); i++) {
+    // Match nextMatch = nextRound.getMatches().get(i);
+    // int matchId = nextMatch.getId();
+
+    // // Find the two matches from the current round where nextMatchId matches the
+    // // matchId of the next round match
+    // List<Match> parentMatches = new ArrayList<>();
+    // for (Match currentMatch : currentRound.getMatches()) {
+    // if (currentMatch.getNextMatchId() == matchId) {
+    // parentMatches.add(currentMatch);
+    // }
+    // }
+
+    // if (parentMatches.size() != 2) {
+    // log.warn("Match {} in round {} has incorrect number of parent matches: {}.",
+    // matchId, nextRoundNumber,
+    // parentMatches.size());
+    // continue;
+    // }
+
+    // // Extract winners from the parent matches
+    // List<ParticipantDTO> participants = new ArrayList<>();
+    // for (Match parentMatch : parentMatches) {
+    // parentMatch.getParticipants().stream()
+    // .filter(ParticipantDTO::getIsWinner)
+    // .findFirst()
+    // .ifPresent(winner -> {
+    // try {
+    // // Retrieve the latest Elo from the specific tournament's Users subcollection
+    // DocumentReference userRef = firestore.collection("Tournaments")
+    // .document(
+    // tournamentID) // replace with the actual tournament ID
+    // .collection("Users")
+    // .document(winner.getAuthId());
+
+    // // Fetch the user document
+    // DocumentSnapshot userDoc = userRef.get().get();
+    // Long updatedElo = userDoc.getLong("elo"); // Retrieve the Elo from the
+    // Firestore
+    // // document
+
+    // if (updatedElo != null) {
+    // participants.add(new ParticipantDTO(
+    // String.valueOf(participants.size() + 1), // Assign new player ID (1 or 2)
+    // winner.getAuthId(), // Carry over the winner's UID
+    // winner.getName(), // Carry over the winner's name
+    // "", // Result text will be determined in the next match
+    // updatedElo.intValue(), // Set the Elo retrieved from Firestore
+    // winner.getNationality(), // Carry over the winner's nationality
+    // false // Set isWinner as false for now, will be decided in the next match
+    // ));
+    // } else {
+    // log.warn("Elo rating not found for user with authId: {}",
+    // winner.getAuthId());
+    // }
+    // } catch (InterruptedException | ExecutionException e) {
+    // log.error("Error retrieving Elo rating for user {}: {}", winner.getAuthId(),
+    // e.getMessage());
+    // }
+    // });
+    // }
+
+    // if (participants.size() < 2) {
+    // log.warn("Not enough winners found for match {} in round {}.", matchId,
+    // nextRoundNumber);
+    // continue;
+    // }
+
+    // // Create a new match with the participants
+    // Match updatedMatch = new Match(
+    // matchId,
+    // nextMatch.getName(),
+    // nextMatch.getNextMatchId(),
+    // nextRoundNumber,
+    // Instant.now(),
+    // "PENDING",
+    // participants);
+
+    // nextRoundMatches.add(updatedMatch);
+
+    // log.info("Updated match {} for round {} with participants: {}",
+    // matchId, nextRoundNumber,
+    // participants.stream().map(ParticipantDTO::getName).toList());
+    // }
+
+    // // Save the updated next round matches to Firestore
+    // nextRound.setMatches(nextRoundMatches);
+    // nextRoundDocRef.set(nextRound).get();
+
+    // log.info("Successfully populated round {} with {} matches.", nextRoundNumber,
+    // nextRoundMatches.size());
+
+    // // Increment and update currentRoundNumber in the tournament document
+    // DocumentReference tournamentDocRef =
+    // firestore.collection("Tournaments").document(tournamentID);
+    // tournamentDocRef.update("currentRound", currentRoundNumber + 1).get(); //
+    // Update currentRound directly
+
+    // log.info("Updated tournament {} current round to {}.", tournamentID,
+    // currentRoundNumber + 1);
+    // }
+
+    // public Tournament getTournamentById(String tournamentID) throws
+    // ExecutionException, InterruptedException {
+    // log.info("Fetching tournament with ID: {}", tournamentID);
+    // DocumentSnapshot document =
+    // firestore.collection("Tournaments").document(tournamentID).get().get();
+
+    // if (!document.exists()) {
+    // log.error("Tournament not found with ID: {}", tournamentID);
+    // throw new RuntimeException("Tournament not found with ID: " + tournamentID);
+    // }
+
+    // log.info("Tournament {} retrieved successfully.", tournamentID);
+    // return document.toObject(Tournament.class);
+    // }
 
     public void populateNextRoundMatches(String tournamentID, int currentRoundNumber)
             throws ExecutionException, InterruptedException {
-
         log.info("Populating next round matches for tournament {} from round {}.", tournamentID, currentRoundNumber);
 
-        // Fetch the current round's document
-        DocumentReference currentRoundDocRef = firestore.collection("Tournaments")
-                .document(tournamentID)
-                .collection("Rounds")
-                .document(String.valueOf(currentRoundNumber));
+        // Batch retrieve all user Elo ratings in the tournament
+        CollectionReference usersCollection = firestore.collection("Tournaments").document(tournamentID)
+                .collection("Users");
+        Map<String, Integer> eloMap = new HashMap<>();
 
-        Round currentRound = currentRoundDocRef.get().get().toObject(Round.class);
-        if (currentRound == null) {
-            throw new RuntimeException("Current round not found.");
+        List<QueryDocumentSnapshot> userDocs = usersCollection.get().get().getDocuments();
+        for (QueryDocumentSnapshot userDoc : userDocs) {
+            eloMap.put(userDoc.getId(), userDoc.getLong("elo").intValue());
         }
 
-        // Fetch the next round's document
-        int nextRoundNumber = currentRoundNumber + 1;
-        DocumentReference nextRoundDocRef = firestore.collection("Tournaments")
-                .document(tournamentID)
-                .collection("Rounds")
-                .document(String.valueOf(nextRoundNumber));
+        // Fetch the current and next rounds
+        DocumentReference currentRoundDocRef = firestore.collection("Tournaments").document(tournamentID)
+                .collection("Rounds").document(String.valueOf(currentRoundNumber));
+        Round currentRound = currentRoundDocRef.get().get().toObject(Round.class);
 
+        int nextRoundNumber = currentRoundNumber + 1;
+        DocumentReference nextRoundDocRef = firestore.collection("Tournaments").document(tournamentID)
+                .collection("Rounds").document(String.valueOf(nextRoundNumber));
         Round nextRound = nextRoundDocRef.get().get().toObject(Round.class);
-        if (nextRound == null) {
-            throw new RuntimeException("Next round not found.");
+
+        if (currentRound == null || nextRound == null) {
+            throw new RuntimeException("Current or next round not found.");
         }
 
         List<Match> nextRoundMatches = new ArrayList<>();
+        List<ParticipantDTO> allParticipants = new ArrayList<>(); // Collect all participants for Elo update
 
-        // Iterate over each match in the next round
-        for (int i = 0; i < nextRound.getMatches().size(); i++) {
-            Match nextMatch = nextRound.getMatches().get(i);
-            int matchId = nextMatch.getId();
+        // Process each match in the next round and assign winners
+        for (Match nextMatch : nextRound.getMatches()) {
+            List<ParticipantDTO> participants = new ArrayList<>();
 
-            // Find the two matches from the current round where nextMatchId matches the
-            // matchId of the next round match
-            List<Match> parentMatches = new ArrayList<>();
             for (Match currentMatch : currentRound.getMatches()) {
-                if (currentMatch.getNextMatchId() == matchId) {
-                    parentMatches.add(currentMatch);
+                if (currentMatch.getNextMatchId() == nextMatch.getId()) {
+                    currentMatch.getParticipants().stream()
+                            .filter(ParticipantDTO::getIsWinner)
+                            .findFirst()
+                            .ifPresent(winner -> {
+                                Integer updatedElo = eloMap.get(winner.getAuthId());
+                                ParticipantDTO participant = new ParticipantDTO(
+                                        String.valueOf(participants.size() + 1), // ID within the match
+                                        winner.getAuthId(),
+                                        winner.getName(),
+                                        "", // Result text to be updated post-match
+                                        updatedElo != null ? updatedElo : winner.getElo(), // Elo from cache or existing
+                                                                                           // Elo
+                                        winner.getNationality(),
+                                        false // isWinner will be set in the next match
+                                );
+                                participants.add(participant);
+                                allParticipants.add(participant); // Add to allParticipants for batch update
+                            });
                 }
             }
 
-            if (parentMatches.size() != 2) {
-                log.warn("Match {} in round {} has incorrect number of parent matches: {}.", matchId, nextRoundNumber,
-                        parentMatches.size());
-                continue;
+            if (participants.size() == 2) {
+                nextRoundMatches.add(new Match(
+                        nextMatch.getId(),
+                        nextMatch.getName(),
+                        nextMatch.getNextMatchId(),
+                        nextRoundNumber,
+                        Instant.now(),
+                        "PENDING",
+                        null,
+                        participants));
             }
-
-            // Extract winners from the parent matches
-            List<ParticipantDTO> participants = new ArrayList<>();
-            for (Match parentMatch : parentMatches) {
-                parentMatch.getParticipants().stream()
-                        .filter(ParticipantDTO::getIsWinner)
-                        .findFirst()
-                        .ifPresent(winner -> participants.add(new ParticipantDTO(
-                                String.valueOf(participants.size() + 1), // Assign new player ID (1 or 2)
-                                winner.getAuthId(), // Carry over the winner's UID
-                                winner.getName(), // Carry over the winner's name
-                                "", // Result text will be determined in the next match
-                                winner.getElo(), // Carry over the winner's Elo
-                                winner.getNationality(), // Carry over the winner's nationality
-                                false // Set isWinner as false for now, will be decided in the next match
-                        )));
-            }
-
-            if (participants.size() < 2) {
-                log.warn("Not enough winners found for match {} in round {}.", matchId, nextRoundNumber);
-                continue;
-            }
-
-            // Create a new match with the participants
-            Match updatedMatch = new Match(
-                    matchId,
-                    nextMatch.getName(),
-                    nextMatch.getNextMatchId(),
-                    nextRoundNumber,
-                    Instant.now(),
-                    "PENDING",
-                    participants);
-
-            nextRoundMatches.add(updatedMatch);
-
-            log.info("Updated match {} for round {} with participants: {}",
-                    matchId, nextRoundNumber, participants.stream().map(ParticipantDTO::getName).toList());
         }
 
-        // Save the updated next round matches to Firestore
         nextRound.setMatches(nextRoundMatches);
         nextRoundDocRef.set(nextRound).get();
 
-        log.info("Successfully populated round {} with {} matches.", nextRoundNumber, nextRoundMatches.size());
-
-        // Increment and update currentRoundNumber in the tournament document
-        DocumentReference tournamentDocRef = firestore.collection("Tournaments").document(tournamentID);
-        tournamentDocRef.update("currentRound", currentRoundNumber + 1).get(); // Update currentRound directly
-
-        log.info("Updated tournament {} current round to {}.", tournamentID, currentRoundNumber + 1);
-    }
-
-    public Tournament getTournamentById(String tournamentID) throws ExecutionException, InterruptedException {
-        log.info("Fetching tournament with ID: {}", tournamentID);
-        DocumentSnapshot document = firestore.collection("Tournaments").document(tournamentID).get().get();
-
-        if (!document.exists()) {
-            log.error("Tournament not found with ID: {}", tournamentID);
-            throw new RuntimeException("Tournament not found with ID: " + tournamentID);
+        // Batch write updated Elo ratings back to Firestore
+        WriteBatch batch = firestore.batch();
+        for (ParticipantDTO participant : allParticipants) {
+            DocumentReference userRef = usersCollection.document(participant.getAuthId());
+            batch.update(userRef, "elo", participant.getElo());
         }
+        batch.commit().get();
 
-        log.info("Tournament {} retrieved successfully.", tournamentID);
-        return document.toObject(Tournament.class);
+        log.info("Successfully populated round {} with matches and updated user Elo ratings.", nextRoundNumber);
     }
 
 }

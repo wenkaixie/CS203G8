@@ -32,6 +32,7 @@ public class RoundRobinService {
 
     // Generate rounds for round-robin tournament
     public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
+        
         try {
             CollectionReference usersCollection = firestore.collection("Tournaments").document(tournamentID)
                     .collection("Users");
@@ -134,6 +135,7 @@ public class RoundRobinService {
                 roundNumber,
                 Instant.now(),
                 "PENDING",
+                null,
                 participants);
     }
 }

@@ -2,6 +2,8 @@ package com.app.tournament.model;
 
 import java.time.Instant;
 
+import com.app.tournament.enumerator.TournamentType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,7 @@ import lombok.Setter;
 public class Tournament {
 
     private String adminId;
-    private String type; // classic, blitz etcx
+    private TournamentType type; // classic, blitz etcx
 
 
 
@@ -26,15 +28,17 @@ public class Tournament {
     private int eloRequirement;
     private String location;
     private int capacity;
+    private int prize;
     
     private Instant startDatetime;   // Field for start datetime of the tournament
     private Instant endDatetime; // Field for end datetime of the tournament
     
     private String tid; // tournamentID
     private Instant createdTimestamp;
-    private int prize;
+    
 
     private String status;
+  
     
     // List to store players in the tournament
     // private List<String> users; // store players uid's
