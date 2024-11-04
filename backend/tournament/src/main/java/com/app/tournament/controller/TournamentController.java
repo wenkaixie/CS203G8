@@ -46,7 +46,6 @@ public class TournamentController {
     private static final Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
     // Create tournament endpoint
-    // Create tournament endpoint
     @PostMapping
     public ResponseEntity<String> createTournament(@RequestBody TournamentDTO tournamentDTO) {
 

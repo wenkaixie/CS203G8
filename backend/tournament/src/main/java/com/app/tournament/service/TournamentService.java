@@ -581,7 +581,7 @@ public class TournamentService {
         targetMatch.updateResult(result);
         switch (result) {
             case DRAW:
-                targetMatch.getParticipants().forEach(p -> p.setIsWinner(false));
+                targetMatch.getParticipants().forEach(p -> p.setIsWinner(true));
                 break;
             case PLAYER1_WIN:
                 targetMatch.getParticipants().get(0).setIsWinner(true);
