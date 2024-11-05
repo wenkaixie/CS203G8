@@ -49,9 +49,9 @@ public class TournamentSchedulerService implements DisposableBean {
                     captureEloSnapshot(tid);
 
                     // Use the appropriate service based on tournament type
-                    if (tournamentType == TournamentType.ROUND_ROBIN) {
+                    if (tournamentType == TournamentType.Round_Robin) {
                         roundRobinService.generateRoundsForTournament(tid);
-                    } else if (tournamentType == TournamentType.ELIMINATION) {
+                    } else if (tournamentType == TournamentType.Elimination) {
                         eliminationService.generateRoundsForTournament(tid);
                     }
                     log.info("Rounds generated for tournament: {}", tid);
