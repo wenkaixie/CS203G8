@@ -18,9 +18,7 @@ import lombok.Setter;
 public class Tournament {
 
     private String adminId;
-    private TournamentType type; // classic, blitz etcx
-
-
+    private TournamentType type; // classic, blitz etcx1
 
     private int ageLimit;
     private String name;
@@ -35,16 +33,7 @@ public class Tournament {
     
     private String tid; // tournamentID
     private Instant createdTimestamp;
-    
-
-    private String status;
-  
-    
-    // List to store players in the tournament
-    // private List<String> users; // store players uid's
-    // private List<Round> rounds;
-    
-    //
+    private String status; // active, completed, cancelled
     private int currentRound;
 }
 

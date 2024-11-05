@@ -1,6 +1,6 @@
 package com.app.tournament.enumerator;
 
 public enum TournamentType {
-    ROUND_ROBIN,
-    ELIMINATION
+    Round_Robin,
+    Elimination
 }

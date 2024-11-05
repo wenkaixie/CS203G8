@@ -61,6 +61,7 @@ public class TournamentController {
         }
     }
 
+    // checked wenkai 5/11
     @GetMapping("/{tournamentID}")
     public ResponseEntity<Tournament> getTournamentById(@PathVariable String tournamentID) {
         try {
@@ -71,6 +72,7 @@ public class TournamentController {
         }
     }
 
+    // checked wenkai 5/11
     @GetMapping("/all")
     public ResponseEntity<List<Tournament>> getAllTournaments() {
         try {
@@ -81,6 +83,7 @@ public class TournamentController {
         }
     }
 
+    // checked wenkai 5/11
     @GetMapping("/user/{userID}")
     public ResponseEntity<List<Tournament>> getAllTournamentsOfUser(@PathVariable String userID) {
         try {
@@ -103,7 +106,6 @@ public class TournamentController {
         }
     }
 
-    // Delete tournament endpoint
     @DeleteMapping("/{tournamentID}")
     public ResponseEntity<Void> deleteTournament(@PathVariable String tournamentID) {
         try {
@@ -118,7 +120,6 @@ public class TournamentController {
         }
     }
 
-    // Add player to tournament
     @PostMapping("/{tournamentID}/players")
     public ResponseEntity<String> addUserToTournament(@PathVariable String tournamentID,
             @RequestParam String userID) {
@@ -171,6 +172,7 @@ public class TournamentController {
     // }
     // }
 
+    // checked wenkai 5/11
     @GetMapping("/{tournamentID}/users")
     public ResponseEntity<List<Map<String, Object>>> getAllUsersFromTournament(@PathVariable String tournamentID) {
         try {
@@ -185,6 +187,7 @@ public class TournamentController {
         }
     }
 
+    // checked wenkai 5/11
     // Get upcoming tournaments
     @GetMapping("/upcoming/{userID}")
     public ResponseEntity<List<Tournament>>getUpcomingTournamentsOfUser(@PathVariable String userID) {
@@ -196,6 +199,7 @@ public class TournamentController {
         }
     }
 
+    // checked wenkai 5/11
     // Get past tournaments
     @GetMapping("/past/{userID}")
     public ResponseEntity<List<Tournament>>getPastTournamentsOfUser(@PathVariable String userID) {
@@ -207,6 +211,7 @@ public class TournamentController {
         }
     }
 
+    // checked wenkai 5/11    
     // Get ongoing tournaments of user
     @GetMapping("/ongoing/{userID}")
     public ResponseEntity<List<Tournament>>getOngoingTournamentsOfUser(@PathVariable String userID) {
@@ -239,12 +244,12 @@ public class TournamentController {
 
             // Use switch to handle different tournament types
             switch (tournamentType) {
-                case ROUND_ROBIN:
+                case Round_Robin:
                     logger.info("Generating rounds for round-robin tournament ID: {}", tournamentID);
                     roundRobinService.generateRoundsForTournament(tournamentID);
                     break;
 
-                case ELIMINATION:
+                case Elimination:
                     logger.info("Generating rounds for elimination tournament ID: {}", tournamentID);
                     eliminationService.generateRoundsForTournament(tournamentID);
                     break;
