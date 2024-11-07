@@ -59,7 +59,7 @@ public class UserService {
         // Checking tournament exist
         DocumentSnapshot tournamentSnapshot = firestore.collection("Tournaments").document(tournamentId).get().get();
         if (!tournamentSnapshot.exists()) {
-            throw new TournamentNotFoundException("Tournament not found.");
+            throw new TournamentNotFoundException("No tournament found with the provided ID.");
         }
     
         // Directly reference the user document by authId
@@ -98,7 +98,7 @@ public class UserService {
         // Checking tournament exist
         DocumentSnapshot tournamentSnapshot = firestore.collection("Tournaments").document(tournamentId).get().get();
         if (!tournamentSnapshot.exists()) {
-            throw new TournamentNotFoundException("Tournament not found.");
+            throw new TournamentNotFoundException("No tournament found with the provided ID.");
         }
 
         // Directly reference the user document by authId
