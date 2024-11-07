@@ -25,6 +25,7 @@ public class Tournament {
     private String description;   
     private int eloRequirement;
     private String location;
+    private int minSignups;
     private int capacity;
     private int prize;
     

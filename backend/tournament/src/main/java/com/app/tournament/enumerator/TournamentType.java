@@ -1,6 +1,8 @@
 package com.app.tournament.enumerator;
 
 public enum TournamentType {
-    Round_Robin,
-    Elimination
+
+    // hello pls dont change this to lowercase. follow convention 
+    ROUND_ROBIN,
+    ELIMINATION
 }

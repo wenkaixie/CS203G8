@@ -15,6 +15,8 @@ import com.app.tournament.model.Match;
 import com.app.tournament.model.Round;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.WriteBatch;
@@ -35,13 +37,12 @@ public class EliminationService {
     // private UserService userService;
 
     // Generate rounds and matches for the tournament
-    public void generateRoundsForTournament(String tournamentID) throws ExecutionException, InterruptedException {
+    public void generateRoundsForTournament(String tournamentID)
+            throws ExecutionException, InterruptedException {
         try {
-            // Get reference to the Users subcollection of the specified tournament
             CollectionReference usersCollection = firestore.collection("Tournaments").document(tournamentID)
                     .collection("Users");
 
-            // Fetch all users from the Users subcollection
             List<QueryDocumentSnapshot> userDocs = usersCollection.get().get().getDocuments();
 
             if (userDocs.isEmpty()) {
@@ -49,41 +50,69 @@ public class EliminationService {
                 throw new RuntimeException("No users found in tournament: " + tournamentID);
             }
 
-            // Extract user details (userID, name, elo, nationality) from each document
             List<ParticipantDTO> participants = new ArrayList<>();
             int numPlayers = userDocs.size();
 
+            // Populate participants list from user documents
             for (QueryDocumentSnapshot userDoc : userDocs) {
                 String userID = userDoc.getId();
                 String name = userDoc.getString("name");
                 Long elo = userDoc.getLong("elo");
                 String nationality = userDoc.getString("nationality");
+                Instant joinedAt = userDoc.getTimestamp("joinedAt") != null
+                        ? userDoc.getTimestamp("joinedAt").toDate().toInstant()
+                        : null;
 
                 if (name == null || elo == null || nationality == null) {
-                    log.warn("User data incomplete for user {} in tournament {}.", userDoc.getId(), tournamentID);
-                    throw new RuntimeException("Incomplete user data for user ID: " + userDoc.getId());
+                    log.warn("Incomplete data for user {} in tournament {}.", userDoc.getId(), tournamentID);
+                    throw new RuntimeException("Incomplete data for user ID: " + userDoc.getId());
                 }
 
-                // Create ParticipantDTO and add to list
                 participants.add(new ParticipantDTO(
-                        null, // id will be set when used in matches (1 or 2)
-                        userID,
-                        name,
-                        "", // resultText will be set when the match is finished
-                        elo.intValue(),
-                        nationality,
-                        false // isWinner will be set later when match results are known
+                        null, // id to be set when placed in matches
+                        userID, // authId
+                        name, // name
+                        "", // resultText
+                        elo.intValue(), // elo
+                        nationality, // nationality
+                        false // isWinner initialized as false
                 ));
             }
 
-            // Calculate number of rounds needed based on number of players
-            int numRounds = calculateEliminationRounds(numPlayers);
+            // Calculate nearest power of 2
+            int closestPowerOfTwo = Integer.highestOneBit(numPlayers);
+            if (closestPowerOfTwo < numPlayers) {
+                closestPowerOfTwo *= 2;
+            }
 
-            // Generate rounds for the tournament with the retrieved participants and player
-            // count
-            generateRounds(tournamentID, participants, numPlayers, numRounds);
+            // Proceed with match generation based on the nearest power of 2
+            List<ParticipantDTO> selectedParticipants = participants.subList(0, closestPowerOfTwo);
+            int numRounds = calculateEliminationRounds(closestPowerOfTwo);
+            generateRounds(tournamentID, selectedParticipants, closestPowerOfTwo, numRounds);
+
+            // Remove excess players from Firestore and update their history
+            if (closestPowerOfTwo < numPlayers) {
+                List<QueryDocumentSnapshot> excessParticipants = userDocs.subList(closestPowerOfTwo, numPlayers);
+                for (QueryDocumentSnapshot excessUserDoc : excessParticipants) {
+                    String userId = excessUserDoc.getId();
+
+                    // Delete the user from the tournament's user subcollection
+                    usersCollection.document(userId).delete().get();
+                    log.info("Removed excess player with ID {} from tournament {}", userId, tournamentID);
+
+                    // Remove the tournament from the user's history
+                    DocumentReference userDocRef = firestore.collection("Users").document(userId);
+                    userDocRef.update("tournamentHistory", FieldValue.arrayRemove(tournamentID)).get();
+                    log.info("Removed tournament {} from user {}'s history", tournamentID, userId);
+                }
+            }
+
+            log.info("Tournament rounds generated and excess players removed successfully for tournament ID: {}",
+                    tournamentID);
+
         } catch (Exception e) {
-            log.error("Failed to generate rounds for tournament {}: {}", tournamentID, e.getMessage());
+            log.error("Failed to generate rounds and manage participants for tournament {}: {}", tournamentID,
+                    e.getMessage());
             throw e;
         }
     }
@@ -382,57 +411,48 @@ public class EliminationService {
             throws ExecutionException, InterruptedException {
         log.info("Populating next round matches for tournament {} from round {}.", tournamentID, currentRoundNumber);
 
-        // Batch retrieve all user Elo ratings in the tournament
+        // 1. Retrieve only the necessary 'elo' field from Users collection
         CollectionReference usersCollection = firestore.collection("Tournaments").document(tournamentID)
                 .collection("Users");
         Map<String, Integer> eloMap = new HashMap<>();
 
-        List<QueryDocumentSnapshot> userDocs = usersCollection.get().get().getDocuments();
+        List<QueryDocumentSnapshot> userDocs = usersCollection.select("elo").get().get().getDocuments();
         for (QueryDocumentSnapshot userDoc : userDocs) {
             eloMap.put(userDoc.getId(), userDoc.getLong("elo").intValue());
         }
 
-        // Fetch the current and next rounds
+        // 2. Fetch the current and next rounds in a batch
         DocumentReference currentRoundDocRef = firestore.collection("Tournaments").document(tournamentID)
                 .collection("Rounds").document(String.valueOf(currentRoundNumber));
-        Round currentRound = currentRoundDocRef.get().get().toObject(Round.class);
-
-        int nextRoundNumber = currentRoundNumber + 1;
         DocumentReference nextRoundDocRef = firestore.collection("Tournaments").document(tournamentID)
-                .collection("Rounds").document(String.valueOf(nextRoundNumber));
-        Round nextRound = nextRoundDocRef.get().get().toObject(Round.class);
+                .collection("Rounds").document(String.valueOf(currentRoundNumber + 1));
+        List<DocumentSnapshot> roundDocs = firestore.getAll(currentRoundDocRef, nextRoundDocRef).get();
+
+        Round currentRound = roundDocs.get(0).toObject(Round.class);
+        Round nextRound = roundDocs.get(1).toObject(Round.class);
 
         if (currentRound == null || nextRound == null) {
             throw new RuntimeException("Current or next round not found.");
         }
 
         List<Match> nextRoundMatches = new ArrayList<>();
-        List<ParticipantDTO> allParticipants = new ArrayList<>(); // Collect all participants for Elo update
+        List<ParticipantDTO> allParticipants = new ArrayList<>(); // Collect participants for Elo update
 
-        // Process each match in the next round and assign winners
+        // 3. Determine winners, using Elo or random tiebreaker if needed
         for (Match nextMatch : nextRound.getMatches()) {
             List<ParticipantDTO> participants = new ArrayList<>();
 
             for (Match currentMatch : currentRound.getMatches()) {
                 if (currentMatch.getNextMatchId() == nextMatch.getId()) {
-                    currentMatch.getParticipants().stream()
-                            .filter(ParticipantDTO::getIsWinner)
-                            .findFirst()
-                            .ifPresent(winner -> {
-                                Integer updatedElo = eloMap.get(winner.getAuthId());
-                                ParticipantDTO participant = new ParticipantDTO(
-                                        String.valueOf(participants.size() + 1), // ID within the match
-                                        winner.getAuthId(),
-                                        winner.getName(),
-                                        "", // Result text to be updated post-match
-                                        updatedElo != null ? updatedElo : winner.getElo(), // Elo from cache or existing
-                                                                                           // Elo
-                                        winner.getNationality(),
-                                        false // isWinner will be set in the next match
-                                );
-                                participants.add(participant);
-                                allParticipants.add(participant); // Add to allParticipants for batch update
-                            });
+                    // Check for a draw and determine winner based on Elo or random tiebreaker
+                    ParticipantDTO winner = determineWinner(currentMatch, eloMap);
+                    if (winner != null) {
+                        Integer updatedElo = eloMap.get(winner.getAuthId());
+                        winner.setElo(updatedElo != null ? updatedElo : winner.getElo());
+                        winner.setIsWinner(false); // Reset winner status for next match
+                        participants.add(winner);
+                        allParticipants.add(winner);
+                    }
                 }
             }
 
@@ -441,7 +461,7 @@ public class EliminationService {
                         nextMatch.getId(),
                         nextMatch.getName(),
                         nextMatch.getNextMatchId(),
-                        nextRoundNumber,
+                        currentRoundNumber + 1,
                         Instant.now(),
                         "PENDING",
                         null,
@@ -452,7 +472,7 @@ public class EliminationService {
         nextRound.setMatches(nextRoundMatches);
         nextRoundDocRef.set(nextRound).get();
 
-        // Batch write updated Elo ratings back to Firestore
+        // 4. Use batch to update Elo ratings only if changed
         WriteBatch batch = firestore.batch();
         for (ParticipantDTO participant : allParticipants) {
             DocumentReference userRef = usersCollection.document(participant.getAuthId());
@@ -460,7 +480,33 @@ public class EliminationService {
         }
         batch.commit().get();
 
-        log.info("Successfully populated round {} with matches and updated user Elo ratings.", nextRoundNumber);
+        log.info("Successfully populated round {} with matches and updated user Elo ratings.", currentRoundNumber + 1);
+    }
+
+    // Helper method for determining the winner with tiebreaker logic
+    private ParticipantDTO determineWinner(Match currentMatch, Map<String, Integer> eloMap) {
+        List<ParticipantDTO> participants = currentMatch.getParticipants();
+        if (participants.size() < 2)
+            return null;
+
+        ParticipantDTO participant1 = participants.get(0);
+        ParticipantDTO participant2 = participants.get(1);
+
+        // Check for draw and apply Elo-based tiebreaker
+        if (currentMatch.isDraw()) {
+            int elo1 = eloMap.getOrDefault(participant1.getAuthId(), participant1.getElo());
+            int elo2 = eloMap.getOrDefault(participant2.getAuthId(), participant2.getElo());
+
+            if (elo1 > elo2)
+                return participant1;
+            else if (elo2 > elo1)
+                return participant2;
+            else
+                return Math.random() > 0.5 ? participant1 : participant2; // Random if Elo is tied
+        } else {
+            // Return the actual winner if not a draw
+            return participants.stream().filter(ParticipantDTO::getIsWinner).findFirst().orElse(null);
+        }
     }
 
 }

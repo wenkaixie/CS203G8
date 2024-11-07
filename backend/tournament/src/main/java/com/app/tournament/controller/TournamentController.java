@@ -244,12 +244,12 @@ public class TournamentController {
 
             // Use switch to handle different tournament types
             switch (tournamentType) {
-                case Round_Robin:
+                case ROUND_ROBIN:
                     logger.info("Generating rounds for round-robin tournament ID: {}", tournamentID);
                     roundRobinService.generateRoundsForTournament(tournamentID);
                     break;
 
-                case Elimination:
+                case ELIMINATION:
                     logger.info("Generating rounds for elimination tournament ID: {}", tournamentID);
                     eliminationService.generateRoundsForTournament(tournamentID);
                     break;
@@ -274,18 +274,18 @@ public class TournamentController {
         }
     }
 
-    @PutMapping("/{tournamentID}/rounds/{roundNumber}/matches/{matchId}/result")
-    public ResponseEntity<String> updateMatchResult(
+    // Batch update for multiple match results in the same round
+    @PutMapping("/{tournamentID}/rounds/{roundNumber}/matches/results")
+    public ResponseEntity<String> updateMatchResultsBatch(
             @PathVariable String tournamentID,
             @PathVariable int roundNumber,
-            @PathVariable int matchId,
-            @RequestParam MatchResult result) {
+            @RequestBody Map<Integer, MatchResult> matchResults) {
         try {
-            tournamentService.updateMatchResult(tournamentID, roundNumber, matchId, result);
-            return ResponseEntity.ok("Match result updated successfully.");
+            tournamentService.updateMatchResults(tournamentID, roundNumber, matchResults);
+            return ResponseEntity.ok("Batch match results updated successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error updating match result: " + e.getMessage());
+                    .body("Error updating batch match results: " + e.getMessage());
         }
     }
 
