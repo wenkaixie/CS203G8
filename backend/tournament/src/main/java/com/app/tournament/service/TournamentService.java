@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.app.tournament.DTO.MatchResultUpdateRequest;
 import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.enumerator.MatchResult;
 import com.app.tournament.enumerator.TournamentType;
@@ -792,7 +793,7 @@ public class TournamentService {
         return tournaments;
     }
 
-    public void updateMatchResults(String tournamentID, int roundNumber, Map<Integer, MatchResult> matchResults)
+    public void updateMatchResults(String tournamentID, int roundNumber, Map<Integer, MatchResultUpdateRequest> matchResults)
             throws ExecutionException, InterruptedException {
         DocumentReference roundDocRef = firestore.collection("Tournaments")
                 .document(tournamentID)
@@ -806,9 +807,9 @@ public class TournamentService {
 
         WriteBatch batch = firestore.batch();
 
-        for (Map.Entry<Integer, MatchResult> entry : matchResults.entrySet()) {
+        for (Map.Entry<Integer, MatchResultUpdateRequest> entry : matchResults.entrySet()) {
             int matchId = entry.getKey();
-            MatchResult result = entry.getValue();
+            MatchResult result = entry.getValue().getMatchResult();
 
             Match targetMatch = round.getMatches().stream()
                     .filter(match -> match.getId() == matchId)

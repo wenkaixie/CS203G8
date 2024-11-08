@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.tournament.DTO.MatchResultUpdateRequest;
 import com.app.tournament.DTO.TournamentDTO;
 import com.app.tournament.enumerator.MatchResult;
 import com.app.tournament.enumerator.TournamentType;
@@ -170,9 +171,9 @@ public class TournamentController {
     // tested working 8 Nov
     // Get upcoming tournaments
     @GetMapping("/upcoming/{userID}")
-    public ResponseEntity<List<Tournament>>getUpcomingTournamentsOfUser(@PathVariable String userID) {
+    public ResponseEntity<List<Tournament>> getUpcomingTournamentsOfUser(@PathVariable String userID) {
         try {
-            List<Tournament> tournaments =tournamentService.getUpcomingTournamentsOfUser(userID);
+            List<Tournament> tournaments = tournamentService.getUpcomingTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -182,27 +183,27 @@ public class TournamentController {
     // tested working 8 Nov
     // Get past tournaments
     @GetMapping("/past/{userID}")
-    public ResponseEntity<List<Tournament>>getPastTournamentsOfUser(@PathVariable String userID) {
+    public ResponseEntity<List<Tournament>> getPastTournamentsOfUser(@PathVariable String userID) {
         try {
-            List<Tournament> tournaments =tournamentService.getPastTournamentsOfUser(userID);
+            List<Tournament> tournaments = tournamentService.getPastTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    // tested working 8 Nov    
+    // tested working 8 Nov
     // Get ongoing tournaments of user
     @GetMapping("/ongoing/{userID}")
-    public ResponseEntity<List<Tournament>>getOngoingTournamentsOfUser(@PathVariable String userID) {
+    public ResponseEntity<List<Tournament>> getOngoingTournamentsOfUser(@PathVariable String userID) {
         try {
-            List<Tournament> tournaments =tournamentService.getOngoingTournamentsOfUser(userID);
+            List<Tournament> tournaments = tournamentService.getOngoingTournamentsOfUser(userID);
             return ResponseEntity.ok(tournaments);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-    
+
     // tested working 8 Nov
     // Get eligible tournaments of user
     @GetMapping("/eligible/{userID}")
@@ -262,7 +263,7 @@ public class TournamentController {
     public ResponseEntity<String> updateMatchResults(
             @PathVariable String tournamentID,
             @PathVariable int roundNumber,
-            @RequestBody Map<Integer, MatchResult> matchResults) {
+            @RequestBody Map<Integer, MatchResultUpdateRequest> matchResults) {
         try {
             tournamentService.updateMatchResults(tournamentID, roundNumber, matchResults);
             return ResponseEntity.ok("Batch match results updated successfully.");

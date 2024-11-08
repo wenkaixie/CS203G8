@@ -1,42 +1,48 @@
 package elo.controller;
 
-import elo.service.EloService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.MatchResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.firebase.cloud.FirestoreClient;
-import java.util.concurrent.ExecutionException;
-import elo.model.EloBatchUpdateRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.app.tournament.DTO.MatchResultUpdateRequest;
+
+
+import elo.service.EloService;
 
 @RestController
 @RequestMapping("/api/elo")
 public class EloController {
 
-    private final EloService eloService;
+    @Autowired
+    private EloService eloService;
     private static final Logger logger = LoggerFactory.getLogger(EloController.class);
 
-    public EloController(EloService eloService) {
-        this.eloService = eloService;
-    }
+    @PutMapping("/tournaments/{tournamentID}/rounds/{roundNumber}/matches/results")
+    public ResponseEntity<String> updateElo(
+            @PathVariable String tournamentID,
+            @PathVariable int roundNumber,
+            @RequestBody Map<Integer, MatchResultUpdateRequest> matchResults) {
 
-    // New endpoint to retrieve and update Elo ratings for a list of users
-    @PutMapping("/retrieve/{tournamentId}")
-    public ResponseEntity<Object> retrieveResults(
-            @PathVariable String tournamentId,
-            @RequestBody EloBatchUpdateRequest request) {
-        
-        logger.info("Received retrieveResults request: tournamentId={}, request={}", tournamentId, request);
+        logger.info("Received retrieveResults request: tournamentId={}, request={}", tournamentID, matchResults);
 
-        // Call the retrieveResults function in the EloService
-        return eloService.retrieveResults(tournamentId, request.getUserIds(), request.getResults());
-    }
+        try {
+            return eloService.updateElo(tournamentID, roundNumber, matchResults);
 
-    private ResponseEntity<Object> createErrorResponse(String message, HttpStatus status) {
-        return new ResponseEntity<>(message, status);
+        } catch (ExecutionException | InterruptedException e) {
+            logger.error("Error during Elo retrieval and update: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error processing Elo retrieval and update.");
+        }
     }
 }
