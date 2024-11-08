@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './UserTournamentMatch.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import UserTournamentMatchDiagram from './UserTournamentMatchDiagram';
 import UserTournamentMatchTable from './UserTournamentMatchTable';
 
@@ -16,6 +16,8 @@ const UserTournamentMatch = () => {
     const [activeView, setActiveView] = useState('list');
     const [currentRound, setCurrentRound] = useState(null);
     const [tournamentType, setTournamentType] = useState('');
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
@@ -37,11 +39,14 @@ const UserTournamentMatch = () => {
             try {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/matches`);
                 const fetchedMatches = response.data;
+                console.log(fetchedMatches);
 
                 const allMatches = [];
                 const roundNumbers = new Set();
 
                 for (const match of fetchedMatches) {
+                    if (match.participants.length < 2) continue;
+
                     roundNumbers.add(match.tournamentRoundText);
 
                     let participant1Result = 0;
@@ -64,8 +69,8 @@ const UserTournamentMatch = () => {
                     allMatches.push({
                         ...match,
                         participants: [
-                            { ...match.participants[0], elo: participant1Data.elo || 'N/A', nationality: participant1Data.nationality || 'N/A', resultText: participant1Result || "-" },
-                            { ...match.participants[1], elo: participant2Data.elo || 'N/A', nationality: participant2Data.nationality || 'N/A', resultText: participant2Result || "-" }
+                            { ...match.participants[0], elo: participant1Data.elo || 'N/A', nationality: participant1Data.nationality || 'N/A', resultText: participant1Result},
+                            { ...match.participants[1], elo: participant2Data.elo || 'N/A', nationality: participant2Data.nationality || 'N/A', resultText: participant2Result}
                         ]
                     });
                 }
@@ -101,6 +106,10 @@ const UserTournamentMatch = () => {
 
     const handleListViewClick = () => setActiveView('list');
     const handleDiagramViewClick = () => setActiveView('diagram');
+
+    const handleGoToProfile = (authID) => {
+        navigate(`/user/profile/${authID}`);
+    }
 
     return (
         <div>
@@ -210,13 +219,13 @@ const UserTournamentMatch = () => {
                                                             hour: '2-digit', minute: '2-digit', second: '2-digit',
                                                             hour12: true
                                                         }).replace(',', '')}</td>
-                                                        <td>{match.participants[0].name}</td>
+                                                        <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants[0].name}</td>
                                                         <td>{match.participants[0].elo || 'N/A'}</td>
                                                         <td>{match.participants[0].nationality || 'N/A'}</td>
-                                                        <td>{match.participants[0].resultText === '' ? '-' : match.participants[0].resultText}</td>
+                                                        <td>{match.participants[0].resultText}</td>
                                                         <td className="vs-text">VS</td>
-                                                        <td>{match.participants[1].resultText === '' ? '-' : match.participants[1].resultText}</td>
-                                                        <td>{match.participants[1].name}</td>
+                                                        <td>{match.participants[1].resultText}</td>
+                                                        <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants[1].name}</td>
                                                         <td>{match.participants[1].elo || 'N/A'}</td>
                                                         <td>{match.participants[1].nationality || 'N/A'}</td>
                                                         <td>{match.state}</td>
@@ -231,7 +240,7 @@ const UserTournamentMatch = () => {
                                 </table>
                             </div>
                         ))
-                ) : tournamentType === 'Elimination' ? (
+                ) : tournamentType === 'ELIMINATION' ? (
                     <UserTournamentMatchDiagram />
                 ) : (
                     matches.length > 0 && availableRounds.length > 0 && (
