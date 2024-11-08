@@ -240,13 +240,13 @@ const AdminTournamentParticipants = () => {
                             )}
                         </tbody>
                     </table>
-                </div>
-
                 {showConfirmParticipantsButton && (
                     <button className="confirm-participants-button" onClick={handleConfirmParticipants}>
                         Confirm Participants
                     </button>
                 )}
+
+                </div>
 
                 {successMessage && (
                     <div className="success-message">
