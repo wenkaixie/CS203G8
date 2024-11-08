@@ -19,6 +19,7 @@ const AdminTournamentMatch = () => {
     const [editingMatchId, setEditingMatchId] = useState(null);
     const [winnerSelection, setWinnerSelection] = useState({});
     const [isConfirmButtonActive, setIsConfirmButtonActive] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(''); // State for success message
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
@@ -44,7 +45,11 @@ const AdminTournamentMatch = () => {
                     ...match,
                     participants: match.participants.map(participant => ({
                         ...participant,
-                        displayResult: match.result === null ? '-' : (participant.isWinner && !match.draw ? 1 : (match.draw ? 0.5 : 0)),
+                        displayResult: match.result === null
+                            ? '-'
+                            : (match.draw
+                                ? 0.5
+                                : (participant.isWinner ? 1 : 0)),
                     })),
                 }))
             );
@@ -52,7 +57,7 @@ const AdminTournamentMatch = () => {
             const rounds = [...new Set(fetchedMatches.map(match => match.tournamentRoundText))];
             setAvailableRounds(rounds.sort((a, b) => b - a));
 
-            checkConfirmButtonStatus(fetchedMatches, currentRound); // Initial check for confirm button
+            checkConfirmButtonStatus(fetchedMatches, currentRound);
         } catch (error) {
             console.error('Error fetching matches:', error);
         }
@@ -63,10 +68,9 @@ const AdminTournamentMatch = () => {
     }, [tournamentId, currentRound]);
 
     const checkConfirmButtonStatus = (matchesToCheck, round) => {
-        // Filter matches for the current round and check if all have non-null results
         const roundMatches = matchesToCheck.filter(match => match.tournamentRoundText === round);
-        const allDone = roundMatches.every(match => match.result !== null);
-        setIsConfirmButtonActive(allDone);
+        const allWinnersSelected = roundMatches.every(match => winnerSelection[match.id]);
+        setIsConfirmButtonActive(allWinnersSelected);
     };
 
     const handleEditClick = (matchId) => {
@@ -80,7 +84,7 @@ const AdminTournamentMatch = () => {
             if (match.id === matchId) {
                 const updatedParticipants = match.participants.map((participant, index) => {
                     if (selectedOption === "Draw") {
-                        return { ...participant, displayResult: 0.5, isWinner: true };
+                        return { ...participant, displayResult: 0.5, isWinner: false };
                     }
                     const isWinner = selectedOption === `Player ${index + 1}`;
                     return { ...participant, displayResult: isWinner ? 1 : 0, isWinner };
@@ -89,55 +93,53 @@ const AdminTournamentMatch = () => {
             }
             return match;
         }));
+
+        checkConfirmButtonStatus(matches, selectedRound); // Recheck status after selection
     };
 
-    const handleSaveClick = async (match) => {
-        const { tournamentRoundText: roundNumber, id: matchId } = match;
-        const selectedOption = winnerSelection[matchId];
-        
-        let result;
-        switch (selectedOption) {
-            case 'Player 1':
-                result = 'PLAYER1_WIN';
-                break;
-            case 'Player 2':
-                result = 'PLAYER2_WIN';
-                break;
-            case 'Draw':
-                result = 'DRAW';
-                break;
-            default:
-                return;
-        }
-
-        try {
-            await axios.put(
-                `http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/${matchId}/result`,
-                null,
-                { params: { result } }
-            );
-
-            setEditingMatchId(null);
-            fetchMatches(); // Refetch matches to update confirm button status
-        } catch (error) {
-            console.error('Error saving match results:', error);
-        }
+    const handleSaveClick = (match) => {
+        setEditingMatchId(null);
     };
 
     const handleConfirmResults = async (roundNumber) => {
+        const matchResults = {};
+        matches
+            .filter(match => match.tournamentRoundText === roundNumber)
+            .forEach(match => {
+                const result = winnerSelection[match.id];
+                if (result === 'Player 1') matchResults[match.id] = 'PLAYER1_WIN';
+                else if (result === 'Player 2') matchResults[match.id] = 'PLAYER2_WIN';
+                else if (result === 'Draw') matchResults[match.id] = 'DRAW';
+            });
+
         try {
-            console.log("Round" + roundNumber);
+            await axios.put(
+                `http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/results`,
+                matchResults
+            );
+
             await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
             fetchMatches();
+
+            // Set success message and clear it after 3 seconds
+            setSuccessMessage('The next round has been created successfully.');
+            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
             console.error('Error confirming results:', error);
+        }
+    };
+
+    const confirmSubmission = (roundNumber) => {
+        const isConfirmed = window.confirm("Are you sure you want to submit the results?");
+        if (isConfirmed) {
+            handleConfirmResults(roundNumber); // Call the function to submit the results if confirmed
         }
     };
 
     const handleRoundSelection = (round) => {
         setSelectedRound(round);
         setIsDropdownVisible(false);
-        checkConfirmButtonStatus(matches, round); // Update confirm button status for selected round
+        checkConfirmButtonStatus(matches, round);
     };
 
     return (
@@ -181,6 +183,12 @@ const AdminTournamentMatch = () => {
                     </div>
                 </div>
 
+                {successMessage && (
+                    <div className="success-message">
+                        {successMessage}
+                    </div>
+                )}
+
                 {activeView === 'list' ? (
                     availableRounds
                         .filter(round => selectedRound === '' || round === selectedRound)
@@ -215,15 +223,15 @@ const AdminTournamentMatch = () => {
                                                 <tr key={index} className={editingMatchId === match.id ? 'editing-row' : ''}>
                                                     <td>{index + 1}</td>
                                                     <td>{new Date(match.startTime).toLocaleString()}</td>
-                                                    <td>{match.participants[0].name}</td>
-                                                    <td>{match.participants[0].elo || 'N/A'}</td>
-                                                    <td>{match.participants[0].nationality || 'N/A'}</td>
-                                                    <td>{match.participants[0].displayResult}</td>
+                                                    <td>{match.participants?.[0]?.name || '-'}</td>
+                                                    <td>{match.participants?.[0]?.elo || '-'}</td>
+                                                    <td>{match.participants?.[0]?.nationality || '-'}</td>
+                                                    <td>{match.participants?.[0]?.displayResult || '-'}</td>
                                                     <td className="vs-text">VS</td>
-                                                    <td>{match.participants[1].displayResult}</td>
-                                                    <td>{match.participants[1].name}</td>
-                                                    <td>{match.participants[1].elo || 'N/A'}</td>
-                                                    <td>{match.participants[1].nationality || 'N/A'}</td>
+                                                    <td>{match.participants?.[1]?.displayResult || '-'}</td>
+                                                    <td>{match.participants?.[1]?.name || '-'}</td>
+                                                    <td>{match.participants?.[1]?.elo || '-'}</td>
+                                                    <td>{match.participants?.[1]?.nationality || '-'}</td>
                                                     <td>
                                                         {editingMatchId === match.id ? (
                                                             <select
@@ -236,7 +244,15 @@ const AdminTournamentMatch = () => {
                                                                 <option value="Draw">Draw</option>
                                                             </select>
                                                         ) : (
-                                                            winnerSelection[match.id] || '-'
+                                                            match.result === null
+                                                                ? '-'
+                                                                : match.draw
+                                                                    ? 'Draw'
+                                                                    : match.participants[0].isWinner
+                                                                        ? 'Player 1'
+                                                                        : match.participants[1].isWinner
+                                                                            ? 'Player 2'
+                                                                            : '-'
                                                         )}
                                                     </td>
                                                     <td>{match.state}</td>
@@ -259,7 +275,7 @@ const AdminTournamentMatch = () => {
                                     {isCurrentRound && (
                                         <button
                                             className={`confirm-results-button ${isConfirmButtonActive ? 'active' : 'inactive'}`}
-                                            onClick={() => handleConfirmResults(round)}
+                                            onClick={() => confirmSubmission(round)}
                                             disabled={!isConfirmButtonActive}
                                         >
                                             Confirm results

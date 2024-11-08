@@ -281,6 +281,19 @@ body {
     background-color: #7a2811;
 }
 
+/* Success Message */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .admin-tournament-match .controls-container {
