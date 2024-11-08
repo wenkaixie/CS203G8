@@ -131,11 +131,11 @@ const UserProfile = () => {
                             <h2>User Statistics</h2>
                             <br></br>
                             <div className='profile-body-stats-text'>
-                                <p>Elo</p>
+                                <p>Elo:</p>
                                 <p>{userProfileData.elo}</p>
                             </div>
                             <div className='profile-body-stats-text'>
-                                <p>World Rank: </p>
+                                <p>Site Rank: </p>
                                 <p>#{userRank}</p>
                             </div>
                             <div className='profile-body-stats-text'>

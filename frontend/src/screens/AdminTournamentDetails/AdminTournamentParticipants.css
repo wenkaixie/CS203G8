@@ -158,3 +158,11 @@ html, body {
         width: 48%; /* Adjust button width for small screens */
     }
 }
+
+.participant-name {
+    cursor: pointer;
+}
+
+.participant-name:hover {
+    text-decoration: underline;
+}

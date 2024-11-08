@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './UserTournamentParticipants.css';
 
@@ -11,6 +11,8 @@ const UserTournamentParticipants = () => {
     const [filteredParticipants, setFilteredParticipants] = useState([]);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [playerCount, setPlayerCount] = useState(0);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTournamentData = async () => {
@@ -41,6 +43,10 @@ const UserTournamentParticipants = () => {
         setSortBy(criteria);
         setIsDropdownVisible(false);
     };
+
+    const handleGoToProfile = (authID) => {
+        navigate(`/user/profile/${authID}`);
+    }
 
     useEffect(() => {
         let updatedList = [...participants];
@@ -103,7 +109,7 @@ const UserTournamentParticipants = () => {
                                 <th>Nationality</th>
                                 <th>Age</th>
                                 <th>ELO Rating</th>
-                                <th>Games Played This Season</th>
+                                <th>Tournaments Played This Season</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -111,7 +117,7 @@ const UserTournamentParticipants = () => {
                                 filteredParticipants.map((participant, index) => (
                                     <tr key={participant.authId || index}>
                                         <td>{index + 1}</td>
-                                        <td>{participant.name || 'N/A'}</td>
+                                        <td className='participant-name' onClick={() => handleGoToProfile(participant.authId)}>{participant.name || 'N/A'}</td>
                                         <td>{participant.nationality || 'N/A'}</td>
                                         <td>{participant.age ?? '0'}</td>
                                         <td>{participant.elo ?? '0'}</td>
