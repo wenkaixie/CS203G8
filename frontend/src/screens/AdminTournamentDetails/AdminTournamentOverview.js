@@ -159,13 +159,16 @@ const AdminTournamentOverview = () => {
                                 value={tournamentData?.type}
                                 onChange={(e) => handleFieldChange('type', e.target.value)}
                             >
-                                <option value="Elimination">Elimination</option>
-                                <option value="Round-robin">Round-robin</option>
+                                <option value="ELIMINATION">Single-Elimination</option>
+                                <option value="ROUND_ROBIN">Round Robin</option>
                             </select>
                         ) : (
-                            tournamentData?.type || "Single-elimination"
+                            tournamentData?.type === "ROUND_ROBIN"
+                                ? "Round Robin"
+                                : "Single-Elimination"
                         )}
                     </div>
+
 
                     <div className="detail-row">
                         <strong>ELO requirement:</strong>
@@ -212,8 +215,14 @@ const AdminTournamentOverview = () => {
 
                     <div className="detail-row">
                         <strong>Format:</strong>
-                        <p>{`${tournamentData?.name || "This tournament"} is a ${tournamentData?.capacity || numberOfPlayers}-player single-elimination knockout tournament. Players compete head-to-head in a series of matches, with the winner advancing to the next round, and the loser being eliminated. The tournament follows standard chess rules, with time controls of 90 minutes for the first 40 moves, followed by 30 minutes for the remainder of the game, with an additional 30 seconds per move starting from move one. The ultimate goal is to determine the champion through progressive elimination of participants.`}</p>
+                        <p>
+                            {tournamentData?.type === "ROUND_ROBIN"
+                                ? `${tournamentData?.name || "This tournament"} is a ${tournamentData?.capacity || numberOfPlayers}-player round-robin tournament. Each player will compete against every other participant, accumulating points based on match outcomes. The player with the highest score at the end of all rounds will be declared the champion. This format encourages consistent performance across multiple games rather than elimination-based advancement.`
+                                : `${tournamentData?.name || "This tournament"} is a ${tournamentData?.capacity || numberOfPlayers}-player single-elimination knockout tournament. Players compete head-to-head in a series of matches, with the winner advancing to the next round, and the loser being eliminated. The tournament follows standard chess rules, with time controls of 90 minutes for the first 40 moves, followed by 30 minutes for the remainder of the game, with an additional 30 seconds per move starting from move one. The ultimate goal is to determine the champion through progressive elimination of participants.`
+                            }
+                        </p>
                     </div>
+
 
                     <div className="prizes-section">
                         <strong>Prizes:</strong>

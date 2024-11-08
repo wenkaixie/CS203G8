@@ -184,6 +184,9 @@ public class AdminService {
             // Update match results
             updateMatchResults(participants, matchResultUpdateRequest.getAS1(), matchResultUpdateRequest.getAS2());
 
+            // upate the state to DONE
+            foundMatch.put("state", "DONE");
+
             // Update the entire array in Firestore
             roundDocRef.update("matches", matches);
 
@@ -194,7 +197,7 @@ public class AdminService {
             HttpEntity<MatchResultUpdateRequest> requestEntity = new HttpEntity<>(matchResultUpdateRequest, headers);
 
             // URL for the ELO update service
-            String url = "http://localhost:9091/api/elo/update/" + tournamentId + "/" + user1 + "/" + user2;
+            String url = "http://localhost:9091/api/elo/update/" + user1 + "/" + user2;
             // RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
@@ -222,6 +225,10 @@ public class AdminService {
             participant1.put("isWinner", true);
             participant2.put("isWinner", true);
         }
+
+        // change the result text
+        participant1.put("resultText", score1);
+        participant2.put("resultText", score2);
     }
 
     // generate rounds button

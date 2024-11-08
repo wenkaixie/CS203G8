@@ -175,11 +175,20 @@ const AdminTournamentParticipants = () => {
                                         <td>{participant.name || 'null'}</td>
                                         <td>{participant.nationality || 'null'}</td>
                                         <td>{participant.elo ?? '0'}</td>
-                                        <td>{new Date(participant.joinedAt).toLocaleString('en-US', {
-                                            year: 'numeric', month: 'long', day: 'numeric',
-                                            hour: '2-digit', minute: '2-digit', second: '2-digit',
-                                            hour12: true
-                                        }).replace(',', '')}</td>
+                                        <td>
+                                            {participant.joinedAt
+                                                ? new Date(participant.joinedAt.seconds * 1000).toLocaleString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    second: '2-digit',
+                                                    hour12: true
+                                                }).replace(',', '')
+                                                : "N/A"}
+                                        </td>
+
                                         {isEditMode && (
                                             <td>
                                                 <button

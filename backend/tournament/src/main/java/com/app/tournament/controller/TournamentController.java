@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.tournament.DTO.TournamentDTO;
+import com.app.tournament.enumerator.MatchResult;
+import com.app.tournament.enumerator.TournamentType;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Tournament;
 import com.app.tournament.service.EliminationService;
@@ -43,7 +45,6 @@ public class TournamentController {
 
     private static final Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
-    // Create tournament endpoint
     // Create tournament endpoint
     @PostMapping
     public ResponseEntity<String> createTournament(@RequestBody TournamentDTO tournamentDTO) {
@@ -234,19 +235,24 @@ public class TournamentController {
         try {
             // Retrieve the tournament type to determine which service to use
             Tournament tournament = tournamentService.getTournamentById(tournamentID);
-            String tournamentType = tournament.getType();
+            TournamentType tournamentType = tournament.getType();
 
-            // Determine the service based on tournament type
-            if ("Round Robin".equalsIgnoreCase(tournamentType)) {
-                logger.info("Generating rounds for round-robin tournament ID: {}", tournamentID);
-                roundRobinService.generateRoundsForTournament(tournamentID);
-            } else if ("Elimination".equalsIgnoreCase(tournamentType)) {
-                logger.info("Generating rounds for elimination tournament ID: {}", tournamentID);
-                eliminationService.generateRoundsForTournament(tournamentID);
-            } else {
-                logger.error("Invalid tournament type specified: {}", tournamentType);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Invalid tournament type specified.");
+            // Use switch to handle different tournament types
+            switch (tournamentType) {
+                case ROUND_ROBIN:
+                    logger.info("Generating rounds for round-robin tournament ID: {}", tournamentID);
+                    roundRobinService.generateRoundsForTournament(tournamentID);
+                    break;
+
+                case ELIMINATION:
+                    logger.info("Generating rounds for elimination tournament ID: {}", tournamentID);
+                    eliminationService.generateRoundsForTournament(tournamentID);
+                    break;
+
+                default:
+                    logger.error("Invalid tournament type specified: {}", tournamentType);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Invalid tournament type specified.");
             }
 
             return ResponseEntity.ok("Rounds and matches generated successfully.");
@@ -263,23 +269,18 @@ public class TournamentController {
         }
     }
 
-    // 2. Update the winner of a specific match
-    @PutMapping("/{tournamentID}/rounds/{roundNumber}/matches/{matchId}/winner")
-    public ResponseEntity<String> updateMatchWinner(
+    @PutMapping("/{tournamentID}/rounds/{roundNumber}/matches/{matchId}/result")
+    public ResponseEntity<String> updateMatchResult(
             @PathVariable String tournamentID,
             @PathVariable int roundNumber,
             @PathVariable int matchId,
-            @RequestParam String authId) {
+            @RequestParam MatchResult result) {
         try {
-            
-            tournamentService.updateMatchWinner(tournamentID, roundNumber, matchId, authId);
-            return ResponseEntity.ok("Winner updated successfully.");
-        } catch (ExecutionException | InterruptedException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error updating match winner: " + e.getMessage());
+            tournamentService.updateMatchResult(tournamentID, roundNumber, matchId, result);
+            return ResponseEntity.ok("Match result updated successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred: " + e.getMessage());
+                    .body("Error updating match result: " + e.getMessage());
         }
     }
 
