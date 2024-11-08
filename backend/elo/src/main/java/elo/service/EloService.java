@@ -1,136 +1,150 @@
 package elo.service;
 
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.firebase.cloud.FirestoreClient;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutionException;
-import java.util.List;
+import com.app.tournament.DTO.MatchResult;
+import com.app.tournament.DTO.MatchResultUpdateRequest;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteBatch;
 
 @Service
 public class EloService {
 
+    @Autowired
+    private Firestore firestore;
+
     private static final Logger logger = LoggerFactory.getLogger(EloService.class);
 
-    public ResponseEntity<Object> retrieveResults(String tournamentId, List<String> userIds, List<Double> results) {
-        Firestore db = FirestoreClient.getFirestore();
-        if (tournamentId == null || tournamentId.isEmpty()) {
-            return createErrorResponse("tournamentId required.", HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<String> updateElo(String tournamentID, int roundNumber,
+            Map<Integer, MatchResultUpdateRequest> matchResults)
+            throws ExecutionException, InterruptedException {
+
         DocumentSnapshot tournamentSnapshot;
-        try {      
-            // Retrieve tournament doc
-            tournamentSnapshot = db.collection("Tournaments").document(tournamentId).get().get();
-
-            if (!tournamentSnapshot.exists()) {
-                return createErrorResponse("Tournament does not exist in Firebase.", HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            logger.error("Error retrieving tournament: {}", e.getMessage());
-            return createErrorResponse("Internal Server Error: Unable to retrieve tournament.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    
-        for (int i = 0; i < userIds.size(); i += 2) {
-            String userId1 = userIds.get(i);
-            String userId2 = userIds.get(i + 1);
-            Double AS1 = results.get(i);
-            Double AS2 = results.get(i + 1);
-    
-            try {
-                // Fetch current Elo ratings for userId1 and userId2 from Firestore
-                DocumentSnapshot user1Snapshot = db.collection("Users").document(userId1).get().get();
-                DocumentSnapshot user2Snapshot = db.collection("Users").document(userId2).get().get();
-    
-
-                if (!user1Snapshot.exists() || !user2Snapshot.exists()) {
-                    logger.warn("One or both users do not exist: userId1={}, userId2={}", userId1, userId2);
-                    continue;
-                }
-    
-                Double elo1 = user1Snapshot.getDouble("elo");
-                Double elo2 = user2Snapshot.getDouble("elo");
-    
-                if (elo1 == null || elo2 == null) {
-                    logger.warn("One or both users have null Elo: userId1={}, userId2={}", userId1, userId2);
-                    continue;
-                }
-    
-                if (!(AS1 == 0 || AS1 == 0.5 || AS1 == 1) || !(AS2 == 0 || AS2 == 0.5 || AS2 == 1)) {
-                    logger.warn("Invalid AS values: AS1={}, AS2={}", AS1, AS2);
-                    continue;
-                }
-    
-                if (AS1 == AS2 && AS1 != 0.5) {
-                    logger.warn("AS values conflict: AS1={}, AS2={}", AS1, AS2);
-                    continue;
-                }
-    
-                try {
-                    updateElo(tournamentId, userId1, userId2, elo1, elo2, AS1, AS2);
-                    continue;
-                } catch (RuntimeException e) {
-                    logger.error("Error updating Elo ratings: {}", e.getMessage(), e);
-                    return createErrorResponse("Internal Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-                } catch (Exception e) {
-                    // Catch any checked exceptions that might have been thrown
-                    logger.error("Unhandled Exception: {}", e.getMessage(), e);
-                    return createErrorResponse("Internal Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-                }
-    
-            } catch (Exception e) {
-                System.out.println("Error updating Elo for users " + userId1 + " and " + userId2 + ": " + e.getMessage());
-            }
-        }
-        return new ResponseEntity<>("Elo ratings processed for provided pairs", HttpStatus.OK);
-    }
-
-    private ResponseEntity<Object> createErrorResponse(String message, HttpStatus status) {
-        return new ResponseEntity<>(message, status);
-    }
-
-    // Updates the Elo ratings for two users
-    public void updateElo(String tournamentId, String userId1, String userId2, double Elo1, double Elo2, double AS1, double AS2) throws Exception {
-        Firestore db = FirestoreClient.getFirestore();
-        
         try {
-            // Check if both users exist before updating
-            DocumentSnapshot user1Snapshot = db.collection("Users").document(userId1).get().get();
-            DocumentSnapshot user2Snapshot = db.collection("Users").document(userId2).get().get();
-            
-            if (!user1Snapshot.exists() || !user2Snapshot.exists()) {
-                throw new Exception("One or both users do not exist.");
+            tournamentSnapshot = firestore.collection("Tournaments").document(tournamentID).get().get();
+            if (!tournamentSnapshot.exists()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tournament does not exist in Firestore.");
             }
-
-            // Calculate expected scores
-            double ES1 = 1 / (1 + Math.pow(10, ((Elo2 - Elo1) / 400)));
-            double ES2 = 1 / (1 + Math.pow(10, ((Elo1 - Elo2) / 400)));
-
-            // Determine K-factor based on Elo ratings
-            int K1 = Elo1 < 2100 ? 32 : (Elo1 > 2400 ? 16 : 24);
-            int K2 = Elo2 < 2100 ? 32 : (Elo2 > 2400 ? 16 : 24);
-
-            // Calculate new Elo ratings
-            double newElo1 = Math.round(Elo1 + K1 * (AS1 - ES1));
-            double newElo2 = Math.round(Elo2 + K2 * (AS2 - ES2));
-            if (newElo1 < 0) {newElo1 = 0;};
-            if (newElo2 < 0) {newElo2 = 0;};
-
-            // Update Elo ratings in Firestore
-            db.collection("Users").document(userId1).update("elo", newElo1);
-            db.collection("Users").document(userId2).update("elo", newElo2);
-            db.collection("Tournaments").document(tournamentId).collection("Users").document(userId1).update("elo", newElo1);
-            db.collection("Tournaments").document(tournamentId).collection("Users").document(userId2).update("elo", newElo2);
         } catch (ExecutionException | InterruptedException e) {
-            // Handle Firestore operation failures
-            throw new Exception("Error while updating Elo: " + e.getMessage(), e);
+            logger.error("Error retrieving tournament with ID {}: {}", tournamentID, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal Server Error: Unable to retrieve tournament.");
+        }
+
+        WriteBatch batch = firestore.batch();
+        for (Map.Entry<Integer, MatchResultUpdateRequest> entry : matchResults.entrySet()) {
+            Integer matchId = entry.getKey();
+            MatchResultUpdateRequest resultRequest = entry.getValue();
+
+            String player1Id = resultRequest.getPlayer1Id();
+            String player2Id = resultRequest.getPlayer2Id();
+            MatchResult matchResult = resultRequest.getMatchResult();
+
+            try {
+                DocumentSnapshot player1Snapshot = firestore.collection("Users").document(player1Id).get().get();
+                DocumentSnapshot player2Snapshot = firestore.collection("Users").document(player2Id).get().get();
+
+                if (!player1Snapshot.exists() || !player2Snapshot.exists()) {
+                    logger.warn("One or both players do not exist: player1Id={}, player2Id={}", player1Id, player2Id);
+                    continue;
+                }
+
+                Double elo1 = player1Snapshot.getDouble("elo");
+                Double elo2 = player2Snapshot.getDouble("elo");
+
+                if (elo1 == null || elo2 == null) {
+                    logger.warn("One or both players have null Elo ratings: player1Id={}, player2Id={}", player1Id,
+                            player2Id);
+                    continue;
+                }
+
+                Double AS1, AS2;
+                switch (matchResult) {
+                    case PLAYER1_WIN:
+                        AS1 = 1.0;
+                        AS2 = 0.0;
+                        break;
+                    case PLAYER2_WIN:
+                        AS1 = 0.0;
+                        AS2 = 1.0;
+                        break;
+                    case DRAW:
+                        AS1 = 0.5;
+                        AS2 = 0.5;
+                        break;
+                    default:
+                        logger.warn("Invalid match result for match {}: {}", matchId, matchResult);
+                        continue;
+                }
+
+                updateEloInBatch(batch, tournamentID, player1Id, player2Id, elo1, elo2, AS1, AS2);
+
+            } catch (ExecutionException | InterruptedException e) {
+                logger.error("Error processing Elo for players {} and {}: {}", player1Id, player2Id, e.getMessage());
+                continue;
+            }
+        }
+
+        try {
+            batch.commit().get();
+            logger.info("Batch Elo updates successfully committed.");
+        } catch (ExecutionException | InterruptedException e) {
+            logger.error("Error committing batch updates: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal Server Error: Unable to commit batch updates.");
+        }
+
+        return ResponseEntity.ok("Elo ratings processed successfully for provided pairs.");
+    }
+
+    private void updateEloInBatch(WriteBatch batch, String tournamentID, String player1Id, String player2Id,
+            double elo1, double elo2, double AS1, double AS2) {
+        double ES1 = calculateExpectedScore(elo1, elo2);
+        double ES2 = calculateExpectedScore(elo2, elo1);
+
+        int K1 = determineKFactor(elo1);
+        int K2 = determineKFactor(elo2);
+
+        double newElo1 = Math.max(0, Math.round(elo1 + K1 * (AS1 - ES1)));
+        double newElo2 = Math.max(0, Math.round(elo2 + K2 * (AS2 - ES2)));
+
+        DocumentReference player1Ref = firestore.collection("Users").document(player1Id);
+        DocumentReference player2Ref = firestore.collection("Users").document(player2Id);
+        DocumentReference tournamentPlayer1Ref = firestore.collection("Tournaments").document(tournamentID)
+                .collection("Users").document(player1Id);
+        DocumentReference tournamentPlayer2Ref = firestore.collection("Tournaments").document(tournamentID)
+                .collection("Users").document(player2Id);
+
+        batch.update(player1Ref, "elo", newElo1);
+        batch.update(player2Ref, "elo", newElo2);
+        batch.update(tournamentPlayer1Ref, "elo", newElo1);
+        batch.update(tournamentPlayer2Ref, "elo", newElo2);
+
+        logger.info("Prepared batch update for players {} and {}: newElo1={}, newElo2={}", player1Id, player2Id,
+                newElo1, newElo2);
+    }
+
+    private double calculateExpectedScore(double eloPlayer, double eloOpponent) {
+        return 1 / (1 + Math.pow(10, (eloOpponent - eloPlayer) / 400));
+    }
+
+    private int determineKFactor(double elo) {
+        if (elo < 2100) {
+            return 32;
+        } else if (elo > 2400) {
+            return 16;
+        } else {
+            return 24;
         }
     }
-    
 }
