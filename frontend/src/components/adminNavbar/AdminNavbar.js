@@ -52,7 +52,7 @@ const AdminNavbar = () => {
   }
 
   const handleGoToProfile = () => {
-    navigate('/admin/profile');
+    navigate('/admin/update-profile');
   }
 
   const handleLogout = async () => {

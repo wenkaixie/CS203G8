@@ -1,0 +1,113 @@
+@import url('https://fonts.cdnfonts.com/css/josefin-sans');
+
+body {
+    font-family: 'Josefin Sans' !important;
+  }
+
+.profile {
+    padding: 40px 10%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-container {
+    background-color: #F5F5EF;
+    border-radius: 20px;
+}
+
+.profile-title {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-header {
+    background-color: #8F3013;
+    border-radius: 20px 20px 0px 0px;
+    padding: 50px;
+    display: flex;
+    gap: 20px;
+}
+
+.profile-icon-wrapper {
+    display: flex;
+    justify-content: left;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid #F5F5EF;
+    background-color: #F5F5EF;
+}
+
+.profile-header-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.profile-header-text {
+    color: #F5F5EF;
+    display: flex;
+    flex-direction: column;
+}
+
+.chess-icon {
+    height: 25px;
+    margin: 10px;
+}
+
+.edit-profile-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: black;
+    background-color: white;
+    border: 2px solid #7a3b1d; /* Dark brown border */
+    border-radius: 30px; /* Rounded corners */
+    cursor: pointer;
+    text-align: center;
+    width: 200px;
+}
+
+.edit-profile-button:hover {
+    background-color: #f2f2f2; /* Optional: subtle hover effect */
+}
+
+.profile-body {
+    padding: 50px;
+    display: flex;
+    min-height: 40vh;
+}
+
+.profile-body-tournaments {
+    width: 80%;
+}
+
+.profile-body-stats {
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-body-stats-text {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+@media (max-width: 768px){
+    .profile-body {
+        flex-direction: column;
+    }
+
+    .profile-body-tournaments {
+        width: 100%;
+    }
+
+    .profile-body-stats {
+        width: 100%;
+    }
+}

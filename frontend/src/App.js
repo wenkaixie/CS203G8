@@ -46,6 +46,7 @@ import AdminTournamentOverview from './screens/AdminTournamentDetails/AdminTourn
 import AdminTournamentParticipants from './screens/AdminTournamentDetails/AdminTournamentParticipants';
 import AdminTournamentMatch from './screens/AdminTournamentDetails/AdminTournamentMatch';
 import AdminTournaments from './screens/AdminTournaments/AdminTournaments';
+import AdminProfile from './screens/AdminProfile/AdminProfile';
 
 
 const App = () => {
@@ -84,12 +85,13 @@ const App = () => {
             <ProtectedRoute allowedRoles={['Admins']}>
               <Routes>
                 {/* <Route path="/home" element={<AdminHome />} /> */}
+                <Route path="home" element={<AdminHome />} />
+                <Route path="profile/:userID" element={<AdminProfile />} />
+                <Route path="update-profile" element={<AdminUpdateProfile />} />
+                <Route path="tournaments" element={<AdminTournaments />} />
                 <Route path="tournament/:tournamentId/overview" element={<AdminTournamentOverview />} />
                 <Route path="tournament/:tournamentId/participants" element={<AdminTournamentParticipants />} />
-                <Route path="home" element={<AdminHome />} />
-                <Route path="update-profile" element={<AdminUpdateProfile />} />
                 <Route path="tournament/:tournamentId/games" element={<AdminTournamentMatch />} />
-                <Route path="tournaments" element={<AdminTournaments />} />
               </Routes>
             </ProtectedRoute>
           }

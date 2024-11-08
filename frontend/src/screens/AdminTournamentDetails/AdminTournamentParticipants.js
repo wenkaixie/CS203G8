@@ -64,7 +64,7 @@ const AdminTournamentParticipants = () => {
     };
 
     const handleGoToProfile = (authID) => {
-        navigate(`/user/profile/${authID}`);
+        navigate(`/admin/profile/${authID}`);
     }
 
     useEffect(() => {
