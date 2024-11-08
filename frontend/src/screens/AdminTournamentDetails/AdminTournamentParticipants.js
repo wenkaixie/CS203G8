@@ -17,7 +17,7 @@ const AdminTournamentParticipants = () => {
     const [tournamentTitle, setTournamentTitle] = useState("Tournament");
     const [isEditMode, setIsEditMode] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [showConfirmParticipantsButton, setShowConfirmParticipantsButton] = useState(false);
+    const [showConfirmParticipantsButton, setShowConfirmParticipantsButton] = useState(JSON.parse(localStorage.getItem(`confirmButton_${tournamentId}`)) || false);
     const [successMessage, setSuccessMessage] = useState('');
 
     const navigate = useNavigate();
@@ -59,7 +59,10 @@ const AdminTournamentParticipants = () => {
         console.log("Time:"+ timeDifference);
         const hoursDifference = timeDifference / (1000 * 60 * 60);
         
-        setShowConfirmParticipantsButton(hoursDifference <= 24 && currentSignups >= minSignups);
+        const shouldShowButton = hoursDifference <= 24 && currentSignups >= minSignups;
+        const savedState = localStorage.getItem(`confirmButton_${tournamentId}`);
+        setShowConfirmParticipantsButton(savedState ? JSON.parse(savedState) : shouldShowButton);
+
     };
 
     const handleConfirmParticipants = async () => {
@@ -67,6 +70,7 @@ const AdminTournamentParticipants = () => {
             await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/generateRounds`);
             setSuccessMessage("Rounds and matches generated successfully.");
             setShowConfirmParticipantsButton(false);
+            localStorage.setItem(`confirmButton_${tournamentId}`, JSON.stringify(false));
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
             console.error('Error generating rounds:', error);
