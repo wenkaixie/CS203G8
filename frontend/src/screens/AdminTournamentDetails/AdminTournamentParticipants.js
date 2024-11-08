@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminTournamentParticipants.css';
 import AdminDetailsHeader from './AdminTournamentHeader';
@@ -17,6 +17,8 @@ const AdminTournamentParticipants = () => {
     const [tournamentTitle, setTournamentTitle] = useState("Tournament");
     const [isEditMode, setIsEditMode] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTournamentData = async () => {
@@ -60,6 +62,10 @@ const AdminTournamentParticipants = () => {
         setSortBy(criteria);
         setIsDropdownVisible(false);
     };
+
+    const handleGoToProfile = (authID) => {
+        navigate(`/user/profile/${authID}`);
+    }
 
     useEffect(() => {
         let updatedList = [...participants];
@@ -172,7 +178,7 @@ const AdminTournamentParticipants = () => {
                                 filteredParticipants.map((participant, index) => (
                                     <tr key={participant.authId || index}>
                                         <td>{index + 1}</td>
-                                        <td>{participant.name || 'null'}</td>
+                                        <td className='participant-name' onClick={() => handleGoToProfile(participant.authId)}>{participant.name || 'N/A'}</td>
                                         <td>{participant.nationality || 'null'}</td>
                                         <td>{participant.elo ?? '0'}</td>
                                         <td>
