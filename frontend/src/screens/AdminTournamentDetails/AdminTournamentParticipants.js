@@ -17,38 +17,61 @@ const AdminTournamentParticipants = () => {
     const [tournamentTitle, setTournamentTitle] = useState("Tournament");
     const [isEditMode, setIsEditMode] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
+    const [showConfirmParticipantsButton, setShowConfirmParticipantsButton] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
 
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                // Fetch the tournament details
                 const tournamentResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
-                setTournamentTitle(tournamentResponse.data.name || "Tournament");
+                const tournament = tournamentResponse.data;
+                setTournamentTitle(tournament.name || "Tournament");
+                setTournamentData(tournament);
 
-                // Fetch users directly from the Users subcollection within the tournament
                 const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
-                const usersArray = usersResponse.data; // Assuming this returns an array of user documents
+                const usersArray = usersResponse.data;
                 setNumberOfPlayers(usersArray.length);
 
-                // Map the usersArray to participant details
                 const participantDetails = usersArray.map((user) => ({
                     authId: user.authId,
                     elo: user.elo,
-                    joinedAt: user.joinedAt,  // Assuming joinedAt is a Date object or valid timestamp
+                    joinedAt: user.joinedAt,
                     name: user.name,
                     nationality: user.nationality,
                 }));
-
                 setParticipants(participantDetails);
+
+                checkShowConfirmButton(tournament.startDateTime, tournament.minSignups, usersArray.length);
             } catch (error) {
-                console.error('Error fetching participants:', error);
+                console.error('Error fetching tournament data:', error);
             }
         };
 
         fetchTournamentData();
     }, [tournamentId]);
+
+    const checkShowConfirmButton = (startDateTime, minSignups, currentSignups) => {
+        const now = new Date();
+        const startDate = new Date(startDateTime);
+        const timeDifference = startDate - now;
+        const hoursDifference = timeDifference / (1000 * 60 * 60);
+        
+        setShowConfirmParticipantsButton(hoursDifference <= 24 && currentSignups >= minSignups);
+    };
+
+    const handleConfirmParticipants = async () => {
+        try {
+            await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/generateRounds`);
+            setSuccessMessage("Rounds and matches generated successfully.");
+            setShowConfirmParticipantsButton(false);
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (error) {
+            console.error('Error generating rounds:', error);
+            setSuccessMessage("Failed to generate rounds. Please try again.");
+        }
+    };
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -99,7 +122,6 @@ const AdminTournamentParticipants = () => {
             }
         }
     };
-
 
     const handleCreateTournament = () => {
         setShowCreateForm(true);
@@ -191,10 +213,9 @@ const AdminTournamentParticipants = () => {
                                                     minute: '2-digit',
                                                     second: '2-digit',
                                                     hour12: true
-                                                }).replace(',', '')
+                                                }).replace(',', ' ')
                                                 : "N/A"}
                                         </td>
-
                                         {isEditMode && (
                                             <td>
                                                 <button
@@ -215,6 +236,18 @@ const AdminTournamentParticipants = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {showConfirmParticipantsButton && (
+                    <button className="confirm-participants-button" onClick={handleConfirmParticipants}>
+                        Confirm Participants
+                    </button>
+                )}
+
+                {successMessage && (
+                    <div className="success-message">
+                        {successMessage}
+                    </div>
+                )}
 
                 <button className="fixed-plus-button" onClick={handleCreateTournament}>
                     +

@@ -34,7 +34,6 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         }));
     }, []);
 
-    // Helper function to check if a number is a power of 2
     const isPowerOfTwo = (number) => {
         return (number & (number - 1)) === 0 && number !== 0;
     };
@@ -46,18 +45,17 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             [name]: value,
         }));
 
-        if (name === 'endDate') {
-            const endDate = new Date(value);
-            endDate.setHours(endDate.getHours() + 8);
-            const closeRegDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
-            const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16);
+        if (name === 'startDate') {
+            const startDate = new Date(value);
+            // Set close registration to exactly 24 hours before startDate
+            const closeRegDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
+            const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16); // Format to "YYYY-MM-DDTHH:MM"
             setFormData((prevData) => ({
                 ...prevData,
                 closeRegistration: formattedCloseRegDate,
             }));
         }
 
-        // Ensure slots are even and a power of 2 if "Elimination" type is selected
         if (name === 'slots') {
             const slotsValue = Number(value);
             if (slotsValue % 2 !== 0) {
@@ -77,7 +75,6 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         }));
         setIsDropdownVisible(false);
 
-        // Revalidate slots if the type is set to "Elimination"
         if (type === 'ELIMINATION' && formData.slots && !isPowerOfTwo(formData.slots)) {
             setError("Elimination: Slots must be a power of 2.");
         } else {
@@ -97,7 +94,6 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             return;
         }
 
-        // Validate slots
         const slotsValue = Number(formData.slots);
         if (slotsValue % 2 !== 0) {
             setError("Slots must be an even number.");
@@ -120,6 +116,8 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                 prize: Number(formData.prizePool),
                 startDatetime: formData.startDate + ":00Z",
                 endDatetime: formData.endDate + ":00Z",
+                openRegistration: formData.openRegistration + ":00Z",
+                closeRegistration: formData.closeRegistration + ":00Z",
             };
 
             console.log("Formatted data being sent:", formattedData);
@@ -195,7 +193,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                             <label>Tournament Type</label>
                             <div className="dropdown full-width">
                                 <button
-                                    type="button" // Prevents the form from auto-submitting
+                                    type="button"
                                     className="dropdown-button"
                                     onClick={() => setIsDropdownVisible(!isDropdownVisible)}
                                 >
