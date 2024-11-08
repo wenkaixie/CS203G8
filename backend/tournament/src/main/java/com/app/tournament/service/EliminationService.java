@@ -36,7 +36,6 @@ public class EliminationService {
     // @Autowired
     // private UserService userService;
 
-    // Generate rounds and matches for the tournament
     public void generateRoundsForTournament(String tournamentID)
             throws ExecutionException, InterruptedException {
         try {
@@ -79,13 +78,10 @@ public class EliminationService {
                 ));
             }
 
-            // Calculate nearest power of 2
-            int closestPowerOfTwo = Integer.highestOneBit(numPlayers);
-            if (closestPowerOfTwo < numPlayers) {
-                closestPowerOfTwo *= 2;
-            }
+            // Calculate nearest power of 2 within bounds of available players
+            int closestPowerOfTwo = Math.min(Integer.highestOneBit(numPlayers), numPlayers);
 
-            // Proceed with match generation based on the nearest power of 2
+            // Proceed with match generation based on the limited nearest power of 2
             List<ParticipantDTO> selectedParticipants = participants.subList(0, closestPowerOfTwo);
             int numRounds = calculateEliminationRounds(closestPowerOfTwo);
             generateRounds(tournamentID, selectedParticipants, closestPowerOfTwo, numRounds);
