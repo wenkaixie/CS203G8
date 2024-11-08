@@ -34,6 +34,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         }));
     }, []);
 
+    // Helper function to check if a number is a power of 2
     const isPowerOfTwo = (number) => {
         return (number & (number - 1)) === 0 && number !== 0;
     };
@@ -45,23 +46,24 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             [name]: value,
         }));
 
-        if (name === 'startDate') {
-            const startDate = new Date(value);
-            // Set close registration to exactly 24 hours before startDate
-            const closeRegDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
-            const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16); // Format to "YYYY-MM-DDTHH:MM"
+        if (name === 'endDate') {
+            const endDate = new Date(value);
+            endDate.setHours(endDate.getHours() + 8);
+            const closeRegDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
+            const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16);
             setFormData((prevData) => ({
                 ...prevData,
                 closeRegistration: formattedCloseRegDate,
             }));
         }
 
+        // Ensure slots are even and a power of 2 if "Elimination" type is selected
         if (name === 'slots') {
             const slotsValue = Number(value);
             if (slotsValue % 2 !== 0) {
                 setError("Slots must be an even number.");
-            } else if (formData.type === 'Single Elimination' && !isPowerOfTwo(slotsValue)) {
-                setError("For single elimination tournaments, slots must be a power of 2.");
+            } else if (formData.type === 'ELIMINATION' && !isPowerOfTwo(slotsValue)) {
+                setError("Elimination: Slots must be a power of 2.");
             } else {
                 setError(null);
             }
@@ -75,6 +77,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         }));
         setIsDropdownVisible(false);
 
+        // Revalidate slots if the type is set to "Elimination"
         if (type === 'ELIMINATION' && formData.slots && !isPowerOfTwo(formData.slots)) {
             setError("Elimination: Slots must be a power of 2.");
         } else {
@@ -94,31 +97,20 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             return;
         }
 
+        // Validate slots
         const slotsValue = Number(formData.slots);
         if (slotsValue % 2 !== 0) {
             setError("Slots must be an even number.");
             return;
-        } else if (formData.type === 'Single Elimination' && !isPowerOfTwo(slotsValue)) {
-            setError("For single elimination tournaments, slots must be a power of 2.");
-            return;
-        }
-
-        // Validate that end date is after start date
-        const startDate = new Date(formData.startDate);
-        const endDate = new Date(formData.endDate);
-        if (endDate <= startDate) {
-            setError("End date must be after the start date.");
+        } else if (formData.type === 'Elimination' && !isPowerOfTwo(slotsValue)) {
+            setError("For elimination tournaments, slots must be a power of 2.");
             return;
         }
 
         try {
-            // Convert tournament type to the required format
-            const tournamentType = formData.type === 'Single Elimination' ? 'ELIMINATION' : 
-            formData.type === 'Round Robin' ? 'ROUND_ROBIN' : formData.type;
-
             const formattedData = {
                 adminId: user.uid,
-                type: tournamentType,
+                type: formData.type,
                 ageLimit: Number(formData.ageLimit),
                 name: formData.name,
                 description: formData.description,
@@ -128,8 +120,6 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                 prize: Number(formData.prizePool),
                 startDatetime: formData.startDate + ":00Z",
                 endDatetime: formData.endDate + ":00Z",
-                openRegistration: formData.openRegistration + ":00Z",
-                closeRegistration: formData.closeRegistration + ":00Z",
             };
 
             console.log("Formatted data being sent:", formattedData);
@@ -205,7 +195,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                             <label>Tournament Type</label>
                             <div className="dropdown full-width">
                                 <button
-                                    type="button"
+                                    type="button" // Prevents the form from auto-submitting
                                     className="dropdown-button"
                                     onClick={() => setIsDropdownVisible(!isDropdownVisible)}
                                 >
@@ -216,15 +206,15 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                                     <div className="dropdown-content">
                                         <div
                                             className="dropdown-item"
-                                            onClick={() => handleTypeSelection("Round Robin")}
+                                            onClick={() => handleTypeSelection("ROUND_ROBIN")}
                                         >
                                             Round Robin
                                         </div>
                                         <div
                                             className="dropdown-item"
-                                            onClick={() => handleTypeSelection("Single Elimination")}
+                                            onClick={() => handleTypeSelection("ELIMINATION")}
                                         >
-                                            Single Elimination
+                                            Elimination
                                         </div>
                                     </div>
                                 )}
@@ -302,9 +292,9 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                                         value={formData.slots}
                                         onChange={handleChange}
                                     />
+                                    {error && <p className="error-message">{error}</p>}
                                 </div>
                             </div>
-                            {error && <p className="error-message">{error}</p>}
                         </div>
                     )}
                     <div className="registration-footer">

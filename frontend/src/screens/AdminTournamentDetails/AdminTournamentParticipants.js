@@ -43,7 +43,7 @@ const AdminTournamentParticipants = () => {
                 }));
                 setParticipants(participantDetails);
 
-                checkShowConfirmButton(tournament.startDateTime, tournament.minSignups, usersArray.length);
+                checkShowConfirmButton(tournament.startDatetime, tournament.minSignups, usersArray.length);
             } catch (error) {
                 console.error('Error fetching tournament data:', error);
             }
@@ -52,10 +52,11 @@ const AdminTournamentParticipants = () => {
         fetchTournamentData();
     }, [tournamentId]);
 
-    const checkShowConfirmButton = (startDateTime, minSignups, currentSignups) => {
+    const checkShowConfirmButton = (startDatetime, minSignups, currentSignups) => {
         const now = new Date();
-        const startDate = new Date(startDateTime);
+        const startDate = new Date(startDatetime);
         const timeDifference = startDate - now;
+        console.log("Time:"+ timeDifference);
         const hoursDifference = timeDifference / (1000 * 60 * 60);
         
         setShowConfirmParticipantsButton(hoursDifference <= 24 && currentSignups >= minSignups);
