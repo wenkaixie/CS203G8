@@ -2,7 +2,6 @@ package elo.controller;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.MatchResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.tournament.DTO.MatchResultUpdateRequest;
 
-
 import elo.service.EloService;
 
 @RestController
@@ -28,7 +26,7 @@ public class EloController {
     private EloService eloService;
     private static final Logger logger = LoggerFactory.getLogger(EloController.class);
 
-    @PutMapping("/tournaments/{tournamentID}/rounds/{roundNumber}/matches/results")
+    @PutMapping("/tournaments/{tournamentID}/rounds/{roundNumber}/matches/updateElo")
     public ResponseEntity<String> updateElo(
             @PathVariable String tournamentID,
             @PathVariable int roundNumber,
