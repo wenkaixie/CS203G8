@@ -430,11 +430,15 @@ public class UserService {
         ApiFuture<DocumentReference> writeResult = usersRef.add(newUserProfile);
         DocumentReference documentReference = writeResult.get();
 
-        String generatedUid = documentReference.getId();
-        newUser.setAuthId(generatedUid);
+        String generatedAuthId = documentReference.getId();
+        newUser.setAuthId(generatedAuthId);
 
-        newUserProfile.put("uid", generatedUid);
-        documentReference.set(newUserProfile, SetOptions.merge());
+        // Add authId to the profile map
+        newUserProfile.put("authId", generatedAuthId);
+
+        // Merge authId into Firestore and wait until the operation completes
+        documentReference.set(newUserProfile, SetOptions.merge()).get(); // Ensures it's completed
+
 
         DocumentSnapshot userSnapshot = documentReference.get().get();
         User createdUser = userSnapshot.toObject(User.class);
