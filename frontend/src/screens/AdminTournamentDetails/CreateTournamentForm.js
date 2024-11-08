@@ -34,6 +34,11 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         }));
     }, []);
 
+    // Helper function to check if a number is a power of 2
+    const isPowerOfTwo = (number) => {
+        return (number & (number - 1)) === 0 && number !== 0;
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -51,6 +56,18 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                 closeRegistration: formattedCloseRegDate,
             }));
         }
+
+        // Ensure slots are even and a power of 2 if "Elimination" type is selected
+        if (name === 'slots') {
+            const slotsValue = Number(value);
+            if (slotsValue % 2 !== 0) {
+                setError("Slots must be an even number.");
+            } else if (formData.type === 'ELIMINATION' && !isPowerOfTwo(slotsValue)) {
+                setError("Elimination: Slots must be a power of 2.");
+            } else {
+                setError(null);
+            }
+        }
     };
 
     const handleTypeSelection = (type) => {
@@ -59,6 +76,13 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             type: type,
         }));
         setIsDropdownVisible(false);
+
+        // Revalidate slots if the type is set to "Elimination"
+        if (type === 'ELIMINATION' && formData.slots && !isPowerOfTwo(formData.slots)) {
+            setError("Elimination: Slots must be a power of 2.");
+        } else {
+            setError(null);
+        }
     };
 
     const handleNext = () => setPage(2);
@@ -73,6 +97,16 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             return;
         }
 
+        // Validate slots
+        const slotsValue = Number(formData.slots);
+        if (slotsValue % 2 !== 0) {
+            setError("Slots must be an even number.");
+            return;
+        } else if (formData.type === 'Elimination' && !isPowerOfTwo(slotsValue)) {
+            setError("For elimination tournaments, slots must be a power of 2.");
+            return;
+        }
+
         try {
             const formattedData = {
                 adminId: user.uid,
@@ -82,7 +116,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                 description: formData.description,
                 eloRequirement: Number(formData.eloRequirement),
                 location: formData.location,
-                capacity: Number(formData.slots),
+                capacity: slotsValue,
                 prize: Number(formData.prizePool),
                 startDatetime: formData.startDate + ":00Z",
                 endDatetime: formData.endDate + ":00Z",
@@ -115,7 +149,6 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                     <button className="close-button" onClick={onClose}>×</button>
                 </div>
                 <form onSubmit={handleSubmit} className='registration-form'>
-                    {error && <p className="error-message">{error}</p>}
                     {page === 1 ? (
                         <div className="registration-body">
                             <label>Tournament Name</label>
@@ -173,15 +206,15 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                                     <div className="dropdown-content">
                                         <div
                                             className="dropdown-item"
-                                            onClick={() => handleTypeSelection("Round Robin")}
+                                            onClick={() => handleTypeSelection("ROUND_ROBIN")}
                                         >
                                             Round Robin
                                         </div>
                                         <div
                                             className="dropdown-item"
-                                            onClick={() => handleTypeSelection("Elimination")}
+                                            onClick={() => handleTypeSelection("ELIMINATION")}
                                         >
-                                            Single Elimination
+                                            Elimination
                                         </div>
                                     </div>
                                 )}
@@ -259,6 +292,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                                         value={formData.slots}
                                         onChange={handleChange}
                                     />
+                                    {error && <p className="error-message">{error}</p>}
                                 </div>
                             </div>
                         </div>

@@ -6,9 +6,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
 
-const MyTournamentsTable = () => {
-    const [ongoingButton, setOngoingButton] = useState(true);
-    const [upcomingButton, setUpcomingButton] = useState(false);
+const MyTournamentsTable = ( authId ) => {
     const [sortedTournaments, setSortedTournaments] = useState(null); // Initially null
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [sortBy, setSortBy] = useState('');
@@ -22,7 +20,7 @@ const MyTournamentsTable = () => {
     // Fetch past tournaments
     const fetchPastTournaments = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/past/${auth.currentUser.uid}`);
+            const response = await axios.get(`http://localhost:8080/api/tournaments/past/${authId}`);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching ongoing tournaments:', error);
