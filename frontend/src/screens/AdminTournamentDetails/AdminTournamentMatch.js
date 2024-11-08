@@ -151,8 +151,7 @@ const AdminTournamentMatch = () => {
                 setSuccessMessage('Results confirmed.');
             }
     
-            fetchMatches();
-            setTimeout(() => setSuccessMessage(''), 3000);
+            setTimeout(() => window.location.reload(), 3000);  // reload
         } catch (error) {
             console.error('Error during Elo update or result confirmation:', error);
         }
