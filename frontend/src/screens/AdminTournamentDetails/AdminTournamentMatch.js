@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminTournamentMatch.css';
 import Header from './AdminTournamentHeader';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import AdminTournamentMatchDiagram from './AdminTournamentMatchDiagram';
+import AdminTournamentMatchTable from './AdminTournamentMatchTable';
 
 const AdminTournamentMatch = () => {
     const { tournamentId } = useParams();
@@ -15,12 +16,18 @@ const AdminTournamentMatch = () => {
     const [tournamentTitle, setTournamentTitle] = useState('Tournament');
     const [playerCount, setPlayerCount] = useState(0);
     const [currentRound, setCurrentRound] = useState(null);
-    const [activeView, setActiveView] = useState('diagram');
+    const [activeView, setActiveView] = useState('list');
     const [editingMatchId, setEditingMatchId] = useState(null);
     const [winnerSelection, setWinnerSelection] = useState({});
     const [isConfirmButtonActive, setIsConfirmButtonActive] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [tournamentType, setTournamentType] = useState('');
+
+    const navigate = useNavigate();
+
+    const handleGoToProfile = (authID) => {
+        navigate(`/admin/profile/${authID}`);
+    }
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
@@ -251,13 +258,13 @@ const AdminTournamentMatch = () => {
                                                 <tr key={index} className={editingMatchId === match.id ? 'editing-row' : ''}>
                                                     <td>{index + 1}</td>
                                                     <td>{new Date(match.startTime).toLocaleString()}</td>
-                                                    <td>{match.participants?.[0]?.name || '-'}</td>
+                                                    <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants?.[0]?.name || '-'}</td>
                                                     <td>{match.participants?.[0]?.elo || '-'}</td>
                                                     <td>{match.participants?.[0]?.nationality || '-'}</td>
                                                     <td>{match.participants?.[0]?.displayResult ?? '-'}</td>
                                                     <td className="vs-text">VS</td>
                                                     <td>{match.participants?.[1]?.displayResult ?? '-'}</td>
-                                                    <td>{match.participants?.[1]?.name || '-'}</td>
+                                                    <td className='participant-name' onClick={() => handleGoToProfile(match.participants[1].authId)}>{match.participants?.[1]?.name || '-'}</td>
                                                     <td>{match.participants?.[1]?.elo || '-'}</td>
                                                     <td>{match.participants?.[1]?.nationality || '-'}</td>
                                                     <td>
@@ -311,8 +318,12 @@ const AdminTournamentMatch = () => {
                                 </div>
                             );
                         })
-                ) : (
+                ) : tournamentType === 'ELIMINATION' ? (
                     <AdminTournamentMatchDiagram />
+                ) : (
+                    matches.length > 0 && availableRounds.length > 0 && (
+                        <AdminTournamentMatchTable matches={matches}/>
+                    )
                 )}
             </div>
         </div>
