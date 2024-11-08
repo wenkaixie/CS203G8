@@ -1,6 +1,5 @@
 import { React, useState, useEffect } from 'react';
-import './UserProfile.css';
-import Navbar from '../../components/navbar/Navbar';
+import './AdminProfile.css';
 import { getAuth } from "firebase/auth";
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,10 +10,11 @@ import chessIcon from '../../assets/images/ChessIcon.png';
 import { Divider } from '@mui/material';
 import countryList from 'react-select-country-list';
 import MyTournamentsTable from './MyTournamentsTable';
+import AdminNavbar from '../../components/adminNavbar/AdminNavbar';
 
-const UserProfile = () => {
+const AdminProfile = () => {
     const { userID } = useParams();
-    const [userProfileData, setUserProfileData] = useState();
+    const [AdminProfileData, setAdminProfileData] = useState();
     const [userRank, setUserRank] = useState();
     const [isLoading, setIsLoading] = useState(true);
     const [countryCode, setCountryCode] = useState('');
@@ -26,7 +26,7 @@ const UserProfile = () => {
         try {
             const response = await axios.get(`http://localhost:9090/user/getUser/${userID}`);
             const data = response.data;
-            setUserProfileData(data);
+            setAdminProfileData(data);
 
             // Check if nationality is defined before attempting to get the country code
             if (data.nationality) {
@@ -66,13 +66,13 @@ const UserProfile = () => {
         return <div>Loading...</div>;
     }
     
-    if (!userProfileData) {
+    if (!AdminProfileData) {
         return <div>Error: User data could not be loaded.</div>;
     }
 
     return (
         <div>
-            <Navbar />
+            <AdminNavbar />
             <div className='profile'>
                 <div className="profile-title" onClick={() => navigate(-1)}>
                     <ArrowBackIosNewIcon sx={{ fontSize: '2rem', cursor: 'pointer' }}/>
@@ -95,18 +95,18 @@ const UserProfile = () => {
                                     {countryCode && (
                                         <img
                                             src={`https://flagcdn.com/w20/${countryCode}.png`}
-                                            alt={`${userProfileData.nationality} flag`}
+                                            alt={`${AdminProfileData.nationality} flag`}
                                             style={{ margin: 10, width: 30, height: 22.5 }}
                                         />
                                     )}
-                                    {userProfileData.name} ({userProfileData.username})
+                                    {AdminProfileData.name} ({AdminProfileData.username})
                                 </h1>
                                 <h5>
                                     <Image 
                                         src={chessIcon}
                                         className='chess-icon'
                                     />
-                                    Chess.com: {userProfileData.chessUsername ? userProfileData.chessUsername : "Unlinked"}
+                                    Chess.com: {AdminProfileData.chessUsername ? AdminProfileData.chessUsername : "Unlinked"}
                                 </h5>
                             </div>
                             {auth.currentUser.uid === userID && (
@@ -132,7 +132,7 @@ const UserProfile = () => {
                             <br></br>
                             <div className='profile-body-stats-text'>
                                 <p>Elo:</p>
-                                <p>{userProfileData.elo}</p>
+                                <p>{AdminProfileData.elo}</p>
                             </div>
                             <div className='profile-body-stats-text'>
                                 <p>Site Rank: </p>
@@ -140,7 +140,7 @@ const UserProfile = () => {
                             </div>
                             <div className='profile-body-stats-text'>
                                 <p>Tournaments Joined: </p>
-                                <p>{userProfileData.registrationHistory.length}</p>
+                                <p>{AdminProfileData.registrationHistory.length}</p>
                             </div>
                         </div>
                     </div>
@@ -150,4 +150,4 @@ const UserProfile = () => {
     );
 };
 
-export default UserProfile;
+export default AdminProfile;

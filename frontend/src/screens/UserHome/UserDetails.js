@@ -60,7 +60,7 @@ const UserDetails = () => {
             </div>
             <div className='divider'></div>
             <div className='rating-and-rank-section'>
-              <h4>Rank</h4>
+              <h4>Site Rank</h4>
               <div fluid className='rating-and-rank-section-details'>
                 <Img 
                   src={TrophyIcon}

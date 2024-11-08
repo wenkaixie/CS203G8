@@ -1,7 +1,6 @@
 import React from 'react';
 import './UserHome.css';
 import Navbar from '../../components/navbar/Navbar';
-import MatchCard from './MatchCard';
 import MyTournamentsTable from './MyTournamentsTable';
 import AllTournamentsTable from './AllTournamentsTable';
 import TournamentCarousel from './TournamentCarousel';
@@ -15,9 +14,6 @@ const Dashboard = () => {
       <div className='dashboard-col'>
         <div className='dashboard-col-inner' style={{maxHeight:'fit-content'}}>
           <UserDetails />
-        </div>
-        <div className='dashboard-col-inner' style={{maxHeight:'fit-content'}}>
-          <MatchCard />
         </div>
       </div>
       <div className='dashboard-col'>

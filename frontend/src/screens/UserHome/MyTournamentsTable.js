@@ -57,16 +57,7 @@ const MyTournamentsTable = () => {
             fetchUpcomingTournaments();
         }
     };
-
-    // const isPlayerRegistered = (tournament) => {
-    //     // Check if current user is in the users list
-    //     if (tournament.users != null && tournament.users.includes(auth.currentUser.uid)) {
-    //         return 'REGISTERED';
-    //     }
     
-    //     return tournament.status;
-    // };
-
     const handleRowClick = (tournamentId) => {
         navigate(`/user/tournament/${tournamentId}/overview`);
     };

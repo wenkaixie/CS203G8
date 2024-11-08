@@ -16,7 +16,6 @@
     margin-top: 230px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Distribute content evenly */
     box-sizing: border-box;
 }
 

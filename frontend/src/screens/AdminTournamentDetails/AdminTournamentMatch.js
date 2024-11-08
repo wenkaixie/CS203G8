@@ -19,7 +19,7 @@ const AdminTournamentMatch = () => {
     const [editingMatchId, setEditingMatchId] = useState(null);
     const [winnerSelection, setWinnerSelection] = useState({});
     const [isConfirmButtonActive, setIsConfirmButtonActive] = useState(false);
-    const [successMessage, setSuccessMessage] = useState(''); // State for success message
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
@@ -46,11 +46,14 @@ const AdminTournamentMatch = () => {
                     participants: match.participants.map(participant => ({
                         ...participant,
                         displayResult: match.result === null
-                            ? '-'
-                            : (match.draw
-                                ? 0.5
-                                : (participant.isWinner ? 1 : 0)),
+                            ? '-' // If no result yet, display '-'
+                            : match.draw
+                                ? 0.5 // If match is a draw, display 0.5
+                                : participant.isWinner
+                                    ? 1 // If participant is the winner, display 1
+                                    : 0 // If participant is not the winner and it's not a draw, display 0
                     })),
+                    draw: match.draw // Keep track of draw status for the match
                 }))
             );
 
@@ -82,14 +85,13 @@ const AdminTournamentMatch = () => {
 
         setMatches(prevMatches => prevMatches.map(match => {
             if (match.id === matchId) {
-                const updatedParticipants = match.participants.map((participant, index) => {
-                    if (selectedOption === "Draw") {
-                        return { ...participant, displayResult: 0.5, isWinner: false };
-                    }
-                    const isWinner = selectedOption === `Player ${index + 1}`;
-                    return { ...participant, displayResult: isWinner ? 1 : 0, isWinner };
-                });
-                return { ...match, participants: updatedParticipants };
+                const isDraw = selectedOption === "Draw";
+                const updatedParticipants = match.participants.map((participant) => ({
+                    ...participant,
+                    displayResult: isDraw ? 0.5 : participant.isWinner ? 1 : 0,
+                    isWinner: !isDraw && selectedOption === `Player ${participant === match.participants[0] ? 1 : 2}`
+                }));
+                return { ...match, participants: updatedParticipants, draw: isDraw };
             }
             return match;
         }));
@@ -121,7 +123,6 @@ const AdminTournamentMatch = () => {
             await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
             fetchMatches();
 
-            // Set success message and clear it after 3 seconds
             setSuccessMessage('The next round has been created successfully.');
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
@@ -132,7 +133,7 @@ const AdminTournamentMatch = () => {
     const confirmSubmission = (roundNumber) => {
         const isConfirmed = window.confirm("Are you sure you want to submit the results?");
         if (isConfirmed) {
-            handleConfirmResults(roundNumber); // Call the function to submit the results if confirmed
+            handleConfirmResults(roundNumber);
         }
     };
 
@@ -226,9 +227,9 @@ const AdminTournamentMatch = () => {
                                                     <td>{match.participants?.[0]?.name || '-'}</td>
                                                     <td>{match.participants?.[0]?.elo || '-'}</td>
                                                     <td>{match.participants?.[0]?.nationality || '-'}</td>
-                                                    <td>{match.participants?.[0]?.displayResult || '-'}</td>
+                                                    <td>{match.participants?.[0]?.displayResult ?? '-'}</td>
                                                     <td className="vs-text">VS</td>
-                                                    <td>{match.participants?.[1]?.displayResult || '-'}</td>
+                                                    <td>{match.participants?.[1]?.displayResult ?? '-'}</td>
                                                     <td>{match.participants?.[1]?.name || '-'}</td>
                                                     <td>{match.participants?.[1]?.elo || '-'}</td>
                                                     <td>{match.participants?.[1]?.nationality || '-'}</td>
@@ -244,15 +245,13 @@ const AdminTournamentMatch = () => {
                                                                 <option value="Draw">Draw</option>
                                                             </select>
                                                         ) : (
-                                                            match.result === null
-                                                                ? '-'
-                                                                : match.draw
-                                                                    ? 'Draw'
-                                                                    : match.participants[0].isWinner
-                                                                        ? 'Player 1'
-                                                                        : match.participants[1].isWinner
-                                                                            ? 'Player 2'
-                                                                            : '-'
+                                                            match.draw
+                                                                ? 'Draw'
+                                                                : match.participants[0].isWinner
+                                                                    ? 'Player 1'
+                                                                    : match.participants[1].isWinner
+                                                                        ? 'Player 2'
+                                                                        : '-'
                                                         )}
                                                     </td>
                                                     <td>{match.state}</td>
@@ -293,3 +292,4 @@ const AdminTournamentMatch = () => {
 };
 
 export default AdminTournamentMatch;
+
