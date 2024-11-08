@@ -440,12 +440,4 @@ public class UserService {
         documentReference.set(newUserProfile, SetOptions.merge()).get(); // Ensures it's completed
 
 
-        DocumentSnapshot userSnapshot = documentReference.get().get();
-        User createdUser = userSnapshot.toObject(User.class);
-
-        return createdUser;
-    }
-    
-    
-
-}
+        Document
