@@ -46,14 +46,20 @@ public class UserService {
     @Autowired
     private Firestore firestore;
 
-
+    /**
+    * Register User for a tournament.
+    *
+    * @param tournamentId the tournament Id of a tournament.
+    * @param authId the auth Id of a user.
+    * @return a String value if user registered successfully.
+    */
     public String registerUserForTournament(String tournamentId, String authId) throws InterruptedException, ExecutionException {
         System.out.println("Registering user for tournament...");
 
         // Checking tournament exist
         DocumentSnapshot tournamentSnapshot = firestore.collection("Tournaments").document(tournamentId).get().get();
         if (!tournamentSnapshot.exists()) {
-            throw new TournamentNotFoundException("Tournament not found.");
+            throw new TournamentNotFoundException("No tournament found with the provided ID.");
         }
     
         // Directly reference the user document by authId
@@ -69,26 +75,30 @@ public class UserService {
         User user = userSnapshot.toObject(User.class);
         List<String> registrationHistory = user.getRegistrationHistory();
 
-    
         // Add the tournamentId to the list
         registrationHistory.add(tournamentId);
     
         // Update the registrationHistory in Firestore
         ApiFuture<WriteResult> userUpdate = userRef.update("registrationHistory", registrationHistory);
         userUpdate.get(); // Wait for the update to complete
-    
-        System.out.println("User's updated Registration History: " + registrationHistory);
 
         return "User successfully registered for the tournament.";
     }
 
+    /**
+    * Deregister User for a tournament.
+    *
+    * @param tournamentId the tournament Id of a tournament.
+    * @param authId the auth Id of a user.
+    * @return a String value if user deregistered successfully.
+    */
     public String unregisterUserForTournament(String tournamentId, String authId) throws InterruptedException, ExecutionException {
         System.out.println("Unregistering user from tournament...");
 
         // Checking tournament exist
         DocumentSnapshot tournamentSnapshot = firestore.collection("Tournaments").document(tournamentId).get().get();
         if (!tournamentSnapshot.exists()) {
-            throw new TournamentNotFoundException("Tournament not found.");
+            throw new TournamentNotFoundException("No tournament found with the provided ID.");
         }
 
         // Directly reference the user document by authId
@@ -118,7 +128,14 @@ public class UserService {
         System.out.println("User's updated Registration History after removal: " + registrationHistory);
         return "User successfully unregistered from the tournament.";
     }
-
+        
+    /**
+    * updating user profile.
+    *
+    * @param authId the auth Id of a user.
+    * @param updatedUser the userDTO of details that the user changed.
+    * @return the user that changed his/her profile.
+    */
     public UserDTO updateUserProfile(String authId, UserDTO updatedUser) throws InterruptedException, ExecutionException {
         System.out.println("Updating User profile for user ID: " + authId);
         System.out.println("Received updated user:" + updatedUser);
@@ -307,6 +324,11 @@ public class UserService {
         return elo;
     }   
     
+    /**
+    * get all user profile.
+    *
+    * @return the list user that exist in our app.
+    */
     public List<User> getAllUsers() throws InterruptedException, ExecutionException {
 
         System.out.println("Registering user for tournament...");
@@ -337,6 +359,12 @@ public class UserService {
         return usersList;
     }
 
+    /**
+    * get user based on the user's ID.
+    *
+    * @param authId the auth Id of a user.
+    * @return the user that has the specified authId.
+    */
     public User getUserbyId(String userId) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
         
@@ -354,8 +382,13 @@ public class UserService {
         return userSnapshot.toObject(User.class);
     }
 
-    // Method to get user's rank based on elo
-    public int getUserRank(String userId) throws InterruptedException, ExecutionException {
+    /**
+    * Get user's rank based on elo.
+    *
+    * @param authId the auth Id of a user.
+    * @return the rank number out of existing users.
+    */
+    public int getUserRank(String authId) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
         ApiFuture<QuerySnapshot> querySnapshot = usersRef.orderBy("elo", Query.Direction.DESCENDING).get();
         
@@ -367,7 +400,7 @@ public class UserService {
             User user = document.toObject(User.class);
     
             // Check if the userId matches
-            if (user.getAuthId().equals(userId)) {
+            if (user.getAuthId().equals(authId)) {
                 // Check if elo exists for the user
                 if (user.getElo() != null) {
                     return rank;  // Return the rank if elo exists
@@ -382,7 +415,7 @@ public class UserService {
         throw new UserNotFoundException("User not found.");
     }
 
-    // NOT USED
+    // NOT USED 
     public User createUserProfile(User newUser) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
 
@@ -397,11 +430,15 @@ public class UserService {
         ApiFuture<DocumentReference> writeResult = usersRef.add(newUserProfile);
         DocumentReference documentReference = writeResult.get();
 
-        String generatedUid = documentReference.getId();
-        newUser.setAuthId(generatedUid);
+        String generatedAuthId = documentReference.getId();
+        newUser.setAuthId(generatedAuthId);
 
-        newUserProfile.put("uid", generatedUid);
-        documentReference.set(newUserProfile, SetOptions.merge());
+        // Add authId to the profile map
+        newUserProfile.put("authId", generatedAuthId);
+
+        // Merge authId into Firestore and wait until the operation completes
+        documentReference.set(newUserProfile, SetOptions.merge()).get(); // Ensures it's completed
+
 
         DocumentSnapshot userSnapshot = documentReference.get().get();
         User createdUser = userSnapshot.toObject(User.class);

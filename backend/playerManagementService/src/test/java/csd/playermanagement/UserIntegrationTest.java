@@ -93,11 +93,11 @@
 
 //     @AfterEach
 //     public void cleanUp() {
-//         for (String uid : createdUserUids) {
+//         for (String authId : createdUserUids) {
 //             try {
-//                 firestore.collection("Users").document(uid).delete().get();
+//                 firestore.collection("Users").document(authId).delete().get();
 //             } catch (Exception e) {
-//                 System.err.println("Failed to delete user with UID: " + uid);
+//                 System.err.println("Failed to delete user with UID: " + authId);
 //                 e.printStackTrace();
 //             }
 //         }
@@ -117,29 +117,30 @@
 //     }
 
 //     // NOT USED
-//     // @Test
-//     // public void createUser_Success() throws Exception {
-//     //     URI uri = new URI(baseUrl + port + "/user/createUser");
+//     @Test
+//     public void createUser_Success() throws Exception {
+//         URI uri = new URI(baseUrl + port + "/user/createUser");
 
-//     //     User user1 = new User();
-//     //     user1.setAuthId("auth123");
-//     //     user1.setUsername("testuser");
+//         User user1 = new User();
+//         user1.setAuthId("auth123");
+//         user1.setUsername("testuser");
 
 
-//     //     ResponseEntity<User> result = restTemplate.postForEntity(uri, user1, User.class);
+//         ResponseEntity<User> result = restTemplate.postForEntity(uri, user1, User.class);
 
-//     //     assertEquals(HttpStatus.CREATED, result.getStatusCode());
-//     //     assertNotNull(result.getBody());
-//     //     assertEquals(user1.getUsername(), result.getBody().getUsername());
-//     //     assertEquals(user1.getEmail(), result.getBody().getEmail());
+//         assertEquals(HttpStatus.CREATED, result.getStatusCode()); // check corrected created status code
+//         assertNotNull(result.getBody());
+//         assertEquals(user1.getUsername(), result.getBody().getUsername());
+//         assertEquals(user1.getEmail(), result.getBody().getEmail());
 
-//     //     // for teardown
-//     //     // Keep track of the created user's UID
-//     //     String createdUid = result.getBody().getUid();
-//     //     System.out.println("Created UID: " + createdUid); // Debugging line
-//     //     assertNotNull(createdUid, "Created UID should not be null");
-//     //     createdUserUids.add(createdUid);
-//     // }
+//         // for teardown
+//         // Keep track of the created user's UID
+//         System.out.println("result body" + result.getBody());
+//         String createdAuthId = result.getBody().getAuthId();
+//         System.out.println("Created authID: " + createdAuthId); // Debugging line
+//         assertNotNull(createdAuthId, "Created AuthId should not be null");
+//         createdUserUids.add(createdAuthId);
+//     }
 
 
 //     @Test
@@ -155,12 +156,10 @@
 
 //         // Save users to Firestore
 //         DocumentReference userRef1 = firestore.collection("Users").document();
-//         user1.setUid(userRef1.getId());
 //         userRef1.set(user1).get();
 //         createdUserUids.add(userRef1.getId());
 
 //         DocumentReference userRef2 = firestore.collection("Users").document();
-//         user2.setUid(userRef2.getId());
 //         userRef2.set(user2).get();
 //         createdUserUids.add(userRef2.getId());
 
@@ -188,7 +187,6 @@
     
 //         // Save the user to Firestore
 //         DocumentReference userRef = firestore.collection("Users").document();
-//         user1.setUid(userRef.getId());
 //         userRef.set(user1).get();
 //         createdUserUids.add(userRef.getId()); // Add to cleanup list
     
@@ -202,7 +200,6 @@
 //         assertEquals(HttpStatus.OK, response.getStatusCode());
 //         User retrievedUser = response.getBody();
 //         assertNotNull(retrievedUser);
-//         assertEquals(user1.getUid(), retrievedUser.getUid());
 //         assertEquals(user1.getUsername(), retrievedUser.getUsername());
 //         assertEquals(user1.getEmail(), retrievedUser.getEmail());
 //     }
@@ -237,7 +234,6 @@
   
 //         // Save the user to Firestore
 //         DocumentReference userRef = firestore.collection("Users").document();
-//         user.setUid(userRef.getId());
 //         userRef.set(user).get();
 //         createdUserUids.add(userRef.getId());
     
@@ -305,221 +301,221 @@
 //         assertEquals("User not found.", responseBody.get("error").trim(), "Error message should match 'User not found'");
 //     }
 
-//     @Test
-//     public void registerUserForTournament_Success() throws Exception {
-//         // Arrange
-//         DocumentReference tournamentRef = firestore.collection("Tournaments").document();
-//         String tournamentId = tournamentRef.getId();
+//     // @Test
+//     // public void registerUserForTournament_Success() throws Exception {
+//     //     // Arrange
+//     //     DocumentReference tournamentRef = firestore.collection("Tournaments").document();
+//     //     String tournamentId = tournamentRef.getId();
 
-//         Tournament tournament = new Tournament();
-//         tournament.setTid(tournamentId);
-//         tournament.setName("Test Tournament");
-//         tournament.setCapacity(10);
-//         tournament.setEloRequirement(800); // Ensure this is set correctly
-//         tournament.setAgeLimit(18);        // Set an age limit to verify
-//         tournament.setDescription("A test tournament");
-//         tournament.setPrize(500);
-//         tournament.setLocation("Test Location");
-//         tournament.setStatus("Registration Open");
+//     //     Tournament tournament = new Tournament();
+//     //     tournament.setTid(tournamentId);
+//     //     tournament.setName("Test Tournament");
+//     //     tournament.setCapacity(10);
+//     //     tournament.setEloRequirement(800); // Ensure this is set correctly
+//     //     tournament.setAgeLimit(18);        // Set an age limit to verify
+//     //     tournament.setDescription("A test tournament");
+//     //     tournament.setPrize(500);
+//     //     tournament.setLocation("Test Location");
+//     //     tournament.setStatus("Registration Open");
 
-//         // Set timestamps for start and end times
-//         Timestamp now = Timestamp.now();
-//         tournament.setCreatedTimestamp(now);
-//         tournament.setStartDatetime(Timestamp.ofTimeSecondsAndNanos(now.getSeconds() + 3600, 0)); // 1 hour later
-//         tournament.setEndDatetime(Timestamp.ofTimeSecondsAndNanos(now.getSeconds() + 7200, 0));   // 2 hours later
-//         tournament.setUsers(new ArrayList<>());  // No users initially
+//     //     // Set timestamps for start and end times
+//     //     Timestamp now = Timestamp.now();
+//     //     tournament.setCreatedTimestamp(now);
+//     //     tournament.setStartDatetime(Timestamp.ofTimeSecondsAndNanos(now.getSeconds() + 3600, 0)); // 1 hour later
+//     //     tournament.setEndDatetime(Timestamp.ofTimeSecondsAndNanos(now.getSeconds() + 7200, 0));   // 2 hours later
+//     //     tournament.setUsers(new ArrayList<>());  // No users initially
 
-//         // Save tournament to Firestore
-//         tournamentRef.set(tournament).get();
-//         createdTournamentIds.add(tournamentId);
+//     //     // Save tournament to Firestore
+//     //     tournamentRef.set(tournament).get();
+//     //     createdTournamentIds.add(tournamentId);
 
-//         // Create a user in Firestore
-//         User user = new User();
-//         user.setAuthId("auth1");
-//         user.setEmail("testuser@example.com");
-//         user.setElo(1000);  // Set Elo to match the requirement
+//     //     // Create a user in Firestore
+//     //     User user = new User();
+//     //     user.setAuthId("auth1");
+//     //     user.setEmail("testuser@example.com");
+//     //     user.setElo(1000);  // Set Elo to match the requirement
 
-//         // User is 20 years old
-//         LocalDate dateOfBirth = LocalDate.now().minusYears(20);
-//         Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
-//         user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
-//         user.setRegistrationHistory(new ArrayList<>());  // No history initially
+//     //     // User is 20 years old
+//     //     LocalDate dateOfBirth = LocalDate.now().minusYears(20);
+//     //     Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
+//     //     user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
+//     //     user.setRegistrationHistory(new ArrayList<>());  // No history initially
 
-//         // Save user to Firestore
-//         DocumentReference userRef = firestore.collection("Users").document();
-//         user.setUid(userRef.getId());
-//         userRef.set(user).get();
-//         createdUserUids.add(userRef.getId());
+//     //     // Save user to Firestore
+//     //     DocumentReference userRef = firestore.collection("Users").document();
+//     //     user.setUid(userRef.getId());
+//     //     userRef.set(user).get();
+//     //     createdUserUids.add(userRef.getId());
 
-//         // Prepare request to register the user for the tournament
-//         URI uri = new URI(baseUrl + port + "/user/registerTournament/" + tournamentId);
+//     //     // Prepare request to register the user for the tournament
+//     //     URI uri = new URI(baseUrl + port + "/user/registerTournament/" + tournamentId);
 
-//         // Create DTO for the request
-//         UserDTO userDto = new UserDTO();
-//         userDto.setAuthId(user.getAuthId());
+//     //     // Create DTO for the request
+//     //     UserDTO userDto = new UserDTO();
+//     //     userDto.setAuthId(user.getAuthId());
 
-//         HttpHeaders headers = new HttpHeaders();
-//         headers.setContentType(MediaType.APPLICATION_JSON);
-//         headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
+//     //     HttpHeaders headers = new HttpHeaders();
+//     //     headers.setContentType(MediaType.APPLICATION_JSON);
+//     //     headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
 
-//         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
+//     //     HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
 
-//         // Act
-//         ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
+//     //     // Act
+//     //     ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
 
-//         // Assert HTTP Status
-//         assertEquals(HttpStatus.OK, response.getStatusCode(), "Expected HTTP 200 OK");
-//         Map<String, String> responseBody = response.getBody();
-//         assertNotNull(responseBody, "Response body should not be null");
+//     //     // Assert HTTP Status
+//     //     assertEquals(HttpStatus.OK, response.getStatusCode(), "Expected HTTP 200 OK");
+//     //     Map<String, String> responseBody = response.getBody();
+//     //     assertNotNull(responseBody, "Response body should not be null");
 
-//         // Validate the message in the response
-//         assertEquals("User successfully registered for the tournament.", responseBody.get("message").trim());
+//     //     // Validate the message in the response
+//     //     assertEquals("User successfully registered for the tournament.", responseBody.get("message").trim());
 
-//         // Verify the user has been added to the tournament's user list
-//         Tournament updatedTournament = tournamentRef.get().get().toObject(Tournament.class);
-//         assertNotNull(updatedTournament, "Tournament should not be null");
-//         assertTrue(updatedTournament.getUsers().contains(user.getAuthId()), "User should be registered in the tournament");
+//     //     // Verify the user has been added to the tournament's user list
+//     //     Tournament updatedTournament = tournamentRef.get().get().toObject(Tournament.class);
+//     //     assertNotNull(updatedTournament, "Tournament should not be null");
+//     //     assertTrue(updatedTournament.getUsers().contains(user.getAuthId()), "User should be registered in the tournament");
 
-//         // Verify the tournament ID is in the user's registration history
-//         User updatedUser = userRef.get().get().toObject(User.class);
-//         assertNotNull(updatedUser, "User should not be null");
+//     //     // Verify the tournament ID is in the user's registration history
+//     //     User updatedUser = userRef.get().get().toObject(User.class);
+//     //     assertNotNull(updatedUser, "User should not be null");
 
-//     }
+//     // }
 
-//     @Test
-//     public void registerUserForTournament_Failure_InvalidTournamentId() throws Exception {
-//         // Arrange
-//         User user = new User();
-//         user.setAuthId("auth1");
-//         user.setEmail("testuser@example.com");
+//     // @Test
+//     // public void registerUserForTournament_Failure_InvalidTournamentId() throws Exception {
+//     //     // Arrange
+//     //     User user = new User();
+//     //     user.setAuthId("auth1");
+//     //     user.setEmail("testuser@example.com");
 
-//         // User is 20 years old
-//         LocalDate dateOfBirth = LocalDate.now().minusYears(20);
-//         Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
-//         user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
-//         user.setRegistrationHistory(new ArrayList<>());
+//     //     // User is 20 years old
+//     //     LocalDate dateOfBirth = LocalDate.now().minusYears(20);
+//     //     Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
+//     //     user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
+//     //     user.setRegistrationHistory(new ArrayList<>());
 
-//         // Save the user to Firestore
-//         DocumentReference userRef = firestore.collection("Users").document();
-//         user.setUid(userRef.getId());
-//         userRef.set(user).get();  // Ensure synchronous Firestore write
-//         createdUserUids.add(userRef.getId());  // Add the created user ID to cleanup list
+//     //     // Save the user to Firestore
+//     //     DocumentReference userRef = firestore.collection("Users").document();
+//     //     user.setUid(userRef.getId());
+//     //     userRef.set(user).get();  // Ensure synchronous Firestore write
+//     //     createdUserUids.add(userRef.getId());  // Add the created user ID to cleanup list
 
-//         // Act: Use a non-existent tournament ID
-//         String invalidTournamentId = "invalid_tournament_id";
+//     //     // Act: Use a non-existent tournament ID
+//     //     String invalidTournamentId = "invalid_tournament_id";
 
-//         // Create the registration URI with the invalid tournament ID
-//         URI uri = new URI(baseUrl + port + "/user/registerTournament/" + invalidTournamentId);
+//     //     // Create the registration URI with the invalid tournament ID
+//     //     URI uri = new URI(baseUrl + port + "/user/registerTournament/" + invalidTournamentId);
 
-//         // Create a UserDTO object for the request
-//         UserDTO userDto = new UserDTO();
-//         userDto.setAuthId(user.getAuthId());
+//     //     // Create a UserDTO object for the request
+//     //     UserDTO userDto = new UserDTO();
+//     //     userDto.setAuthId(user.getAuthId());
 
-//         // Create request headers
-//         HttpHeaders headers = new HttpHeaders();
-//         headers.setContentType(MediaType.APPLICATION_JSON);
-//         headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
+//     //     // Create request headers
+//     //     HttpHeaders headers = new HttpHeaders();
+//     //     headers.setContentType(MediaType.APPLICATION_JSON);
+//     //     headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
 
-//         // Prepare the request entity
-//         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
+//     //     // Prepare the request entity
+//     //     HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
 
-//         // Act
-//         ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
+//     //     // Act
+//     //     ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
 
-//         // Assert
-//         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Expected HTTP 404 Not Found");
+//     //     // Assert
+//     //     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Expected HTTP 404 Not Found");
 
-//         // Assert: Ensure the response body contains the correct error message in the Map
-//         Map<String, String> responseBody = response.getBody();
-//         assertNotNull(responseBody, "Response body should not be null");
-//         assertEquals("No tournament found with the provided ID.", responseBody.get("error").trim());
+//     //     // Assert: Ensure the response body contains the correct error message in the Map
+//     //     Map<String, String> responseBody = response.getBody();
+//     //     assertNotNull(responseBody, "Response body should not be null");
+//     //     assertEquals("No tournament found with the provided ID.", responseBody.get("error").trim());
 
-//         // Assert: Ensure the user's registration history has not been updated
-//         User updatedUser = userRef.get().get().toObject(User.class);
-//         assertNotNull(updatedUser, "User should not be null");
-//         assertTrue(updatedUser.getRegistrationHistory().isEmpty(), "User's registration history should remain empty");
-//     }
+//     //     // Assert: Ensure the user's registration history has not been updated
+//     //     User updatedUser = userRef.get().get().toObject(User.class);
+//     //     assertNotNull(updatedUser, "User should not be null");
+//     //     assertTrue(updatedUser.getRegistrationHistory().isEmpty(), "User's registration history should remain empty");
+//     // }
 
   
-//     @Test
-//     public void unregisterUserFromTournament_Success() throws Exception {
-//         // Arrange
-//         DocumentReference tournamentRef = firestore.collection("Tournaments").document();
-//         String tournamentId = tournamentRef.getId();
+//     // @Test
+//     // public void unregisterUserFromTournament_Success() throws Exception {
+//     //     // Arrange
+//     //     DocumentReference tournamentRef = firestore.collection("Tournaments").document();
+//     //     String tournamentId = tournamentRef.getId();
     
-//         Tournament tournament = new Tournament();
-//         tournament.setTid(tournamentId);
-//         tournament.setName("Test Tournament");
-//         tournament.setCapacity(10);
-//         tournament.setEloRequirement(0);
-//         tournament.setAgeLimit(0);
-//         tournament.setDescription("A test tournament");
-//         tournament.setPrize(500);
-//         tournament.setLocation("Test Location");
-//         tournament.setStatus("Registration Open");
-//         tournament.setUsers(new ArrayList<>());  // No users initially
+//     //     Tournament tournament = new Tournament();
+//     //     tournament.setTid(tournamentId);
+//     //     tournament.setName("Test Tournament");
+//     //     tournament.setCapacity(10);
+//     //     tournament.setEloRequirement(0);
+//     //     tournament.setAgeLimit(0);
+//     //     tournament.setDescription("A test tournament");
+//     //     tournament.setPrize(500);
+//     //     tournament.setLocation("Test Location");
+//     //     tournament.setStatus("Registration Open");
+//     //     tournament.setUsers(new ArrayList<>());  // No users initially
     
-//         // Save tournament to Firestore
-//         tournamentRef.set(tournament).get();
-//         createdTournamentIds.add(tournamentId);
+//     //     // Save tournament to Firestore
+//     //     tournamentRef.set(tournament).get();
+//     //     createdTournamentIds.add(tournamentId);
     
-//         // Arrange: Create a user in Firestore and register them for the tournament
-//         User user = new User();
-//         user.setAuthId("auth1");
-//         user.setEmail("testuser@example.com");
+//     //     // Arrange: Create a user in Firestore and register them for the tournament
+//     //     User user = new User();
+//     //     user.setAuthId("auth1");
+//     //     user.setEmail("testuser@example.com");
     
-//         // User is 20 years old
-//         LocalDate dateOfBirth = LocalDate.now().minusYears(20);
-//         Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
-//         user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
+//     //     // User is 20 years old
+//     //     LocalDate dateOfBirth = LocalDate.now().minusYears(20);
+//     //     Instant dobInstant = dateOfBirth.atStartOfDay(ZoneId.systemDefault()).toInstant();
+//     //     user.setDateOfBirth(Timestamp.ofTimeSecondsAndNanos(dobInstant.getEpochSecond(), dobInstant.getNano()));
     
-//         List<String> registrationHistory = new ArrayList<>();
-//         registrationHistory.add(tournamentId);  // Add tournament ID to the user's registration history
-//         user.setRegistrationHistory(registrationHistory);
+//     //     List<String> registrationHistory = new ArrayList<>();
+//     //     registrationHistory.add(tournamentId);  // Add tournament ID to the user's registration history
+//     //     user.setRegistrationHistory(registrationHistory);
     
-//         // Save the user to Firestore
-//         DocumentReference userRef = firestore.collection("Users").document();
-//         user.setUid(userRef.getId());
-//         userRef.set(user).get();
-//         createdUserUids.add(userRef.getId());
+//     //     // Save the user to Firestore
+//     //     DocumentReference userRef = firestore.collection("Users").document();
+//     //     user.setUid(userRef.getId());
+//     //     userRef.set(user).get();
+//     //     createdUserUids.add(userRef.getId());
     
-//         // Add the user to the tournament's user list
-//         List<String> tournamentUsers = new ArrayList<>();
-//         tournamentUsers.add(user.getAuthId());
-//         tournamentRef.update("users", tournamentUsers).get();
+//     //     // Add the user to the tournament's user list
+//     //     List<String> tournamentUsers = new ArrayList<>();
+//     //     tournamentUsers.add(user.getAuthId());
+//     //     tournamentRef.update("users", tournamentUsers).get();
     
-//         // Act: Prepare request to unregister the user from the tournament
-//         URI uri = new URI(baseUrl + port + "/user/unregisterTournament/" + tournamentId);
+//     //     // Act: Prepare request to unregister the user from the tournament
+//     //     URI uri = new URI(baseUrl + port + "/user/unregisterTournament/" + tournamentId);
     
-//         UserDTO userDto = new UserDTO();
-//         userDto.setAuthId(user.getAuthId());
+//     //     UserDTO userDto = new UserDTO();
+//     //     userDto.setAuthId(user.getAuthId());
     
-//         HttpHeaders headers = new HttpHeaders();
-//         headers.setContentType(MediaType.APPLICATION_JSON);
-//         headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
+//     //     HttpHeaders headers = new HttpHeaders();
+//     //     headers.setContentType(MediaType.APPLICATION_JSON);
+//     //     headers.setAccept(List.of(MediaType.APPLICATION_JSON));  // Expect JSON response
     
-//         HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
+//     //     HttpEntity<UserDTO> requestEntity = new HttpEntity<>(userDto, headers);
     
-//         // Act: Make the API request to unregister the user using PUT
-//         ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, Map.class);
+//     //     // Act: Make the API request to unregister the user using PUT
+//     //     ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.PUT, requestEntity, Map.class);
     
-//         // Assert: Ensure the response is 200 OK
-//         assertEquals(HttpStatus.OK, response.getStatusCode(), "Expected HTTP 200 OK");
+//     //     // Assert: Ensure the response is 200 OK
+//     //     assertEquals(HttpStatus.OK, response.getStatusCode(), "Expected HTTP 200 OK");
     
-//         Map<String, String> responseBody = response.getBody();
-//         assertNotNull(responseBody, "Response body should not be null");
-//         assertEquals("User successfully unregistered from the tournament.", responseBody.get("message").trim());
+//     //     Map<String, String> responseBody = response.getBody();
+//     //     assertNotNull(responseBody, "Response body should not be null");
+//     //     assertEquals("User successfully unregistered from the tournament.", responseBody.get("message").trim());
     
-//         // Assert: Ensure the user's registration history no longer contains the tournament ID
-//         User updatedUser = userRef.get().get().toObject(User.class);
-//         assertNotNull(updatedUser, "User should not be null");
-//         assertFalse(updatedUser.getRegistrationHistory().contains(tournamentId),
-//                 "User's registration history should no longer contain the tournament ID");
+//     //     // Assert: Ensure the user's registration history no longer contains the tournament ID
+//     //     User updatedUser = userRef.get().get().toObject(User.class);
+//     //     assertNotNull(updatedUser, "User should not be null");
+//     //     assertFalse(updatedUser.getRegistrationHistory().contains(tournamentId),
+//     //             "User's registration history should no longer contain the tournament ID");
     
-//         // Assert: Ensure the tournament's user list no longer contains the user's auth ID
-//         Tournament updatedTournament = tournamentRef.get().get().toObject(Tournament.class);
-//         assertNotNull(updatedTournament, "Tournament should not be null");
-//         assertFalse(updatedTournament.getUsers().contains(user.getAuthId()),
-//                 "Tournament's user list should no longer contain the user's auth ID");
-//     }
+//     //     // Assert: Ensure the tournament's user list no longer contains the user's auth ID
+//     //     Tournament updatedTournament = tournamentRef.get().get().toObject(Tournament.class);
+//     //     assertNotNull(updatedTournament, "Tournament should not be null");
+//     //     assertFalse(updatedTournament.getUsers().contains(user.getAuthId()),
+//     //             "Tournament's user list should no longer contain the user's auth ID");
+//     // }
 // }

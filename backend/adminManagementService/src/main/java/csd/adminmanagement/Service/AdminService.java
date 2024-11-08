@@ -44,7 +44,13 @@ public class AdminService {
     @Autowired
     private RestTemplate restTemplate;
 
-    // Update Admin Profile
+    /**
+    * updating admin profile.
+    *
+    * @param adminId the auth Id of a admin.
+    * @param updatedAdmin the admin details with changes
+    * @return the admin that changed his/her profile.
+    */
     public Admin updateAdminProfile(String adminID, Admin updatedAdmin) throws AdminNotFoundException {
         DocumentReference docRef = firestore.collection("Admins").document(adminID);
         
@@ -70,7 +76,12 @@ public class AdminService {
     }
 
 
-    // Create Admin Profile
+    /**
+    * creating admin profile.
+    *
+    * @param newAdmin the admin details with changes
+    * @return the admin that changed his/her profile.
+    */
     public Admin createAdminProfile(Admin newAdmin) {
         DocumentReference docRef = firestore.collection("Admins").document();
         newAdmin.setAuthId(docRef.getId());
@@ -78,7 +89,11 @@ public class AdminService {
         return newAdmin;
     }
 
-    // Retrieve all Admins
+    /**
+    * retrieve all admins.
+    *
+    * @return the list of existing admin(s).
+    */
     public List<Admin> getAllAdmins() {
         CollectionReference adminRef = firestore.collection("Admins");
         ApiFuture<QuerySnapshot> future = adminRef.get();
@@ -95,7 +110,12 @@ public class AdminService {
         return admins;
     }
 
-    // Retrieve Admin by ID
+    /**
+    * retrieving admin with the given admin ID.
+    *
+    * @param adminId the auth Id of a admin.
+    * @return the admin with the referenced admin ID.
+    */
     public Admin getAdminById(String adminId) throws AdminNotFoundException {
         CollectionReference adminsRef = firestore.collection("Admins");
         System.out.println("fetching data for" + adminId);
@@ -118,8 +138,12 @@ public class AdminService {
     }
 
 
-    // *** RAY ***
-    // Retrieve Tournaments for task list
+    /**
+    * get ongoing tournaments that admin has.
+    *
+    * @param adminId the auth Id of a admin.
+    * @return the list of tournaments that admin has to take charge of.
+    */
     public List<Tournament> getTaskView(String adminId) {
         CollectionReference tournamentsRef = firestore.collection("Tournaments");
         List<Tournament> taskList = new ArrayList<>();
@@ -147,9 +171,14 @@ public class AdminService {
 
     }
 
-    // Updating an Array Element: To update an element within an array in Firestore, you need to read the entire document, 
-    // modify the array in your application code, and then write back the entire modified array to Firestore.
-    // Completion button from frontend will call this method
+    /**
+    * updating admin profile.
+    *
+    * @param tournamentId the tournament Id of a tournament.
+    * @param roundNum the round number of a tournament.
+    * @param matchId the match id of a round.
+    * @param matchResultUpdateRequest the JSON request body for updating winner/loser.
+    */
     public void completeMatch(String tournamentId, String roundNum, int matchId, MatchResultUpdateRequest matchResultUpdateRequest) {
         CollectionReference tournamentsRef = firestore.collection("Tournaments");
     
@@ -234,7 +263,12 @@ public class AdminService {
     // generate rounds button
     
 
-    // wenkai 25/10
+    /**
+    * get all tournaments an admin has created.
+    *
+    * @param adminId the auth Id of a admin.
+    * @return the list of tournament belonging to an admin.
+    */
     public List<Tournament> getAdminTournaments(String adminId) {
         CollectionReference adminsRef = firestore.collection("Admins");
         List<Tournament> tournaments = new ArrayList<>();
@@ -269,9 +303,13 @@ public class AdminService {
         return tournaments;
     }
 
-    // wenkai 25/10
-    // createTournament
-
+   /**
+    * get all tournaments an admin has created.
+    *
+    * @param adminId the auth Id of a admin.
+    * @param newTournament tournament details of the new tournament.
+    * @return the newly created tournament.
+    */
     public Tournament createTournament(String adminId, Tournament newTournament) {
         CollectionReference tournamentsRef = firestore.collection("Tournaments");
         DocumentReference docRef = tournamentsRef.document();
