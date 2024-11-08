@@ -41,42 +41,26 @@ const UserTournamentMatch = () => {
                 const fetchedMatches = response.data;
                 console.log(fetchedMatches);
 
-                const allMatches = [];
-                const roundNumbers = new Set();
-
-                for (const match of fetchedMatches) {
-                    if (match.participants.length < 2) continue;
-
-                    roundNumbers.add(match.tournamentRoundText);
-
-                    let participant1Result = 0;
-                    let participant2Result = 0;
-
-                    if (match.participants[0].isWinner && match.participants[1].isWinner) {
-                        participant1Result = 0.5;
-                        participant2Result = 0.5;
-                    } else if (match.participants[0].isWinner) {
-                        participant1Result = 1;
-                        participant2Result = 0;
-                    } else if (match.participants[1].isWinner) {
-                        participant1Result = 0;
-                        participant2Result = 1;
-                    }
-
-                    const participant1Data = await fetchParticipantDetails(match.participants[0].authId);
-                    const participant2Data = await fetchParticipantDetails(match.participants[1].authId);
-
-                    allMatches.push({
+                setMatches(
+                    fetchedMatches.map(match => ({
                         ...match,
-                        participants: [
-                            { ...match.participants[0], elo: participant1Data.elo || 'N/A', nationality: participant1Data.nationality || 'N/A', resultText: participant1Result},
-                            { ...match.participants[1], elo: participant2Data.elo || 'N/A', nationality: participant2Data.nationality || 'N/A', resultText: participant2Result}
-                        ]
-                    });
-                }
+                        participants: (match.participants || []).map(participant => ({
+                            ...participant,
+                            displayResult: match.result === null
+                                ? '-' // If no result yet, display '-'
+                                : match.draw
+                                    ? 0.5 // If match is a draw, display 0.5
+                                    : participant && participant.isWinner
+                                        ? 1 // If participant is the winner, display 1
+                                        : 0 // If participant is not the winner and it's not a draw, display 0
+                        })),
+                        draw: match.draw // Keep track of draw status for the match
+                    }))
+                );
 
-                setMatches(allMatches);
-                setAvailableRounds([...roundNumbers].sort((a, b) => a - b)); // Sort rounds numerically
+
+                const rounds = [...new Set(fetchedMatches.map(match => match.tournamentRoundText))];
+                setAvailableRounds(rounds.sort((a, b) => b - a));
             } catch (error) {
                 console.error('Error fetching matches:', error);
                 setMatches([]);

@@ -68,9 +68,7 @@ const AdminTournamentMatch = () => {
 
             // Extract unique rounds and sort them based on tournament type
             const rounds = [...new Set(fetchedMatches.map(match => match.tournamentRoundText))];
-            setAvailableRounds(rounds.sort((a, b) =>
-                tournamentType === 'ROUND_ROBIN' ? a - b : b - a
-            ));
+            setAvailableRounds(rounds.sort((a, b) => b - a));
 
             checkConfirmButtonStatus(fetchedMatches, currentRound);
         } catch (error) {
