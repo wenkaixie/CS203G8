@@ -137,6 +137,47 @@ html, body {
     background-color: #F5F5EF;
 }
 
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Confirm Results Button */
+.confirm-participants-button {
+    margin-top: 50px;
+    width: 220px; 
+    padding: 10px 20px !important;
+    background-color: #8F3013;
+    color: #fff;
+    border: none;
+    border-radius: 40px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: center;
+    display: inline-block;
+    margin-bottom: 30px;
+    transition: background-color 0.2s, color 0.2s, cursor 0.2s;
+}
+
+.confirm-participants-button.active {
+    background-color: #8F3013;
+    color: #fff;
+}
+
+.confirm-participants-button.inactive {
+    background-color: #d3d3d3;
+    color: #7d7d7d;
+    cursor: not-allowed;
+}
+
+.confirm-participants-button:hover:not(.inactive) {
+    background-color: #7a2811;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .admin-tournament-participants .controls-container {

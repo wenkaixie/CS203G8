@@ -20,6 +20,7 @@ const AdminTournamentMatch = () => {
     const [winnerSelection, setWinnerSelection] = useState({});
     const [isConfirmButtonActive, setIsConfirmButtonActive] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [tournamentType, setTournamentType] = useState('');
 
     useEffect(() => {
         const fetchTournamentDetails = async () => {
@@ -28,6 +29,7 @@ const AdminTournamentMatch = () => {
                 const tournamentData = response.data;
                 setTournamentTitle(tournamentData.name || 'Tournament');
                 setCurrentRound(tournamentData.currentRound);
+                setTournamentType(tournamentData.type);
             } catch (error) {
                 console.error('Error fetching tournament details:', error);
             }
@@ -43,13 +45,13 @@ const AdminTournamentMatch = () => {
             setMatches(
                 fetchedMatches.map(match => ({
                     ...match,
-                    participants: match.participants.map(participant => ({
+                    participants: (match.participants || []).map(participant => ({
                         ...participant,
                         displayResult: match.result === null
                             ? '-' // If no result yet, display '-'
                             : match.draw
                                 ? 0.5 // If match is a draw, display 0.5
-                                : participant.isWinner
+                                : participant && participant.isWinner
                                     ? 1 // If participant is the winner, display 1
                                     : 0 // If participant is not the winner and it's not a draw, display 0
                     })),
@@ -57,8 +59,11 @@ const AdminTournamentMatch = () => {
                 }))
             );
 
+            // Extract unique rounds and sort them based on tournament type
             const rounds = [...new Set(fetchedMatches.map(match => match.tournamentRoundText))];
-            setAvailableRounds(rounds.sort((a, b) => b - a));
+            setAvailableRounds(rounds.sort((a, b) =>
+                tournamentType === 'ROUND_ROBIN' ? a - b : b - a
+            ));
 
             checkConfirmButtonStatus(fetchedMatches, currentRound);
         } catch (error) {
@@ -82,20 +87,23 @@ const AdminTournamentMatch = () => {
 
     const handleWinnerSelection = (matchId, selectedOption) => {
         setWinnerSelection(prev => ({ ...prev, [matchId]: selectedOption }));
-
+    
         setMatches(prevMatches => prevMatches.map(match => {
             if (match.id === matchId) {
                 const isDraw = selectedOption === "Draw";
-                const updatedParticipants = match.participants.map((participant) => ({
-                    ...participant,
-                    displayResult: isDraw ? 0.5 : participant.isWinner ? 1 : 0,
-                    isWinner: !isDraw && selectedOption === `Player ${participant === match.participants[0] ? 1 : 2}`
-                }));
+                const updatedParticipants = match.participants.map((participant, index) => {
+                    const isWinner = selectedOption === `Player ${index + 1}`;
+                    return {
+                        ...participant,
+                        displayResult: isDraw ? 0.5 : isWinner ? 1 : 0,
+                        isWinner: isWinner,
+                    };
+                });
                 return { ...match, participants: updatedParticipants, draw: isDraw };
             }
             return match;
         }));
-
+    
         checkConfirmButtonStatus(matches, selectedRound); // Recheck status after selection
     };
 
@@ -104,29 +112,48 @@ const AdminTournamentMatch = () => {
     };
 
     const handleConfirmResults = async (roundNumber) => {
-        const matchResults = {};
-        matches
-            .filter(match => match.tournamentRoundText === roundNumber)
-            .forEach(match => {
-                const result = winnerSelection[match.id];
-                if (result === 'Player 1') matchResults[match.id] = 'PLAYER1_WIN';
-                else if (result === 'Player 2') matchResults[match.id] = 'PLAYER2_WIN';
-                else if (result === 'Draw') matchResults[match.id] = 'DRAW';
-            });
+        // Disable button upon submission
+        setIsConfirmButtonActive(false);
 
+        const matchResults = {};
+        const roundMatches = matches.filter(match => match.tournamentRoundText === roundNumber);
+    
+        roundMatches.forEach(match => {
+            const result = winnerSelection[match.id];
+            if (result) {
+                matchResults[match.id] = {
+                    matchResult: result === 'Player 1' ? 'PLAYER1_WIN' : result === 'Player 2' ? 'PLAYER2_WIN' : 'DRAW',
+                    player1Id: match.participants?.[0]?.authId || '',  
+                    player2Id: match.participants?.[1]?.authId || '',  
+                };
+            }
+        });
+    
         try {
+            // First API call to update Elo ratings
+            await axios.put(
+                `http://localhost:9091/api/elo/tournaments/${tournamentId}/rounds/${roundNumber}/matches/updateElo`,
+                matchResults,
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+    
+            // Second API call to update match results
             await axios.put(
                 `http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/results`,
-                matchResults
+                matchResults,
+                { headers: { 'Content-Type': 'application/json' } }
             );
-
-            await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
-            fetchMatches();
-
-            setSuccessMessage('The next round has been created successfully.');
-            setTimeout(() => setSuccessMessage(''), 3000);
+    
+            if (roundMatches.length > 1 && tournamentType !== "ROUND_ROBIN") {
+                await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
+                setSuccessMessage('The next round has been created successfully.');
+            } else {
+                setSuccessMessage('Results confirmed.');
+            }
+    
+            setTimeout(() => window.location.reload(), 3000);  // reload
         } catch (error) {
-            console.error('Error confirming results:', error);
+            console.error('Error during Elo update or result confirmation:', error);
         }
     };
 
@@ -247,13 +274,14 @@ const AdminTournamentMatch = () => {
                                                         ) : (
                                                             match.draw
                                                                 ? 'Draw'
-                                                                : match.participants[0].isWinner
+                                                                : match.participants && match.participants[0] && match.participants[0].isWinner
                                                                     ? 'Player 1'
-                                                                    : match.participants[1].isWinner
+                                                                    : match.participants && match.participants[1] && match.participants[1].isWinner
                                                                         ? 'Player 2'
                                                                         : '-'
                                                         )}
                                                     </td>
+
                                                     <td>{match.state}</td>
                                                     {isCurrentRound && (
                                                         <td className="action-buttons">
@@ -292,4 +320,3 @@ const AdminTournamentMatch = () => {
 };
 
 export default AdminTournamentMatch;
-
