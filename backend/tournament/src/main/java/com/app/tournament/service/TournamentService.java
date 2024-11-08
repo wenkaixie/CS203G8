@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import org.checkerframework.checker.units.qual.s;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,6 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteBatch;
 import com.google.cloud.firestore.WriteResult;
-import com.google.cloud.Timestamp;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -939,7 +937,7 @@ public class TournamentService {
             targetMatch.updateResult(result);
             switch (result) {
                 case DRAW:
-                    targetMatch.getParticipants().forEach(p -> p.setIsWinner(false)); // Draw means no winner
+                    targetMatch.getParticipants().forEach(p -> p.setIsWinner(true)); // Draw means no winner
                     break;
                 case PLAYER1_WIN:
                     targetMatch.getParticipants().get(0).setIsWinner(true);

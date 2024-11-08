@@ -46,6 +46,7 @@ public class TournamentController {
     private static final Logger logger = LoggerFactory.getLogger(TournamentService.class);
 
     // Create tournament endpoint
+    // tested working 8 Nov
     @PostMapping
     public ResponseEntity<String> createTournament(@RequestBody TournamentDTO tournamentDTO) {
 
@@ -61,7 +62,7 @@ public class TournamentController {
         }
     }
 
-    // checked wenkai 5/11
+    // tested working 8 Nov
     @GetMapping("/{tournamentID}")
     public ResponseEntity<Tournament> getTournamentById(@PathVariable String tournamentID) {
         try {
@@ -72,7 +73,7 @@ public class TournamentController {
         }
     }
 
-    // checked wenkai 5/11
+    // tested working 8 Nov
     @GetMapping("/all")
     public ResponseEntity<List<Tournament>> getAllTournaments() {
         try {
@@ -83,7 +84,7 @@ public class TournamentController {
         }
     }
 
-    // checked wenkai 5/11
+    // tested working 8 Nov
     @GetMapping("/user/{userID}")
     public ResponseEntity<List<Tournament>> getAllTournamentsOfUser(@PathVariable String userID) {
         try {
@@ -94,6 +95,7 @@ public class TournamentController {
         }
     }
 
+    // tested working 8 Nov
     @PutMapping("/{tournamentID}")
     public ResponseEntity<String> updateTournament(
             @PathVariable String tournamentID,
@@ -106,6 +108,7 @@ public class TournamentController {
         }
     }
 
+    // tested working 8 Nov
     @DeleteMapping("/{tournamentID}")
     public ResponseEntity<Void> deleteTournament(@PathVariable String tournamentID) {
         try {
@@ -120,6 +123,7 @@ public class TournamentController {
         }
     }
 
+    // tested working 8 Nov
     @PostMapping("/{tournamentID}/players")
     public ResponseEntity<String> addUserToTournament(@PathVariable String tournamentID,
             @RequestParam String userID) {
@@ -135,6 +139,7 @@ public class TournamentController {
         }
     }
 
+    // tested working 8 Nov
     @DeleteMapping("/{tournamentID}/players/{userID}")
     public ResponseEntity<String> removeUserFromTournament(
             @PathVariable String tournamentID,
@@ -147,32 +152,7 @@ public class TournamentController {
         }
     }
 
-    // @GetMapping("/search")
-    // public ResponseEntity<List<Tournament>>
-    // getTournamentsByLocation(@RequestParam String location) {
-    // try {
-    // List<Tournament> tournaments =
-    // tournamentService.getTournamentsByLocation(location);
-    // return ResponseEntity.ok(tournaments);
-    // } catch (Exception e) {
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    // }
-    // }
-
-    // @GetMapping("/paginated")
-    // public ResponseEntity<List<Tournament>> getTournamentsWithPagination(
-    // @RequestParam int limit,
-    // @RequestParam(required = false) String lastTournamentID) {
-    // try {
-    // List<Tournament> tournaments =
-    // tournamentService.getTournamentsWithPagination(limit, lastTournamentID);
-    // return ResponseEntity.ok(tournaments);
-    // } catch (Exception e) {
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    // }
-    // }
-
-    // checked wenkai 5/11
+    // tested working 8 Nov
     @GetMapping("/{tournamentID}/users")
     public ResponseEntity<List<Map<String, Object>>> getAllUsersFromTournament(@PathVariable String tournamentID) {
         try {
@@ -187,7 +167,7 @@ public class TournamentController {
         }
     }
 
-    // checked wenkai 5/11
+    // tested working 8 Nov
     // Get upcoming tournaments
     @GetMapping("/upcoming/{userID}")
     public ResponseEntity<List<Tournament>>getUpcomingTournamentsOfUser(@PathVariable String userID) {
@@ -199,7 +179,7 @@ public class TournamentController {
         }
     }
 
-    // checked wenkai 5/11
+    // tested working 8 Nov
     // Get past tournaments
     @GetMapping("/past/{userID}")
     public ResponseEntity<List<Tournament>>getPastTournamentsOfUser(@PathVariable String userID) {
@@ -211,7 +191,7 @@ public class TournamentController {
         }
     }
 
-    // checked wenkai 5/11    
+    // tested working 8 Nov    
     // Get ongoing tournaments of user
     @GetMapping("/ongoing/{userID}")
     public ResponseEntity<List<Tournament>>getOngoingTournamentsOfUser(@PathVariable String userID) {
@@ -222,7 +202,8 @@ public class TournamentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
+    
+    // tested working 8 Nov
     // Get eligible tournaments of user
     @GetMapping("/eligible/{userID}")
     public ResponseEntity<List<Tournament>> getEligibleTournamentsOfUser(@PathVariable String userID) {
@@ -234,6 +215,7 @@ public class TournamentController {
         }
     }
 
+    // tested working 8 Nov
     // Generate rounds and matches for the tournament based on type
     @PostMapping("/{tournamentID}/generateRounds")
     public ResponseEntity<String> generateRoundsForTournament(@PathVariable String tournamentID) {
@@ -274,9 +256,10 @@ public class TournamentController {
         }
     }
 
+    // tested working 8 Nov
     // Batch update for multiple match results in the same round
     @PutMapping("/{tournamentID}/rounds/{roundNumber}/matches/results")
-    public ResponseEntity<String> updateMatchResultsBatch(
+    public ResponseEntity<String> updateMatchResults(
             @PathVariable String tournamentID,
             @PathVariable int roundNumber,
             @RequestBody Map<Integer, MatchResult> matchResults) {
@@ -289,6 +272,7 @@ public class TournamentController {
         }
     }
 
+    // tested working 8 Nov
     // 3. Populate the next round's matches with winners
     @PostMapping("/{tournamentID}/rounds/{currentRoundNumber}/populateNextRound")
     public ResponseEntity<String> populateNextRoundMatches(
@@ -306,6 +290,7 @@ public class TournamentController {
         }
     }
 
+    // // tested working 8 Nov
     // 4. Retrieve all matches from a specific tournament
     @GetMapping("/{tournamentID}/matches")
     public ResponseEntity<List<Match>> getAllMatchesFromTournament(@PathVariable String tournamentID) {

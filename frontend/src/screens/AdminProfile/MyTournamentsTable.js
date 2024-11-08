@@ -6,9 +6,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import axios from 'axios';
 import { getAuth } from "firebase/auth";
 
-const MyTournamentsTable = () => {
-    const [ongoingButton, setOngoingButton] = useState(true);
-    const [upcomingButton, setUpcomingButton] = useState(false);
+const MyTournamentsTable = ( authId ) => {
     const [sortedTournaments, setSortedTournaments] = useState(null); // Initially null
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [sortBy, setSortBy] = useState('');
@@ -19,52 +17,24 @@ const MyTournamentsTable = () => {
     const navigate = useNavigate();
     const auth = getAuth();
 
-    // Fetch ongoing tournaments
-    const fetchOngoingTournaments = async () => {
+    // Fetch past tournaments
+    const fetchPastTournaments = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
+            const response = await axios.get(`http://localhost:8080/api/tournaments/past/${authId}`);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching ongoing tournaments:', error);
         }
     };
 
-    // Fetch upcoming tournaments
-    const fetchUpcomingTournaments = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/upcoming/${auth.currentUser.uid}`);
-            setTournaments(response.data);
-        } catch (error) {
-            console.error('Error fetching upcoming tournaments:', error);
-        }
-    };
-
     useEffect(() => {
-        fetchOngoingTournaments();
+        fetchPastTournaments();
     }, []);
 
-    const handleOngoingUpcomingButtonChange = (type) => {
-        setSortBy('');
-        setSortedTournaments(null);
-        setCurrentPage(1);
-        if (type === 'ongoing') {
-            setOngoingButton(true);
-            setUpcomingButton(false);
-            fetchOngoingTournaments();
-        } else if (type === 'upcoming') {
-            setOngoingButton(false);
-            setUpcomingButton(true);
-            fetchUpcomingTournaments();
-        }
-    };
-    
+
     const handleRowClick = (tournamentId) => {
         navigate(`/user/tournament/${tournamentId}/overview`);
     };
-
-    const handleViewMyCalendar = () => {
-        navigate(`/user/calendar`);
-    }
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -100,17 +70,7 @@ const MyTournamentsTable = () => {
     if (!tournamentsToDisplay || tournamentsToDisplay.length === 0) {
         return (
             <div className="tournament-container">
-                <h2 className="tournament-title">My Tournaments</h2>
-                <div className="filter-tabs">
-                    <div className='ongoing-upcoming-buttons'>
-                        <button onClick={() => handleOngoingUpcomingButtonChange('ongoing')} className={`ongoing-upcoming-button tab ${ongoingButton ? 'active' : ''}`}>
-                            Ongoing
-                        </button>
-                        <button onClick={() => handleOngoingUpcomingButtonChange('upcoming')} className={`ongoing-upcoming-button tab ${upcomingButton ? 'active' : ''}`}>
-                            Upcoming
-                        </button>
-                    </div>
-                </div>
+                <h2 className="tournament-title">Completed Tournaments</h2>
                 <div className="no-tournaments">No Tournaments Available</div>
             </div>
         );
@@ -130,17 +90,8 @@ const MyTournamentsTable = () => {
 
     return (
         <div className="tournament-container">
-            <h2 className="tournament-title">My Tournaments</h2>
-            <div className="filter-tabs">
-                <div className='ongoing-upcoming-buttons'>
-                    <button onClick={() => handleOngoingUpcomingButtonChange('ongoing')} className={`ongoing-upcoming-button tab ${ongoingButton ? 'active' : ''}`}>
-                        Ongoing
-                    </button>
-                    <button onClick={() => handleOngoingUpcomingButtonChange('upcoming')} className={`ongoing-upcoming-button tab ${upcomingButton ? 'active' : ''}`}>
-                        Upcoming
-                    </button>
-                </div>
-
+            <div className="tournament-header">
+                <h2 className="tournament-title">Completed Tournaments</h2>
                 <div className="buttons-container">
                     <div className="dropdown">
                         <button className="order-button" onClick={toggleDropdown}>
@@ -225,10 +176,6 @@ const MyTournamentsTable = () => {
                         sx={{cursor:"pointer", fontSize:"20px"}}
                     />
                 </span>
-            </div>
-
-            <div className="show-more-text" onClick={handleViewMyCalendar}>
-                View My Calendar
             </div>
         </div>
     );
