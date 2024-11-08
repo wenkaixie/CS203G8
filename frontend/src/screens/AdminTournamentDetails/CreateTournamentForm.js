@@ -62,8 +62,8 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             const slotsValue = Number(value);
             if (slotsValue % 2 !== 0) {
                 setError("Slots must be an even number.");
-            } else if (formData.type === 'ELIMINATION' && !isPowerOfTwo(slotsValue)) {
-                setError("Elimination: Slots must be a power of 2.");
+            } else if (formData.type === 'Single Elimination' && !isPowerOfTwo(slotsValue)) {
+                setError("For single elimination tournaments, slots must be a power of 2.");
             } else {
                 setError(null);
             }
@@ -78,8 +78,8 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         setIsDropdownVisible(false);
 
         // Revalidate slots if the type is set to "Elimination"
-        if (type === 'ELIMINATION' && formData.slots && !isPowerOfTwo(formData.slots)) {
-            setError("Elimination: Slots must be a power of 2.");
+        if (type === 'Single Elimination' && formData.slots && !isPowerOfTwo(formData.slots)) {
+            setError("For single elimination tournaments, slots must be a power of 2.");
         } else {
             setError(null);
         }
@@ -102,15 +102,27 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
         if (slotsValue % 2 !== 0) {
             setError("Slots must be an even number.");
             return;
-        } else if (formData.type === 'Elimination' && !isPowerOfTwo(slotsValue)) {
-            setError("For elimination tournaments, slots must be a power of 2.");
+        } else if (formData.type === 'Single Elimination' && !isPowerOfTwo(slotsValue)) {
+            setError("For single elimination tournaments, slots must be a power of 2.");
+            return;
+        }
+
+        // Validate that end date is after start date
+        const startDate = new Date(formData.startDate);
+        const endDate = new Date(formData.endDate);
+        if (endDate <= startDate) {
+            setError("End date must be after the start date.");
             return;
         }
 
         try {
+            // Convert tournament type to the required format
+            const tournamentType = formData.type === 'Single Elimination' ? 'ELIMINATION' : 
+            formData.type === 'Round Robin' ? 'ROUND_ROBIN' : formData.type;
+
             const formattedData = {
                 adminId: user.uid,
-                type: formData.type,
+                type: tournamentType,
                 ageLimit: Number(formData.ageLimit),
                 name: formData.name,
                 description: formData.description,
@@ -206,15 +218,15 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                                     <div className="dropdown-content">
                                         <div
                                             className="dropdown-item"
-                                            onClick={() => handleTypeSelection("ROUND_ROBIN")}
+                                            onClick={() => handleTypeSelection("Round Robin")}
                                         >
                                             Round Robin
                                         </div>
                                         <div
                                             className="dropdown-item"
-                                            onClick={() => handleTypeSelection("ELIMINATION")}
+                                            onClick={() => handleTypeSelection("Single Elimination")}
                                         >
-                                            Elimination
+                                            Single Elimination
                                         </div>
                                     </div>
                                 )}
@@ -292,9 +304,9 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
                                         value={formData.slots}
                                         onChange={handleChange}
                                     />
-                                    {error && <p className="error-message">{error}</p>}
                                 </div>
                             </div>
+                            {error && <p className="error-message">{error}</p>}
                         </div>
                     )}
                     <div className="registration-footer">
