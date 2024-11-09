@@ -39,7 +39,6 @@ const UserTournamentMatch = () => {
             try {
                 const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/matches`);
                 const fetchedMatches = response.data;
-                console.log(fetchedMatches);
 
                 setMatches(
                     fetchedMatches.map(match => ({
@@ -57,7 +56,6 @@ const UserTournamentMatch = () => {
                         draw: match.draw // Keep track of draw status for the match
                     }))
                 );
-
 
                 const rounds = [...new Set(fetchedMatches.map(match => match.tournamentRoundText))];
                 setAvailableRounds(rounds.sort((a, b) => b - a));
@@ -198,20 +196,16 @@ const UserTournamentMatch = () => {
                                                 .map((match, index) => (
                                                     <tr key={index}>
                                                         <td>{index + 1}</td>
-                                                        <td>{new Date(match.startTime).toLocaleString('en-US', {
-                                                            year: 'numeric', month: 'long', day: 'numeric',
-                                                            hour: '2-digit', minute: '2-digit', second: '2-digit',
-                                                            hour12: true
-                                                        }).replace(',', '')}</td>
-                                                        <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants[0].name}</td>
-                                                        <td>{match.participants[0].elo || 'N/A'}</td>
-                                                        <td>{match.participants[0].nationality || 'N/A'}</td>
-                                                        <td>{match.participants[0].resultText}</td>
-                                                        <td className="vs-text">VS</td>
-                                                        <td>{match.participants[1].resultText}</td>
-                                                        <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants[1].name}</td>
-                                                        <td>{match.participants[1].elo || 'N/A'}</td>
-                                                        <td>{match.participants[1].nationality || 'N/A'}</td>
+                                                    <td>{new Date(match.startTime).toLocaleString()}</td>
+                                                    <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants?.[0]?.name || '-'}</td>
+                                                    <td>{match.participants?.[0]?.elo || '-'}</td>
+                                                    <td>{match.participants?.[0]?.nationality || '-'}</td>
+                                                    <td>{match.participants?.[0]?.displayResult ?? '-'}</td>
+                                                    <td className="vs-text">VS</td>
+                                                    <td>{match.participants?.[1]?.displayResult ?? '-'}</td>
+                                                    <td className='participant-name' onClick={() => handleGoToProfile(match.participants[1].authId)}>{match.participants?.[1]?.name || '-'}</td>
+                                                    <td>{match.participants?.[1]?.elo || '-'}</td>
+                                                    <td>{match.participants?.[1]?.nationality || '-'}</td>
                                                         <td>{match.state}</td>
                                                     </tr>
                                                 ))
