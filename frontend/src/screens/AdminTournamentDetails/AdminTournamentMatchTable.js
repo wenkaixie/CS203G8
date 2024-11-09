@@ -41,12 +41,17 @@ const AdminTournamentMatchTable = ( {matches} ) => {
         return points;
     };
 
-    // Calculate total points for each participant and sort by total points in descending order
     const participantsWithPoints = participantsData.map(participant => {
         const points = calculatePoints(participant.authId);
         const totalPoints = Object.values(points).reduce((acc, curr) => acc + (curr || 0), 0);
         return { ...participant, points, totalPoints };
-    }).sort((a, b) => b.totalPoints - a.totalPoints);
+    }).sort((a, b) => {
+        if (b.totalPoints !== a.totalPoints) {
+            return b.totalPoints - a.totalPoints; // Sort by totalPoints in descending order
+        } else {
+            return b.elo - a.elo; // Sort by elo in descending order if totalPoints are the same
+        }
+    });
 
     const handleGoToProfile = (authID) => {
         navigate(`/admin/profile/${authID}`);

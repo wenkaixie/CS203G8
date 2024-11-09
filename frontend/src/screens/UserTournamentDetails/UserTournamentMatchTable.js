@@ -1,112 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './UserTournamentMatch.css';
 
-const UserTournamentMatchTable = () => {
-    const participantsData = [
-        {
-            "nationality": "Singapore",
-            "joinedAt": { "seconds": 1730044800, "nanos": 919000000 },
-            "name": "Alice",
-            "elo": 2866,
-            "authId": "GJnDtAZVzbSdGrWLjIx9ZV8cbgo1"
-        },
-        {
-            "nationality": "Vietnam",
-            "joinedAt": { "seconds": 1730044800, "nanos": 919000000 },
-            "name": "Bob",
-            "elo": 2866,
-            "authId": "Oz5AXlGVdDeO1B5IsjPrfTOU3Al1"
-        },
-        {
-            "nationality": "China",
-            "joinedAt": { "seconds": 1730044800, "nanos": 919000000 },
-            "name": "Charlie",
-            "elo": 2866,
-            "authId": "YMFPwRdSR1VeVPR5PokUKxJSQdE2"
-        },
-        {
-            "nationality": "South Korea",
-            "joinedAt": { "seconds": 1730044800, "nanos": 919000000 },
-            "name": "David",
-            "elo": 2866,
-            "authId": "fCpbs06mE3RpaatJv9oxflvu5K23"
-        }
-    ];
+const UserTournamentMatchTable = ( {matches} ) => {
+    const [participantsData, setParticipantsData] = useState([]);
+    const { tournamentId } = useParams();
 
-    const matches = [
-        {
-            "id": 1,
-            "name": "Match 1",
-            "nextMatchId": 4,
-            "tournamentRoundText": 1,
-            "startTime": "2024-10-16T04:48:27.446487Z",
-            "state": "PENDING",
-            "participants": [
-                { "id": "1", "authId": "GJnDtAZVzbSdGrWLjIx9ZV8cbgo1", "name": "Alice", "resultText": "", "elo": 2866, "nationality": "Singapore", "isWinner": true },
-                { "id": "2", "authId": "Oz5AXlGVdDeO1B5IsjPrfTOU3Al1", "name": "Bob", "resultText": "", "elo": 2866, "nationality": "Vietnam", "isWinner": false }
-            ]
-        },
-        {
-            "id": 2,
-            "name": "Match 2",
-            "nextMatchId": 4,
-            "tournamentRoundText": 1,
-            "startTime": "2024-10-16T04:49:27.446487Z",
-            "state": "PENDING",
-            "participants": [
-                { "id": "3", "authId": "YMFPwRdSR1VeVPR5PokUKxJSQdE2", "name": "Charlie", "resultText": "", "elo": 2866, "nationality": "China", "isWinner": true },
-                { "id": "4", "authId": "fCpbs06mE3RpaatJv9oxflvu5K23", "name": "David", "resultText": "", "elo": 2866, "nationality": "South Korea", "isWinner": false }
-            ]
-        },
-        {
-            "id": 3,
-            "name": "Match 3",
-            "nextMatchId": 4,
-            "tournamentRoundText": 2,
-            "startTime": "2024-10-16T04:50:27.446487Z",
-            "state": "PENDING",
-            "participants": [
-                { "id": "1", "authId": "GJnDtAZVzbSdGrWLjIx9ZV8cbgo1", "name": "Alice", "resultText": "", "elo": 2866, "nationality": "Singapore", "isWinner": true },
-                { "id": "3", "authId": "YMFPwRdSR1VeVPR5PokUKxJSQdE2", "name": "Charlie", "resultText": "", "elo": 2866, "nationality": "China", "isWinner": false }
-            ]
-        },
-        {
-            "id": 4,
-            "name": "Match 4",
-            "nextMatchId": 6,
-            "tournamentRoundText": 2,
-            "startTime": "2024-10-16T04:51:27.446487Z",
-            "state": "PENDING",
-            "participants": [
-                { "id": "2", "authId": "Oz5AXlGVdDeO1B5IsjPrfTOU3Al1", "name": "Bob", "resultText": "", "elo": 2866, "nationality": "Vietnam", "isWinner": false },
-                { "id": "4", "authId": "fCpbs06mE3RpaatJv9oxflvu5K23", "name": "David", "resultText": "", "elo": 2866, "nationality": "South Korea", "isWinner": true }
-            ]
-        },
-        {
-            "id": 5,
-            "name": "Match 5",
-            "nextMatchId": 6,
-            "tournamentRoundText": 3,
-            "startTime": "2024-10-16T04:52:27.446487Z",
-            "state": "PENDING",
-            "participants": [
-                { "id": "1", "authId": "GJnDtAZVzbSdGrWLjIx9ZV8cbgo1", "name": "Alice", "resultText": "", "elo": 2866, "nationality": "Singapore", "isWinner": true },
-                { "id": "4", "authId": "fCpbs06mE3RpaatJv9oxflvu5K23", "name": "David", "resultText": "", "elo": 2866, "nationality": "South Korea", "isWinner": false }
-            ]
-        },
-        {
-            "id": 6,
-            "name": "Match 6",
-            "nextMatchId": 0,
-            "tournamentRoundText": 3,
-            "startTime": "2024-10-16T04:53:27.446487Z",
-            "state": "PENDING",
-            "participants": [
-                { "id": "2", "authId": "Oz5AXlGVdDeO1B5IsjPrfTOU3Al1", "name": "Bob", "resultText": "", "elo": 2866, "nationality": "Vietnam", "isWinner": true },
-                { "id": "3", "authId": "YMFPwRdSR1VeVPR5PokUKxJSQdE2", "name": "Charlie", "resultText": "", "elo": 2866, "nationality": "China", "isWinner": true }
-            ]
-        }
-    ];
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+        const fetchParticipantsData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+                setParticipantsData(response.data);
+            } catch (error) {
+                console.error('Error fetching participants data:', error);
+            }
+        };
+
+        fetchParticipantsData();
+    }, []);
 
     const uniqueRounds = [...new Set(matches.map(match => match.tournamentRoundText))].sort();
 
@@ -127,12 +41,22 @@ const UserTournamentMatchTable = () => {
         return points;
     };
 
-    // Calculate total points for each participant and sort by total points in descending order
     const participantsWithPoints = participantsData.map(participant => {
         const points = calculatePoints(participant.authId);
         const totalPoints = Object.values(points).reduce((acc, curr) => acc + (curr || 0), 0);
         return { ...participant, points, totalPoints };
-    }).sort((a, b) => b.totalPoints - a.totalPoints);
+    }).sort((a, b) => {
+        if (b.totalPoints !== a.totalPoints) {
+            return b.totalPoints - a.totalPoints; // Sort by totalPoints in descending order
+        } else {
+            return b.elo - a.elo; // Sort by elo in descending order if totalPoints are the same
+        }
+    });
+
+    const handleGoToProfile = (authID) => {
+        navigate(`/user/profile/${authID}`);
+    }
+
 
     return (
         <div>
@@ -153,7 +77,7 @@ const UserTournamentMatchTable = () => {
                     {participantsWithPoints.map((participant, index) => (
                         <tr key={participant.authId}>
                             <td>{index + 1}</td>
-                            <td>{participant.name}</td>
+                            <td className='participant-name' onClick={() => handleGoToProfile(participant.authId)}>{participant.name || 'N/A'}</td>
                             <td>{participant.nationality}</td>
                             <td>{participant.elo}</td>
                             {uniqueRounds.map(round => (
