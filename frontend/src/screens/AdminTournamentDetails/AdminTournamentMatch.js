@@ -92,7 +92,7 @@ const AdminTournamentMatch = () => {
 
     const handleWinnerSelection = (matchId, selectedOption) => {
         setWinnerSelection(prev => ({ ...prev, [matchId]: selectedOption }));
-    
+
         setMatches(prevMatches => prevMatches.map(match => {
             if (match.id === matchId) {
                 const isDraw = selectedOption === "Draw";
@@ -108,7 +108,7 @@ const AdminTournamentMatch = () => {
             }
             return match;
         }));
-    
+
         checkConfirmButtonStatus(matches, selectedRound); // Recheck status after selection
     };
 
@@ -122,18 +122,18 @@ const AdminTournamentMatch = () => {
 
         const matchResults = {};
         const roundMatches = matches.filter(match => match.tournamentRoundText === roundNumber);
-    
+
         roundMatches.forEach(match => {
             const result = winnerSelection[match.id];
             if (result) {
                 matchResults[match.id] = {
                     matchResult: result === 'Player 1' ? 'PLAYER1_WIN' : result === 'Player 2' ? 'PLAYER2_WIN' : 'DRAW',
-                    player1Id: match.participants?.[0]?.authId || '',  
-                    player2Id: match.participants?.[1]?.authId || '',  
+                    player1Id: match.participants?.[0]?.authId || '',
+                    player2Id: match.participants?.[1]?.authId || '',
                 };
             }
         });
-    
+
         try {
             // First API call to update Elo ratings
             await axios.put(
@@ -141,21 +141,21 @@ const AdminTournamentMatch = () => {
                 matchResults,
                 { headers: { 'Content-Type': 'application/json' } }
             );
-    
+
             // Second API call to update match results
             await axios.put(
                 `http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/results`,
                 matchResults,
                 { headers: { 'Content-Type': 'application/json' } }
             );
-    
+
             if (roundMatches.length > 1 && tournamentType !== "ROUND_ROBIN") {
                 await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
                 setSuccessMessage('The next round has been created successfully.');
             } else {
                 setSuccessMessage('Results confirmed.');
             }
-    
+
             setTimeout(() => window.location.reload(), 3000);  // reload
         } catch (error) {
             console.error('Error during Elo update or result confirmation:', error);
@@ -200,7 +200,9 @@ const AdminTournamentMatch = () => {
                     </button>
 
                     <div className="dropdown">
-                        <button className="order-button" onClick={() => setIsDropdownVisible(!isDropdownVisible)}>
+                        <button className="order-button" onClick={() => {
+                            setIsDropdownVisible(!isDropdownVisible);
+                        }}>
                             {selectedRound === '' ? 'All rounds' : `Round ${selectedRound}`}
                         </button>
                         {isDropdownVisible && (
@@ -268,6 +270,7 @@ const AdminTournamentMatch = () => {
                                                     <td>
                                                         {editingMatchId === match.id ? (
                                                             <select
+                                                                className="select-winner"  // Apply the styling class here
                                                                 onChange={(e) => handleWinnerSelection(match.id, e.target.value)}
                                                                 value={winnerSelection[match.id] || ''}
                                                             >
@@ -286,6 +289,7 @@ const AdminTournamentMatch = () => {
                                                                         : '-'
                                                         )}
                                                     </td>
+
 
                                                     <td>{match.state}</td>
                                                     {isCurrentRound && (
@@ -320,7 +324,7 @@ const AdminTournamentMatch = () => {
                     <AdminTournamentMatchDiagram />
                 ) : (
                     matches.length > 0 && availableRounds.length > 0 && (
-                        <AdminTournamentMatchTable matches={matches}/>
+                        <AdminTournamentMatchTable matches={matches} />
                     )
                 )}
             </div>
