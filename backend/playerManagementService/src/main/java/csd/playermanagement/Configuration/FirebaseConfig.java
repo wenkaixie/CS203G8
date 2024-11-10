@@ -1,13 +1,12 @@
 package csd.playermanagement.Configuration;
 
-// Spring imports
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
@@ -18,13 +17,17 @@ import com.google.firebase.cloud.FirestoreClient;
 @Configuration
 public class FirebaseConfig {
 
+    @Value("${firebase.key.path}")
+    private String firebaseKeyPath;
+
     // Firebase initialization using @PostConstruct
     @PostConstruct
     public void initialize() {
         try {
-            // Updated path to Firebase service account key file
-            FileInputStream serviceAccount = 
-                new FileInputStream("serviceAccountKey.json");
+            // Debug log to verify path
+            System.out.println("Firebase Key Path: " + firebaseKeyPath);
+            
+            FileInputStream serviceAccount = new FileInputStream(firebaseKeyPath);
 
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))   
@@ -35,6 +38,7 @@ public class FirebaseConfig {
                 FirebaseApp.initializeApp(options);
             }
         } catch (IOException e) {
+            System.err.println("Failed to initialize Firebase with key path: " + firebaseKeyPath);
             e.printStackTrace();
         }
     }
@@ -42,7 +46,9 @@ public class FirebaseConfig {
     // Firestore bean to be used throughout the application
     @Bean
     public Firestore firestore() {
-        FirebaseApp defaultApp = FirebaseApp.getInstance();  // Ensure FirebaseApp is initialized
-        return FirestoreClient.getFirestore(defaultApp);
+        if (FirebaseApp.getApps().isEmpty()) {
+            throw new IllegalStateException("FirebaseApp initialization failed; no instance found.");
+        }
+        return FirestoreClient.getFirestore();
     }
 }
