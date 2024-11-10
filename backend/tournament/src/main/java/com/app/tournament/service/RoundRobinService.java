@@ -194,7 +194,10 @@ public class RoundRobinService {
             for (ParticipantDTO participant : nextMatch.getParticipants()) {
                 Integer updatedElo = eloMap.get(participant.getAuthId());
                 if (updatedElo != null) {
+                    int oldElo = participant.getElo();
                     participant.setElo(updatedElo); // Set the updated Elo for the participant
+                    logger.info("Updating Elo for participant {} in match {}: old Elo = {}, new Elo = {}",
+                            participant.getAuthId(), nextMatch.getId(), oldElo, updatedElo);
                 }
                 updatedParticipants.add(participant);
             }
@@ -222,6 +225,11 @@ public class RoundRobinService {
                 .flatMap(match -> match.getParticipants().stream())
                 .toList()) {
             DocumentReference userRef = usersCollection.document(participant.getAuthId());
+            Integer oldElo = eloMap.get(participant.getAuthId());
+            if (oldElo != null && !oldElo.equals(participant.getElo())) {
+                logger.info("Updating Elo in Users collection for participant {}: old Elo = {}, new Elo = {}",
+                        participant.getAuthId(), oldElo, participant.getElo());
+            }
             batch.update(userRef, "elo", participant.getElo());
         }
 
