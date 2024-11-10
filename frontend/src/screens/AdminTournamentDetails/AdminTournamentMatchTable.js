@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './UserTournamentMatch.css';
+import './AdminTournamentMatch.css';
 
-const UserTournamentMatchTable = ( {matches} ) => {
+const AdminTournamentMatchTable = ( {matches} ) => {
     const [participantsData, setParticipantsData] = useState([]);
     const { tournamentId } = useParams();
 
@@ -54,9 +54,8 @@ const UserTournamentMatchTable = ( {matches} ) => {
     });
 
     const handleGoToProfile = (authID) => {
-        navigate(`/user/profile/${authID}`);
+        navigate(`/admin/profile/${authID}`);
     }
-
 
     return (
         <div>
@@ -92,4 +91,4 @@ const UserTournamentMatchTable = ( {matches} ) => {
     );
 };
 
-export default UserTournamentMatchTable;
+export default AdminTournamentMatchTable;

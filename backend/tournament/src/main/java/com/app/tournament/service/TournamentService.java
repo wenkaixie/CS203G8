@@ -113,6 +113,7 @@ public class TournamentService {
         log.info("Fetching all tournaments...");
         CollectionReference tournamentsCollection = firestore.collection("Tournaments");
         QuerySnapshot tournamentsSnapshot = tournamentsCollection.get().get();
+        checkAndUpdateStatus(tournamentsSnapshot);
 
         List<Tournament> tournaments = new ArrayList<>();
         for (QueryDocumentSnapshot document : tournamentsSnapshot) {
@@ -393,6 +394,8 @@ public class TournamentService {
         CollectionReference tournamentsCollection = firestore.collection("Tournaments");
         ApiFuture<QuerySnapshot> futureTournamentsQuery = tournamentsCollection.get();
         QuerySnapshot tournamentsSnapshot = futureTournamentsQuery.get();
+        checkAndUpdateStatus(tournamentsSnapshot);
+
 
         System.out.println("Total tournaments retrieved: " + tournamentsSnapshot.size());
 

@@ -139,7 +139,7 @@ body {
 }
 
 .admin-tournament-match .dropdown-content {
-    display: none;
+    display: block;
     position: absolute;
     background-color: #fff;
     border: 1px solid #d1d1d1;
@@ -157,7 +157,9 @@ body {
 
 .admin-tournament-match .dropdown-content .dropdown-item:hover {
     background-color: #f1f1f1;
+    width: 90%;
 }
+
 
 /* Round Button Styles */
 .admin-tournament-match .order-button {
@@ -248,6 +250,44 @@ body {
 .delete-button {
     border: none;
     cursor: pointer;
+}
+
+/* Select Winner Dropdown Styles */
+.select-winner {
+    height: 30px;
+    width: 120px;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    padding: 0 12px;
+    margin: 0;
+    display: inline-block;
+    -webkit-appearance: none; /* For removing default styles in Webkit browsers */
+    -moz-appearance: none; /* For removing default styles in Firefox */
+    appearance: none; /* Standard for removing default dropdown styles */
+}
+
+.select-winner::after {
+    content: '▼'; /* Unicode character for down arrow */
+    font-size: 0.8rem;
+    color: #333;
+    position: absolute;
+    right: 15px; /* Position arrow to the right */
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Make sure arrow is not clickable */
+}
+
+.select-winner:focus {
+    outline: none;
+    border-color: #8F3013; 
+}
+
+.select-winner:hover {
+    background-color: #f9f9f9; 
 }
 
 /* Confirm Results Button */

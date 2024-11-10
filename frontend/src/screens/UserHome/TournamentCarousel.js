@@ -80,7 +80,7 @@ const TournamentCarousel = () => {
             <Carousel.Caption>
               <p>My Upcoming Tournaments</p>
               <h2>{tournament.name}</h2>
-              <h3>Round 1</h3>
+              <h3>{tournament.status}</h3>
               <CountdownTimer targetDate={tournament.startDatetime} />
             </Carousel.Caption>
           </Carousel.Item>

@@ -68,6 +68,7 @@ body {
 .user-tournament-participants .filter-button:hover,
 .user-tournament-participants .order-button:hover {
     background-color: #e0e0e0;
+    width: 90%;
 }
 
 /* Filter Icon */

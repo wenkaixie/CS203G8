@@ -20,7 +20,7 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1250px;
+    max-width: 1450px;
     margin: 0 auto 30px;
     padding: 0 20px;
     box-sizing: border-box;
@@ -153,6 +153,16 @@ body {
     margin-left: 5px;
 }
 
+.user-tournament-match .dropdown-content .dropdown-item {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.user-tournament-match .dropdown-content .dropdown-item:hover {
+    background-color: #f1f1f1;
+    width: 90%;
+}
+
 /* Round Title */
 .user-tournament-match .round-title {
     font-size: 1.1rem;
@@ -160,7 +170,7 @@ body {
     color: #8F3013;
     margin-bottom: 10px;
     margin-top: 20px;
-    max-width: 1250px; /* Restrict width to align with controls container */
+    max-width: 1450px; /* Restrict width to align with controls container */
     margin-left: auto;
     margin-right: auto;
 }
@@ -168,7 +178,7 @@ body {
 /* Restrict Table Width */
 .user-tournament-match .matches-table {
     width: 100%;
-    max-width: 1250px;
+    max-width: 1450px;
     margin: 0 auto;
     border-collapse: separate;
     margin-top: 20px;

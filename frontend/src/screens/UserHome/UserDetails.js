@@ -55,7 +55,7 @@ const UserDetails = () => {
                   height={'30%'}
                   width={'30%'}
                 />
-                <h2 style={{margin:'0px'}}>{userDetails.elo}</h2>
+                <h2 style={{margin:'1px'}}>{userDetails.elo}</h2>
               </div>
             </div>
             <div className='divider'></div>
@@ -67,7 +67,7 @@ const UserDetails = () => {
                   height={'30%'}
                   width={'30%'}
                 />
-                <h2 style={{margin:'0px'}}>#{userRank}</h2>
+                <h2 style={{margin:'1px'}}>#{userRank}</h2>
               </div>
             </div>
           </div>
