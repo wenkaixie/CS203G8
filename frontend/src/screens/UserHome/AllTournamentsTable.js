@@ -22,7 +22,7 @@ const AllTournamentsTable = () => {
     // Fetch eligible upcoming tournaments
     const fetchEligibleUpcomingTournaments = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/eligible/${auth.currentUser.uid}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/eligible/${auth.currentUser.uid}`);
             console.log(response.data);
             setTournaments(response.data);
         } catch (error) {
@@ -33,7 +33,7 @@ const AllTournamentsTable = () => {
     // Fetch all upcoming tournaments
     const fetchAllUpcomingTournaments = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/all`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/all`);
             console.log(response.data);
             setTournaments(response.data);
         } catch (error) {

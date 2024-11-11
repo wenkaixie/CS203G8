@@ -14,7 +14,7 @@ const AdminDetailsHeader = ({ activeTab, tournamentTitle, playerCount, onEditCli
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`);
                 setTournamentData(response.data);
             } catch (error) {
                 console.error('Failed to fetch tournament data:', error);
@@ -37,7 +37,7 @@ const AdminDetailsHeader = ({ activeTab, tournamentTitle, playerCount, onEditCli
         setIsSaving(true);
         try {
             // PUT request to update the tournament details
-            await axios.put(`http://localhost:8080/api/tournaments/${tournamentId}`, tournamentData);
+            await axios.put(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`, tournamentData);
             setIsEditModeInternal(false); // Exit edit mode on success
             onSaveClick(); // Save data in the parent component
         } catch (error) {
@@ -50,7 +50,7 @@ const AdminDetailsHeader = ({ activeTab, tournamentTitle, playerCount, onEditCli
     const handleDeleteClick = async () => {
         try {
             // DELETE request to delete the tournament
-            await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}`);
+            await axios.delete(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`);
             navigate('/admin/home'); // Redirect to the home after deletion
         } catch (error) {
             console.error("Error deleting tournament:", error);

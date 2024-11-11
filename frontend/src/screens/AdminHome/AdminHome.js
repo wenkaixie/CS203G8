@@ -57,7 +57,7 @@ const AdminHome = () => {
 
   const fetchTournaments = async () => {
     try {
-      const response = await axios.get(`http://localhost:7070/admin/getAdminTournaments/${auth.currentUser.uid}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}:7070/admin/getAdminTournaments/${auth.currentUser.uid}`);
       const tournaments = response.data;
       console.log(response.data);
       

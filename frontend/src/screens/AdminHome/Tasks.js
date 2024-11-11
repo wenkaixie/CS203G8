@@ -17,7 +17,7 @@ const Tasks = () => {
     const fetchTasks = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:7070/admin/getAdminTaskList/${auth.currentUser.uid}`
+          `${process.env.REACT_APP_API_URL}:7070/admin/getAdminTaskList/${auth.currentUser.uid}`
         );
         setTasks(response.data);
       } catch (error) {

@@ -22,7 +22,7 @@ const MyTournamentsTable = () => {
     // Fetch ongoing tournaments
     const fetchOngoingTournaments = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching ongoing tournaments:', error);
@@ -32,7 +32,7 @@ const MyTournamentsTable = () => {
     // Fetch upcoming tournaments
     const fetchUpcomingTournaments = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/upcoming/${auth.currentUser.uid}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/upcoming/${auth.currentUser.uid}`);
             setTournaments(response.data);
         } catch (error) {
             console.error('Error fetching upcoming tournaments:', error);

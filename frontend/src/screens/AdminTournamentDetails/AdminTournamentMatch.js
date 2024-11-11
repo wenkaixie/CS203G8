@@ -32,7 +32,7 @@ const AdminTournamentMatch = () => {
     useEffect(() => {
         const fetchTournamentDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
                 setTournamentTitle(tournamentData.name || 'Tournament');
                 setCurrentRound(tournamentData.currentRound);
@@ -46,7 +46,7 @@ const AdminTournamentMatch = () => {
 
     const fetchMatches = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/matches`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/matches`);
             const fetchedMatches = response.data;
 
             setMatches(
@@ -137,20 +137,20 @@ const AdminTournamentMatch = () => {
         try {
             // First API call to update Elo ratings
             await axios.put(
-                `http://localhost:9091/api/elo/tournaments/${tournamentId}/rounds/${roundNumber}/matches/updateElo`,
+                `${process.env.REACT_APP_API_URL}:9091/api/elo/tournaments/${tournamentId}/rounds/${roundNumber}/matches/updateElo`,
                 matchResults,
                 { headers: { 'Content-Type': 'application/json' } }
             );
 
             // Second API call to update match results
             await axios.put(
-                `http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/results`,
+                `${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/matches/results`,
                 matchResults,
                 { headers: { 'Content-Type': 'application/json' } }
             );
 
             if (roundMatches.length > 1 && tournamentType !== "ROUND_ROBIN") {
-                await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
+                await axios.post(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
                 setSuccessMessage('The next round has been created successfully.');
             } else {
                 setSuccessMessage('Results confirmed.');

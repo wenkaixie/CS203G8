@@ -27,6 +27,9 @@ WORKDIR /opt/app
 # Copy the JAR file from the build stage
 COPY --from=build /opt/app/target/*.jar /opt/app/app.jar
 
+# Copy the serviceAccountKey.json file into the image
+COPY serviceAccountKey.json /opt/app/serviceAccountKey.json
+
 # Define the command to run the JAR file when the container starts
 ENTRYPOINT ["java", "-jar", "app.jar"]
 

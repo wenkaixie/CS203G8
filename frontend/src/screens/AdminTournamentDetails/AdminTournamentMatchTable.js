@@ -12,7 +12,7 @@ const AdminTournamentMatchTable = ( {matches} ) => {
     useEffect(() => {
         const fetchParticipantsData = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/users`);
                 setParticipantsData(response.data);
             } catch (error) {
                 console.error('Error fetching participants data:', error);

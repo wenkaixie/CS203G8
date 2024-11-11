@@ -1,2 +1,4 @@
 node_modules
 serviceAccountKey.json
+frontend/.env.development
+frontend/.env.production

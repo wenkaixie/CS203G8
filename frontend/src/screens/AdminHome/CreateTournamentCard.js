@@ -50,7 +50,7 @@ const CreateTournamentCard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:7070/admin/createTournament', {
+      await axios.post(`${process.env.REACT_APP_API_URL}:7070/admin/createTournament`, {
         ...tournamentData,
         userId: auth.currentUser.uid
       });

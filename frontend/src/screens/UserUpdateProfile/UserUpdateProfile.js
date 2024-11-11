@@ -28,7 +28,7 @@ const UserUpdateProfile = () => {
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const response = await axios.get(`http://localhost:9090/user/getUser/${auth.currentUser.uid}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}:9090/user/getUser/${auth.currentUser.uid}`);
                 const data = response.data;
                 console.log("Data received:", data);
                 setName(data.name || '');
@@ -64,7 +64,7 @@ const UserUpdateProfile = () => {
         };
 
         try {
-            const response = await axios.put(`http://localhost:9090/user/updateUser/${auth.currentUser.uid}`, updatedProfileData);
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}:9090/user/updateUser/${auth.currentUser.uid}`, updatedProfileData);
 
             if (response.status === 200) {
                 alert('Profile updated successfully!');

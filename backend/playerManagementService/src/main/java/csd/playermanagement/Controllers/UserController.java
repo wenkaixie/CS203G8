@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://matchup-cs203g8.s3-website-ap-southeast-1.amazonaws.com")
 @RequestMapping("/user")
 public class UserController {
     

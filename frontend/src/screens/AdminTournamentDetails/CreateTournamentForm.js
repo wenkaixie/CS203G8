@@ -125,7 +125,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             console.log("Formatted data being sent:", formattedData);
 
             await axios.post(
-                `http://localhost:8080/api/tournaments`,
+                `${process.env.REACT_APP_API_URL}:8080/api/tournaments`,
                 formattedData
             );
 

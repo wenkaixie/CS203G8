@@ -23,7 +23,7 @@ const TournamentCarousel = () => {
   useEffect(() => {
     const fetchOngoingTournaments = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/ongoing/${auth.currentUser.uid}`);
         setOngoingTournaments(response.data);
       } catch (error) {
         console.error('Error fetching ongoing tournaments:', error);
@@ -36,7 +36,7 @@ const TournamentCarousel = () => {
   useEffect(() => {
     const fetchUpcomingTournaments = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/tournaments/upcoming/${auth.currentUser.uid}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/upcoming/${auth.currentUser.uid}`);
         setUpcomingTournaments(response.data);
       } catch (error) {
         console.error('Error fetching upcoming tournaments:', error);

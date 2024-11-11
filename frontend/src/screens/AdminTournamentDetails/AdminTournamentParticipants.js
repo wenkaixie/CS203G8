@@ -25,12 +25,12 @@ const AdminTournamentParticipants = () => {
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                const tournamentResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+                const tournamentResponse = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`);
                 const tournament = tournamentResponse.data;
                 setTournamentTitle(tournament.name || "Tournament");
                 setTournamentData(tournament);
 
-                const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+                const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/users`);
                 const usersArray = usersResponse.data;
                 setNumberOfPlayers(usersArray.length);
 
@@ -67,7 +67,7 @@ const AdminTournamentParticipants = () => {
 
     const handleConfirmParticipants = async () => {
         try {
-            await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/generateRounds`);
+            await axios.post(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/generateRounds`);
             setSuccessMessage("Rounds and matches generated successfully.");
             setShowConfirmParticipantsButton(false);
             localStorage.setItem(`confirmButton_${tournamentId}`, JSON.stringify(false));
@@ -119,7 +119,7 @@ const AdminTournamentParticipants = () => {
         const confirmDelete = window.confirm("Are you sure you want to remove this player from the tournament?");
         if (confirmDelete) {
             try {
-                await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`);
+                await axios.delete(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/players/${authId}`);
                 setParticipants(participants.filter((participant) => participant.authId !== authId));
                 setNumberOfPlayers(numberOfPlayers - 1);
             } catch (error) {

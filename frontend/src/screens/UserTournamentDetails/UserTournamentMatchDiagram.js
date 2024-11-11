@@ -47,7 +47,7 @@ export const WhiteThemeBracket = () => {
   const fetchTournamentMatches = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/tournaments/${tournamentId}/matches`
+        `${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/matches`
       );
       const fetchedMatches = response.data;
   

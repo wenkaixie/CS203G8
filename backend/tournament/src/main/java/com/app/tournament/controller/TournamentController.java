@@ -30,7 +30,7 @@ import com.app.tournament.service.EliminationService;
 import com.app.tournament.service.RoundRobinService;
 import com.app.tournament.service.TournamentService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://matchup-cs203g8.s3-website-ap-southeast-1.amazonaws.com")
 @RestController
 @RequestMapping("/api/tournaments")
 public class TournamentController {

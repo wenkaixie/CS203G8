@@ -20,7 +20,7 @@ import com.app.tournament.DTO.MatchResultUpdateRequest;
 import elo.service.EloService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://matchup-cs203g8.s3-website-ap-southeast-1.amazonaws.com")
 @RequestMapping("/api/elo")
 public class EloController {
 

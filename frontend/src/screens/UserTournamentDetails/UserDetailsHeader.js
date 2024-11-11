@@ -49,7 +49,7 @@ const UserDetailsHeader = () => {
 
             try {
                 const response = await axios.get(
-                    `http://localhost:9090/user/getUser/${authId}`
+                    `${process.env.REACT_APP_API_URL}:9090/user/getUser/${authId}`
                 );
                 const data = response.data;
 
@@ -69,7 +69,7 @@ const UserDetailsHeader = () => {
 
     const fetchUserDetails = async (authId) => {
         try {
-            const response = await axios.get(`http://localhost:9090/user/getUser/${authId}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}:9090/user/getUser/${authId}`);
             const userData = response.data;
 
             setUserElo(userData.elo || 0);
@@ -87,13 +87,13 @@ const UserDetailsHeader = () => {
     const fetchTournamentData = async (userElo) => {
         try {
             const response = await axios.get(
-                `http://localhost:8080/api/tournaments/${tournamentId}`
+                `${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`
             );
             const data = response.data;
 
             setTournamentData(data);
 
-            const usersResponse = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}/users`);
+            const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/users`);
             const usersArray = usersResponse.data
                 .map(user => user.authId ? user.authId.trim() : null)
                 .filter(authId => authId !== null && authId !== "");
@@ -119,7 +119,7 @@ const UserDetailsHeader = () => {
             try {
                 // Unregister the user in the player service using the new PUT endpoint
                 const unregisterResponse = await axios.put(
-                    `http://localhost:9090/user/unregisterTournament/${tournamentId}/${authId}`
+                    `${process.env.REACT_APP_API_URL}:9090/user/unregisterTournament/${tournamentId}/${authId}`
                 );
 
                 if (unregisterResponse.status !== 200) {
@@ -128,7 +128,7 @@ const UserDetailsHeader = () => {
 
                 // Remove the user from the tournament in the tournament service
                 const removeResponse = await axios.delete(
-                    `http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`
+                    `${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/players/${authId}`
                 );
 
                 if (removeResponse.status !== 200) {
