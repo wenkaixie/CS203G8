@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.tournament.DTO.MatchResultUpdateRequest;
 import com.app.tournament.DTO.TournamentDTO;
-import com.app.tournament.enumerator.MatchResult;
 import com.app.tournament.enumerator.TournamentType;
 import com.app.tournament.model.Match;
 import com.app.tournament.model.Tournament;
@@ -280,15 +279,39 @@ public class TournamentController {
             @PathVariable String tournamentID,
             @PathVariable int currentRoundNumber) {
         try {
-            eliminationService.populateNextRoundMatches(tournamentID, currentRoundNumber);
-            return ResponseEntity.ok("Next round populated with winners.");
+            // Retrieve the tournament type to determine which service to use
+            Tournament tournament = tournamentService.getTournamentById(tournamentID);
+            TournamentType tournamentType = tournament.getType();
+
+            switch (tournamentType) {
+                case ROUND_ROBIN:
+                    logger.info("Generating rounds for round-robin tournament ID: {}", tournamentID);
+                    roundRobinService.updateNextRoundElos(tournamentID, currentRoundNumber);
+                    break;
+
+                case ELIMINATION:
+                    logger.info("Generating rounds for elimination tournament ID: {}", tournamentID);
+                    eliminationService.populateNextRoundMatches(tournamentID, currentRoundNumber);
+                    break;
+
+                default:
+                    logger.error("Invalid tournament type specified: {}", tournamentType);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Invalid tournament type specified.");
+            }
+            return ResponseEntity.ok("Next rounds populated successfully.");
+
         } catch (ExecutionException | InterruptedException e) {
+            logger.error("Error generating rounds for tournament {}: {}", tournamentID, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error populating next round: " + e.getMessage());
+                .body("Error generating rounds: " + e.getMessage());
         } catch (Exception e) {
+            logger.error("An unexpected error occurred while populating matches for next round for tournament {}: {}", tournamentID,
+                    e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred: " + e.getMessage());
         }
+
     }
 
     // // tested working 8 Nov
