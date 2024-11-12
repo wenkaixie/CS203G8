@@ -125,7 +125,7 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             console.log("Formatted data being sent:", formattedData);
 
             await axios.post(
-                `${process.env.REACT_APP_API_URL}:8080/api/tournaments`,
+                `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments`,
                 formattedData
             );
 

@@ -57,7 +57,8 @@ const AdminHome = () => {
 
   const fetchTournaments = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}:7070/admin/getAdminTournaments/${auth.currentUser.uid}`);
+      const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:7070/admin/getAdminTournaments/${auth.currentUser.uid}`);
+      console.log(process.env.REACT_APP_API_URL);
       const tournaments = response.data;
       console.log(response.data);
       

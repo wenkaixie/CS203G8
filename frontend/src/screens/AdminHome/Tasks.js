@@ -16,9 +16,7 @@ const Tasks = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}:7070/admin/getAdminTaskList/${auth.currentUser.uid}`
-        );
+        const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:7070/admin/getAdminTaskList/${auth.currentUser.uid}`);
         setTasks(response.data);
       } catch (error) {
         console.error("Error fetching tasks:", error);

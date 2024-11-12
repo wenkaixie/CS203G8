@@ -22,7 +22,7 @@ const UserTournamentMatch = () => {
     useEffect(() => {
         const fetchTournamentDetails = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`);
+                const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}`);
                 const tournamentData = response.data;
                 setTournamentTitle(tournamentData.name || 'Tournament');
                 setCurrentRound(tournamentData.currentRound);
@@ -37,7 +37,7 @@ const UserTournamentMatch = () => {
     useEffect(() => {
         const fetchMatches = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/matches`);
+                const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}/matches`);
                 const fetchedMatches = response.data;
 
                 setMatches(
@@ -67,7 +67,7 @@ const UserTournamentMatch = () => {
 
         const fetchParticipantDetails = async (authId) => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}:9090/user/getUser/${authId}`);
+                const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/getUser/${authId}`);
                 return response.data;
             } catch (error) {
                 console.error('Error fetching participant details:', error);

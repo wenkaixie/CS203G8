@@ -47,7 +47,7 @@ export const WhiteThemeBracket = () => {
   const fetchTournamentMatches = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/matches`
+        `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}/matches`
       );
       const fetchedMatches = response.data;
   

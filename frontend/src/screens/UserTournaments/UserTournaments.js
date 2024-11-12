@@ -23,7 +23,7 @@ const UserTournaments = () => {
     useEffect(() => {
         const fetchTournaments = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/all`);
+                const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/all`);
                 setTournaments(response.data);
                 console.log(response.data);
             } catch (error) {

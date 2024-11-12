@@ -18,7 +18,7 @@ const UserTournamentParticipants = () => {
         const fetchTournamentData = async () => {
             try {
                 // Fetch participants directly from the tournament endpoint
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/users`);
+                const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}/users`);
                 const participantsData = response.data; // Expect an array of participants
 
                 setPlayerCount(participantsData.length);

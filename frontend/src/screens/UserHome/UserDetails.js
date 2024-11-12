@@ -14,7 +14,7 @@ const UserDetails = () => {
     useEffect(() => {
         const fetchUserDetails = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}:9090/user/getUser/${auth.currentUser.uid}`);
+                const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/getUser/${auth.currentUser.uid}`);
                 setUserDetails(response.data);
             } catch (error) {
                 console.error('Error fetching user details:', error);
@@ -27,7 +27,7 @@ const UserDetails = () => {
     useEffect(() => {
       const fetchUserRank = async () => {
           try {
-              const response = await axios.get(`${process.env.REACT_APP_API_URL}:9090/user/getUserRank/${auth.currentUser.uid}`);
+              const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/getUserRank/${auth.currentUser.uid}`);
               setUserRank(response.data);
           } catch (error) {
               console.error('Error fetching user rank:', error);

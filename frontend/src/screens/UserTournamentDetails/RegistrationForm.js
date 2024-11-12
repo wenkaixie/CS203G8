@@ -32,7 +32,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
     const fetchUserDetails = async (authId) => {
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}:9090/user/getUser/${authId}`
+                `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/getUser/${authId}`
             );
             const userData = response.data;
 
@@ -62,7 +62,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
         try {
             // Register the user using the PUT endpoint
             const playerServiceResponse = await axios.put(
-                `${process.env.REACT_APP_API_URL}:9090/user/registerTournament/${tournamentID}/${authId}`
+                `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/registerTournament/${tournamentID}/${authId}`
             );
 
             if (playerServiceResponse.status !== 200) {
@@ -71,7 +71,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
 
             // Register the user in the tournament service
             const tournamentServiceResponse = await axios.post(
-                `${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentID}/players`,
+                `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentID}/players`,
                 null,
                 { params: { userID: authId } } 
             );

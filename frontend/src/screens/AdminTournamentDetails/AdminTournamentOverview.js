@@ -17,12 +17,12 @@ const AdminTournamentOverview = () => {
     useEffect(() => {
         const fetchTournamentData = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`);
+                const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}`);
                 setTournamentData(response.data);
 
                 // Fetch users from the subcollection within the tournament
                 //change the api
-                const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/users`);
+                const usersResponse = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}/users`);
                 const usersArray = usersResponse.data
                     .map(user => user.authId ? user.authId.trim() : null) // Access authId field in each user object
                     .filter(authId => authId !== null && authId !== ""); // Filter out any null or empty authIds
@@ -61,7 +61,7 @@ const AdminTournamentOverview = () => {
                 endDatetime: new Date(tournamentData.endDatetime).toISOString(),
             };
 
-            await axios.put(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`, updatedTournamentData);
+            await axios.put(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}`, updatedTournamentData);
             setIsEditMode(false);
         } catch (error) {
             console.error("Error updating tournament:", error);

@@ -49,7 +49,7 @@ const UserDetailsHeader = () => {
 
             try {
                 const response = await axios.get(
-                    `${process.env.REACT_APP_API_URL}:9090/user/getUser/${authId}`
+                    `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/getUser/${authId}`
                 );
                 const data = response.data;
                 const check = data.registrationHistory || [];
@@ -70,7 +70,7 @@ const UserDetailsHeader = () => {
 
     const fetchUserDetails = async (authId) => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}:9090/user/getUser/${authId}`);
+            const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/getUser/${authId}`);
             const userData = response.data;
 
             setUserElo(userData.elo || 0);
@@ -88,13 +88,13 @@ const UserDetailsHeader = () => {
     const fetchTournamentData = async (userElo) => {
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}`
+                `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}`
             );
             const data = response.data;
 
             setTournamentData(data);
 
-            const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/users`);
+            const usersResponse = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}/users`);
             const usersArray = usersResponse.data
                 .map(user => user.authId ? user.authId.trim() : null)
                 .filter(authId => authId !== null && authId !== "");
@@ -142,7 +142,7 @@ const UserDetailsHeader = () => {
         } else if (isRegistered) {
             try {
                 const unregisterResponse = await axios.put(
-                    `${process.env.REACT_APP_API_URL}:9090/user/unregisterTournament/${tournamentId}/${authId}`
+                    `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/unregisterTournament/${tournamentId}/${authId}`
                 );
 
                 if (unregisterResponse.status !== 200) {
@@ -150,7 +150,7 @@ const UserDetailsHeader = () => {
                 }
 
                 const removeResponse = await axios.delete(
-                    `${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/players/${authId}`
+                    `http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/${tournamentId}/players/${authId}`
                 );
 
                 if (removeResponse.status !== 200) {

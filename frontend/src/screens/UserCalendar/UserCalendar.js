@@ -28,7 +28,7 @@ const UserCalendar = () => {
 
     const fetchTournaments = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/user/${auth.currentUser.uid}`);
+            const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:8080/api/tournaments/user/${auth.currentUser.uid}`);
             const tournaments = response.data;
             const currentDate = moment();
 

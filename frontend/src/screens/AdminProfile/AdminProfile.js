@@ -24,7 +24,7 @@ const AdminProfile = () => {
 
     const fetchProfile = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}:9090/user/getUser/${userID}`);
+            const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/getUser/${userID}`);
             const data = response.data;
             setAdminProfileData(data);
 
@@ -48,7 +48,7 @@ const AdminProfile = () => {
 
     const fetchUserRank = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}:9090/user/getUserRank/${userID}`);
+            const response = await axios.get(`http://matchup-load-balancer-1173773587.ap-southeast-1.elb.amazonaws.com:9090/user/getUserRank/${userID}`);
             setUserRank(response.data);
         } catch (error) {
             console.error('Error fetching user rank:', error);
