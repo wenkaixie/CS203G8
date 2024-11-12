@@ -60,7 +60,7 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
 
     const handleSubmit = async () => {
         try {
-            // Register the user using the new PUT endpoint
+            // Register the user using the PUT endpoint
             const playerServiceResponse = await axios.put(
                 `${process.env.REACT_APP_API_URL}:9090/user/registerTournament/${tournamentID}/${authId}`
             );

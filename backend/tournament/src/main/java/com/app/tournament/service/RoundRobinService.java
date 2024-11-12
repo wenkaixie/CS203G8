@@ -115,14 +115,29 @@ public class RoundRobinService {
                 ParticipantDTO player2 = participants.get(numPlayers - 1 - i);
 
                 // Only create a match if neither player is a bye
-                if (!"bye".equals(player1.getAuthId()) && !"bye".equals(player2.getAuthId())) {
-                    Match match = createMatch(player1, player2, (roundNumber - 1) * (numPlayers / 2) + i + 1,
-                            roundNumber);
-                    roundMatches.add(match);
-                    logger.info("Match created in Round {}: {} (ID: {}) vs {} (ID: {})",
-                            roundNumber, player1.getName(), player1.getAuthId(), player2.getName(),
-                            player2.getAuthId());
+                if (roundNumber == 1) {
+                    if (!"bye".equals(player1.getAuthId()) && !"bye".equals(player2.getAuthId())) {
+                        Match match = createMatch(player1, player2, (roundNumber - 1) * (numPlayers / 2) + i + 1,
+                                roundNumber);
+
+                        match.setStartTime(Instant.now());
+                        roundMatches.add(match);
+                        logger.info("Match created in Round {}: {} (ID: {}) vs {} (ID: {})",
+                                roundNumber, player1.getName(), player1.getAuthId(), player2.getName(),
+                                player2.getAuthId());
+                    }
                 }
+                else {
+                    if (!"bye".equals(player1.getAuthId()) && !"bye".equals(player2.getAuthId())) {
+                        Match match = createLaterMatch(player1, player2, (roundNumber - 1) * (numPlayers / 2) + i + 1,
+                                roundNumber);
+                        roundMatches.add(match);
+                        logger.info("Match created in Round {}: {} (ID: {}) vs {} (ID: {})",
+                                roundNumber, player1.getName(), player1.getAuthId(), player2.getName(),
+                                player2.getAuthId());
+                    }
+                }
+              
             }
 
             // Rotate participants, keeping the first participant fixed
@@ -162,6 +177,24 @@ public class RoundRobinService {
                 participants);
     }
 
+    private Match createLaterMatch(ParticipantDTO player1, ParticipantDTO player2, int matchId, int roundNumber) {
+        // Set player 1 and player 2's `id` for position within the match
+        player1.setId("1");
+        player2.setId("2");
+
+        List<ParticipantDTO> participants = List.of(player1, player2);
+
+        return new Match(
+                matchId,
+                "Round Robin Match " + matchId,
+                0, // No nextMatchId in round-robin
+                roundNumber,
+                null,
+                "PENDING",
+                null,
+                participants);
+    }
+
     public void updateNextRoundElos(String tournamentID, int currentRoundNumber)
             throws ExecutionException, InterruptedException {
         log.info("Populating next round matches for tournament {} from round {}.", tournamentID, currentRoundNumber);
@@ -190,7 +223,7 @@ public class RoundRobinService {
         List<Match> updatedMatches = new ArrayList<>();
         for (Match nextMatch : nextRound.getMatches()) {
             List<ParticipantDTO> updatedParticipants = new ArrayList<>();
-
+        
             for (ParticipantDTO participant : nextMatch.getParticipants()) {
                 Integer updatedElo = eloMap.get(participant.getAuthId());
                 if (updatedElo != null) {
@@ -201,19 +234,19 @@ public class RoundRobinService {
                 }
                 updatedParticipants.add(participant);
             }
-
-            // Create updated match with updated participants
+        
+            // Set startTime to the current instant
             Match updatedMatch = new Match(
                     nextMatch.getId(),
                     nextMatch.getName(),
                     nextMatch.getNextMatchId(),
                     currentRoundNumber + 1,
-                    nextMatch.getStartTime(),
+                    Instant.now(),
                     nextMatch.getState(),
                     nextMatch.getResult(),
                     updatedParticipants);
             updatedMatches.add(updatedMatch);
-        }
+        }        
 
         // 4. Set the updated matches in the next round and batch save the changes
         nextRound.setMatches(updatedMatches);

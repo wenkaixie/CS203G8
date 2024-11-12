@@ -149,7 +149,10 @@ const AdminTournamentMatch = () => {
                 { headers: { 'Content-Type': 'application/json' } }
             );
 
-            if (roundMatches.length > 1 && tournamentType !== "ROUND_ROBIN") {
+            const isLastMatchDraw = roundMatches.length === 1 && roundMatches[0].draw;
+            console.log("Draw:" + isLastMatchDraw);
+            if (!isLastMatchDraw) {
+                // Only create the next round if it's not the last match or if the last match is not a draw
                 await axios.post(`${process.env.REACT_APP_API_URL}:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
                 setSuccessMessage('The next round has been created successfully.');
             } else {
@@ -257,7 +260,7 @@ const AdminTournamentMatch = () => {
                                             {roundMatches.map((match, index) => (
                                                 <tr key={index} className={editingMatchId === match.id ? 'editing-row' : ''}>
                                                     <td>{index + 1}</td>
-                                                    <td>{new Date(match.startTime).toLocaleString()}</td>
+                                                    <td>{match.startTime ? new Date(match.startTime).toLocaleString() : "TBD"}</td>
                                                     <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants?.[0]?.name || '-'}</td>
                                                     <td>{match.participants?.[0]?.elo || '-'}</td>
                                                     <td>{match.participants?.[0]?.nationality || '-'}</td>

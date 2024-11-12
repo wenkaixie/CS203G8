@@ -196,16 +196,16 @@ const UserTournamentMatch = () => {
                                                 .map((match, index) => (
                                                     <tr key={index}>
                                                         <td>{index + 1}</td>
-                                                    <td>{new Date(match.startTime).toLocaleString()}</td>
-                                                    <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants?.[0]?.name || '-'}</td>
-                                                    <td>{match.participants?.[0]?.elo || '-'}</td>
-                                                    <td>{match.participants?.[0]?.nationality || '-'}</td>
-                                                    <td>{match.participants?.[0]?.displayResult ?? '-'}</td>
-                                                    <td className="vs-text">VS</td>
-                                                    <td>{match.participants?.[1]?.displayResult ?? '-'}</td>
-                                                    <td className='participant-name' onClick={() => handleGoToProfile(match.participants[1].authId)}>{match.participants?.[1]?.name || '-'}</td>
-                                                    <td>{match.participants?.[1]?.elo || '-'}</td>
-                                                    <td>{match.participants?.[1]?.nationality || '-'}</td>
+                                                        <td>{match.startTime ? new Date(match.startTime).toLocaleString() : "TBD"}</td>
+                                                        <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants?.[0]?.name || '-'}</td>
+                                                        <td>{match.participants?.[0]?.elo || '-'}</td>
+                                                        <td>{match.participants?.[0]?.nationality || '-'}</td>
+                                                        <td>{match.participants?.[0]?.displayResult ?? '-'}</td>
+                                                        <td className="vs-text">VS</td>
+                                                        <td>{match.participants?.[1]?.displayResult ?? '-'}</td>
+                                                        <td className='participant-name' onClick={() => handleGoToProfile(match.participants[1].authId)}>{match.participants?.[1]?.name || '-'}</td>
+                                                        <td>{match.participants?.[1]?.elo || '-'}</td>
+                                                        <td>{match.participants?.[1]?.nationality || '-'}</td>
                                                         <td>{match.state}</td>
                                                     </tr>
                                                 ))
