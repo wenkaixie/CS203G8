@@ -1,6 +1,5 @@
 package com.app.tournament.service;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -38,29 +37,18 @@ public class TournamentSchedulerService implements DisposableBean {
     private RoundRobinService roundRobinService;
 
     public void scheduleTournamentRoundGeneration(String tid, Instant startDatetime, TournamentType tournamentType) {
-        Instant now = Instant.now();
+        try {
+            captureEloSnapshot(tid);
 
-        // Calculate delay (24 hours before tournament start time)
-        long delayInSeconds = Duration.between(now, startDatetime.minus(Duration.ofHours(24))).getSeconds();
-
-        if (delayInSeconds > 0) {
-            scheduler.schedule(() -> {
-                try {
-                    captureEloSnapshot(tid);
-
-                    // Use the appropriate service based on tournament type
-                    if (tournamentType == TournamentType.ROUND_ROBIN) {
-                        roundRobinService.generateRoundsForTournament(tid);
-                    } else if (tournamentType == TournamentType.ELIMINATION) {
-                        eliminationService.generateRoundsForTournament(tid);
-                    }
-                    log.info("Rounds generated for tournament: {}", tid);
-                } catch (Exception e) {
-                    log.error("Error generating rounds for tournament: {}", tid, e);
-                }
-            }, delayInSeconds, TimeUnit.SECONDS);
-        } else {
-            log.info("The tournament {} is starting within 24 hours or has already started.", tid);
+            // Use the appropriate service based on tournament type
+            if (tournamentType == TournamentType.ROUND_ROBIN) {
+                roundRobinService.generateRoundsForTournament(tid);
+            } else if (tournamentType == TournamentType.ELIMINATION) {
+                eliminationService.generateRoundsForTournament(tid);
+            }
+            log.info("Rounds generated for tournament: {}", tid);
+        } catch (Exception e) {
+            log.error("Error generating rounds for tournament: {}", tid, e);
         }
     }
 
