@@ -47,22 +47,25 @@ export const WhiteThemeBracket = () => {
       );
       const fetchedMatches = response.data;
   
-      // Modify each match's participants and format startTime
       const updatedMatches = fetchedMatches.map((match) => {
-        // Format startTime to "DD-Mmm-YYYY HH:MM"
-        const startDate = new Date(match.startTime);
-        const formattedDate = startDate.toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        });
-        const formattedTime = startDate.toLocaleTimeString("en-GB", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        });
-        const formattedStartTime = `${formattedDate} ${formattedTime}`; // Concatenate date and time
-  
+        // Check if startTime is null and set formattedStartTime to "TBD" if so
+        const startDate = match.startTime ? new Date(match.startTime) : null;
+        const formattedDate = startDate
+          ? startDate.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "TBD";
+        const formattedTime = startDate
+          ? startDate.toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+          : "";
+        const formattedStartTime = startDate ? `${formattedDate} ${formattedTime}` : "TBD"; // Concatenate date and time if available
+      
         return {
           ...match,
           startTime: formattedStartTime,

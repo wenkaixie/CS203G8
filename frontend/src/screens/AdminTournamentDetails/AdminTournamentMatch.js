@@ -260,7 +260,7 @@ const AdminTournamentMatch = () => {
                                             {roundMatches.map((match, index) => (
                                                 <tr key={index} className={editingMatchId === match.id ? 'editing-row' : ''}>
                                                     <td>{index + 1}</td>
-                                                    <td>{new Date(match.startTime).toLocaleString()}</td>
+                                                    <td>{match.startTime ? new Date(match.startTime).toLocaleString() : "TBD"}</td>
                                                     <td className='participant-name' onClick={() => handleGoToProfile(match.participants[0].authId)}>{match.participants?.[0]?.name || '-'}</td>
                                                     <td>{match.participants?.[0]?.elo || '-'}</td>
                                                     <td>{match.participants?.[0]?.nationality || '-'}</td>
