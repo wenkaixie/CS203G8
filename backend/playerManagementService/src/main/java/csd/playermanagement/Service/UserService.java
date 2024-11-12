@@ -216,7 +216,7 @@ public class UserService {
             changes.put("elo", elo);
         } else {
             // Set default elo to 0 if no username provided
-            changes.put("elo", 0);
+            changes.put("elo", 800);
         }
     
         // Changes made to Firebase if any changes exist
