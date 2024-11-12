@@ -210,7 +210,7 @@ public class EliminationService {
                     "Match " + matchId, // Name of the match
                     0, // Placeholder for nextMatchId
                     roundNumber, // Round number text
-                    Instant.now(), // Start time of the match
+                    null, // Start time of the match
                     "PENDING", // Initial state of the match
                     null,
                     new ArrayList<>() // No participants initially

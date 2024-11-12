@@ -115,14 +115,27 @@ public class RoundRobinService {
                 ParticipantDTO player2 = participants.get(numPlayers - 1 - i);
 
                 // Only create a match if neither player is a bye
-                if (!"bye".equals(player1.getAuthId()) && !"bye".equals(player2.getAuthId())) {
-                    Match match = createMatch(player1, player2, (roundNumber - 1) * (numPlayers / 2) + i + 1,
-                            roundNumber);
-                    roundMatches.add(match);
-                    logger.info("Match created in Round {}: {} (ID: {}) vs {} (ID: {})",
-                            roundNumber, player1.getName(), player1.getAuthId(), player2.getName(),
-                            player2.getAuthId());
+                if (roundNumber == 1) {
+                    if (!"bye".equals(player1.getAuthId()) && !"bye".equals(player2.getAuthId())) {
+                        Match match = createMatch(player1, player2, (roundNumber - 1) * (numPlayers / 2) + i + 1,
+                                roundNumber);
+                        roundMatches.add(match);
+                        logger.info("Match created in Round {}: {} (ID: {}) vs {} (ID: {})",
+                                roundNumber, player1.getName(), player1.getAuthId(), player2.getName(),
+                                player2.getAuthId());
+                    }
                 }
+                else {
+                    if (!"bye".equals(player1.getAuthId()) && !"bye".equals(player2.getAuthId())) {
+                        Match match = createLaterMatch(player1, player2, (roundNumber - 1) * (numPlayers / 2) + i + 1,
+                                roundNumber);
+                        roundMatches.add(match);
+                        logger.info("Match created in Round {}: {} (ID: {}) vs {} (ID: {})",
+                                roundNumber, player1.getName(), player1.getAuthId(), player2.getName(),
+                                player2.getAuthId());
+                    }
+                }
+              
             }
 
             // Rotate participants, keeping the first participant fixed
@@ -157,6 +170,24 @@ public class RoundRobinService {
                 0, // No nextMatchId in round-robin
                 roundNumber,
                 Instant.now(),
+                "PENDING",
+                null,
+                participants);
+    }
+
+    private Match createLaterMatch(ParticipantDTO player1, ParticipantDTO player2, int matchId, int roundNumber) {
+        // Set player 1 and player 2's `id` for position within the match
+        player1.setId("1");
+        player2.setId("2");
+
+        List<ParticipantDTO> participants = List.of(player1, player2);
+
+        return new Match(
+                matchId,
+                "Round Robin Match " + matchId,
+                0, // No nextMatchId in round-robin
+                roundNumber,
+                null,
                 "PENDING",
                 null,
                 participants);
