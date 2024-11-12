@@ -119,6 +119,8 @@ public class RoundRobinService {
                     if (!"bye".equals(player1.getAuthId()) && !"bye".equals(player2.getAuthId())) {
                         Match match = createMatch(player1, player2, (roundNumber - 1) * (numPlayers / 2) + i + 1,
                                 roundNumber);
+
+                        match.setStartTime(Instant.now());
                         roundMatches.add(match);
                         logger.info("Match created in Round {}: {} (ID: {}) vs {} (ID: {})",
                                 roundNumber, player1.getName(), player1.getAuthId(), player2.getName(),
