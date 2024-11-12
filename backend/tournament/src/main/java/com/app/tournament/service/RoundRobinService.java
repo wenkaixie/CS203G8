@@ -223,7 +223,7 @@ public class RoundRobinService {
         List<Match> updatedMatches = new ArrayList<>();
         for (Match nextMatch : nextRound.getMatches()) {
             List<ParticipantDTO> updatedParticipants = new ArrayList<>();
-
+        
             for (ParticipantDTO participant : nextMatch.getParticipants()) {
                 Integer updatedElo = eloMap.get(participant.getAuthId());
                 if (updatedElo != null) {
@@ -234,19 +234,19 @@ public class RoundRobinService {
                 }
                 updatedParticipants.add(participant);
             }
-
-            // Create updated match with updated participants
+        
+            // Set startTime to the current instant
             Match updatedMatch = new Match(
                     nextMatch.getId(),
                     nextMatch.getName(),
                     nextMatch.getNextMatchId(),
                     currentRoundNumber + 1,
-                    nextMatch.getStartTime(),
+                    Instant.now(),
                     nextMatch.getState(),
                     nextMatch.getResult(),
                     updatedParticipants);
             updatedMatches.add(updatedMatch);
-        }
+        }        
 
         // 4. Set the updated matches in the next round and batch save the changes
         nextRound.setMatches(updatedMatches);
