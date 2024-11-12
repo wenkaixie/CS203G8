@@ -52,7 +52,7 @@ public class FirebaseConfig {
 
             
 
-            String credentialsPath = "serviceAccountKey.json";
+            String credentialsPath = "C:\\CS203G8\\serviceAccountKey.json";
 
             FileInputStream serviceAccount = new FileInputStream(credentialsPath);
 

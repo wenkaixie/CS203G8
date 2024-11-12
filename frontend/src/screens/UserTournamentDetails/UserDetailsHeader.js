@@ -23,6 +23,7 @@ const UserDetailsHeader = () => {
     const [registrationError, setRegistrationError] = useState('');
     const [userElo, setUserElo] = useState(null);
     const [authId, setAuthId] = useState(null);
+    const [hasDateConflict, setHasDateConflict] = useState(false); // New state for conflicting dates
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
@@ -44,7 +45,6 @@ const UserDetailsHeader = () => {
     useEffect(() => {
         const checkUserRegistration = async () => {
             if (!authId || !tournamentId) return;
-
             if (isRegistered) return;
 
             try {
@@ -52,11 +52,12 @@ const UserDetailsHeader = () => {
                     `http://localhost:9090/user/getUser/${authId}`
                 );
                 const data = response.data;
-
                 const check = data.registrationHistory || [];
 
                 if (check.includes(tournamentId)) {
                     setIsRegistered(true);
+                } else {
+                    checkTournamentDateConflicts(check);
                 }
             } catch (error) {
                 console.error('Error checking registration:', error);
@@ -106,18 +107,40 @@ const UserDetailsHeader = () => {
             const isEloEligible = userElo >= data.eloRequirement;
             const isRegistrationOpen = data.status === "Open";
 
-            setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen);
+            setIsEligible(isCapacityAvailable && isEloEligible && isRegistrationOpen && !hasDateConflict);
         } catch (error) {
             console.error('Failed to fetch tournament data:', error);
         }
     };
 
+    const checkTournamentDateConflicts = async (registeredTournamentIds) => {
+        try {
+            const currentTournament = await axios.get(`http://localhost:8080/api/tournaments/${tournamentId}`);
+            const { startDatetime, endDatetime } = currentTournament.data;
+
+            for (const id of registeredTournamentIds) {
+                const tournament = await axios.get(`http://localhost:8080/api/tournaments/${id}`);
+                const { startDatetime: regStart, endDatetime: regEnd } = tournament.data;
+
+                const isConflict = 
+                    (new Date(startDatetime) <= new Date(regEnd) && new Date(endDatetime) >= new Date(regStart));
+
+                if (isConflict) {
+                    setHasDateConflict(true);
+                    setRegistrationError("Registration failed due to date conflict with another tournament.");
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error("Error checking date conflicts:", error);
+        }
+    };
+
     const handleRegisterClick = async () => {
-        if (isEligible && !isRegistered) {
+        if (isEligible && !isRegistered && !hasDateConflict) {
             setShowRegistrationForm(true);
         } else if (isRegistered) {
             try {
-                // Unregister the user in the player service using the new PUT endpoint
                 const unregisterResponse = await axios.put(
                     `http://localhost:9090/user/unregisterTournament/${tournamentId}/${authId}`
                 );
@@ -126,7 +149,6 @@ const UserDetailsHeader = () => {
                     throw new Error("Failed to unregister from the tournament in player service");
                 }
 
-                // Remove the user from the tournament in the tournament service
                 const removeResponse = await axios.delete(
                     `http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`
                 );
@@ -135,7 +157,6 @@ const UserDetailsHeader = () => {
                     throw new Error("Failed to remove user from the tournament in tournament service");
                 }
 
-                // Update state after successful unregistration
                 setIsRegistered(false);
                 setNumberOfPlayers((prev) => prev - 1);
             } catch (error) {
@@ -244,7 +265,6 @@ const UserDetailsHeader = () => {
                 </ul>
             </div>
 
-            {/* Conditionally Render Based on activeTab */}
             {activeTab === 'overview' && <UserTournamentOverview />}
             {activeTab === 'participants' && <UserTournamentParticipants />}
             {activeTab === 'games' && <UserTournamentMatch />}

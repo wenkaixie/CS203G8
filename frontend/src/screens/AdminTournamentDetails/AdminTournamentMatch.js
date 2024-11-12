@@ -149,7 +149,10 @@ const AdminTournamentMatch = () => {
                 { headers: { 'Content-Type': 'application/json' } }
             );
 
-            if (roundMatches.length > 1 && tournamentType !== "ROUND_ROBIN") {
+            const isLastMatchDraw = roundMatches.length === 1 && roundMatches[0].draw;
+            console.log("Draw:" + isLastMatchDraw);
+            if (!isLastMatchDraw) {
+                // Only create the next round if it's not the last match or if the last match is not a draw
                 await axios.post(`http://localhost:8080/api/tournaments/${tournamentId}/rounds/${roundNumber}/populateNextRound`);
                 setSuccessMessage('The next round has been created successfully.');
             } else {
