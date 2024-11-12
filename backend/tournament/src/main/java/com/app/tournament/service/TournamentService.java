@@ -221,6 +221,16 @@ public class TournamentService {
         // Step 2: Remove tournament reference from the admin's document
 
 
+        // option 1, change to mono
+        // adminService.deleteTournamentReferenece(tournamentID);
+
+        // option 2, REST api call other service method from within existing method
+
+        // option 3,
+                
+        
+
+
         String adminId = tournamentRef.get().get().getString("adminId");
         if (adminId != null) {
             DocumentReference adminRef = firestore.collection("Admins").document(adminId);
