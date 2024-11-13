@@ -4,12 +4,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +34,6 @@ import com.google.gson.JsonParser;
 import csd.playermanagement.DTO.UserDTO;
 import csd.playermanagement.Exception.TournamentNotFoundException;
 import csd.playermanagement.Exception.UserNotFoundException;
-import csd.playermanagement.Exception.UserTournamentException;
-import csd.playermanagement.Model.Tournament;
 import csd.playermanagement.Model.User;
 
 @Service
@@ -216,7 +212,7 @@ public class UserService {
             changes.put("elo", elo);
         } else {
             // Set default elo to 0 if no username provided
-            changes.put("elo", 0);
+            changes.put("elo", 800);
         }
     
         // Changes made to Firebase if any changes exist
