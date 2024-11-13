@@ -46,10 +46,10 @@ const CreateTournamentForm = ({ onClose, onSuccess }) => {
             [name]: value,
         }));
 
-        if (name === 'endDate') {
-            const endDate = new Date(value);
-            endDate.setHours(endDate.getHours() + 8);
-            const closeRegDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
+        if (name === 'startDate') {
+            const startDate = new Date(value);
+            startDate.setHours(startDate.getHours() + 8);
+            const closeRegDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
             const formattedCloseRegDate = closeRegDate.toISOString().slice(0, 16);
             setFormData((prevData) => ({
                 ...prevData,
