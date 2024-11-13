@@ -31,7 +31,6 @@ public class TournamentDeletionSaga {
     private RabbitTemplate rabbitTemplate;
 
     private final String deleteTournamentQueue = RabbitMQConfig.DELETE_TOURNAMENT_QUEUE;
-    private final String deleteTournamentResponseQueue = RabbitMQConfig.DELETE_TOURNAMENT_RESPONSE_QUEUE;
 
     public void deleteTournament(String tournamentID) {
         try {
