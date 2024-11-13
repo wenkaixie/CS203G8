@@ -1,6 +1,7 @@
-C:\Users\ASUS\Documents\GitHub\CS203G8\backend\elo\src\main\java\elo\Configuration\FirebaseConfig.java
-C:\Users\ASUS\Documents\GitHub\CS203G8\backend\elo\src\main\java\elo\Configuration\RestTemplateConfig.java
-C:\Users\ASUS\Documents\GitHub\CS203G8\backend\elo\src\main\java\elo\controller\EloController.java
-C:\Users\ASUS\Documents\GitHub\CS203G8\backend\elo\src\main\java\elo\EloApplication.java
-C:\Users\ASUS\Documents\GitHub\CS203G8\backend\elo\src\main\java\elo\model\EloBatchUpdateRequest.java
-C:\Users\ASUS\Documents\GitHub\CS203G8\backend\elo\src\main\java\elo\service\EloService.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/elo/src/main/java/com/app/tournament/DTO/MatchResult.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/elo/src/main/java/com/app/tournament/DTO/MatchResultUpdateRequest.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/elo/src/main/java/elo/Configuration/FirebaseConfig.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/elo/src/main/java/elo/Configuration/RestTemplateConfig.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/elo/src/main/java/elo/EloApplication.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/elo/src/main/java/elo/controller/EloController.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/elo/src/main/java/elo/service/EloService.java

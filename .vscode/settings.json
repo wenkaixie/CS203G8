@@ -3,7 +3,8 @@
   "java.compile.nullAnalysis.mode": "automatic",
 "java.configuration.updateBuildConfiguration": "automatic",
 "java.project.sourcePaths": [
-    "backend/tournamentV2/src/main/java/com/app/tournament"
+    "backend/tournament/src/main/java/com/app/tournament",
+    "backend/sagaOrchestrator/src/main/java/com/csd/saga"
 ],
 "java.dependency.packagePresentation": "hierarchical"
 

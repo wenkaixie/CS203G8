@@ -1,5 +1,8 @@
-elo\EloApplication.class
-elo\Configuration\FirebaseConfig.class
-elo\controller\EloController.class
-elo\model\EloBatchUpdateRequest.class
-elo\Configuration\RestTemplateConfig.class
+elo/service/EloService.class
+elo/service/EloService$1.class
+elo/Configuration/RestTemplateConfig.class
+com/app/tournament/DTO/MatchResultUpdateRequest.class
+elo/controller/EloController.class
+elo/EloApplication.class
+com/app/tournament/DTO/MatchResult.class
+elo/Configuration/FirebaseConfig.class

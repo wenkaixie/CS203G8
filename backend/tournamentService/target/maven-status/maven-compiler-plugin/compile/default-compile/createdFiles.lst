@@ -1,0 +1,5 @@
+com/csd/tournament/WebConfig$1.class
+com/csd/tournament/WebConfig.class
+com/csd/tournament/FirebaseConfig.class
+com/csd/tournament/controller/TournamentController.class
+com/csd/tournament/TournamentMicroservice.class
