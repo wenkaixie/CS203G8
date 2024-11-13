@@ -2,6 +2,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "EloApplication",
+            "request": "launch",
+            "mainClass": "elo.EloApplication",
+            "projectName": "eloService"
+        },
+        {
+            "type": "java",
+            "name": "EloApplication",
+            "request": "launch",
+            "mainClass": "EloApplication",
+            "projectName": "CS203G8_e208e993"
+        },
+        {
+            "type": "java",
             "name": "TournamentMicroservice",
             "request": "launch",
             "mainClass": "com.csd.tournament.TournamentMicroservice",

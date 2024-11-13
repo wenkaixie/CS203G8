@@ -11,8 +11,8 @@
 	<groupId>com.csd</groupId>
 	<artifactId>saga</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Saga Orchestrator</name>
-	<description>Saga orchestrator for Spring Boot</description>
+	<name>tournament Service</name>
+	<description>Tournament microservice for Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
