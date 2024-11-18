@@ -2,10 +2,11 @@ package csd.adminmanagement.Controllers;
 
 import csd.adminmanagement.Exception.AdminNotFoundException;
 import csd.adminmanagement.Exception.TournamentNotFoundException;
-import csd.adminmanagement.Model.Admin;
-import csd.adminmanagement.Model.Tournament;
-import csd.adminmanagement.Service.AdminService;
 import csd.adminmanagement.Model.MatchResultUpdateRequest;
+// import csd.adminmanagement.Model.Admin;
+// import csd.adminmanagement.Model.Tournament;
+import csd.adminmanagement.Service.AdminService;
+// import csd.adminmanagement.Model.MatchResultUpdateRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.csd.shared_library.model.Admin;
+import com.csd.shared_library.model.Tournament;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")

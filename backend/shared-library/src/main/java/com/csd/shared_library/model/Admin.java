@@ -1,4 +1,4 @@
-package csd.adminmanagement.Model;
+package com.csd.shared_library.model;
 
 import java.util.List;
 

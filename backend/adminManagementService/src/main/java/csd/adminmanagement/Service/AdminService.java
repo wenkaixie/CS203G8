@@ -15,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.stereotype.Service;
 
+// import com.csd.shared_library.DTO.MatchResultUpdateRequest;
+import com.csd.shared_library.model.Admin;
+import com.csd.shared_library.model.Tournament;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
@@ -31,9 +34,9 @@ import org.springframework.web.client.RestTemplate;
 
 import csd.adminmanagement.Exception.AdminNotFoundException;
 import csd.adminmanagement.Exception.TournamentNotFoundException;
-import csd.adminmanagement.Model.Admin;
+// import csd.adminmanagement.Model.Admin;
 import csd.adminmanagement.Model.MatchResultUpdateRequest;
-import csd.adminmanagement.Model.Tournament;
+// import csd.adminmanagement.Model.Tournament;
 
 @Service
 public class AdminService {
