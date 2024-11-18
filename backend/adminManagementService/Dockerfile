@@ -34,7 +34,6 @@ COPY serviceAccountKey.json /opt/app/serviceAccountKey.json
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
-
 # You copy the JAR file from the first stage (which was created in Stage 1) into this minimal image,
 # and you define the command to run your application (with ENTRYPOINT).
 # Stage 2 does not rebuild anything—it just reuses the build artifact (the JAR file) from Stage 1.
