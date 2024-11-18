@@ -1,0 +1,46 @@
+name: Build and admin Image
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+  pull_request:  # Trigger on pull requests
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Decode the serviceAccountKey.json from GitHub Secrets
+      - name: Decode and Save serviceAccountKey.json
+        env:
+          FIREBASE_KEY: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo $FIREBASE_KEY | base64 -d > serviceAccountKey.json
+
+      # Move the serviceAccountKey.json to the build context
+      - name: Move serviceAccountKey.json to build context
+        run: mv serviceAccountKey.json ./backend/adminManagementService/
+
+      # Build the Docker image, passing the key as a build argument
+      - name: Build Docker image
+        run: |
+          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -t adminimage ./backend/adminManagementService
+
+
+
+
+
+      # Do not need to clean up because the key is moved to build context
+      # # Verification of the secret key
+      # - name: Verify serviceAccountKey.json presence
+      #   run: ls -l ./serviceAccountKey.json
+
+      # # Clean up the serviceAccountKey.json file
+      # - name: Clean up
+      #   run: |
+      #     rm serviceAccountKey.json
