@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main  # Trigger on pushes to the main branch
+    paths:
+      - 'backend/tournament/**'  # Trigger on changes to the tournament directory
+      - '.github/workflows/tournament.yml'  # Trigger on changes to the workflow file
   pull_request:  # Trigger on pull requests
 
 jobs:

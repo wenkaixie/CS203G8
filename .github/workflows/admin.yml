@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - main  # Trigger on pushes to the main branch
+    paths:
+      - 'backend/adminManagementService/**'  # Trigger on changes to the adminManagementService directory
+      - '.github/workflows/admin.yml'  # Trigger on changes to the workflow file
   pull_request:  # Trigger on pull requests
+
 
 jobs:
   build-and-test:
@@ -26,15 +30,18 @@ jobs:
       - name: Move serviceAccountKey.json to build context
         run: mv serviceAccountKey.json ./backend/adminManagementService/
 
+      - name: Install Shared Library
+        working-directory: backend/shared-library
+        run: mvn clean install -DskipTests
+
+      - name: Package Admin Management Service
+        working-directory: backend/adminManagementService
+        run: mvn clean package -DskipTests
+
       # Build the Docker image, passing the key as a build argument
       - name: Build Docker image
         run: |
           docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -t adminimage ./backend/adminManagementService
-
-
-
-
-
       # Do not need to clean up because the key is moved to build context
       # # Verification of the secret key
       # - name: Verify serviceAccountKey.json presence
