@@ -95,7 +95,7 @@ public class UserService {
                 throw new UserNotFoundException("User not found.");
             }
 
-            User user = UserMapper.mapDocumentToUser(userSnapshot);
+            User user = (User) UserMapper.mapDocumentToUser(userSnapshot);
             List<String> registrationHistory = user.getRegistrationHistory();
             if (registrationHistory == null) {
                 registrationHistory = new ArrayList<>();
@@ -138,7 +138,7 @@ public class UserService {
             }
 
             // Map the Firestore document to a User object using the helper method
-            User user = UserMapper.mapDocumentToUser(userSnapshot);
+            User user = (User) UserMapper.mapDocumentToUser(userSnapshot);
 
             // Retrieve the user's registration history
             List<String> registrationHistory = user.getRegistrationHistory();
@@ -274,7 +274,7 @@ public class UserService {
             List<User> usersList = new ArrayList<>();
 
             for (QueryDocumentSnapshot document : userDocuments) {
-                User user = UserMapper.mapDocumentToUser(document);
+                User user = (User) UserMapper.mapDocumentToUser(document);
                 if (user != null) {
                     usersList.add(user);
                 }
@@ -304,7 +304,7 @@ public class UserService {
             throw new UserNotFoundException("User not found with ID: " + userId);
         }
 
-        return UserMapper.mapDocumentToUser(document);
+        return (User) UserMapper.mapDocumentToUser(document);
 }
 
     /**
