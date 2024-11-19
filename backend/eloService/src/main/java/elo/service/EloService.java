@@ -10,12 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.app.tournament.DTO.MatchResult;
-import com.app.tournament.DTO.MatchResultUpdateRequest;
+import com.csd.shared_library.DTO.MatchResultUpdateRequest;
+import com.csd.shared_library.enumerator.MatchResult;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteBatch;
+
+// import elo.model.MatchResultUpdateRequest;
 
 @Service
 public class EloService {

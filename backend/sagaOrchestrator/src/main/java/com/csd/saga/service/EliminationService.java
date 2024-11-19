@@ -10,9 +10,9 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.csd.saga.DTO.ParticipantDTO;
-import com.csd.saga.model.Match;
-import com.csd.saga.model.Round;
+import com.csd.shared_library.DTO.ParticipantDTO;
+import com.csd.shared_library.model.Match;
+import com.csd.shared_library.model.Round;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;

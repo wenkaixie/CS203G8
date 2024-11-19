@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SharedLibraryApplication",
+            "request": "launch",
+            "mainClass": "com.csd.shared_library.SharedLibraryApplication",
+            "projectName": "shared-library"
+        },
+        {
+            "type": "java",
             "name": "EloApplication",
             "request": "launch",
             "mainClass": "elo.EloApplication",

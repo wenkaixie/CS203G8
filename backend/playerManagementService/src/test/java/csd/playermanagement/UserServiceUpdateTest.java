@@ -1,41 +1,40 @@
 package csd.playermanagement;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import com.google.cloud.Timestamp;
-
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.argThat;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import com.csd.shared_library.model.User;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
-import com.google.cloud.firestore.*;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
 
 import csd.playermanagement.DTO.UserDTO;
 import csd.playermanagement.Exception.UserNotFoundException;
-import csd.playermanagement.Model.User;
 import csd.playermanagement.Service.UserService;
 
 
@@ -111,7 +110,7 @@ public class UserServiceUpdateTest {
         updatedUser.setPhoneNumber(98765432);
         updatedUser.setNationality("New Country");
         updatedUser.setChessUsername("newChessUser");
-        updatedUser.setDateOfBirth(Timestamp.parseTimestamp("2023-09-15T00:00:00Z"));
+        updatedUser.setDateOfBirth(Instant.parse("2023-09-15T00:00:00Z"));
         updatedUser.setElo(0); // or set the expected elo value
 
         // Create a mock for the updated snapshot
@@ -189,7 +188,7 @@ public class UserServiceUpdateTest {
         existingUser.setPhoneNumber(12345678);
         existingUser.setNationality("Old Country");
         existingUser.setChessUsername("oldChessUser");
-        existingUser.setDateOfBirth(Timestamp.parseTimestamp("2023-01-01T00:00:00Z"));
+        existingUser.setDateOfBirth(Instant.parse("2023-09-15T00:00:00Z"));
         existingUser.setElo(1000);
     
         // Updated UserDTO with partial updates (only username and phoneNumber)
@@ -220,7 +219,7 @@ public class UserServiceUpdateTest {
         updatedUser.setPhoneNumber(98765432); // Updated phone number
         updatedUser.setNationality("Old Country"); // Nationality remains the same
         updatedUser.setChessUsername("oldChessUser"); // Chess username remains the same
-        updatedUser.setDateOfBirth(Timestamp.parseTimestamp("2023-01-01T00:00:00Z")); // Date of birth remains the same
+        updatedUser.setDateOfBirth(Instant.parse("2023-09-15T00:00:00Z")); // Date of birth remains the same
         updatedUser.setElo(0); // Elo updated to 0 as per method logic
     
         // Create a mock for the updated snapshot

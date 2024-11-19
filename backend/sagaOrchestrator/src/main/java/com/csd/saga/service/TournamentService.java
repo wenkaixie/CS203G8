@@ -11,18 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.csd.saga.DTO.MatchResultUpdateRequest;
-import com.csd.saga.DTO.TournamentDTO;
-import com.csd.saga.enumerator.MatchResult;
-import com.csd.saga.enumerator.TournamentType;
-import com.csd.saga.model.Match;
-import com.csd.saga.model.Round;
-import com.csd.saga.model.Tournament;
+import com.csd.shared_library.DTO.MatchResultUpdateRequest;
+import com.csd.shared_library.DTO.TournamentDTO;
+import com.csd.shared_library.enumerator.MatchResult;
+import com.csd.shared_library.enumerator.TournamentType;
+import com.csd.shared_library.model.Match;
+import com.csd.shared_library.model.Round;
+import com.csd.shared_library.model.Tournament;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.CollectionReference;
@@ -48,7 +46,7 @@ public class TournamentService {
     @Autowired
     private TournamentSchedulerService tournamentSchedulerService;
 
-    private static final Logger logger = LoggerFactory.getLogger(TournamentService.class);
+    // private static final log log = logFactory.getlog(TournamentService.class);
 
     // @Autowired
 
@@ -60,35 +58,62 @@ public class TournamentService {
     @Autowired
     private EliminationService eliminationService;
 
+    // public String createTournament(TournamentDTO tournamentDTO) throws
+    // ExecutionException, InterruptedException {
+    // log.info("Creating new tournament...");
+
+    // String authId = tournamentDTO.getAdminId();
+    // DocumentReference adminRef = firestore.collection("Admins").document(authId);
+    // DocumentSnapshot adminSnapshot = adminRef.get().get();
+
+    // // Check if admin exists before creating the tournament
+    // if (!adminSnapshot.exists()) {
+    // log.warn("Admin with authId {} not found in Admins collection.", authId);
+    // throw new RuntimeException("Admin not found with authId: " + authId);
+    // }
+
+    // DocumentReference docRef = firestore.collection("Tournaments").document();
+    // String generatedId = docRef.getId();
+    // log.info("Generated tournament ID: {}", generatedId);
+
+    // TournamentType tournamentType = tournamentDTO.getType();
+    // tournamentSchedulerService.scheduleTournamentRoundGeneration(generatedId,
+    // tournamentDTO.getStartDatetime(),
+    // tournamentType);
+
+    // Tournament tournament = convertToEntity(tournamentDTO, generatedId);
+    // ApiFuture<WriteResult> future = docRef.set(tournament);
+    // future.get();
+    // log.info("Tournament {} created successfully.", generatedId);
+
+    // // Update the admin's document with the new tournament ID
+    // adminRef.update("tournamentCreated",
+    // FieldValue.arrayUnion(generatedId)).get();
+    // log.info("Tournament ID {} added to admin {}'s tournamentCreated field.",
+    // generatedId, authId);
+
+    // return generatedId;
+    // }
+
+
+    // refactor attempt
     public String createTournament(TournamentDTO tournamentDTO) throws ExecutionException, InterruptedException {
         log.info("Creating new tournament...");
 
-        String authId = tournamentDTO.getAdminId();
-        DocumentReference adminRef = firestore.collection("Admins").document(authId);
-        DocumentSnapshot adminSnapshot = adminRef.get().get();
-
-        // Check if admin exists before creating the tournament
-        if (!adminSnapshot.exists()) {
-            log.warn("Admin with authId {} not found in Admins collection.", authId);
-            throw new RuntimeException("Admin not found with authId: " + authId);
-        }
 
         DocumentReference docRef = firestore.collection("Tournaments").document();
         String generatedId = docRef.getId();
         log.info("Generated tournament ID: {}", generatedId);
 
         TournamentType tournamentType = tournamentDTO.getType();
-        tournamentSchedulerService.scheduleTournamentRoundGeneration(generatedId, tournamentDTO.getStartDatetime(),
+        tournamentSchedulerService.scheduleTournamentRoundGeneration(generatedId,
+                tournamentDTO.getStartDatetime(),
                 tournamentType);
 
         Tournament tournament = convertToEntity(tournamentDTO, generatedId);
         ApiFuture<WriteResult> future = docRef.set(tournament);
         future.get();
         log.info("Tournament {} created successfully.", generatedId);
-
-        // Update the admin's document with the new tournament ID
-        adminRef.update("tournamentCreated", FieldValue.arrayUnion(generatedId)).get();
-        log.info("Tournament ID {} added to admin {}'s tournamentCreated field.", generatedId, authId);
 
         return generatedId;
     }
@@ -218,7 +243,6 @@ public class TournamentService {
             throw new RuntimeException("Tournament not found with ID: " + tournamentID);
         }
 
-
         String adminId = tournamentRef.get().get().getString("adminId");
         if (adminId != null) {
             DocumentReference adminRef = firestore.collection("Admins").document(adminId);
@@ -256,64 +280,66 @@ public class TournamentService {
             throws ExecutionException, InterruptedException {
         log.info("Adding user {} to tournament {}.", authId, tournamentID);
 
-        // Reference to the user in the main Users collection
-        DocumentReference userRef = firestore.collection("Users").document(authId);
-        DocumentSnapshot userDoc = userRef.get().get();
+        try {
+            // Reference to the user in the main Users collection
+            DocumentReference userRef = firestore.collection("Users").document(authId);
+            DocumentSnapshot userDoc = userRef.get().get();
 
-        if (!userDoc.exists()) {
-            log.error("User {} not found in the Users collection.", authId);
-            throw new RuntimeException("User not found with ID: " + authId);
+            if (!userDoc.exists()) {
+                log.error("User {} not found in the Users collection.", authId);
+                throw new RuntimeException("User not found with ID: " + authId);
+            }
+
+            // Retrieve user details from the main Users collection
+            String name = userDoc.getString("name");
+            String nationality = userDoc.getString("nationality");
+            Long elo = userDoc.getLong("elo");
+
+            if (name == null || nationality == null || elo == null) {
+                log.error("Missing user data for user {}: name={}, nationality={}, elo={}", authId, name, nationality,
+                        elo);
+                throw new RuntimeException("Incomplete user data for ID: " + authId);
+            }
+
+            // Reference to the tournament
+            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
+            DocumentSnapshot tournamentDoc = tournamentRef.get().get();
+
+            if (!tournamentDoc.exists()) {
+                log.error("Tournament {} not found.", tournamentID);
+                throw new RuntimeException("Tournament not found with ID: " + tournamentID);
+            }
+
+            // Reference to the Users subcollection within the tournament
+            CollectionReference usersCollection = tournamentRef.collection("Users");
+            DocumentReference tournamentUserRef = usersCollection.document(authId);
+
+            // Check if the user already exists in the tournament's Users subcollection
+            DocumentSnapshot tournamentUserDoc = tournamentUserRef.get().get();
+            if (tournamentUserDoc.exists()) {
+                log.warn("User {} is already part of the tournament {}.", authId, tournamentID);
+                return "User is already part of the tournament.";
+            }
+
+            // Prepare the data to be stored in the tournament's Users subcollection
+            Map<String, Object> userData = Map.of(
+                    "authId", authId,
+                    "name", name,
+                    "nationality", nationality,
+                    "elo", elo,
+                    "score", 0,
+                    "joinedAt", Instant.now());
+
+            // Add the user to the tournament's Users subcollection
+            tournamentUserRef.set(userData).get();
+            log.info("User {} added to tournament {}.", authId, tournamentID);
+
+            return "User added successfully.";
+
+        } catch (Exception e) {
+            log.error("Error adding user {} to tournament {}: {}", authId, tournamentID, e.getMessage(), e);
+            throw new RuntimeException("Failed to add user to tournament. Triggering rollback.", e);
         }
-
-        // Retrieve user details from the main Users collection
-        String name = userDoc.getString("name");
-        String nationality = userDoc.getString("nationality");
-        Long elo = userDoc.getLong("elo");
-
-        if (name == null || nationality == null || elo == null) {
-            log.error("Missing user data for user {}: name={}, nationality={}, elo={}", authId, name, nationality, elo);
-            throw new RuntimeException("Incomplete user data for ID: " + authId);
-        }
-
-        // Reference to the tournament
-        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
-        DocumentSnapshot tournamentDoc = tournamentRef.get().get();
-
-        if (!tournamentDoc.exists()) {
-            log.error("Tournament {} not found.", tournamentID);
-            throw new RuntimeException("Tournament not found with ID: " + tournamentID);
-        }
-
-        // Reference to the Users subcollection within the tournament
-        CollectionReference usersCollection = tournamentRef.collection("Users");
-        DocumentReference tournamentUserRef = usersCollection.document(authId);
-
-        // Check if the user already exists in the tournament's Users subcollection
-        DocumentSnapshot tournamentUserDoc = tournamentUserRef.get().get();
-        if (tournamentUserDoc.exists()) {
-            log.warn("User {} is already part of the tournament {}.", authId, tournamentID);
-            return "User is already part of the tournament.";
-        }
-
-        // Prepare the data to be stored in the tournament's Users subcollection
-        Map<String, Object> userData = Map.of(
-                "authId", authId,
-                "name", name,
-                "nationality", nationality,
-                "elo", elo,
-                "score", 0,
-                "joinedAt", Instant.now());
-
-        // Add the user to the tournament's Users subcollection
-        tournamentUserRef.set(userData).get();
-        log.info("User {} added to tournament {} with nationality {} and Elo {}.", authId, tournamentID, nationality,
-                elo);
-
-        // Add the tournament ID to the user's registration history
-        userRef.update("registrationHistory", FieldValue.arrayUnion(tournamentID)).get();
-        log.info("Tournament {} added to registration history of user {}.", tournamentID, authId);
-
-        return "User added successfully.";
     }
 
     // Remove a user from a tournament
@@ -321,40 +347,31 @@ public class TournamentService {
             throws ExecutionException, InterruptedException {
         log.info("Removing user {} from tournament {}.", authId, tournamentID);
 
-        // Reference to the tournament document
-        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
-        DocumentSnapshot tournamentDoc = tournamentRef.get().get();
+        try {
+            // Reference to the tournament document
+            DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentID);
 
-        if (!tournamentDoc.exists()) {
-            log.error("Tournament {} not found.", tournamentID);
-            throw new RuntimeException("Tournament not found with ID: " + tournamentID);
+            // Reference to the Users subcollection within the tournament
+            CollectionReference usersCollection = tournamentRef.collection("Users");
+            DocumentReference userRef = usersCollection.document(authId);
+
+            // Check if the user exists in the tournament's subcollection
+            DocumentSnapshot userDoc = userRef.get().get();
+            if (!userDoc.exists()) {
+                log.warn("User {} not found in tournament {}.", authId, tournamentID);
+                return "User not found in the tournament.";
+            }
+
+            // Remove the user document from the tournament's Users subcollection
+            userRef.delete().get();
+            log.info("User {} removed from tournament {}.", authId, tournamentID);
+
+            return "User removed successfully.";
+        } catch (Exception e) {
+            log.error("Error removing user {} from tournament {}: {}", authId, tournamentID, e.getMessage(), e);
+            throw new RuntimeException("Failed to remove user from tournament. Triggering rollback.", e);
         }
-
-        // Reference to the Users subcollection within the tournament
-        CollectionReference usersCollection = tournamentRef.collection("Users");
-        DocumentReference userRef = usersCollection.document(authId);
-
-        // Check if the user exists in the tournament's subcollection
-        DocumentSnapshot userDoc = userRef.get().get();
-        if (!userDoc.exists()) {
-            log.warn("User {} not found in tournament {}.", authId, tournamentID);
-            return "User not found in the tournament.";
-        }
-
-        // Remove the user document from the tournament's Users subcollection
-        userRef.delete().get();
-        log.info("User {} removed from tournament {}.", authId, tournamentID);
-
-        // Reference to the user document in the main Users collection
-        DocumentReference mainUserRef = firestore.collection("Users").document(authId);
-
-        // Remove the tournament ID from the user's registration history
-        mainUserRef.update("registrationHistory", FieldValue.arrayRemove(tournamentID)).get();
-        log.info("Tournament {} removed from registration history of user {}.", tournamentID, authId);
-
-        return "User removed successfully.";
     }
-
 
     // Function to get eligible tournaments of a user
     // edited wenkai 5/11
@@ -383,7 +400,6 @@ public class TournamentService {
         ApiFuture<QuerySnapshot> futureTournamentsQuery = tournamentsCollection.get();
         QuerySnapshot tournamentsSnapshot = futureTournamentsQuery.get();
         checkAndUpdateStatus(tournamentsSnapshot);
-
 
         System.out.println("Total tournaments retrieved: " + tournamentsSnapshot.size());
 
@@ -447,7 +463,7 @@ public class TournamentService {
                 initiallyEligibleTournaments.add(tournament);
                 System.out.println("Tournament " + tournamentDoc.getId() + " added to the eligible list.");
             } catch (Exception e) {
-                // Log the error if deserialization or addition fails
+                // log the error if deserialization or addition fails
                 System.out.println("Failed to add tournament " + tournamentDoc.getId() + ": " + e.getMessage());
                 e.printStackTrace();
             }
@@ -594,7 +610,7 @@ public class TournamentService {
     // tournament
     public List<Map<String, Object>> getAllUsersFromTournament(String tournamentID)
             throws ExecutionException, InterruptedException {
-        logger.info("Starting retrieval of users from tournament with ID: {}", tournamentID);
+        log.info("Starting retrieval of users from tournament with ID: {}", tournamentID);
 
         CollectionReference usersRef = firestore.collection("Tournaments")
                 .document(tournamentID)
@@ -608,7 +624,7 @@ public class TournamentService {
             users.add(document.getData()); // Retrieve document data as Map
         }
 
-        logger.info("Retrieved {} users from tournament with ID: {}", users.size(), tournamentID);
+        log.info("Retrieved {} users from tournament with ID: {}", users.size(), tournamentID);
         return users;
     }
 
@@ -631,9 +647,10 @@ public class TournamentService {
         }
         return tournaments;
     }
-    
-    //method to get upcoming tournaments of user
-    public List<Tournament> getUpcomingTournamentsOfUser(String authId) throws ExecutionException, InterruptedException {
+
+    // method to get upcoming tournaments of user
+    public List<Tournament> getUpcomingTournamentsOfUser(String authId)
+            throws ExecutionException, InterruptedException {
         log.info("Fetching upcoming tournaments of user with ID: {}", authId);
 
         // Retrieve the user document directly by document ID (authId)
@@ -686,8 +703,7 @@ public class TournamentService {
         return tournaments;
     }
 
-
-    //method to get past tournaments of user
+    // method to get past tournaments of user
     public List<Tournament> getPastTournamentsOfUser(String authId) throws ExecutionException, InterruptedException {
         log.info("Fetching past tournaments of user with ID: {}", authId);
 
@@ -741,7 +757,7 @@ public class TournamentService {
         return tournaments;
     }
 
-    //method to get ongoing tournaments of user
+    // method to get ongoing tournaments of user
     public List<Tournament> getOngoingTournamentsOfUser(String authId) throws ExecutionException, InterruptedException {
         log.info("Fetching ongoing tournaments of user with ID: {}", authId);
 
@@ -796,7 +812,8 @@ public class TournamentService {
         return tournaments;
     }
 
-    public void updateMatchResults(String tournamentID, int roundNumber, Map<Integer, MatchResultUpdateRequest> matchResults)
+    public void updateMatchResults(String tournamentID, int roundNumber,
+            Map<Integer, MatchResultUpdateRequest> matchResults)
             throws ExecutionException, InterruptedException {
         DocumentReference roundDocRef = firestore.collection("Tournaments")
                 .document(tournamentID)
