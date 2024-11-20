@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+
+import com.csd.saga.AMQP.RabbitMQConfig;
 import com.csd.saga.clientInterface.AdminManagementServiceClient;
 import com.csd.saga.clientInterface.TournamentServiceClient;
 import com.csd.saga.service.TournamentSchedulerService;
@@ -15,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class TournamentCreationSaga {
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     private TournamentSchedulerService tournamentSchedulerService;
@@ -64,18 +70,17 @@ public class TournamentCreationSaga {
 
     private void rollbackTournamentCreation(String adminId, String tournamentId) {
         try {
-            // Step 1: Remove Tournament
-            tournamentServiceClient.deleteTournament(tournamentId);
-            log.info("Rolled back tournament creation by deleting tournament ID: {}", tournamentId);
+            // Step 1: Send Delete Tournament Message
+            rabbitTemplate.convertAndSend(
+                RabbitMQConfig.DELETE_TOURNAMENT_QUEUE,
+                adminId + "," + tournamentId
+            );
+            log.info("Sent rollback message to delete tournament ID: {}", tournamentId);
 
-            // Step 2: Revert Admin Update
-            adminManagementServiceClient.removeTournamentFromAdmin(adminId, tournamentId);
-            log.info("Rolled back admin update for admin ID: {}", adminId);
         } catch (Exception rollbackException) {
             log.error("Rollback failed for tournament ID {}: {}", tournamentId, rollbackException.getMessage());
         }
 
         
     }
-    
 }

@@ -5,6 +5,7 @@ com/csd/saga/SagaOrchestratorApplication.class
 com/csd/saga/saga/TournamentQuerySaga.class
 com/csd/saga/controller/SagaOrchestratorController.class
 com/csd/saga/service/EliminationService.class
+com/csd/saga/AMQP/RabbitMQConfig.class
 com/csd/saga/service/TournamentService$1.class
 com/csd/saga/service/TournamentService.class
 com/csd/saga/clientInterface/PlayerManagementServiceClient.class

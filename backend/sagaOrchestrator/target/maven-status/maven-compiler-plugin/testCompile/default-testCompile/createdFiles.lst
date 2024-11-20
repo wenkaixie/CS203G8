@@ -1,1 +1,2 @@
 com/csd/saga/SagaOrchestratorApplicationTests.class
+com/csd/saga/config/RabbitMQConfigTest.class
