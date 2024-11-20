@@ -31,6 +31,7 @@ import com.google.gson.JsonParser;
 import csd.playermanagement.DTO.UserDTO;
 import csd.playermanagement.Exception.TournamentNotFoundException;
 import csd.playermanagement.Exception.UserNotFoundException;
+
 import csd.playermanagement.helper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -193,7 +194,7 @@ public class UserService {
             }
 
             DocumentSnapshot updatedUserSnapshot = userRef.get().get();
-            User fullUpdatedUser = updatedUserSnapshot.toObject(User.class);
+            User fullUpdatedUser = UserMapper.mapDocumentToUser(updatedUserSnapshot);
 
             if (fullUpdatedUser == null) {
                 throw new RuntimeException("Error retrieving updated user data.");
@@ -322,7 +323,7 @@ public class UserService {
 
             int rank = 1;
             for (QueryDocumentSnapshot document : userDocuments) {
-                User user = document.toObject(User.class);
+                User user = UserMapper.mapDocumentToUser(document);
                 if (user.getAuthId().equals(authId)) {
                     log.info("Rank for user {} is {}", authId, rank);
                     return rank;
@@ -363,7 +364,7 @@ public class UserService {
 
 
         DocumentSnapshot userSnapshot = documentReference.get().get();
-        User createdUser = userSnapshot.toObject(User.class);
+        User createdUser = UserMapper.mapDocumentToUser(userSnapshot);
 
         return createdUser;
     }
