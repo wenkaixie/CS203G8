@@ -28,6 +28,9 @@ public class SagaOrchestratorService {
     private RemoveUserFromTournamentSaga removeUserFromTournamentSaga;
 
     // @Autowired
+    // private UpdateEloSaga updateEloSaga;
+
+    // @Autowired
     // private TournamentQuerySaga tournamentQuerySaga;
 
     /**
@@ -84,6 +87,27 @@ public class SagaOrchestratorService {
         removeUserFromTournamentSaga.removeUserFromTournament(tournamentID, userID);
     }
 
+    // public ResponseEntity<String> updateEloSaga(String tournamentID, int roundNumber,
+    //                                             MatchResultUpdateRequest resultRequest2) {
+    //                                                     log.info("Starting Elo Update Saga for tournament: {}", tournamentID);
+                                                
+    //                                                     for (Map.Entry<Integer, MatchResultUpdateRequest> entry : resultRequest2.entrySet()) {
+    //         Integer matchId = entry.getKey();
+    //         MatchResultUpdateRequest resultRequest = entry.getValue();
+
+    //         try {
+    //             updateEloSaga(tournamentID, matchId, resultRequest);
+    //         } catch (Exception e) {
+    //             log.error("Saga failed for match {} in tournament {}: {}", matchId, tournamentID, e.getMessage());
+    //             return ResponseEntity.internalServerError()
+    //                     .body("Saga failed for match " + matchId + ": " + e.getMessage());
+    //         }
+    //     }
+
+    //     log.info("Elo Update Saga successfully completed for tournament: {}", tournamentID);
+    //     return ResponseEntity.ok("Elo ratings processed successfully for provided matches.");
+    // }
+
     // /**
     //  * Get a list of upcoming tournaments for a user.
     //  * 
@@ -124,7 +148,5 @@ public class SagaOrchestratorService {
     //     return tournamentQuerySaga.getEligibleTournaments(userID);
     // }
 
-    // public void startRemoveUserFromTournamentSaga(String tournamentID, String userID) {
-    //     throw new UnsupportedOperationException("Not supported yet.");
-    // }
+   
 }

@@ -122,6 +122,8 @@ public class EloService {
 
         DocumentReference player1Ref = firestore.collection("Users").document(player1Id);
         DocumentReference player2Ref = firestore.collection("Users").document(player2Id);
+
+
         DocumentReference tournamentPlayer1Ref = firestore.collection("Tournaments").document(tournamentID)
                 .collection("Users").document(player1Id);
         DocumentReference tournamentPlayer2Ref = firestore.collection("Tournaments").document(tournamentID)
@@ -129,6 +131,8 @@ public class EloService {
 
         batch.update(player1Ref, "elo", newElo1);
         batch.update(player2Ref, "elo", newElo2);
+
+        
         batch.update(tournamentPlayer1Ref, "elo", newElo1);
         batch.update(tournamentPlayer2Ref, "elo", newElo2);
 

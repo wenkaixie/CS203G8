@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -38,9 +39,14 @@ public interface TournamentServiceClient {
     ResponseEntity<String> addUserToTournament(@PathVariable String tournamentID,@RequestParam String userID);
 
     @DeleteMapping("/api/tournaments/{tournamentID}/players/{userID}")
-    ResponseEntity<Void> removeUserFromTournament(@PathVariable String tournamentID,@PathVariable String userID);
+    ResponseEntity<String> removeUserFromTournament(@PathVariable String tournamentID,@PathVariable String userID);
 
 
+
+
+    @PutMapping("/tournaments/{tournamentId}/players/{playerId}/elo")
+    void updateTournamentPlayerElo(@PathVariable("tournamentId") String tournamentId, @PathVariable("playerId") String playerId, @RequestBody int newElo);
+    
 
     @PostMapping("/api/tournaments/{tournamentID}/reinstate")
     void reinstateTournament(@PathVariable("tournamentID") String tournamentID);

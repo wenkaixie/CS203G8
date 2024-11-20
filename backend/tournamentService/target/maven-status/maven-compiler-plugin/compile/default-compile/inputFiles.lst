@@ -2,3 +2,8 @@
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/tournamentService/src/main/java/com/csd/tournament/TournamentMicroservice.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/tournamentService/src/main/java/com/csd/tournament/WebConfig.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/tournamentService/src/main/java/com/csd/tournament/controller/TournamentController.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/tournamentService/src/main/java/com/csd/tournament/service/EliminationService.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/tournamentService/src/main/java/com/csd/tournament/service/RoundRobinService.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/tournamentService/src/main/java/com/csd/tournament/service/TournamentSchedulerService.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/tournamentService/src/main/java/com/csd/tournament/service/TournamentService.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/tournamentService/src/main/java/com/csd/tournament/service/UserService.java

@@ -1,5 +1,12 @@
+com/csd/tournament/controller/TournamentController$1.class
+com/csd/tournament/TournamentMicroservice.class
+com/csd/tournament/service/TournamentService$1.class
+com/csd/tournament/service/RoundRobinService.class
+com/csd/tournament/service/EliminationService.class
 com/csd/tournament/WebConfig$1.class
+com/csd/tournament/service/UserService.class
+com/csd/tournament/service/TournamentSchedulerService.class
 com/csd/tournament/WebConfig.class
 com/csd/tournament/FirebaseConfig.class
 com/csd/tournament/controller/TournamentController.class
-com/csd/tournament/TournamentMicroservice.class
+com/csd/tournament/service/TournamentService.class

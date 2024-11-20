@@ -74,6 +74,8 @@ public class TournamentCreationSaga {
         } catch (Exception rollbackException) {
             log.error("Rollback failed for tournament ID {}: {}", tournamentId, rollbackException.getMessage());
         }
+
+        
     }
     
 }

@@ -12,12 +12,21 @@ import com.csd.shared_library.model.User;
 @FeignClient(name = "player-management-service", url = "${player.service.url}")
 public interface PlayerManagementServiceClient {
 
-    @PostMapping("/user/{userID}/remove-tournament")
-    ResponseEntity<Void> removeTournamentFromUser(@PathVariable("userID") String userId, @RequestBody String tournamentID);
+
+    @GetMapping("/user/getUser/{userID}")
+    ResponseEntity<User> getUser(@PathVariable String userID);
 
     @PostMapping("/user/{userID}/add-tournament")
     ResponseEntity<Void> addTournamentToUser(@PathVariable("userID") String userId, @RequestBody String tournamentID);
 
-    @GetMapping("/user/getUser/{userID}")
-    ResponseEntity<User> getUser(@PathVariable String userID);
+    @PostMapping("/user/{userID}/remove-tournament")
+    ResponseEntity<Void> removeTournamentFromUser(@PathVariable("userID") String userId, @RequestBody String tournamentID);
+
+
+    
+    // @GetMapping("/user/{userID}/elo")
+    // int getPlayerElo(@PathVariable("playerId") String playerId);
+
+    // @PutMapping("/user/{userID}/elo")
+    // void updatePlayerElo(@PathVariable("playerId") String playerId, @RequestBody int newElo);
 }
