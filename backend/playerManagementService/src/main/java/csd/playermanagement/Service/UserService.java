@@ -25,13 +25,13 @@ import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.SetOptions;
+import com.google.cloud.firestore.WriteBatch;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import csd.playermanagement.DTO.UserDTO;
 import csd.playermanagement.Exception.TournamentNotFoundException;
 import csd.playermanagement.Exception.UserNotFoundException;
-
 import csd.playermanagement.helper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -194,7 +194,7 @@ public class UserService {
             }
 
             DocumentSnapshot updatedUserSnapshot = userRef.get().get();
-            User fullUpdatedUser = UserMapper.mapDocumentToUser(updatedUserSnapshot);
+            User fullUpdatedUser = (User) UserMapper.mapDocumentToUser(updatedUserSnapshot);
 
             if (fullUpdatedUser == null) {
                 throw new RuntimeException("Error retrieving updated user data.");
@@ -323,7 +323,7 @@ public class UserService {
 
             int rank = 1;
             for (QueryDocumentSnapshot document : userDocuments) {
-                User user = UserMapper.mapDocumentToUser(document);
+                User user = (User) UserMapper.mapDocumentToUser(document);
                 if (user.getAuthId().equals(authId)) {
                     log.info("Rank for user {} is {}", authId, rank);
                     return rank;
@@ -362,11 +362,23 @@ public class UserService {
         // Merge authId into Firestore and wait until the operation completes
         documentReference.set(newUserProfile, SetOptions.merge()).get(); // Ensures it's completed
 
-
         DocumentSnapshot userSnapshot = documentReference.get().get();
-        User createdUser = UserMapper.mapDocumentToUser(userSnapshot);
+        User createdUser = (User) UserMapper.mapDocumentToUser(userSnapshot);
 
         return createdUser;
+    }
+    
+    public void updatePlayerEloBatch(Map<String, Integer> eloUpdates) {
+        WriteBatch batch = firestore.batch();
+        eloUpdates.forEach((playerId, newElo) -> {
+            DocumentReference playerRef = firestore.collection("Users").document(playerId);
+            batch.update(playerRef, "elo", newElo);
+        });
+        try {
+            batch.commit().get();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update player Elo in batch", e);
+        }
     }
     
     

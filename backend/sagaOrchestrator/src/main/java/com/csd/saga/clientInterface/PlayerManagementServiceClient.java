@@ -1,10 +1,13 @@
 package com.csd.saga.clientInterface;
 
+import java.util.Map;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.csd.shared_library.model.User;
@@ -24,9 +27,13 @@ public interface PlayerManagementServiceClient {
 
 
     
-    // @GetMapping("/user/{userID}/elo")
-    // int getPlayerElo(@PathVariable("playerId") String playerId);
+    @GetMapping("/user/{userID}/elo")
+    int getPlayerElo(@PathVariable("playerId") String playerId);
 
-    // @PutMapping("/user/{userID}/elo")
-    // void updatePlayerElo(@PathVariable("playerId") String playerId, @RequestBody int newElo);
+    @PutMapping("/user/{userID}/elo")
+    void updatePlayerElo(@PathVariable("userID") String playerId, @RequestBody int newElo);
+
+
+    @PostMapping("/players/elo/batch")
+    ResponseEntity<Void> updatePlayerEloBatch(@RequestBody Map<String, Integer> eloUpdates);
 }

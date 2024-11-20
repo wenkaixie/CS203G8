@@ -1,13 +1,11 @@
-csd/adminmanagement/Model/Tournament.class
-csd/adminmanagement/Exception/GlobalExceptionHandler.class
-csd/adminmanagement/Exception/TournamentNotFoundException.class
-csd/adminmanagement/Configuration/RestTemplateConfig.class
-csd/adminmanagement/Controllers/AdminController.class
-csd/adminmanagement/Model/Admin.class
 csd/adminmanagement/Service/AdminService.class
 csd/adminmanagement/Model/MatchResultUpdateRequest.class
+csd/adminmanagement/Exception/GlobalExceptionHandler.class
 csd/adminmanagement/Configuration/WebConfig.class
+csd/adminmanagement/Exception/TournamentNotFoundException.class
 csd/adminmanagement/Configuration/FirebaseConfig.class
 csd/adminmanagement/Configuration/WebConfig$1.class
 csd/adminmanagement/AdminManagementService.class
 csd/adminmanagement/Exception/AdminNotFoundException.class
+csd/adminmanagement/Configuration/RestTemplateConfig.class
+csd/adminmanagement/Controllers/AdminController.class

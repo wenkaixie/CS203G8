@@ -1,6 +1,7 @@
 package com.csd.saga.clientInterface;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,10 @@ public interface TournamentServiceClient {
     ResponseEntity<String> removeUserFromTournament(@PathVariable String tournamentID,@PathVariable String userID);
 
 
-
+    @PostMapping("/tournaments/{tournamentID}/players/elo/batch")
+    ResponseEntity<Void> updateTournamentPlayerEloBatch(
+            @PathVariable("tournamentID") String tournamentID,
+            @RequestBody Map<String, Integer> eloUpdates);
 
     @PutMapping("/tournaments/{tournamentId}/players/{playerId}/elo")
     void updateTournamentPlayerElo(@PathVariable("tournamentId") String tournamentId, @PathVariable("playerId") String playerId, @RequestBody int newElo);

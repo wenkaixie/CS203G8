@@ -152,6 +152,20 @@ public class TournamentController {
     }
 
 
+    // refactor eloService 
+    @PostMapping("/{tournamentID}/players/elo/batch")
+    public ResponseEntity<Void> updateTournamentPlayerEloBatch(
+            @PathVariable String tournamentID,
+            @RequestBody Map<String, Integer> eloUpdates) {
+        try {
+            tournamentService.updateTournamentPlayerEloBatch(tournamentID, eloUpdates);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
 
 

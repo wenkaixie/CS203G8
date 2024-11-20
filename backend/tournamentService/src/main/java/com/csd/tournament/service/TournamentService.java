@@ -394,7 +394,21 @@ public class TournamentService {
     }
 
 
-
+    public void updateTournamentPlayerEloBatch(String tournamentID, Map<String, Integer> eloUpdates) {
+        WriteBatch batch = firestore.batch();
+        eloUpdates.forEach((playerId, newElo) -> {
+            DocumentReference tournamentPlayerRef = firestore.collection("Tournaments")
+                    .document(tournamentID)
+                    .collection("Users")
+                    .document(playerId);
+            batch.update(tournamentPlayerRef, "elo", newElo);
+        });
+        try {
+            batch.commit().get();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update tournament player Elo in batch", e);
+        }
+    }
 
 
     // is this used?

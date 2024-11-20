@@ -1,6 +1,7 @@
 package csd.playermanagement.Controllers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +78,17 @@ public class UserController {
             log.error("Unexpected error removing tournament {} from user {}: {}", tournamentID, userID, e.getMessage(),
                     e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/elo/batch")
+    public ResponseEntity<Void> updatePlayerEloBatch(@RequestBody Map<String, Integer> eloUpdates) {
+        try {
+            userService.updatePlayerEloBatch(eloUpdates);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
         }
     }
 

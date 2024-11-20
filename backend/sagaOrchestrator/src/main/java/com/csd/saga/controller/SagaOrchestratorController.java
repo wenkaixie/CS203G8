@@ -1,5 +1,7 @@
 package com.csd.saga.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.csd.saga.service.SagaOrchestratorService;
+import com.csd.shared_library.DTO.MatchResultUpdateRequest;
 import com.csd.shared_library.DTO.TournamentDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -79,19 +82,19 @@ public class SagaOrchestratorController {
         }
     }
 
-    // @PostMapping("/tournaments/{tournamentID}/rounds/{roundNumber}/elo")
-    // public ResponseEntity<String> updateElo(
-    //         @PathVariable String tournamentID,
-    //         @PathVariable int roundNumber,
-    //         @RequestBody Map<Integer, MatchResultUpdateRequest> matchResults) {
-
-    //     try {
-    //         return sagaOrchestratorService.updateEloSaga(tournamentID, roundNumber, matchResults);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.internalServerError()
-    //                 .body("Error initiating Elo update saga: " + e.getMessage());
-    //     }
-    // }
+    @PostMapping("/tournaments/{tournamentID}/rounds/{roundNumber}/elo")
+    public ResponseEntity<String> updateElo(
+            @PathVariable String tournamentID,
+            @PathVariable int roundNumber,
+            @RequestBody Map<Integer, MatchResultUpdateRequest> matchResults) {
+        log.info("Received request to udpate round "  + roundNumber);
+        try {
+            return sagaOrchestratorService.startUpdateEloSaga(tournamentID, roundNumber, matchResults);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Error initiating Elo update saga: " + e.getMessage());
+        }
+    }
 
     // @GetMapping("/tournaments/upcoming/{userID}")
     // public ResponseEntity<List<Tournament>> getUpcomingTournamentsOfUser(@PathVariable String userID) {

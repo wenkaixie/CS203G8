@@ -1,12 +1,17 @@
 package com.csd.saga.service;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.csd.saga.saga.AddUserToTournamentSaga;
 import com.csd.saga.saga.RemoveUserFromTournamentSaga;
 import com.csd.saga.saga.TournamentCreationSaga;
 import com.csd.saga.saga.TournamentDeletionSaga;
+import com.csd.saga.saga.UpdateEloSaga;
+import com.csd.shared_library.DTO.MatchResultUpdateRequest;
 import com.csd.shared_library.DTO.TournamentDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +32,8 @@ public class SagaOrchestratorService {
     @Autowired
     private RemoveUserFromTournamentSaga removeUserFromTournamentSaga;
 
-    // @Autowired
-    // private UpdateEloSaga updateEloSaga;
+    @Autowired
+    private UpdateEloSaga updateEloSaga;
 
     // @Autowired
     // private TournamentQuerySaga tournamentQuerySaga;
@@ -87,26 +92,21 @@ public class SagaOrchestratorService {
         removeUserFromTournamentSaga.removeUserFromTournament(tournamentID, userID);
     }
 
-    // public ResponseEntity<String> updateEloSaga(String tournamentID, int roundNumber,
-    //                                             MatchResultUpdateRequest resultRequest2) {
-    //                                                     log.info("Starting Elo Update Saga for tournament: {}", tournamentID);
-                                                
-    //                                                     for (Map.Entry<Integer, MatchResultUpdateRequest> entry : resultRequest2.entrySet()) {
-    //         Integer matchId = entry.getKey();
-    //         MatchResultUpdateRequest resultRequest = entry.getValue();
+    public ResponseEntity<String> startUpdateEloSaga(String tournamentID, 
+                                                int roundNumber,
+                                                Map<Integer, MatchResultUpdateRequest> matchResults) {
+            log.info("Starting Elo Update Saga for tournament: {}", tournamentID);
+            try {
+                updateEloSaga.updateElo(tournamentID, roundNumber, matchResults);
+            } catch (Exception e) {
+                log.error("Saga failed for round {} in tournament {}: {}", roundNumber, tournamentID, e.getMessage());
+                return ResponseEntity.internalServerError()
+                        .body("Saga failed for match " + roundNumber + ": " + e.getMessage());
+            }
 
-    //         try {
-    //             updateEloSaga(tournamentID, matchId, resultRequest);
-    //         } catch (Exception e) {
-    //             log.error("Saga failed for match {} in tournament {}: {}", matchId, tournamentID, e.getMessage());
-    //             return ResponseEntity.internalServerError()
-    //                     .body("Saga failed for match " + matchId + ": " + e.getMessage());
-    //         }
-    //     }
-
-    //     log.info("Elo Update Saga successfully completed for tournament: {}", tournamentID);
-    //     return ResponseEntity.ok("Elo ratings processed successfully for provided matches.");
-    // }
+            log.info("Elo Update Saga successfully completed for tournament: {}", tournamentID);
+            return ResponseEntity.ok("Elo ratings processed successfully for provided matches.");
+    }
 
     // /**
     //  * Get a list of upcoming tournaments for a user.
