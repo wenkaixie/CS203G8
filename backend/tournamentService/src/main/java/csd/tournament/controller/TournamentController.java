@@ -26,7 +26,6 @@ import csd.shared_library.model.Tournament;
 import csd.tournament.service.EliminationService;
 import csd.tournament.service.RoundRobinService;
 import csd.tournament.service.TournamentService;
-
 import lombok.extern.slf4j.Slf4j;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -205,6 +204,55 @@ public class TournamentController {
     }
 
     // tested working 8 Nov
+    // Get upcoming tournaments
+    @GetMapping("/upcoming/{userID}")
+    public ResponseEntity<List<Tournament>> getUpcomingTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getUpcomingTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // tested working 8 Nov
+    // Get past tournaments
+    @GetMapping("/past/{userID}")
+    public ResponseEntity<List<Tournament>> getPastTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getPastTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // tested working 8 Nov
+    // Get ongoing tournaments of user
+    @GetMapping("/ongoing/{userID}")
+    public ResponseEntity<List<Tournament>> getOngoingTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getOngoingTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // tested working 8 Nov
+    // Get eligible tournaments of user
+    @GetMapping("/eligible/{userID}")
+    public ResponseEntity<List<Tournament>> getEligibleTournamentsOfUser(@PathVariable String userID) {
+        try {
+            List<Tournament> tournaments = tournamentService.getEligibleTournamentsOfUser(userID);
+            return ResponseEntity.ok(tournaments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
+
+    // tested working 8 Nov
     // Generate rounds and matches for the tournament based on type
     @PostMapping("/{tournamentID}/generateRounds")
     public ResponseEntity<String> generateRoundsForTournament(@PathVariable String tournamentID) {
@@ -318,5 +366,7 @@ public class TournamentController {
                     .body(null);
         }
     }
+
+    
 
 }

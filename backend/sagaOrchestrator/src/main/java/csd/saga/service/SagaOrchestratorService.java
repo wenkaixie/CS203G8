@@ -107,45 +107,4 @@ public class SagaOrchestratorService {
             return ResponseEntity.ok("Elo ratings processed successfully for provided matches.");
     }
 
-    // /**
-    //  * Get a list of upcoming tournaments for a user.
-    //  * 
-    //  * @param userID ID of the user.
-    //  * @return List of upcoming tournaments.
-    //  */
-    // public List<Tournament> getUpcomingTournamentsOfUser(String userID) {
-    //     return tournamentQuerySaga.getUpcomingTournaments(userID);
-    // }
-
-    // /**
-    //  * Get a list of past tournaments for a user.
-    //  * 
-    //  * @param userID ID of the user.
-    //  * @return List of past tournaments.
-    //  */
-    // public List<Tournament> getPastTournamentsOfUser(String userID) {
-    //     return tournamentQuerySaga.getPastTournaments(userID);
-    // }
-
-    // /**
-    //  * Get a list of ongoing tournaments for a user.
-    //  * 
-    //  * @param userID ID of the user.
-    //  * @return List of ongoing tournaments.
-    //  */
-    // public List<Tournament> getOngoingTournamentsOfUser(String userID) {
-    //     return tournamentQuerySaga.getOngoingTournaments(userID);
-    // }
-
-    // /**
-    //  * Get a list of tournaments a user is eligible for.
-    //  * 
-    //  * @param userID ID of the user.
-    //  * @return List of eligible tournaments.
-    //  */
-    // public List<Tournament> getEligibleTournamentsOfUser(String userID) {
-    //     return tournamentQuerySaga.getEligibleTournaments(userID);
-    // }
-
-   
 }

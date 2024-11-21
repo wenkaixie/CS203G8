@@ -5,6 +5,13 @@
             "name": "TournamentMicroservice",
             "request": "launch",
             "mainClass": "csd.tournament.TournamentMicroservice",
+            "projectName": "tournamentService"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "csd.tournament.TournamentMicroservice",
             "projectName": "com.csd-saga"
         },
         {

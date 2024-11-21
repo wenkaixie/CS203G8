@@ -1,4 +1,5 @@
 csd/adminmanagement/configuration/RestTemplateConfig.class
+csd/adminmanagement/controller/AdminController.class
 csd/adminmanagement/service/AdminService.class
 csd/adminmanagement/exception/TournamentNotFoundException.class
 csd/adminmanagement/configuration/WebConfig.class

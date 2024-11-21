@@ -1,59 +1,62 @@
-// package csd.adminmanagement.consumers;
+package csd.adminmanagement.consumers;
 
-// import csd.adminmanagement.AMQP.RabbitMQConfig;
-// import csd.adminmanagement.Consumers.AdminConsumer;
-// import csd.adminmanagement.Service.AdminService;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.MockitoAnnotations;
 
-// import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import org.mockito.MockitoAnnotations;
 
-// class AdminConsumerTest {
+import csd.adminmanagement.consumer.AdminConsumer;
+import csd.adminmanagement.service.AdminService;
 
-//     @Mock
-//     private AdminService adminService;
+class AdminConsumerTest {
 
-//     @InjectMocks
-//     private AdminConsumer adminConsumer;
+    @Mock
+    private AdminService adminService;
 
-//     @BeforeEach
-//     void setUp() {
-//         // Initialize mocks
-//         MockitoAnnotations.openMocks(this);
-//     }
+    @InjectMocks
+    private AdminConsumer adminConsumer;
 
-//     @Test
-//     void testHandleDeleteTournament_success() throws Exception {
-//         // Mock message
-//         String message = "admin123,tournament456";
+    @BeforeEach
+    void setUp() {
+        // Initialize mocks
+        MockitoAnnotations.openMocks(this);
+    }
 
-//         // Mock AdminService behavior
-//         doNothing().when(adminService).removeTournamentFromAdmin("admin123", "tournament456");
+    @Test
+    void testHandleDeleteTournament_success() throws Exception {
+        // Mock message
+        String message = "admin123,tournament456";
 
-//         // Call the consumer method
-//         adminConsumer.handleDeleteTournament(message);
+        // Mock AdminService behavior
+        doNothing().when(adminService).removeTournamentFromAdmin("admin123", "tournament456");
 
-//         // Verify the service method is called with the correct arguments
-//         verify(adminService, times(1)).removeTournamentFromAdmin("admin123", "tournament456");
-//     }
+        // Call the consumer method
+        adminConsumer.handleDeleteTournament(message);
 
-//     @Test
-//     void testHandleDeleteTournament_failure() throws Exception {
-//         // Mock message
-//         String message = "admin123,tournament456";
+        // Verify the service method is called with the correct arguments
+        verify(adminService, times(1)).removeTournamentFromAdmin("admin123", "tournament456");
+    }
 
-//         // Mock AdminService to throw an exception
-//         doThrow(new RuntimeException("Admin not found")).when(adminService).removeTournamentFromAdmin("admin123", "tournament456");
+    @Test
+    void testHandleDeleteTournament_failure() throws Exception {
+        // Mock message
+        String message = "admin123,tournament456";
 
-//         // Call the consumer method
-//         adminConsumer.handleDeleteTournament(message);
+        // Mock AdminService to throw an exception
+        doThrow(new RuntimeException("Admin not found")).when(adminService).removeTournamentFromAdmin("admin123", "tournament456");
 
-//         // Verify the service method is called with the correct arguments
-//         verify(adminService, times(1)).removeTournamentFromAdmin("admin123", "tournament456");
+        // Call the consumer method
+        adminConsumer.handleDeleteTournament(message);
 
-//         // No additional assertion needed, just verify it handled the exception gracefully
-//     }
-// }
+        // Verify the service method is called with the correct arguments
+        verify(adminService, times(1)).removeTournamentFromAdmin("admin123", "tournament456");
+
+        // No additional assertion needed, just verify it handled the exception gracefully
+    }
+}

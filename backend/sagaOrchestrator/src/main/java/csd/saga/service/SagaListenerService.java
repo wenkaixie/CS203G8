@@ -1,25 +1,25 @@
 package csd.saga.service;
-// package com.csd.saga.service;
 
-// import java.util.Map;
 
-// import org.springframework.amqp.rabbit.annotation.RabbitListener;
-// import org.springframework.stereotype.Service;
+import java.util.Map;
 
-// @Service
-// public class SagaListenerService {
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Service;
 
-//     @RabbitListener(queues = "deleteTournamentResponseQueue")
-//     public void handleDeleteTournamentResponse(Map<String, Object> message) {
-//         String tournamentID = (String) message.get("tournamentID");
-//         String status = (String) message.get("status");
+@Service
+public class SagaListenerService {
 
-//         if ("SUCCESS".equals(status)) {
-//             // Proceed with the next step in the saga
-//             System.out.println("Tournament deletion confirmed for ID: " + tournamentID);
-//         } else {
-//             // Trigger compensation if deletion failed
-//             System.out.println("Failed to delete tournament with ID: " + tournamentID);
-//         }
-//     }
-// }
+    @RabbitListener(queues = "deleteTournamentResponseQueue")
+    public void handleDeleteTournamentResponse(Map<String, Object> message) {
+        String tournamentID = (String) message.get("tournamentID");
+        String status = (String) message.get("status");
+
+        if ("SUCCESS".equals(status)) {
+            // Proceed with the next step in the saga
+            System.out.println("Tournament deletion confirmed for ID: " + tournamentID);
+        } else {
+            // Trigger compensation if deletion failed
+            System.out.println("Failed to delete tournament with ID: " + tournamentID);
+        }
+    }
+}
