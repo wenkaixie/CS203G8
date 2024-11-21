@@ -43,12 +43,6 @@ import csd.shared_library.model.User;
 public class UserServiceUpdateTest {
 
     @Mock
-    private Firestore firestore;
-
-    @InjectMocks
-    private UserService userService;
-
-    @Mock
     private CollectionReference usersCollection;
 
     @Mock
@@ -66,6 +60,12 @@ public class UserServiceUpdateTest {
     @Mock
     private DocumentReference userDocRef;
 
+    @Mock
+    private Firestore firestore;
+
+    @InjectMocks
+    private UserService userService;
+
     // mocks to simulate Firestore interactions. Mocks in unit tests don’t automatically handle data changes or state 
     // updates unless you explicitly program them to do so. 
     // This means that when you perform an update in your test, 
@@ -74,106 +74,81 @@ public class UserServiceUpdateTest {
     void updateUser_Success() throws InterruptedException, ExecutionException {
         // Arrange
         String userAuthId = "userAuthId123";
+        String oldName = "Old Name";
+        String oldChessUsername = "oldChessUser";
+        String oldNationality = "Old Country";
+        String email = "user@example.com";
+        String dateOfBirthString = "2023-01-01T00:00:00Z";
+        Long phoneNumber = 91038493L;
+        Instant dateOfBirthInstant = Instant.parse(dateOfBirthString);
 
-        // Mock the existing user and its updates
-        User User = new User();
-        User.setAuthId(userAuthId);
-
-        // Updated UserDTO
-        UserDTO UserDto = new UserDTO();
-        UserDto.setUsername("newUsername");
-        UserDto.setName("New Name");
-        UserDto.setPhoneNumber(98765432);
-        UserDto.setNationality("New Country");
-        UserDto.setChessUsername("newChessUser");
-        UserDto.setDateOfBirth("2023-09-15");
-
+    
+        // Updated UserDTO with partial updates (only username and phoneNumber)
+        UserDTO updatedUserDto = new UserDTO();
+        updatedUserDto.setUsername("newUsername");
+        updatedUserDto.setPhoneNumber(98765432);
+    
         // Mock Firestore interactions for Users collection
         when(firestore.collection("Users")).thenReturn(usersCollection);
         when(usersCollection.whereEqualTo("authId", userAuthId)).thenReturn(usersQuery);
         when(usersQuery.get()).thenReturn(userQueryFuture);
         when(userQueryFuture.get()).thenReturn(userQuerySnapshot);
-        when(userQuerySnapshot.isEmpty()).thenReturn(false);
+        when(userQuerySnapshot.isEmpty()).thenReturn(false); // User exists
         when(userQuerySnapshot.getDocuments()).thenReturn(Collections.singletonList(userSnapshot));
-        when(userSnapshot.toObject(User.class)).thenReturn(User);
         when(userSnapshot.getReference()).thenReturn(userDocRef);
 
-        // Mock update and retrieval
+
+        // Mock update
         when(userDocRef.update(anyMap())).thenReturn(ApiFutures.immediateFuture(null));
-        when(userDocRef.get()).thenReturn(ApiFutures.immediateFuture(userSnapshot));
-
-        // Mock retrieval after update
-        User updatedUser = new User();
-        updatedUser.setAuthId(userAuthId);
-        updatedUser.setUsername("newUsername");
-        updatedUser.setName("New Name");
-        updatedUser.setPhoneNumber(98765432);
-        updatedUser.setNationality("New Country");
-        updatedUser.setChessUsername("newChessUser");
-        updatedUser.setDateOfBirth(Instant.parse("2023-09-15T00:00:00Z"));
-        updatedUser.setElo(0); // or set the expected elo value
-
-        // Create a mock for the updated snapshot
+    
+        // Mock the updated user snapshot
         DocumentSnapshot updatedUserSnapshot = Mockito.mock(DocumentSnapshot.class);
-        when(updatedUserSnapshot.toObject(User.class)).thenReturn(updatedUser);
+    
+        // Mock exists() to return true
+        when(updatedUserSnapshot.exists()).thenReturn(true);
+
+         // Mock contains() methods
+        when(updatedUserSnapshot.contains("phoneNumber")).thenReturn(true);
+        when(updatedUserSnapshot.contains("elo")).thenReturn(true);
+        when(updatedUserSnapshot.contains("dateOfBirth")).thenReturn(true);
+
+    
+        // Mock methods used in UserMapper
+        when(updatedUserSnapshot.getString("authId")).thenReturn(userAuthId);
+        when(updatedUserSnapshot.getString("username")).thenReturn("newUsername");
+        when(updatedUserSnapshot.getString("name")).thenReturn(oldName);
+        when(updatedUserSnapshot.getLong("phoneNumber")).thenReturn(98765432L);
+        when(updatedUserSnapshot.getString("nationality")).thenReturn(oldNationality);
+        when(updatedUserSnapshot.getString("chessUsername")).thenReturn(oldChessUsername);
+        when(updatedUserSnapshot.getString("email")).thenReturn(email);
+        when(updatedUserSnapshot.getLong("elo")).thenReturn(0L);
+        when(updatedUserSnapshot.getTimestamp("dateOfBirth")).thenReturn(
+            com.google.cloud.Timestamp.ofTimeSecondsAndNanos(dateOfBirthInstant.getEpochSecond(), dateOfBirthInstant.getNano())
+        );
+        when(updatedUserSnapshot.get("registrationHistory")).thenReturn(Collections.emptyList());
+    
         when(userDocRef.get()).thenReturn(ApiFutures.immediateFuture(updatedUserSnapshot));
-
-        // Mock Firestore interactions for Tournaments collection
-        CollectionReference tournamentsCollection = Mockito.mock(CollectionReference.class);
-        ApiFuture<QuerySnapshot> tournamentsQueryFuture = Mockito.mock(ApiFuture.class);
-        QuerySnapshot tournamentsQuerySnapshot = Mockito.mock(QuerySnapshot.class);
-        List<QueryDocumentSnapshot> tournamentDocuments = new ArrayList<>();
-        QueryDocumentSnapshot tournamentDoc = Mockito.mock(QueryDocumentSnapshot.class);
-        tournamentDocuments.add(tournamentDoc);
-
-        when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
-        when(tournamentsCollection.get()).thenReturn(tournamentsQueryFuture);
-        when(tournamentsQueryFuture.get()).thenReturn(tournamentsQuerySnapshot);
-        when(tournamentsQuerySnapshot.getDocuments()).thenReturn(tournamentDocuments);
-
-        // Mock interactions within each tournament
-        CollectionReference usersSubcollection = Mockito.mock(CollectionReference.class);
-        Query userQueryInTournament = Mockito.mock(Query.class);
-        ApiFuture<QuerySnapshot> userInTournamentQueryFuture = Mockito.mock(ApiFuture.class);
-        QuerySnapshot userInTournamentQuerySnapshot = Mockito.mock(QuerySnapshot.class);
-        List<QueryDocumentSnapshot> userInTournamentDocuments = new ArrayList<>();
-        QueryDocumentSnapshot userInTournamentDoc = Mockito.mock(QueryDocumentSnapshot.class);
-        userInTournamentDocuments.add(userInTournamentDoc);
-
-        DocumentReference userInTournamentDocRef = Mockito.mock(DocumentReference.class);
-
-        // Set up mocks for tournamentDoc
-        when(tournamentDoc.getReference()).thenReturn(Mockito.mock(DocumentReference.class));
-        when(tournamentDoc.getReference().collection("Users")).thenReturn(usersSubcollection);
-        when(usersSubcollection.whereEqualTo("authId", userAuthId)).thenReturn(userQueryInTournament);
-        when(userQueryInTournament.get()).thenReturn(userInTournamentQueryFuture);
-        when(userInTournamentQueryFuture.get()).thenReturn(userInTournamentQuerySnapshot);
-        when(userInTournamentQuerySnapshot.getDocuments()).thenReturn(userInTournamentDocuments);
-
-        when(userInTournamentDoc.getReference()).thenReturn(userInTournamentDocRef);
-        when(userInTournamentDocRef.update(anyMap())).thenReturn(ApiFutures.immediateFuture(null));
-
+    
         // Act
-        UserDTO result = userService.updateUserProfile(userAuthId, UserDto);
-
+        UserDTO result = userService.updateUserProfile(userAuthId, updatedUserDto);
+    
         // Assert
         assertEquals("newUsername", result.getUsername());
-        assertEquals("New Name", result.getName());
-        assertEquals("newChessUser", result.getChessUsername());
-        assertEquals(98765432, result.getPhoneNumber());
-        assertEquals("New Country", result.getNationality());
-        assertEquals("2023-09-15", result.getDateOfBirth());
-
-        // Verify Firestore update
+        assertEquals(oldName, result.getName()); // Name should remain unchanged
+        assertEquals(oldChessUsername, result.getChessUsername()); // Chess username remains the same
+        assertEquals(oldNationality, result.getNationality()); // Nationality remains the same
+        assertEquals(98765432, result.getPhoneNumber()); // Phone number updated
+        assertEquals("2023-01-01", result.getDateOfBirth()); // Date of birth remains the same
+    
+        // Verify that the updated map includes only the intended changes, plus elo = 0
         verify(userDocRef).update(argThat(map ->
+            map.size() == 3 &&
             map.get("username").equals("newUsername") &&
-            map.get("name").equals("New Name") &&
-            map.get("chessUsername").equals("newChessUser") &&
             map.get("phoneNumber").equals(98765432) &&
-            map.get("nationality").equals("New Country") &&
-            map.get("dateOfBirth") instanceof com.google.cloud.Timestamp
+            map.get("elo").equals(0) // Expecting elo to be set to 0
         ));
     }
+
 
     @Test
     void updateUser_PartialUpdateSuccess() throws InterruptedException, ExecutionException {
