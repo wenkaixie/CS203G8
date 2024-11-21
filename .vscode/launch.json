@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SagaOrchestratorApplication",
+            "request": "launch",
+            "mainClass": "csd.saga.SagaOrchestratorApplication",
+            "projectName": "com.csd-saga"
+        },
+        {
+            "type": "java",
             "name": "TournamentMicroservice",
             "request": "launch",
             "mainClass": "csd.tournament.TournamentMicroservice",

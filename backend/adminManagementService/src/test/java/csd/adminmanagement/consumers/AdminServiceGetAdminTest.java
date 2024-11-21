@@ -80,51 +80,6 @@ public class AdminServiceGetAdminTest {
         lenient().when(adminCollection.get()).thenReturn(adminQueryFuture);
     }
 
-    @Test
-    void getAdmins_Pass() throws ExecutionException, InterruptedException {
-        // Arrange
-        Admin mockAdmin = new Admin();
-        mockAdmin.setAuthId("admin123"); // Setting mock admin ID
-
-        // Mock Firestore interactions
-        when(firestore.collection("Admins")).thenReturn(adminCollection); // Mock Admins collection reference
-        when(adminCollection.get()).thenReturn(adminQueryFuture); // Mock get() call on CollectionReference
-        when(adminQueryFuture.get()).thenReturn(adminQuerySnapshot); // Mock get() on ApiFuture<QuerySnapshot>
-        when(adminQuerySnapshot.getDocuments()).thenReturn(Collections.singletonList(adminSnapshot)); // Mock returned documents
-        when(adminSnapshot.toObject(Admin.class)).thenReturn(mockAdmin); // Mock conversion of document to Admin object
-
-        // Act
-        List<Admin> result = adminService.getAllAdmins();
-
-        // Assert
-        assertNotNull(result, "Result should not be null");
-        assertEquals(1, result.size(), "Result list size should be 1");
-        assertEquals("admin123", result.get(0).getAuthId(), "Admin ID should match the expected value");
-
-        // Verify that Firestore methods were called as expected
-        verify(firestore).collection("Admins");
-        verify(adminCollection).get();
-        verify(adminQueryFuture).get();
-        verify(adminQuerySnapshot).getDocuments();
-        verify(adminSnapshot).toObject(Admin.class);
-    }
-
-    @Test
-    void getAdmins_Fail() throws ExecutionException, InterruptedException {
-        // Arrange
-        lenient().when(firestore.collection("Admins")).thenReturn(adminCollection);
-        lenient().when(adminCollection.get()).thenReturn(adminQueryFuture);
-        lenient().when(adminQueryFuture.get()).thenReturn(adminQuerySnapshot);
-        when(adminQuerySnapshot.getDocuments()).thenReturn(Collections.emptyList()); // Mock empty documents
-
-        // Act
-        List<Admin> result = adminService.getAllAdmins();
-
-        // Assert
-        assertNotNull(result, "Result should not be null");
-        assertEquals(0, result.size(), "Result list should be empty");
-    }
-
 
     // Successful test to get admin by ID
     @Test

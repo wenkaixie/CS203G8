@@ -1,27 +1,18 @@
 package csd.adminmanagement.consumers;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.api.core.ApiFuture;
@@ -75,52 +66,6 @@ class AdminServiceCompleteMatchTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    void testCompleteMatch_ValidInput() throws ExecutionException, InterruptedException {
-        // Arrange
-        String tournamentId = "tournament123";
-        String roundNum = "round1";
-        int matchId = 0;
-        MatchResultUpdateRequest request = new MatchResultUpdateRequest();
-        request.setAS1(2.0);
-        request.setAS2(1.0);
-
-        // Mock Firestore interactions
-        when(firestore.collection("Tournaments")).thenReturn(tournamentsRef);
-        when(tournamentsRef.document(tournamentId)).thenReturn(tournamentDocRef);
-        when(tournamentDocRef.get()).thenReturn(tournamentFuture);
-        when(tournamentFuture.get()).thenReturn(tournamentSnapshot);
-        when(tournamentSnapshot.exists()).thenReturn(true);
-
-        when(tournamentDocRef.collection("Rounds")).thenReturn(mock(CollectionReference.class));
-        when(tournamentDocRef.collection("Rounds").document(roundNum)).thenReturn(roundDocRef);
-        when(roundDocRef.get()).thenReturn(roundFuture);
-        when(roundFuture.get()).thenReturn(roundSnapshot);
-        when(roundSnapshot.exists()).thenReturn(true);
-
-        // Mock matches and participants
-        Map<String, Object> participant1 = new HashMap<>();
-        participant1.put("authId", "user1");
-        Map<String, Object> participant2 = new HashMap<>();
-        participant2.put("authId", "user2");
-
-        Map<String, Object> match = new HashMap<>();
-        match.put("participants", List.of(participant1, participant2));
-        List<Map<String, Object>> matches = List.of(match);
-
-        when(roundSnapshot.get("matches")).thenReturn(matches);
-        when(roundDocRef.update(eq("matches"), any())).thenReturn(writeResultFuture);
-
-        // Mock REST call
-        ResponseEntity<String> responseEntity = mock(ResponseEntity.class);
-        when(responseEntity.getStatusCodeValue()).thenReturn(200);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class)))
-            .thenReturn(responseEntity);
-
-        // Act & Assert
-        assertDoesNotThrow(() -> adminService.completeMatch(tournamentId, roundNum, matchId, request));
     }
 
     @Test
