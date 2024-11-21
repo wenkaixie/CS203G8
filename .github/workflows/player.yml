@@ -34,7 +34,7 @@ jobs:
 
       # Move the serviceAccountKey.json to the build context
       - name: Move serviceAccountKey.json to build context
-        run: mv serviceAccountKey.json ./backend
+        run: mv serviceAccountKey.json 
 
       - name: Install Shared Library
         working-directory: backend/shared-library
@@ -44,7 +44,6 @@ jobs:
         working-directory: ./backend/playerManagementService/
         run: mvn clean package -DskipTests
 
-      # Build the Docker image, passing the key as a build argument
       - name: Build Docker image
         run: |
-          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -f backend/playerManagementService/Dockerfile -t player-management-service .
+          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -f backend/playerManagementService/Dockerfile -t player-management-service ./backend
