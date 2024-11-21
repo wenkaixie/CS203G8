@@ -2,8 +2,12 @@ package csd.playermanagement.service;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -185,6 +189,37 @@ public class UserService {
             if (updatedUser.getPhoneNumber() != null) {
                 changes.put("phoneNumber", updatedUser.getPhoneNumber());
             }
+            if (updatedUser.getUsername()!=null){
+                changes.put("chessUsername", updatedUser.getChessUsername());
+            }
+            if (updatedUser.getNationality() != null) {
+                changes.put("nationality", updatedUser.getNationality());
+            }
+            if (updatedUser.getUsername()!= null){
+                changes.put("username", updatedUser.getUsername());
+            }
+            if (updatedUser.getDateOfBirth() != null) {
+                // Convert dateOfBirth to Firestore-compatible Timestamp
+                if (updatedUser.getDateOfBirth() instanceof String) {
+                    try {
+                        String dateString = (String) updatedUser.getDateOfBirth();
+                        // Parse the date string using LocalDate
+                        LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
+                        // Convert LocalDate to Instant at the start of the day in UTC
+                        Instant instant = date.atStartOfDay(ZoneOffset.UTC).toInstant();
+                        // Convert Instant to Firestore Timestamp
+                        changes.put("dateOfBirth", com.google.cloud.Timestamp.ofTimeSecondsAndNanos(
+                                instant.getEpochSecond(), instant.getNano()));
+                    } catch (DateTimeParseException e) {
+                        log.warn("Invalid dateOfBirth format: {}", updatedUser.getDateOfBirth());
+                        throw new IllegalArgumentException("Invalid dateOfBirth format. Use 'yyyy-MM-dd' format.");
+                    }
+                } else {
+                    log.warn("Unexpected dateOfBirth type: {}", updatedUser.getDateOfBirth().getClass());
+                    throw new IllegalArgumentException("Unexpected dateOfBirth type. Use 'yyyy-MM-dd' formatted strings.");
+                }
+            }
+
 
             if (!changes.isEmpty()) {
                 userRef.update(changes).get();
@@ -210,6 +245,7 @@ public class UserService {
             responseDTO.setChessUsername(fullUpdatedUser.getChessUsername());
             responseDTO.setNationality(fullUpdatedUser.getNationality());
             responseDTO.setPhoneNumber(fullUpdatedUser.getPhoneNumber());
+            
             
 
             if (fullUpdatedUser.getDateOfBirth() != null) {
