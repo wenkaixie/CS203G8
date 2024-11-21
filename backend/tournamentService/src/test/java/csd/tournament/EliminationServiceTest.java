@@ -1,4 +1,4 @@
-package csd.tournament.service;
+package csd.tournament;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import csd.shared_library.DTO.ParticipantDTO;
 import csd.shared_library.model.Match;
 import csd.shared_library.model.Round;
+import csd.tournament.service.EliminationService;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import org.junit.jupiter.api.BeforeEach;
