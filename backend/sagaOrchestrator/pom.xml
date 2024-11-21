@@ -8,7 +8,7 @@
 		<version>3.3.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.csd</groupId>
+	<groupId>csd</groupId>
 	<artifactId>saga</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Saga Orchestrator</name>
@@ -90,7 +90,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.csd</groupId>
+            <groupId>csd</groupId>
             <artifactId>shared-library</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

@@ -1,4 +1,4 @@
-package csd.saga;
+package csd.shared_library.config;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,9 +25,7 @@ public class FirebaseConfig {
         } else {
             // Initialize a new FirebaseApp instance
 
-            String credentialsPath = "serviceAccountKey.json";
-
-            FileInputStream serviceAccount = new FileInputStream("/Users/jonathanholton/Documents/GitHub/CS203G8/backend/sagaOrchestrator/src/main/java/com/csd/saga/serviceAccountKey.json");
+            FileInputStream serviceAccount = new FileInputStream("serviceAccountKey.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))

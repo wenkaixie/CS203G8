@@ -2,6 +2,34 @@
     "configurations": [
         {
             "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "csd.tournament.TournamentMicroservice",
+            "projectName": "com.csd-saga"
+        },
+        {
+            "type": "java",
+            "name": "PlayerManagementApplication",
+            "request": "launch",
+            "mainClass": "csd.playermanagement.PlayerManagementApplication",
+            "projectName": "csd-playerManagementService"
+        },
+        {
+            "type": "java",
+            "name": "SagaOrchestratorApplication",
+            "request": "launch",
+            "mainClass": "csd.saga.SagaOrchestratorApplication",
+            "projectName": "saga"
+        },
+        {
+            "type": "java",
+            "name": "AdminManagementService",
+            "request": "launch",
+            "mainClass": "csd.adminmanagement.AdminManagementService",
+            "projectName": "com.app-adminManagementService"
+        },
+        {
+            "type": "java",
             "name": "SharedLibraryApplication",
             "request": "launch",
             "mainClass": "com.csd.shared_library.SharedLibraryApplication",
