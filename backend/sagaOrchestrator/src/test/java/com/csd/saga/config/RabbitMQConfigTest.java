@@ -3,7 +3,7 @@ package com.csd.saga.config;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.Queue;
 
-import com.csd.saga.AMQP.RabbitMQConfig;
+import csd.saga.AMQP.RabbitMQConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 

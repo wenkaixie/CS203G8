@@ -2,9 +2,9 @@ package csd.playermanagement.helper;
 
 import java.util.List;
 
-import com.csd.shared_library.model.User;
 import com.google.cloud.firestore.DocumentSnapshot;
 
+import csd.shared_library.model.User;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

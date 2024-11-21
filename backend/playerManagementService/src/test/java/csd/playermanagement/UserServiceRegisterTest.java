@@ -18,7 +18,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.csd.shared_library.model.User;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.cloud.firestore.CollectionReference;
@@ -29,7 +28,8 @@ import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 
-import csd.playermanagement.Service.UserService;
+import csd.playermanagement.service.UserService;
+import csd.shared_library.model.User;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceRegisterTest {

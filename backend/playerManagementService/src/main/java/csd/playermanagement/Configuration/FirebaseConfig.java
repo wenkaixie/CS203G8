@@ -1,4 +1,4 @@
-package csd.playermanagement.Configuration;
+package csd.playermanagement.configuration;
 
 // Spring imports
 import java.io.FileInputStream;

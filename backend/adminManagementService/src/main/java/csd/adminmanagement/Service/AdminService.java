@@ -1,4 +1,4 @@
-package csd.adminmanagement.Service;
+package csd.adminmanagement.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.csd.shared_library.model.Admin;
-import com.csd.shared_library.model.Tournament;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
@@ -28,9 +26,11 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 
-import csd.adminmanagement.Exception.AdminNotFoundException;
-import csd.adminmanagement.Exception.TournamentNotFoundException;
-import csd.adminmanagement.Model.MatchResultUpdateRequest;
+import csd.adminmanagement.exception.AdminNotFoundException;
+import csd.adminmanagement.exception.TournamentNotFoundException;
+import csd.adminmanagement.model.MatchResultUpdateRequest;
+import csd.shared_library.model.Admin;
+import csd.shared_library.model.Tournament;
 import lombok.extern.slf4j.Slf4j;
 
 @Service

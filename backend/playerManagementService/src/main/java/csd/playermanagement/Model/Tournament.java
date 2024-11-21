@@ -1,3 +1,4 @@
+package csd.playermanagement.model;
 // package csd.playermanagement.Model;
 
 

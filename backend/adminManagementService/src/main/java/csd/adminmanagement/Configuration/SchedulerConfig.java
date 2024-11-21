@@ -1,3 +1,4 @@
+package csd.adminmanagement.configuration;
 // package com.app.tournament;
 
 // import org.springframework.context.annotation.Bean;

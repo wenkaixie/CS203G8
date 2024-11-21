@@ -1,3 +1,4 @@
+package csd.adminmanagement.model;
 // package csd.adminmanagement.Model;
 
 // import java.time.Instant;

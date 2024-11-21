@@ -1,4 +1,4 @@
-package csd.adminmanagement.Configuration;
+package csd.adminmanagement.configuration;
 
 // Spring imports
 import java.io.FileInputStream;

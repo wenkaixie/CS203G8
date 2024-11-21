@@ -1,4 +1,4 @@
-package csd.playermanagement.Service;
+package csd.playermanagement.service;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.csd.shared_library.model.User;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -30,9 +29,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import csd.playermanagement.DTO.UserDTO;
-import csd.playermanagement.Exception.TournamentNotFoundException;
-import csd.playermanagement.Exception.UserNotFoundException;
+import csd.playermanagement.exception.TournamentNotFoundException;
+import csd.playermanagement.exception.UserNotFoundException;
 import csd.playermanagement.helper.UserMapper;
+import csd.shared_library.model.User;
 import lombok.extern.slf4j.Slf4j;
 
 

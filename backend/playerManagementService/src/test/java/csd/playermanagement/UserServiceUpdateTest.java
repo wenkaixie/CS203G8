@@ -22,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import com.csd.shared_library.model.User;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.cloud.firestore.CollectionReference;
@@ -34,8 +33,9 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 
 import csd.playermanagement.DTO.UserDTO;
-import csd.playermanagement.Exception.UserNotFoundException;
-import csd.playermanagement.Service.UserService;
+import csd.playermanagement.exception.UserNotFoundException;
+import csd.playermanagement.service.UserService;
+import csd.shared_library.model.User;
 
 
 @ExtendWith(MockitoExtension.class)
