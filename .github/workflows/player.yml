@@ -47,4 +47,4 @@ jobs:
       # Build the Docker image, passing the key as a build argument
       - name: Build Docker image
         run: |
-          docker build -f backend/playerManagementService/Dockerfile -t player-management-service .
+          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -f backend/playerManagementService/Dockerfile -t player-management-service .
