@@ -35,24 +35,34 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
                 `http://localhost:9090/user/getUser/${authId}`
             );
             const userData = response.data;
-
+    
             setFullName(userData.name || '');
             setEmail(userData.email || '');
             setNationality(userData.nationality || '');
-
-            const birthDate = new Date(userData.dateOfBirth.seconds * 1000);
-            const currentAge = calculateAge(birthDate);
-            setAge(currentAge);
+    
+            // Handle dateOfBirth in ISO format
+            if (userData.dateOfBirth) {
+                const birthDate = new Date(userData.dateOfBirth); // Convert ISO string to Date object
+                
+                const currentAge = calculateAge(birthDate); // Pass the Date object to calculateAge
+                setAge(currentAge);
+            } else {
+                setAge(null); // Handle missing dateOfBirth
+            }
         } catch (error) {
             console.error('Error fetching user details:', error);
         }
     };
-
+    
     const calculateAge = (birthDate) => {
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    
+        // Adjust the age if the current date is before the birthday this year
+        if (
+            today.getMonth() < birthDate.getMonth() ||
+            (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())
+        ) {
             age--;
         }
         return age;
