@@ -10,7 +10,7 @@ import csd.saga.saga.AddUserToTournamentSaga;
 import csd.saga.saga.RemoveUserFromTournamentSaga;
 import csd.saga.saga.TournamentCreationSaga;
 import csd.saga.saga.TournamentDeletionSaga;
-import csd.saga.saga.UpdateEloSaga;
+import csd.saga.saga.UpdateEloOrchestration;
 import csd.shared_library.DTO.MatchResultUpdateRequest;
 import csd.shared_library.DTO.TournamentDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -32,17 +32,8 @@ public class SagaOrchestratorService {
     private RemoveUserFromTournamentSaga removeUserFromTournamentSaga;
 
     @Autowired
-    private UpdateEloSaga updateEloSaga;
+    private UpdateEloOrchestration updateEloSaga;
 
-    // @Autowired
-    // private TournamentQuerySaga tournamentQuerySaga;
-
-    /**
-     * Start the tournament creation saga.
-     * 
-     * @param tournamentDTO DTO containing tournament details.
-     * @return The ID of the created tournament.
-     */
     public String startTournamentCreationSaga(TournamentDTO tournamentDTO) {
         log.info("Starting Tournament Creation Saga for admin: {}", tournamentDTO.getAdminId());
         try {
@@ -55,11 +46,7 @@ public class SagaOrchestratorService {
         }
     }
 
-    // /**
-    //  * Start the tournament deletion saga.
-    //  * 
-    //  * @param tournamentID ID of the tournament to delete.
-    //  */
+   
     public void startTournamentDeletionSaga(String tournamentID) {
         log.info("Starting Tournament Deletion Saga for tournament ID: {}", tournamentID);
         try {
@@ -71,22 +58,10 @@ public class SagaOrchestratorService {
         }
     }
 
-    /**
-     * Start the add-user-to-tournament saga.
-     * 
-     * @param tournamentID ID of the tournament.
-     * @param userID       ID of the user to add.
-     */
     public void startAddUserToTournamentSaga(String tournamentID, String userID) {
         addUserToTournamentSaga.addUserToTournament(tournamentID, userID);
     }
 
-    /**
-     * Start the remove-user-from-tournament saga.
-     * 
-     * @param tournamentID ID of the tournament.
-     * @param userID       ID of the user to remove.
-     */
     public void startRemoveUserFromTournamentSaga(String tournamentID, String userID) {
         removeUserFromTournamentSaga.removeUserFromTournament(tournamentID, userID);
     }

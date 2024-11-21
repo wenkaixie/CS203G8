@@ -46,13 +46,7 @@ public class TournamentService {
     @Autowired
     private TournamentSchedulerService tournamentSchedulerService;
 
-    @Autowired
-    private RoundRobinService roundRobinService;
-
-    @Autowired
-    private EliminationService eliminationService;
-
- 
+    private DocumentSnapshot tournamentSnapshot; // Temporary in-memory storage
 
     // refactor attempt
     // Tested working 19 Nov jon
@@ -115,9 +109,38 @@ public class TournamentService {
         return "Tournament updated at: " + future.get().getUpdateTime().toString();
     }
 
-    // see if need to implement
-    public void reinstateTournament(String tournamentID) {
-        // Logic to reinstate tournament in Firestore
+    // Store a snapshot of the tournament before deletion
+    public void storeTournamentSnapshot(String tournamentId) throws ExecutionException, InterruptedException {
+        log.info("Storing snapshot for tournament ID: {}", tournamentId);
+
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+        DocumentSnapshot snapshot = tournamentRef.get().get();
+
+        if (!snapshot.exists()) {
+            log.error("Tournament with ID {} does not exist. Cannot store snapshot.", tournamentId);
+            throw new RuntimeException("Tournament with ID " + tournamentId + " does not exist.");
+        }
+
+        // Save snapshot in memory
+        tournamentSnapshot = snapshot;
+        log.info("Snapshot stored for tournament ID: {}", tournamentId);
+    }
+
+    // Reinstate the tournament using the stored snapshot
+    public void reinstateTournamentFromSnapshot(String tournamentId) throws ExecutionException, InterruptedException {
+        if (tournamentSnapshot == null || !tournamentId.equals(tournamentSnapshot.getId())) {
+            log.error("No valid snapshot available for tournament ID: {}", tournamentId);
+            throw new RuntimeException("No valid snapshot available for tournament ID: " + tournamentId);
+        }
+
+        log.info("Reinstating tournament ID {} from snapshot.", tournamentId);
+
+        DocumentReference tournamentRef = firestore.collection("Tournaments").document(tournamentId);
+
+        // Write snapshot data back to Firestore
+        tournamentRef.set(tournamentSnapshot.getData()).get();
+
+        log.info("Tournament ID {} reinstated from snapshot.", tournamentId);
     }
 
 

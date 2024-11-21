@@ -53,8 +53,7 @@ public class SagaOrchestratorController {
                     .body("Error initiating tournament deletion saga: " + e.getMessage());
         }
     }
-    
-    
+
     @PostMapping("/tournaments/{tournamentID}/players")
     public ResponseEntity<String> addUserToTournament(@PathVariable String tournamentID,
             @RequestParam String userID) {
@@ -88,7 +87,7 @@ public class SagaOrchestratorController {
             @PathVariable String tournamentID,
             @PathVariable int roundNumber,
             @RequestBody Map<Integer, MatchResultUpdateRequest> matchResults) {
-        log.info("Received request to udpate round "  + roundNumber);
+        log.info("Received request to udpate round " + roundNumber);
         try {
             return sagaOrchestratorService.startUpdateEloSaga(tournamentID, roundNumber, matchResults);
         } catch (Exception e) {
@@ -97,51 +96,4 @@ public class SagaOrchestratorController {
         }
     }
 
-    // @GetMapping("/tournaments/upcoming/{userID}")
-    // public ResponseEntity<List<Tournament>> getUpcomingTournamentsOfUser(@PathVariable String userID) {
-    //     log.info("Received request to fetch upcoming tournaments for user {}", userID);
-    //     try {
-    //         List<Tournament> tournaments = sagaOrchestratorService.getUpcomingTournamentsOfUser(userID);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         log.error("Error fetching upcoming tournaments for user {}: {}", userID, e.getMessage());
-    //         return ResponseEntity.internalServerError().build();
-    //     }
-    // }
-
-    // @GetMapping("/tournaments/past/{userID}")
-    // public ResponseEntity<List<Tournament>> getPastTournamentsOfUser(@PathVariable String userID) {
-    //     log.info("Received request to fetch past tournaments for user {}", userID);
-    //     try {
-    //         List<Tournament> tournaments = sagaOrchestratorService.getPastTournamentsOfUser(userID);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         log.error("Error fetching past tournaments for user {}: {}", userID, e.getMessage());
-    //         return ResponseEntity.internalServerError().build();
-    //     }
-    // }
-
-    // @GetMapping("/tournaments/ongoing/{userID}")
-    // public ResponseEntity<List<Tournament>> getOngoingTournamentsOfUser(@PathVariable String userID) {
-    //     log.info("Received request to fetch ongoing tournaments for user {}", userID);
-    //     try {
-    //         List<Tournament> tournaments = sagaOrchestratorService.getOngoingTournamentsOfUser(userID);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         log.error("Error fetching ongoing tournaments for user {}: {}", userID, e.getMessage());
-    //         return ResponseEntity.internalServerError().build();
-    //     }
-    // }
-
-    // @GetMapping("/tournaments/eligible/{userID}")
-    // public ResponseEntity<List<Tournament>> getEligibleTournamentsOfUser(@PathVariable String userID) {
-    //     log.info("Received request to fetch eligible tournaments for user {}", userID);
-    //     try {
-    //         List<Tournament> tournaments = sagaOrchestratorService.getEligibleTournamentsOfUser(userID);
-    //         return ResponseEntity.ok(tournaments);
-    //     } catch (Exception e) {
-    //         log.error("Error fetching eligible tournaments for user {}: {}", userID, e.getMessage());
-    //         return ResponseEntity.internalServerError().build();
-    //     }
-    // }
 }

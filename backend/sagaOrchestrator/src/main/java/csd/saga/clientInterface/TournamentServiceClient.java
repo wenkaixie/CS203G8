@@ -51,6 +51,8 @@ public interface TournamentServiceClient {
     @PutMapping("/api/tournaments/{tournamentId}/players/{playerId}/elo")
     void updateTournamentPlayerElo(@PathVariable("tournamentId") String tournamentId, @PathVariable("playerId") String playerId, @RequestBody int newElo);
     
+    @PostMapping("/api/tournaments/{tournamentId}/snapshot")
+    ResponseEntity<Void> storeTournamentSnapshot(@PathVariable("tournamentId") String tournamentId);
 
     @PostMapping("/api/tournaments/{tournamentID}/reinstate")
     void reinstateTournament(@PathVariable("tournamentID") String tournamentID);

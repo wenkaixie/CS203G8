@@ -138,15 +138,32 @@ public class TournamentController {
         }
     }
 
+    @PostMapping("/tournaments/{tournamentId}/snapshot")
+    public ResponseEntity<Void> storeTournamentSnapshot(@PathVariable String tournamentId) {
+        log.info("Request received to store snapshot for tournament ID: {}", tournamentId);
 
-    // make sure it is used
-    @PostMapping("/{tournamentID}/reinstate")
-    public ResponseEntity<Void> reinstateTournament(@PathVariable String tournamentID) {
         try {
-            tournamentService.reinstateTournament(tournamentID);
+            tournamentService.storeTournamentSnapshot(tournamentId);
+            log.info("Snapshot stored successfully for tournament ID: {}", tournamentId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Failed to store snapshot for tournament ID {}: {}", tournamentId, e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+
+    @PostMapping("/{tournamentId}/reinstate")
+    public ResponseEntity<String> reinstateTournament(@PathVariable String tournamentId) {
+        log.info("Received request to reinstate tournament with ID: {}", tournamentId);
+        try {
+            tournamentService.reinstateTournamentFromSnapshot(tournamentId);
+            log.info("Tournament with ID {} reinstated successfully.", tournamentId);
+            return ResponseEntity.ok("Tournament reinstated successfully.");
+        } catch (Exception e) {
+            log.error("Error reinstating tournament with ID {}: {}", tournamentId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error reinstating tournament: " + e.getMessage());
         }
     }
 

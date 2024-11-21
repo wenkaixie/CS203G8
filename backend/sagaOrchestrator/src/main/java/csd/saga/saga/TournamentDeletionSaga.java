@@ -41,17 +41,20 @@ public class TournamentDeletionSaga {
             userIds = tournamentServiceClient.getUserIdsForTournament(tournamentID);
             log.info("Found {} users registered for tournament ID {}.", userIds.size(), tournamentID);
 
-            // Step 3: Delete the tournament
+            // Step 3: Store the snapshot of the tournament
+            tournamentServiceClient.storeTournamentSnapshot(tournamentID);
+
+            // Step 4: Delete the tournament
             tournamentServiceClient.deleteTournament(tournamentID);
             log.info("Tournament ID {} deleted successfully.", tournamentID);
 
-            // Step 4: Update Admin Document
+            // Step 5: Update Admin Document
             if (adminId != null) {
                 adminManagementServiceClient.removeTournamentFromAdmin(adminId, tournamentID);
                 log.info("Tournament ID {} removed from admin {}.", tournamentID, adminId);
             }
 
-            // Step 5: Update each user's registration history
+            // Step 6: Update each user's registration history
             for (String userId : userIds) {
                 playerManagementServiceClient.removeTournamentFromUser(userId, tournamentID);
                 log.info("Removed tournament ID {} from user {}'s registration history.", tournamentID, userId);
