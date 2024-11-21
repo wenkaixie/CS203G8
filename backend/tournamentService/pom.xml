@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>csd</groupId>
-	<artifactId>saga</artifactId>
+	<artifactId>tournamentService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>tournament Service</name>
 	<description>Tournament microservice for Spring Boot</description>
