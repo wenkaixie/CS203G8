@@ -63,7 +63,11 @@ const Tasks = () => {
           >
             <div className="task-details">
               <h4>{task.name}</h4>
-              <p>{task.description}</p>
+              <p>
+                {task.description.length > 30 
+                ? `${task.description.slice(0, 30)}...` 
+                : task.description}
+              </p>
               <span>Status: {task.status}</span>
             </div>
             <ArrowForwardIosIcon />
