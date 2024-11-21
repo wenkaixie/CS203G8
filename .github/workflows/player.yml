@@ -1,0 +1,43 @@
+name: Build player Image
+
+on:
+  push:
+    branches:
+      - Refactor  # Trigger on pushes to the main branch
+    paths:
+      - 'backend/playerManagementService/**'  # Trigger on changes to the playerManagementService directory
+      - '.github/workflows/player.yml'  # Trigger on changes to the workflow file
+  pull_request:  # Trigger on pull requests
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Decode the serviceAccountKey.json from GitHub Secrets
+      - name: Decode and Save serviceAccountKey.json
+        env:
+          FIREBASE_KEY: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo $FIREBASE_KEY | base64 -d > serviceAccountKey.json
+
+      # Move the serviceAccountKey.json to the build context
+      - name: Move serviceAccountKey.json to build context
+        run: mv serviceAccountKey.json ./backend/playerManagementService/
+
+      - name: Install Shared Library
+        working-directory: backend/shared-library
+        run: mvn clean install -DskipTests
+
+      - name: Package Player Management Service
+        working-directory: backend/playerManagementService/
+        run: mvn clean package -DskipTests
+
+      # Build the Docker image, passing the key as a build argument
+      - name: Build Docker image
+        run: |
+          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -t playerimage ./backend/playerManagementService
