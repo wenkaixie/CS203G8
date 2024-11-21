@@ -64,6 +64,7 @@ const UserUpdateProfile = () => {
         };
 
         try {
+            console.log(updatedProfileData);
             const response = await axios.put(`http://localhost:9090/user/updateUser/${auth.currentUser.uid}`, updatedProfileData);
 
             if (response.status === 200) {

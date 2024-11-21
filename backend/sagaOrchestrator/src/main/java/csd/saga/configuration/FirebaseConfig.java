@@ -1,4 +1,4 @@
-package csd.shared_library.config;
+package csd.saga.configuration;
 
 import java.io.FileInputStream;
 import java.io.IOException;
