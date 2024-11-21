@@ -3,7 +3,7 @@
 :: Function to kill processes running on specific ports
 :kill_ports
 setlocal enabledelayedexpansion
-set ports=7070 8080 9090 9696 3000
+set ports=7070 8080 9090 9696
 echo Killing any processes running on ports: %ports%
 
 for %%p in (%ports%) do (

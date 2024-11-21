@@ -2,7 +2,7 @@
 
 # Function to kill processes running on specific ports
 kill_ports() {
-    local ports=(7070 8080 9090 9696 3000)
+    local ports=(7070 8080 9090 9696)
     echo "Killing any processes running on ports: ${ports[*]}..."
 
     for port in "${ports[@]}"; do
@@ -10,7 +10,7 @@ kill_ports() {
         pid=$(lsof -t -i:$port 2>/dev/null)
         if [ -n "$pid" ]; then
             echo "Killing process $pid on port $port..."
-            kill -9 "$pid" || sudo kill -9 "$pid" 2>/dev/null || echo "Failed to kill process $pid on port $port. You might need sudo."
+            kill -9 "$pid" 2>/dev/null || echo "Failed to kill process $pid on port $port. You might need sudo."
         else
             echo "No process running on port $port."
         fi
@@ -72,9 +72,9 @@ build_shared_library "backend/shared-library"
 
 # List of Spring Boot services and their directories
 services=(
-    "playerManagementService"
-    "adminManagementService"
-    "tournamentService"
+    # "playerManagementService"
+    # "adminManagementService"
+    # "tournamentService"
     "sagaOrchestrator"
 )
 
