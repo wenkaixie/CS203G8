@@ -72,10 +72,10 @@ build_shared_library "backend/shared-library"
 
 # List of Spring Boot services and their directories
 services=(
-    "playerManagementService"
-    "adminManagementService"
-    "tournamentService"
-    "sagaOrchestrator"
+    # "playerManagementService"
+    # "adminManagementService"
+    # "tournamentService"
+    # "sagaOrchestrator"
 )
 
 # Build and start all Spring Boot services

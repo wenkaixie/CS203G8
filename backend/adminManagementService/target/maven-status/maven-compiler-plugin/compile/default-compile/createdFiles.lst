@@ -1,10 +1,12 @@
-csd/adminmanagement/configuration/RestTemplateConfig.class
-csd/adminmanagement/controller/AdminController.class
+csd/adminmanagement/AMQP/RabbitMQConfig.class
 csd/adminmanagement/service/AdminService.class
 csd/adminmanagement/exception/TournamentNotFoundException.class
+csd/adminmanagement/model/MatchResultUpdateRequest.class
+csd/adminmanagement/consumer/AdminConsumer.class
+csd/adminmanagement/exception/AdminNotFoundException.class
+csd/adminmanagement/configuration/RestTemplateConfig.class
+csd/adminmanagement/controller/AdminController.class
 csd/adminmanagement/configuration/WebConfig.class
 csd/adminmanagement/exception/GlobalExceptionHandler.class
 csd/adminmanagement/AdminManagementService.class
 csd/adminmanagement/configuration/WebConfig$1.class
-csd/adminmanagement/model/MatchResultUpdateRequest.class
-csd/adminmanagement/exception/AdminNotFoundException.class

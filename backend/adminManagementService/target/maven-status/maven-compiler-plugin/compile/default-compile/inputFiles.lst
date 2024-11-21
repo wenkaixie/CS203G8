@@ -8,7 +8,5 @@
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/exception/AdminNotFoundException.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/exception/GlobalExceptionHandler.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/exception/TournamentNotFoundException.java
-/Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/model/Admin.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/model/MatchResultUpdateRequest.java
-/Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/model/Tournament.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/service/AdminService.java

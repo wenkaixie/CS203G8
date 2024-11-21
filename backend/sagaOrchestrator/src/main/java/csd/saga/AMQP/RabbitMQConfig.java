@@ -1,7 +1,11 @@
 package csd.saga.AMQP;
 
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,22 +13,27 @@ import org.springframework.context.annotation.Configuration;
 @EnableRabbit
 public class RabbitMQConfig {
 
-    public static final String DELETE_TOURNAMENT_QUEUE = "deleteTournamentQueue";
-    public static final String DELETE_TOURNAMENT_RESPONSE_QUEUE = "deleteTournamentResponseQueue";
+    @Value("${rabbitmq.queue}")
+    private String queueName;
+
+    @Value("${rabbitmq.exchange}")
+    private String exchangeName;
+
+    @Value("${rabbitmq.routingkey}")
+    private String routingKey;
 
     @Bean
-    public Queue deleteTournamentQueue() {
-        return new Queue(DELETE_TOURNAMENT_QUEUE, true); // 'true' for durable queue
+    public Queue queue() {
+        return new Queue(queueName, true); // Durable queue
     }
 
     @Bean
-    public Queue deleteTournamentResponseQueue() {
-        return new Queue(DELETE_TOURNAMENT_RESPONSE_QUEUE, true); // 'true' for durable queue
+    public DirectExchange exchange() {
+        return new DirectExchange(exchangeName);
     }
 
-    // @Bean
-    // public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-    //     return new RabbitTemplate(connectionFactory);
-    // }
-
+    @Bean
+    public Binding binding(Queue queue, DirectExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    }
 }
