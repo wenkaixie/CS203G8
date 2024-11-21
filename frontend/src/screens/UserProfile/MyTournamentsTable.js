@@ -4,9 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import axios from 'axios';
-import { getAuth } from "firebase/auth";
 
-const MyTournamentsTable = ( authId ) => {
+const MyTournamentsTable = ( {userId} ) => {
     const [sortedTournaments, setSortedTournaments] = useState(null); // Initially null
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [sortBy, setSortBy] = useState('');
@@ -15,15 +14,14 @@ const MyTournamentsTable = ( authId ) => {
     const [tournaments, setTournaments] = useState([]);
 
     const navigate = useNavigate();
-    const auth = getAuth();
 
     // Fetch past tournaments
     const fetchPastTournaments = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/tournaments/past/${authId}`);
+            const response = await axios.get(`http://localhost:8080/api/tournaments/past/${userId}`);
             setTournaments(response.data);
         } catch (error) {
-            console.error('Error fetching ongoing tournaments:', error);
+            console.error('Error fetching past tournaments:', error);
         }
     };
 

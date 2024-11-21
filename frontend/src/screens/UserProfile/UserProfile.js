@@ -123,7 +123,7 @@ const UserProfile = () => {
                         <div className='profile-body-tournaments'>
                             {/* <h2>Completed Tournaments</h2> */}
                             <div>
-                                <MyTournamentsTable />
+                                <MyTournamentsTable userId={userID}/>
                             </div>
                         </div>
                         <Divider orientation="vertical" flexItem style={{ margin: '0 40px', backgroundColor: '#ccc', borderRadius: "1px"}} />

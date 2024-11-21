@@ -118,22 +118,22 @@ const UserDetailsHeader = () => {
         } else if (isRegistered) {
             try {
                 // Unregister the user in the player service using the new PUT endpoint
-                const unregisterResponse = await axios.put(
-                    `http://localhost:9090/user/unregisterTournament/${tournamentId}/${authId}`
+                const unregisterResponse = await axios.delete(
+                    `http://localhost:9696/api/saga/tournaments/${tournamentId}/players/${authId}`
                 );
 
                 if (unregisterResponse.status !== 200) {
                     throw new Error("Failed to unregister from the tournament in player service");
                 }
 
-                // Remove the user from the tournament in the tournament service
-                const removeResponse = await axios.delete(
-                    `http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`
-                );
+                // // Remove the user from the tournament in the tournament service
+                // const removeResponse = await axios.delete(
+                //     `http://localhost:8080/api/tournaments/${tournamentId}/players/${authId}`
+                // );
 
-                if (removeResponse.status !== 200) {
-                    throw new Error("Failed to remove user from the tournament in tournament service");
-                }
+                // if (unregisterResponse.status !== 200) {
+                //     throw new Error("Failed to remove user from the tournament in tournament service");
+                // }
 
                 // Update state after successful unregistration
                 setIsRegistered(false);

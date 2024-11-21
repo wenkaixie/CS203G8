@@ -235,3 +235,18 @@ body {
         text-align: center;
     }
 }
+
+.scrollable-container {
+    max-height: 80vh;
+    /* Adjust height as needed */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    border: 1px solid #ccc;
+    /* Optional: Add a border for aesthetics */
+    border-radius: 5px;
+    /* Optional: Add rounded corners */
+    background-color: #f9f9f9;
+    /* Optional: Background color for better visibility */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    /* Optional: Add shadow for depth */
+}

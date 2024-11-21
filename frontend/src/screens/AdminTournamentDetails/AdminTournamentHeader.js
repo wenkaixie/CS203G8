@@ -50,7 +50,7 @@ const AdminDetailsHeader = ({ activeTab, tournamentTitle, playerCount, onEditCli
     const handleDeleteClick = async () => {
         try {
             // DELETE request to delete the tournament
-            await axios.delete(`http://localhost:8080/api/tournaments/${tournamentId}`);
+            await axios.delete(`http://localhost:9696/api/saga/tournaments/${tournamentId}`);
             navigate('/admin/home'); // Redirect to the home after deletion
         } catch (error) {
             console.error("Error deleting tournament:", error);
