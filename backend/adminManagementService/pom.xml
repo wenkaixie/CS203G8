@@ -8,7 +8,7 @@
 		<version>3.3.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.app</groupId>
+	<groupId>csd</groupId>
 	<artifactId>adminManagementService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>adminManagementService</name>
@@ -90,8 +90,8 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
-		<dependency>
-            <groupId>com.csd</groupId>
+        <dependency>
+            <groupId>csd</groupId>
             <artifactId>shared-library</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

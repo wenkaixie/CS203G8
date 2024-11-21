@@ -1,4 +1,11 @@
-package csd.playermanagement.Service;
+package csd.playermanagement.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -6,16 +13,10 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 
-import csd.playermanagement.Model.Tournament;
-import csd.playermanagement.Model.User;
+import csd.shared_library.model.Tournament;
+import csd.shared_library.model.User;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
+// import csd.playermanagement.Model.Tournament;
 
 @Service
 public class FirestoreService {

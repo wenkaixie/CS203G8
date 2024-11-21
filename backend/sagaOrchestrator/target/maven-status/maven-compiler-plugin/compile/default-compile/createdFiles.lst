@@ -1,0 +1,15 @@
+csd/saga/saga/TournamentCreationSaga.class
+csd/saga/saga/UpdateEloSaga.class
+csd/saga/service/SagaSenderService.class
+csd/saga/controller/SagaOrchestratorController.class
+csd/saga/saga/UpdateEloSaga$1.class
+csd/saga/service/SagaListenerService.class
+csd/saga/AMQP/RabbitMQConfig.class
+csd/saga/clientInterface/TournamentServiceClient.class
+csd/saga/clientInterface/PlayerManagementServiceClient.class
+csd/saga/SagaOrchestratorApplication.class
+csd/saga/saga/AddUserToTournamentSaga.class
+csd/saga/saga/TournamentDeletionSaga.class
+csd/saga/clientInterface/AdminManagementServiceClient.class
+csd/saga/saga/RemoveUserFromTournamentSaga.class
+csd/saga/service/SagaOrchestratorService.class

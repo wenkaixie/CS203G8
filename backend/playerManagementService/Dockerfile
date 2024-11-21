@@ -1,31 +1,32 @@
-# Stage 1: Build the JAR file using Maven
+# Stage 1: Build the shared-library and playerManagementService JAR files
 FROM maven:3.9.8-eclipse-temurin-17 AS build
 
 # Set the working directory in the container
 WORKDIR /opt/app
 
-# Copy pom.xml and download dependencies
-COPY pom.xml .
-RUN mvn dependency:go-offline
+# Copy the shared-library directory into the container
+COPY shared-library /opt/app/shared-library
 
-# Copy the rest of the source code
-COPY src ./src
+# Build the shared-library and install it in the local Maven repository
+WORKDIR /opt/app/shared-library
 
-# Build the application and create a JAR file, skipping tests to speed up the build
+RUN mvn clean install -DskipTests
+
+# Copy the playerManagementService directory into the container
+WORKDIR /opt/app/playerManagementService
+COPY playerManagementService /opt/app/playerManagementService
+
+# Build the playerManagementService, ensuring shared-library is available
 RUN mvn clean package -DskipTests
 
-# Stage 2: Create a minimal runtime image with Amazon Corretto JDK
-FROM public.ecr.aws/amazoncorretto/amazoncorretto:17.0.8-al2023-headless
+# Stage 2: Create a runtime image
+FROM openjdk:17
 
 # Set the working directory in the container
 WORKDIR /opt/app
 
-# Use a non-root user for security
-# USER 1000
-
-
 # Copy the JAR file from the build stage
-COPY --from=build /opt/app/target/*.jar /opt/app/app.jar
+COPY --from=build /opt/app/playerManagementService/target/*.jar /opt/app/app.jar
 
 # Copy the serviceAccountKey.json file into the image
 COPY serviceAccountKey.json /opt/app/serviceAccountKey.json
@@ -35,6 +36,3 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
 
-# You copy the JAR file from the first stage (which was created in Stage 1) into this minimal image,
-# and you define the command to run your application (with ENTRYPOINT).
-# Stage 2 does not rebuild anything—it just reuses the build artifact (the JAR file) from Stage 1.

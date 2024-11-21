@@ -14,25 +14,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Decode the serviceAccountKey.json from GitHub Secrets
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
       - name: Decode and Save serviceAccountKey.json
         env:
           FIREBASE_KEY: ${{ secrets.SERVICE_ACCOUNT_KEY }}
         run: |
           echo $FIREBASE_KEY | base64 -d > serviceAccountKey.json
 
-      # Move the serviceAccountKey.json to the build context
-      - name: Move serviceAccountKey.json to build context
-        run: mv serviceAccountKey.json ./backend/playerManagementService/
+      # Move the serviceAccountKey.json into the backend directory
+      - name: Move serviceAccountKey.json to backend directory
+        run: mv serviceAccountKey.json backend/
 
-      # Build the Docker image, passing the key as a build argument
+      - name: Install Shared Library
+        working-directory: backend/shared-library
+        run: mvn clean install -DskipTests
+
+      - name: Package Player Management Service
+        working-directory: backend/playerManagementService/
+        run: mvn clean package -DskipTests
+
+      # Build the Docker image with the build context set to ./backend
       - name: Build Docker image
         run: |
-          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -t playerimage ./backend/playerManagementService
+          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -f backend/playerManagementService/Dockerfile -t player-management-service ./backend
 
-
-
+      # Optional cleanup step
+      - name: Clean up serviceAccountKey.json
+        run: rm backend/serviceAccountKey.json

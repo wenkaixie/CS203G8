@@ -1,5 +1,4 @@
-package csd.adminmanagement.Model;
-
+package csd.adminmanagement.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,13 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatchResultUpdateRequest {
-    
+
     @JsonProperty("AS1")
     private double AS1;
 
@@ -22,4 +20,3 @@ public class MatchResultUpdateRequest {
     private double AS2;
 
 }
-

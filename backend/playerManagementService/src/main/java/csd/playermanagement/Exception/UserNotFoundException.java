@@ -1,5 +1,5 @@
 // UserNotFoundException.java
-package csd.playermanagement.Exception;
+package csd.playermanagement.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

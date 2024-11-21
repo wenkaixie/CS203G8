@@ -74,7 +74,7 @@ const UserTournamentOverview = () => {
     const prizeBreakdown = tournamentData?.prize ? calculatePrizeBreakdown(tournamentData.prize) : [];
 
     return (
-        <div>
+        <div className='scrollable-container'>
             <div className="tournament-overview">
                 <div className="tournament-description">
                     <p>{tournamentData?.description || "No description available for this tournament."}</p>

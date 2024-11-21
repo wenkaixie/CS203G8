@@ -60,18 +60,9 @@ const RegistrationForm = ({ tournamentID, closeForm, onSubmit }) => {
 
     const handleSubmit = async () => {
         try {
-            // Register the user using the PUT endpoint
-            const playerServiceResponse = await axios.put(
-                `http://localhost:9090/user/registerTournament/${tournamentID}/${authId}`
-            );
-
-            if (playerServiceResponse.status !== 200) {
-                throw new Error("Failed to register in player service");
-            }
-
             // Register the user in the tournament service
             const tournamentServiceResponse = await axios.post(
-                `http://localhost:8080/api/tournaments/${tournamentID}/players`,
+                `http://localhost:9696/api/saga/tournaments/${tournamentID}/players`,
                 null,
                 { params: { userID: authId } } 
             );

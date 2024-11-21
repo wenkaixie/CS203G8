@@ -94,7 +94,7 @@ const UserTournamentMatch = () => {
     }
 
     return (
-        <div>
+        <div className='scrollable-container'>
             <div className="user-tournament-match">
                 <div className="controls-container">
                     <div className="view-buttons">

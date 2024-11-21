@@ -1,60 +1,51 @@
-name: Build and admin Image
+name: Build admin Image
 
 on:
   push:
     branches:
       - main  # Trigger on pushes to the main branch
     paths:
-      - 'backend/adminManagementService/**'  # Trigger on changes to the adminManagementService directory
+      - 'backend/adminService/**'  # Trigger on changes to the playerManagementService directory
       - '.github/workflows/admin.yml'  # Trigger on changes to the workflow file
   pull_request:  # Trigger on pull requests
-
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: '17'
 
-      # Decode the serviceAccountKey.json from GitHub Secrets
       - name: Decode and Save serviceAccountKey.json
         env:
           FIREBASE_KEY: ${{ secrets.SERVICE_ACCOUNT_KEY }}
         run: |
           echo $FIREBASE_KEY | base64 -d > serviceAccountKey.json
 
-      # Move the serviceAccountKey.json to the build context
-      - name: Move serviceAccountKey.json to build context
-        run: mv serviceAccountKey.json ./backend/adminManagementService/
+      # Move the serviceAccountKey.json into the backend directory
+      - name: Move serviceAccountKey.json to backend directory
+        run: mv serviceAccountKey.json backend/
 
       - name: Install Shared Library
         working-directory: backend/shared-library
         run: mvn clean install -DskipTests
 
-      - name: Package Admin Management Service
-        working-directory: backend/adminManagementService
+      - name: Package Player Management Service
+        working-directory: backend/adminManagementService/
         run: mvn clean package -DskipTests
 
-      # Build the Docker image, passing the key as a build argument
+      # Build the Docker image with the build context set to ./backend
       - name: Build Docker image
         run: |
-          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -t adminimage ./backend/adminManagementService
-      # Do not need to clean up because the key is moved to build context
-      # # Verification of the secret key
-      # - name: Verify serviceAccountKey.json presence
-      #   run: ls -l ./serviceAccountKey.json
+          docker build --build-arg SERVICE_ACCOUNT_KEY=serviceAccountKey.json -f backend/adminManagementService/Dockerfile -t admin-management-service ./backend
 
-      # # Clean up the serviceAccountKey.json file
-      # - name: Clean up
-      #   run: |
-      #     rm serviceAccountKey.json
+      # Optional cleanup step
+      - name: Clean up serviceAccountKey.json
+        run: rm backend/serviceAccountKey.json

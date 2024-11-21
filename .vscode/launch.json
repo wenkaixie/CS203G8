@@ -2,6 +2,104 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SagaOrchestratorApplication",
+            "request": "launch",
+            "mainClass": "csd.saga.SagaOrchestratorApplication",
+            "projectName": "com.csd-saga"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "csd.tournament.TournamentMicroservice",
+            "projectName": "saga"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "csd.tournament.TournamentMicroservice",
+            "projectName": "tournamentService"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "csd.tournament.TournamentMicroservice",
+            "projectName": "com.csd-saga"
+        },
+        {
+            "type": "java",
+            "name": "PlayerManagementApplication",
+            "request": "launch",
+            "mainClass": "csd.playermanagement.PlayerManagementApplication",
+            "projectName": "csd-playerManagementService"
+        },
+        {
+            "type": "java",
+            "name": "SagaOrchestratorApplication",
+            "request": "launch",
+            "mainClass": "csd.saga.SagaOrchestratorApplication",
+            "projectName": "saga"
+        },
+        {
+            "type": "java",
+            "name": "AdminManagementService",
+            "request": "launch",
+            "mainClass": "csd.adminmanagement.AdminManagementService",
+            "projectName": "com.app-adminManagementService"
+        },
+        {
+            "type": "java",
+            "name": "SharedLibraryApplication",
+            "request": "launch",
+            "mainClass": "com.csd.shared_library.SharedLibraryApplication",
+            "projectName": "shared-library"
+        },
+        {
+            "type": "java",
+            "name": "EloApplication",
+            "request": "launch",
+            "mainClass": "elo.EloApplication",
+            "projectName": "eloService"
+        },
+        {
+            "type": "java",
+            "name": "EloApplication",
+            "request": "launch",
+            "mainClass": "EloApplication",
+            "projectName": "CS203G8_e208e993"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "com.csd.tournament.TournamentMicroservice",
+            "projectName": "tournamentService"
+        },
+        {
+            "type": "java",
+            "name": "TournamentMicroservice",
+            "request": "launch",
+            "mainClass": "com.csd.tournament.TournamentMicroservice",
+            "projectName": "tournament"
+        },
+        {
+            "type": "java",
+            "name": "SagaOrchestratorApplication",
+            "request": "launch",
+            "mainClass": "com.csd.saga.SagaOrchestratorApplication",
+            "projectName": "saga"
+        },
+        {
+            "type": "java",
+            "name": "SagaOrchestratorApplication",
+            "request": "launch",
+            "mainClass": "SagaOrchestratorApplication",
+            "projectName": "CS203G8_e208e993"
+        },
+        {
+            "type": "java",
             "name": "AdminManagementService",
             "request": "launch",
             "mainClass": "csd.adminmanagement.AdminManagementService",

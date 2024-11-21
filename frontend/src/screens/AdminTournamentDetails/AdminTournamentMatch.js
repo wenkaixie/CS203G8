@@ -136,8 +136,8 @@ const AdminTournamentMatch = () => {
 
         try {
             // First API call to update Elo ratings
-            await axios.put(
-                `http://localhost:9091/api/elo/tournaments/${tournamentId}/rounds/${roundNumber}/matches/updateElo`,
+            await axios.post(
+                `http://localhost:9696/api/saga/tournaments/${tournamentId}/rounds/${roundNumber}/elo`,
                 matchResults,
                 { headers: { 'Content-Type': 'application/json' } }
             );

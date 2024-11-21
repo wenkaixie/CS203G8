@@ -30,15 +30,15 @@ const UserUpdateProfile = () => {
             try {
                 const response = await axios.get(`http://localhost:9090/user/getUser/${auth.currentUser.uid}`);
                 const data = response.data;
-                console.log("Data received:", data);
+
                 setName(data.name || '');
                 setUsername(data.username || '');
                 setPhoneNumber(data.phoneNumber || '');
                 setNationality(data.nationality ? countryOptions.find(option => option.label === data.nationality) : null);
+                
+                // Handle dateOfBirth in ISO format
                 if (data.dateOfBirth) {
-                    const timestamp = data.dateOfBirth;
-                    const date = new Date(timestamp.seconds * 1000);
-                    const formattedDate = date.toISOString().split('T')[0];
+                    const formattedDate = new Date(data.dateOfBirth).toISOString().split('T')[0];
                     setDob(formattedDate);
                 } else {
                     setDob('');
@@ -47,7 +47,7 @@ const UserUpdateProfile = () => {
                 console.error('Error fetching profile data:', error);
             }
         };
-
+    
         fetchProfileData();
     }, []);
 
@@ -64,6 +64,7 @@ const UserUpdateProfile = () => {
         };
 
         try {
+            console.log(updatedProfileData);
             const response = await axios.put(`http://localhost:9090/user/updateUser/${auth.currentUser.uid}`, updatedProfileData);
 
             if (response.status === 200) {
