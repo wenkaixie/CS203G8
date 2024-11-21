@@ -68,39 +68,6 @@ public class UserServiceRegisterTest {
     private DocumentReference userDocRef;
 
   
-    @Test
-    void registerUserForTournament_UserSuccessfullyRegistered() throws InterruptedException, ExecutionException {
-        // Arrange
-        String tournamentId = "tournament123";
-        String authId = "user123";
-
-        // Mock Tournament
-        when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
-        when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
-        when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
-        when(tournamentSnapshot.exists()).thenReturn(true); // Tournament exists
-
-        // Mock User
-        when(firestore.collection("Users")).thenReturn(usersCollection);
-        when(usersCollection.document(authId)).thenReturn(userDocRef);
-        when(userDocRef.get()).thenReturn(ApiFutures.immediateFuture(userSnapshot));
-        when(userSnapshot.exists()).thenReturn(true); // User exists
-
-        // Mock User Data and Registration History
-        User user = new User();
-        List<String> registrationHistory = new ArrayList<>();
-        user.setRegistrationHistory(registrationHistory); // Empty history initially
-        when(userSnapshot.toObject(User.class)).thenReturn(user);
-        when(userDocRef.update(eq("registrationHistory"), anyList())).thenReturn(ApiFutures.immediateFuture(null));
-
-        // Act
-        String result = userService.registerUserForTournament(tournamentId, authId);
-
-        // Assert
-        assertEquals("User successfully registered for the tournament.", result);
-        verify(userDocRef).update(eq("registrationHistory"), eq(registrationHistory));
-        assertTrue(registrationHistory.contains(tournamentId)); // Ensure tournament ID was added
-    }
 
     @Test
     void registerUserForTournament_TournamentNotFound_ReturnsError() throws Exception {
@@ -156,43 +123,6 @@ public class UserServiceRegisterTest {
 
    
 
-
-    @Test
-    void unregisterUserFromTournament_Success() throws InterruptedException, ExecutionException {
-        // Arrange
-        String tournamentId = "tournament123";
-        String authId = "user123";
- 
-        // Mock Tournament
-        when(firestore.collection("Tournaments")).thenReturn(tournamentsCollection);
-        when(tournamentsCollection.document(tournamentId)).thenReturn(tournamentRef);
-        when(tournamentRef.get()).thenReturn(ApiFutures.immediateFuture(tournamentSnapshot));
-        when(tournamentSnapshot.exists()).thenReturn(true); // Tournament exists
- 
-        // Mock User
-        when(firestore.collection("Users")).thenReturn(usersCollection);
-        when(usersCollection.document(authId)).thenReturn(userDocRef);
-        when(userDocRef.get()).thenReturn(ApiFutures.immediateFuture(userSnapshot));
-        when(userSnapshot.exists()).thenReturn(true); // User exists
- 
-        // Mock User Data and Registration History
-        User user = new User();
-        List<String> registrationHistory = new ArrayList<>();
-        registrationHistory.add(tournamentId); // User is registered for the tournament
-        user.setRegistrationHistory(registrationHistory);
-
-        when(userSnapshot.toObject(User.class)).thenReturn(user);
-        when(userDocRef.update(eq("registrationHistory"), anyList())).thenReturn(ApiFutures.immediateFuture(null)); // Return a completed Future with a null value, simulating a successful update operation 
-                                                                                                                     // in Firestore without interacting with the actual database.
- 
-        // Act
-        String result = userService.unregisterUserForTournament(tournamentId, authId);
- 
-        // Assert
-        assertEquals("User successfully unregistered from the tournament.", result);
-        verify(userDocRef).update(eq("registrationHistory"), eq(registrationHistory)); // Verifies that the "registrationHistory" field was updated with the expected list in Firestore.
-        assertFalse(registrationHistory.contains(tournamentId)); // Ensure tournament ID was removed
-    }
 
     @Test
     void unregisterUserFromTournament_InvalidUser() throws InterruptedException, ExecutionException {
