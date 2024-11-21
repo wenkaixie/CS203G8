@@ -34,7 +34,7 @@ jobs:
 
       # Move the serviceAccountKey.json to the build context
       - name: Move serviceAccountKey.json to build context
-        run: mv serviceAccountKey.json ./backend/playerManagementService/
+        run: mv serviceAccountKey.json ./backend
 
       - name: Install Shared Library
         working-directory: backend/shared-library
