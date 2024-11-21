@@ -14,9 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-// import com.csd.shared_library.DTO.MatchResultUpdateRequest;
-import com.csd.shared_library.model.Admin;
-import com.csd.shared_library.model.Tournament;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;

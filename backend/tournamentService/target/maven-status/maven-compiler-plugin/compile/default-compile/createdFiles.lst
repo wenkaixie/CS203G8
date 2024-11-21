@@ -1,13 +1,12 @@
+csd/tournament/configuration/WebConfig.class
 csd/tournament/service/TournamentService$1.class
-csd/tournament/WebConfig.class
+csd/tournament/configuration/WebConfig$1.class
 csd/tournament/service/EliminationService.class
-csd/tournament/consumer/TournamentConsumer.class
 csd/tournament/service/UserService.class
-csd/tournament/WebConfig$1.class
 csd/tournament/service/TournamentSchedulerService.class
 csd/tournament/service/RoundRobinService.class
 csd/tournament/TournamentMicroservice.class
 csd/tournament/service/TournamentService.class
-csd/tournament/AMQP/RabbitMQConfig.class
+csd/tournament/configuration/FirebaseConfig.class
 csd/tournament/controller/TournamentController.class
 csd/tournament/controller/TournamentController$1.class

@@ -1,12 +1,12 @@
-/Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/AMQP/RabbitMQConfig.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/AdminManagementService.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/configuration/FirebaseConfig.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/configuration/RestTemplateConfig.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/configuration/SchedulerConfig.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/configuration/WebConfig.java
-/Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/consumer/AdminConsumer.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/controller/AdminController.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/exception/AdminNotFoundException.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/exception/GlobalExceptionHandler.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/exception/TournamentNotFoundException.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/model/MatchResultUpdateRequest.java
+/Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/model/Tournament.java
 /Users/jonathanholton/Documents/GitHub/CS203G8/backend/adminManagementService/src/main/java/csd/adminmanagement/service/AdminService.java
