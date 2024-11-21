@@ -39,14 +39,12 @@ import csd.playermanagement.helper.UserMapper;
 import csd.shared_library.model.User;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Service
 @Slf4j
 public class UserService {
 
     @Autowired
     private Firestore firestore;
-
 
     public void addTournamentToUser(String userID, String tournamentID)
             throws ExecutionException, InterruptedException {
@@ -73,16 +71,15 @@ public class UserService {
             throw e; // Propagate for rollback
         }
     }
-    
 
     // test complaints
     /**
-    * Register User for a tournament.
-    *
-    * @param tournamentId the tournament Id of a tournament.
-    * @param authId the auth Id of a user.
-    * @return a String value if user registered successfully.
-    */
+     * Register User for a tournament.
+     *
+     * @param tournamentId the tournament Id of a tournament.
+     * @param authId       the auth Id of a user.
+     * @return a String value if user registered successfully.
+     */
     public String registerUserForTournament(String tournamentId, String authId)
             throws InterruptedException, ExecutionException {
         log.info("Registering user {} for tournament {}", authId, tournamentId);
@@ -117,12 +114,12 @@ public class UserService {
     }
 
     /**
-    * Deregister User for a tournament.
-    *
-    * @param tournamentId the tournament Id of a tournament.
-    * @param authId the auth Id of a user.
-    * @return a String value if user deregistered successfully.
-    */
+     * Deregister User for a tournament.
+     *
+     * @param tournamentId the tournament Id of a tournament.
+     * @param authId       the auth Id of a user.
+     * @return a String value if user deregistered successfully.
+     */
     public String unregisterUserForTournament(String tournamentId, String authId)
             throws InterruptedException, ExecutionException {
         log.info("Unregistering user {} from tournament {}", authId, tournamentId);
@@ -165,8 +162,7 @@ public class UserService {
             throw e; // Propagate for rollback or further handling
         }
     }
-        
-    
+
     public UserDTO updateUserProfile(String authId, UserDTO updatedUser)
             throws InterruptedException, ExecutionException {
         log.info("Updating profile for user {}", authId);
@@ -189,13 +185,32 @@ public class UserService {
             if (updatedUser.getPhoneNumber() != null) {
                 changes.put("phoneNumber", updatedUser.getPhoneNumber());
             }
-            if (updatedUser.getUsername()!=null){
-                changes.put("chessUsername", updatedUser.getChessUsername());
+
+            // Check if the chessUsername field exists in the Firebase document
+            String existingChessUsername = updatedUser.getChessUsername();
+
+            if (existingChessUsername == null || existingChessUsername.isEmpty()) {
+                // Allow update if chessUsername doesn't exist
+                if (updatedUser.getChessUsername() != null && !updatedUser.getChessUsername().isEmpty()) {
+                    String chessUsername = updatedUser.getChessUsername();
+                    changes.put("chessUsername", chessUsername);
+
+                    // Fetch elo for the provided chess username
+                    int elo = fetchChessElo(chessUsername);
+                    changes.put("elo", elo);
+                } else {
+                    // No username provided, set default elo
+                    changes.put("elo", 800);
+                }
+            } else {
+                // Do not allow updating chessUsername if it already exists
+                System.out.println("Chess username already exists and cannot be updated.");
             }
+            
             if (updatedUser.getNationality() != null) {
                 changes.put("nationality", updatedUser.getNationality());
             }
-            if (updatedUser.getUsername()!= null){
+            if (updatedUser.getUsername() != null) {
                 changes.put("username", updatedUser.getUsername());
             }
             if (updatedUser.getDateOfBirth() != null) {
@@ -216,10 +231,10 @@ public class UserService {
                     }
                 } else {
                     log.warn("Unexpected dateOfBirth type: {}", updatedUser.getDateOfBirth().getClass());
-                    throw new IllegalArgumentException("Unexpected dateOfBirth type. Use 'yyyy-MM-dd' formatted strings.");
+                    throw new IllegalArgumentException(
+                            "Unexpected dateOfBirth type. Use 'yyyy-MM-dd' formatted strings.");
                 }
             }
-
 
             if (!changes.isEmpty()) {
                 userRef.update(changes).get();
@@ -245,8 +260,6 @@ public class UserService {
             responseDTO.setChessUsername(fullUpdatedUser.getChessUsername());
             responseDTO.setNationality(fullUpdatedUser.getNationality());
             responseDTO.setPhoneNumber(fullUpdatedUser.getPhoneNumber());
-            
-            
 
             if (fullUpdatedUser.getDateOfBirth() != null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -261,17 +274,17 @@ public class UserService {
             throw e; // Propagate for rollback or further handling
         }
     }
-    
+
     // New method to fetch chess Elo from Chess.com API
     public int fetchChessElo(String chessUsername) {
         int elo = 0; // Default elo
-    
+
         try {
             URL url = new URL("https://api.chess.com/pub/player/" + chessUsername + "/stats");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.connect();
-    
+
             // Check for a successful response code
             int responseCode = conn.getResponseCode();
             if (responseCode == 200) {
@@ -282,7 +295,7 @@ public class UserService {
                     response.append(scanner.nextLine());
                 }
                 scanner.close();
-    
+
                 // Parse the JSON response
                 JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
                 if (jsonResponse.has("fide")) {
@@ -294,15 +307,15 @@ public class UserService {
         } catch (Exception e) {
             System.out.println("Error fetching chess elo: " + e.getMessage());
         }
-    
+
         return elo;
-    }   
-    
+    }
+
     /**
-    * get all user profile.
-    *
-    * @return the list user that exist in our app.
-    */
+     * get all user profile.
+     *
+     * @return the list user that exist in our app.
+     */
     public List<User> getAllUsers() throws InterruptedException, ExecutionException {
         log.info("Fetching all users...");
         try {
@@ -324,14 +337,13 @@ public class UserService {
             throw e; // Propagate or handle the exception as needed
         }
     }
-    
 
     /**
-    * get user based on the user's ID.
-    *
-    * @param authId the auth Id of a user.
-    * @return the user that has the specified authId.
-    */
+     * get user based on the user's ID.
+     *
+     * @param authId the auth Id of a user.
+     * @return the user that has the specified authId.
+     */
     public User getUserbyId(String userId) throws InterruptedException, ExecutionException {
         log.info("Fetching user with ID: {}", userId);
 
@@ -342,14 +354,14 @@ public class UserService {
         }
 
         return (User) UserMapper.mapDocumentToUser(document);
-}
+    }
 
     /**
-    * Get user's rank based on elo.
-    *
-    * @param authId the auth Id of a user.
-    * @return the rank number out of existing users.
-    */
+     * Get user's rank based on elo.
+     *
+     * @param authId the auth Id of a user.
+     * @return the rank number out of existing users.
+     */
     public int getUserRank(String authId) throws InterruptedException, ExecutionException {
         log.info("Fetching rank for user {}", authId);
         try {
@@ -374,7 +386,7 @@ public class UserService {
         }
     }
 
-    // NOT USED 
+    // USED IN TESTING
     public User createUserProfile(User newUser) throws InterruptedException, ExecutionException {
         CollectionReference usersRef = firestore.collection("Users");
 
@@ -403,7 +415,7 @@ public class UserService {
 
         return createdUser;
     }
-    
+
     public void updatePlayerEloBatch(Map<String, Integer> eloUpdates) {
         WriteBatch batch = firestore.batch();
         eloUpdates.forEach((playerId, newElo) -> {
@@ -416,178 +428,153 @@ public class UserService {
             throw new RuntimeException("Failed to update player Elo in batch", e);
         }
     }
-    
-    
 
 }
 
-
-// /**
-// * updating user profile.
-// *
-// * @param authId the auth Id of a user.
-// * @param updatedUser the userDTO of details that the user changed.
-// * @return the user that changed his/her profile.
-// */
+//     // /**
+//     // * updating user profile.
+//     // *
+//     // * @param authId the auth Id of a user.
+//     // * @param updatedUser the userDTO of details that the user changed.
+//     // * @return the user that changed his/her profile.
+//     // */
 // public UserDTO updateUserProfile(String authId, UserDTO updatedUser)
-// throws InterruptedException, ExecutionException {
-// System.out.println("Updating User profile for user ID: " + authId);
-// System.out.println("Received updated user:" + updatedUser);
+//     throws InterruptedException, ExecutionException {
+//     System.out.println("Updating User profile for user ID: " + authId);
+//     System.out.println("Received updated user:" + updatedUser);
 
-// CollectionReference usersRef = firestore.collection("Users");
-// ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId",
-// authId).get();
+//     CollectionReference usersRef = firestore.collection("Users");
+//     ApiFuture<QuerySnapshot> querySnapshot = usersRef.whereEqualTo("authId",
+//     authId).get();
 
-// List<QueryDocumentSnapshot> userDocuments =
-// querySnapshot.get().getDocuments();
-// System.out.println(userDocuments);
+//     List<QueryDocumentSnapshot> userDocuments =
+//     querySnapshot.get().getDocuments();
+//     System.out.println(userDocuments);
 
-// if (userDocuments.isEmpty()) {
-// throw new UserNotFoundException("User not found.");
-// }
+//     if (userDocuments.isEmpty()) {
+//     throw new UserNotFoundException("User not found.");
+//     }
 
-// DocumentSnapshot userSnapshot = userDocuments.get(0);
-// DocumentReference userRef = userSnapshot.getReference();
+//     DocumentSnapshot userSnapshot = userDocuments.get(0);
+//     DocumentReference userRef = userSnapshot.getReference();
 
-// Map<String, Object> changes = new HashMap<>();
-// Map<String, Object> changes2 = new HashMap<>();
+//     Map<String, Object> changes = new HashMap<>();
+//     Map<String, Object> changes2 = new HashMap<>();
 
-// // Update username if provided
-// if (updatedUser.getUsername() != null) {
-// changes.put("username", updatedUser.getUsername());
-// }
+//     // Update username if provided
+//     if (updatedUser.getUsername() != null) {
+//     changes.put("username", updatedUser.getUsername());
+//     }
 
-// // Update name if provided
-// if (updatedUser.getName() != null) {
-// changes.put("name", updatedUser.getName());
-// changes2.put("name", updatedUser.getName());
-// }
+//     // Update name if provided
+//     if (updatedUser.getName() != null) {
+//     changes.put("name", updatedUser.getName());
+//     changes2.put("name", updatedUser.getName());
+//     }
 
-// // Update phone number if provided
-// if (updatedUser.getPhoneNumber() != null) {
-// changes.put("phoneNumber", updatedUser.getPhoneNumber());
-// }
+//     // Update phone number if provided
+//     if (updatedUser.getPhoneNumber() != null) {
+//     changes.put("phoneNumber", updatedUser.getPhoneNumber());
+//     }
 
-// // Update nationality if provided
-// if (updatedUser.getNationality() != null) {
-// changes.put("nationality", updatedUser.getNationality());
-// changes2.put("nationality", updatedUser.getNationality());
-// }
+//     // Update nationality if provided
+//     if (updatedUser.getNationality() != null) {
+//     changes.put("nationality", updatedUser.getNationality());
+//     changes2.put("nationality", updatedUser.getNationality());
+//     }
 
-// // Update chessUsername if provided
-// if (updatedUser.getChessUsername() != null) {
-// changes.put("chessUsername", updatedUser.getChessUsername());
-// }
+//     // Update chessUsername if provided
+//     if (updatedUser.getChessUsername() != null) {
+//     changes.put("chessUsername", updatedUser.getChessUsername());
+//     }
 
-// // Handle dateOfBirth if provided
-// if (updatedUser.getDateOfBirth() != null
-// && !updatedUser.getDateOfBirth().equals("{\"nanos\":0,\"seconds\":<some
-// value>}")) {
-// System.out.println("Received dateOfBirth: " + updatedUser.getDateOfBirth());
+//     // Handle dateOfBirth if provided
+//     if (updatedUser.getDateOfBirth() != null
+//     && !updatedUser.getDateOfBirth().equals("{\"nanos\":0,\"seconds\":<some
+//     value>}")) {System.out.println("Received dateOfBirth:"+updatedUser.getDateOfBirth());
 
-// try {
-// // Parse the date string in YYYY-MM-DD format
-// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-// LocalDate localDate = LocalDate.parse(updatedUser.getDateOfBirth(),
-// formatter);
-// System.out.println("Parsed LocalDate: " + localDate);
+//         try
 
-// // Convert LocalDate to Instant (at the start of the day)
-// Instant instant =
-// localDate.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant();
-// System.out.println("Converted to Instant: " + instant);
+//         {
+//             // Parse the date string in YYYY-MM-DD format
+//             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//             LocalDate localDate = LocalDate.parse(updatedUser.getDateOfBirth(),
+//                     formatter);
+//             System.out.println("Parsed LocalDate: " + localDate);
 
-// // Convert Instant to Timestamp
-// Timestamp timestamp =
-// Timestamp.ofTimeSecondsAndNanos(instant.getEpochSecond(), instant.getNano());
-// System.out.println("Timestamp: " + timestamp);
+//             // Convert LocalDate to Instant (at the start of the day)
+//             Instant instant = localDate.atStartOfDay().atZone(java.time.ZoneId.systemDefault()).toInstant();
+//             System.out.println("Converted to Instant: " + instant);
 
-// // Update the user's dateOfBirth with the converted Timestamp
-// changes.put("dateOfBirth", timestamp);
-// } catch (DateTimeParseException e) {
-// System.out.println("Invalid date format for dateOfBirth. Skipping update.");
-// }
-// }
+//             // Convert Instant to Timestamp
+//             Timestamp timestamp = Timestamp.ofTimeSecondsAndNanos(instant.getEpochSecond(), instant.getNano());
+//             System.out.println("Timestamp: " + timestamp);
 
-// // Handle chessUsername and update elo
-// if (updatedUser.getChessUsername() != null &&
-// !updatedUser.getChessUsername().isEmpty()) {
-// String chessUsername = updatedUser.getChessUsername();
-// int elo = fetchChessElo(chessUsername);
-// changes.put("elo", elo);
-// } else {
-// // Set default elo to 0 if no username provided
-// changes.put("elo", 0);
-// }
+//             // Update the user's dateOfBirth with the converted Timestamp
+//             changes.put("dateOfBirth", timestamp);
+//         }catch(
+//         DateTimeParseException e)
+//         {
+//             System.out.println("Invalid date format for dateOfBirth. Skipping update.");
+//         }}
 
-// // Changes made to Firebase if any changes exist
-// if (!changes.isEmpty()) {
-// ApiFuture<WriteResult> writeResult = userRef.update(changes);
-// writeResult.get();
-// } else {
-// System.out.println("No changes to update.");
-// }
+//         // Handle chessUsername and update elo
+//         if(updatedUser.getChessUsername()!=null&&!updatedUser.getChessUsername().isEmpty()){
+//         String chessUsername = updatedUser.getChessUsername();
+//         int elo = fetchChessElo(chessUsername);changes.put("elo",elo);}else{
+//         // Set default elo to 0 if no username provided
+//         changes.put("elo",0);}
 
-// System.out.println("NEW CODE FOR UPDATING USER IN TOURNAMENT");
-// // For collecting the User subcollection within tournament
-// // Reference to the Tournaments collection
-// CollectionReference tournamentsRef = firestore.collection("Tournaments");
+//         // Changes made to Firebase if any changes exist
+//         if(!changes.isEmpty()){
+//         ApiFuture<WriteResult> writeResult = userRef
+//                 .update(changes);writeResult.get();}else{System.out.println("No changes to update.");}
 
-// // Retrieve all tournaments
-// ApiFuture<QuerySnapshot> tournamentsQuery = tournamentsRef.get();
-// List<QueryDocumentSnapshot> tournamentDocuments =
-// tournamentsQuery.get().getDocuments();
+//         System.out.println("NEW CODE FOR UPDATING USER IN TOURNAMENT");
+//         // For collecting the User subcollection within tournament
+//         // Reference to the Tournaments collection
+//         CollectionReference tournamentsRef = firestore.collection("Tournaments");
 
-// // Loop through each tournament
-// for (QueryDocumentSnapshot tournamentDoc : tournamentDocuments) {
-// // Reference to the Users subcollection within the current tournament
-// CollectionReference usersRef2 =
-// tournamentDoc.getReference().collection("Users");
+//         // Retrieve all tournaments
+//         ApiFuture<QuerySnapshot> tournamentsQuery = tournamentsRef.get();
+//         List<QueryDocumentSnapshot> tournamentDocuments = tournamentsQuery.get().getDocuments();
 
-// // Query the Users subcollection for the specific user by userID
-// ApiFuture<QuerySnapshot> userQuery = usersRef2.whereEqualTo("authId",
-// authId).get();
+//         // Loop through each tournament
+//         for(
+//         QueryDocumentSnapshot tournamentDoc:tournamentDocuments){
+//         // Reference to the Users subcollection within the current tournament
+//         CollectionReference usersRef2 = tournamentDoc.getReference().collection("Users");
 
-// List<QueryDocumentSnapshot> userDocuments2 = userQuery.get().getDocuments();
+//         // Query the Users subcollection for the specific user by userID
+//         ApiFuture<QuerySnapshot> userQuery = usersRef2.whereEqualTo("authId",
+//                 authId).get();
 
-// // Check if the user document exists
-// if (!userDocuments2.isEmpty()) {
-// // Get the document reference for the user
-// DocumentReference userRef2 = userDocuments2.get(0).getReference();
+//         List<QueryDocumentSnapshot> userDocuments2 = userQuery.get().getDocuments();
 
-// // Update the fields in the user's document within the tournament
-// ApiFuture<WriteResult> updateResult = userRef2.update(changes2);
-// updateResult.get(); // Wait for the update to complete
-// }
-// }
-// // End of collecting user within the tournament
+//         // Check if the user document exists
+//         if(!userDocuments2.isEmpty()){
+//         // Get the document reference for the user
+//         DocumentReference userRef2 = userDocuments2.get(0).getReference();
 
-// System.out.println("Retrieving updated user data...");
-// DocumentSnapshot updatedUserSnapshot = userRef.get().get();
-// User fullUpdatedUser = updatedUserSnapshot.toObject(User.class);
+//         // Update the fields in the user's document within the tournament
+//         ApiFuture<WriteResult> updateResult = userRef2.update(changes2);updateResult.get(); // Wait for the update to
+//                                                                                             // complete
+//         }}
+//         // End of collecting user within the tournament
 
-// if (fullUpdatedUser == null) {
-// throw new RuntimeException("Error retrieving updated user data.");
-// }
+//         System.out.println("Retrieving updated user data...");
+//         DocumentSnapshot updatedUserSnapshot = userRef.get().get();
+//         User fullUpdatedUser = updatedUserSnapshot.toObject(User.class);
 
-// // Create a new UserDTO for the response
-// UserDTO responseDTO = new UserDTO();
-// responseDTO.setAuthId(fullUpdatedUser.getAuthId());
-// responseDTO.setUsername(fullUpdatedUser.getUsername());
-// responseDTO.setEmail(fullUpdatedUser.getEmail());
-// responseDTO.setName(fullUpdatedUser.getName());
-// responseDTO.setElo(fullUpdatedUser.getElo());
-// responseDTO.setChessUsername(fullUpdatedUser.getChessUsername());
-// responseDTO.setNationality(fullUpdatedUser.getNationality());
-// responseDTO.setPhoneNumber(fullUpdatedUser.getPhoneNumber());
+//         if(fullUpdatedUser==null){throw new RuntimeException("Error retrieving updated user data.");}
 
-// if (fullUpdatedUser.getDateOfBirth() != null) {
-// DateTimeFormatter formatter =
-// DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
-// String formattedDate =
-// formatter.format(fullUpdatedUser.getDateOfBirth().toDate().toInstant());
-// responseDTO.setDateOfBirth(formattedDate);
-// }
+//         // Create a new UserDTO for the response
+//         UserDTO responseDTO = new UserDTO();responseDTO.setAuthId(fullUpdatedUser.getAuthId());responseDTO.setUsername(fullUpdatedUser.getUsername());responseDTO.setEmail(fullUpdatedUser.getEmail());responseDTO.setName(fullUpdatedUser.getName());responseDTO.setElo(fullUpdatedUser.getElo());responseDTO.setChessUsername(fullUpdatedUser.getChessUsername());responseDTO.setNationality(fullUpdatedUser.getNationality());responseDTO.setPhoneNumber(fullUpdatedUser.getPhoneNumber());
 
-// return responseDTO;
-// }
+//         if(fullUpdatedUser.getDateOfBirth()!=null){
+//         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault());
+//         String formattedDate = formatter
+//                 .format(fullUpdatedUser.getDateOfBirth().toDate().toInstant());responseDTO.setDateOfBirth(formattedDate);
+//     }
+
+//     return responseDTO;}
