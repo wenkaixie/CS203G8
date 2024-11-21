@@ -1,6 +1,6 @@
 CS203G8 - MatchUp
 
-Hello!
+Hello! Welcome to MatchUp, a chess tournament management system for players and administrators to join, view, create and manage tournaments!
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -43,8 +43,8 @@ BACKEND
 2. Add serviceAccountKey.json to /backend directory
 3. cd to /backend/shared-library directory 
 4. Run the following commands to build the shared library
-    > mvn clean install
-    > mvn clean compile
+    > mvn clean install    
+    > mvn clean compile    
 5. cd to /backend directory
 6. Run the following commands to build the docker images for each microservice/orchestrator
     > docker build -f adminManagementService/Dockerfile -t admin-management-service .    
