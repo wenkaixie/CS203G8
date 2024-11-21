@@ -38,7 +38,6 @@ const UserProfile = () => {
             }
 
             setIsLoading(false);
-            console.log(data);
             
         } catch (error) {
             console.error('Error fetching profile:', error);
